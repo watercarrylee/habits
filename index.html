@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="zh-Hant" class="own-host">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="習慣">
+<meta name="theme-color" content="#F5F2EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171614" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<title>習慣紀錄</title>
+<style>
+/* Layout: one-screen phone app — a scrolling content column above a three-tab bar; data lives in this browser only */
+:root{
+  --bg:#F5F2EC; --surface:#FFFFFF; --chip:#ECE7DE; --line:#E2DBCF; --line-soft:#EFEAE1;
+  --fg:#1C1B19; --muted:#6B655C; --faint:#9A9388;
+  --good:#2F6B52; --good-soft:#E3EFE8; --good-line:#9CC4B0; --on-good:#FFFFFF;
+  --bad:#B4471C; --bad-soft:#F8E9E1; --bad-line:#E9BFA9; --on-bad:#FFFFFF;
+  --ink:#1C1B19; --on-ink:#FFFFFF;
+  --h1:#C6DFD1; --h2:#7FB297;
+  --scrim:rgba(28,27,25,.45);
+  --shadow:0 1px 3px rgba(0,0,0,.12);
+  --font:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --mono:ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#171614; --surface:#22201D; --chip:#2D2A26; --line:#3A3631; --line-soft:#2D2A26;
+    --fg:#F1EDE6; --muted:#ABA498; --faint:#7D776D;
+    --good:#62B48C; --good-soft:#1C3127; --good-line:#3B6B53; --on-good:#0E1D15;
+    --bad:#E8845A; --bad-soft:#3A2219; --bad-line:#6E3A24; --on-bad:#1F0E06;
+    --ink:#F1EDE6; --on-ink:#171614;
+    --h1:#25402F; --h2:#3D7759;
+    --scrim:rgba(0,0,0,.6);
+    --shadow:0 1px 3px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#171614; --surface:#22201D; --chip:#2D2A26; --line:#3A3631; --line-soft:#2D2A26;
+  --fg:#F1EDE6; --muted:#ABA498; --faint:#7D776D;
+  --good:#62B48C; --good-soft:#1C3127; --good-line:#3B6B53; --on-good:#0E1D15;
+  --bad:#E8845A; --bad-soft:#3A2219; --bad-line:#6E3A24; --on-bad:#1F0E06;
+  --ink:#F1EDE6; --on-ink:#171614;
+  --h1:#25402F; --h2:#3D7759;
+  --scrim:rgba(0,0,0,.6);
+  --shadow:0 1px 3px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html{height:100%;box-sizing:border-box}
+body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-user-select:none;user-select:none}
+:focus-visible{outline:2px solid var(--good);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+.app{height:100%;display:flex;flex-direction:column;max-width:560px;margin:0 auto}
+#main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.page{padding-inline:20px;padding-block:20px 32px;display:flex;flex-direction:column;gap:22px}
+.own-host .page{padding-top:calc(16px + env(safe-area-inset-top,0px))}
+.tabs{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--surface);border-top:1px solid var(--line);padding-inline:16px;padding-block:4px}
+.own-host .tabs{padding-bottom:calc(4px + env(safe-area-inset-bottom,0px))}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:52px;justify-content:center;border:0;background:none;color:var(--muted);font-size:11px}
+.tab.on{color:var(--good);font-weight:700}
+
+.h1{margin:0;font-size:30px;font-weight:900;letter-spacing:.02em;text-wrap:balance}
+.sub{font-size:13px;color:var(--muted);letter-spacing:.06em}
+.datebar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.datebar-mid{display:flex;flex-direction:column;align-items:center;gap:2px}
+.iconbtn{flex:0 0 auto;width:44px;height:44px;border:0;border-radius:22px;background:var(--chip);color:var(--fg);display:flex;align-items:center;justify-content:center;padding:0}
+.iconbtn:disabled{opacity:.35;cursor:default}
+.linkbtn{align-self:center;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;margin-top:-14px}
+
+.sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sum-card{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.sum-card.good{background:var(--good);border-color:var(--good);color:var(--on-good)}
+.sum-l{font-size:12px;opacity:.85}
+.sum-v{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums}
+.sum-v small{font-size:15px;font-weight:500;opacity:.8}
+
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sec-t{margin:0;font-size:15px;font-weight:700}
+.good-t{color:var(--good)} .bad-t{color:var(--bad)}
+.muted{color:var(--muted)}
+.small{font-size:12px;line-height:1.6;margin:0}
+
+.hcard{width:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 12px 12px 16px;min-height:68px;border-radius:18px;background:var(--surface);border:1.5px solid var(--line);text-align:left;color:var(--fg)}
+button.hcard{padding-right:16px}
+.hcard.g-on{background:var(--good-soft);border-color:var(--good-line)}
+.hcard.b-on{background:var(--bad-soft);border-color:var(--bad-line)}
+.hc-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.hc-name{font-size:16px;font-weight:700;overflow-wrap:anywhere}
+.hc-sub{font-size:12px;color:var(--muted)}
+.check{flex:0 0 auto;width:32px;height:32px;border-radius:16px;box-sizing:border-box;border:2px solid var(--faint);display:flex;align-items:center;justify-content:center}
+.check.on{background:var(--good);border-color:var(--good);color:var(--on-good)}
+.check.bad.on{background:var(--bad);border-color:var(--bad);color:var(--on-bad)}
+.counter{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.minus{width:36px;height:36px;border-radius:18px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);display:flex;align-items:center;justify-content:center;padding:0}
+.minus:disabled{opacity:.4;cursor:default}
+.plus{width:44px;height:44px;border-radius:22px;border:0;display:flex;align-items:center;justify-content:center;padding:0}
+.plus.good{background:var(--good);color:var(--on-good)}
+.plus.bad{background:var(--bad);color:var(--on-bad)}
+.cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
+.cnt.zero{color:var(--faint)}
+
+.moods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.mood{height:44px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:14px;padding:0}
+.mood.on{background:var(--ink);border-color:var(--ink);color:var(--on-ink);font-weight:700}
+.lbl{font-size:13px;color:var(--muted)}
+textarea,input[type=text]{box-sizing:border-box;width:100%;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);padding:12px 14px;font-size:16px}
+textarea{resize:none;line-height:1.5}
+input[type=text]{height:52px;font-size:17px}
+
+.empty{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.empty-t{font-size:18px;font-weight:700}
+.empty p{margin:0;color:var(--muted);line-height:1.6}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.primary{min-height:48px;padding:0 20px;border-radius:24px;border:0;background:var(--good);color:var(--on-good);font-weight:700}
+.primary.danger{background:var(--bad);color:var(--on-bad)}
+.secondary{min-height:48px;padding:0 20px;border-radius:24px;border:1.5px solid var(--line);background:var(--surface);font-weight:700}
+
+.titlebar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.monthnav{display:flex;align-items:center;gap:2px}
+.monthnav .iconbtn{background:none}
+.month-l{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;min-width:96px;text-align:center}
+.panel{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.heat{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.wd{text-align:center;font-size:11px;color:var(--muted)}
+.cell{position:relative;aspect-ratio:1;max-width:100%;box-sizing:border-box;border-radius:10px;border:0;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;background:var(--chip);color:var(--fg)}
+.cell.blank{background:none}
+.cell.future{background:none;color:var(--faint)}
+.cell.l1{background:var(--h1)}
+.cell.l2{background:var(--h2)}
+.cell.l3{background:var(--good);color:var(--on-good)}
+.cell.today{box-shadow:0 0 0 2px var(--fg);font-weight:900}
+.dot{position:absolute;bottom:4px;left:50%;margin-left:-3px;width:6px;height:6px;border-radius:3px;background:var(--bad);box-shadow:0 0 0 1.5px var(--surface)}
+.legend{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:4px;font-size:11px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:4px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile-l{font-size:11px;color:var(--muted)}
+.tile-v{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
+.barcard{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.bar-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bar-name{font-size:14px;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.bar-v{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.track{height:8px;border-radius:4px;background:var(--chip);overflow:hidden}
+.fill{height:100%;border-radius:4px}
+
+.addbtn{width:44px;height:44px;border-radius:22px;border:0;background:var(--ink);color:var(--on-ink);display:flex;align-items:center;justify-content:center;padding:0}
+.list{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;overflow:hidden}
+.row{display:flex;align-items:stretch;border-bottom:1px solid var(--line-soft);background:var(--surface)}
+.row:last-child{border-bottom:0}
+.row.dragging{background:var(--chip)}
+.handle{flex:0 0 auto;width:44px;display:flex;align-items:center;justify-content:center;color:var(--faint);touch-action:none;cursor:grab}
+.row-main{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;padding:12px 14px 12px 0;min-height:60px;border:0;background:none;text-align:left;color:var(--fg)}
+.row-text{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row-name{font-size:16px;font-weight:500;overflow-wrap:anywhere}
+.row-meta{font-size:12px;color:var(--muted)}
+.chev{color:var(--faint);flex:0 0 auto}
+.row-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;min-height:52px;border:0;border-bottom:1px solid var(--line-soft);background:none;text-align:left;font-size:16px;color:var(--fg)}
+.list .row-btn:last-child{border-bottom:0}
+.row-btn .side{color:var(--muted);display:flex}
+.list-empty{min-height:56px;border:1.5px dashed var(--line);border-radius:18px;background:none;color:var(--muted);font-size:15px}
+.arch-row{display:flex;align-items:center;gap:8px;padding:10px 12px 10px 16px;min-height:60px;border-bottom:1px solid var(--line-soft)}
+.arch-row:last-child{border-bottom:0}
+.arch-row .row-text{flex:1 1 auto}
+.minibtn{min-height:40px;padding:0 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--surface);font-size:14px;font-weight:700;flex:0 0 auto}
+.minibtn.bad{color:var(--bad)}
+
+.editbar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;margin-inline:-8px}
+.textbtn{min-width:64px;height:44px;border:0;background:none;color:var(--muted);font-size:16px}
+.textbtn.strong{color:var(--good);font-weight:700}
+.edit-t{margin:0;text-align:center;font-size:17px;font-weight:700}
+.field{display:flex;flex-direction:column;gap:8px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.typebtn{min-height:72px;border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;border:1.5px solid var(--line);background:var(--surface);text-align:left}
+.typebtn b{font-size:16px}
+.typebtn span{font-size:12px;color:var(--muted)}
+.typebtn.on span{color:inherit;opacity:.85}
+.typebtn.on.good{background:var(--good);border-color:var(--good);color:var(--on-good)}
+.typebtn.on.bad{background:var(--bad);border-color:var(--bad);color:var(--on-bad)}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));background:var(--chip);border-radius:14px;padding:4px;gap:4px}
+.seg button{height:40px;border-radius:10px;border:0;background:none;color:var(--muted);font-size:15px}
+.seg button.on{background:var(--surface);color:var(--fg);font-weight:700;box-shadow:var(--shadow)}
+.hint{margin:0;font-size:12px;color:var(--muted);padding:0 4px;line-height:1.6}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.day{aspect-ratio:1;max-width:100%;min-height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);font-size:14px;padding:0}
+.day.on{background:var(--good);border-color:var(--good);color:var(--on-good);font-weight:700}
+.danger-zone{border-top:1px solid var(--line);padding-top:8px;display:flex;flex-direction:column}
+.danger-zone .row-btn{padding:0 4px;border:0}
+.err{margin:-12px 0 0;color:var(--bad);font-size:13px}
+
+#sheet{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:85%;overflow-y:auto;box-sizing:border-box;border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
+.sheet h2{margin:0;font-size:18px}
+.sheet p{margin:0;color:var(--muted);line-height:1.6;font-size:14px}
+.sheet .err0{color:var(--bad)}
+.sheet textarea.code{font-family:var(--mono);font-size:12px}
+.stack{display:flex;flex-direction:column;gap:8px}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--on-ink);padding:10px 18px;border-radius:20px;font-size:14px;font-weight:700;z-index:20;max-width:calc(100% - 48px);text-align:center}
+</style>
+
+<div class="app">
+  <main id="main" aria-live="polite"></main>
+  <nav class="tabs" id="tabs" aria-label="主選單">
+    <button class="tab" data-act="tab" data-tab="today">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M8.5 13l2.5 2.5 4.5-5"></path></svg>
+      今天
+    </button>
+    <button class="tab" data-act="tab" data-tab="stats">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg>
+      統計
+    </button>
+    <button class="tab" data-act="tab" data-tab="settings">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+      習慣設定
+    </button>
+  </nav>
+</div>
+<div id="sheet" hidden></div>
+<div id="toast" role="status" hidden></div>
+<input type="file" id="importFile" accept="application/json,.json,.txt" hidden>
+
+<script>
+(function(){
+document.documentElement.lang='zh-Hant';
+var KEY='habit-tracker-v1';
+var WD=['日','一','二','三','四','五','六'];
+var MOODS=['很差','差','普通','好','很好'];
+function $(s){return document.querySelector(s);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function pad(n){return String(n).padStart(2,'0');}
+function keyOf(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function parseKey(k){var p=k.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
+function addDays(k,n){var d=parseKey(k);d.setDate(d.getDate()+n);return keyOf(d);}
+function diffDays(a,b){return Math.round((parseKey(a)-parseKey(b))/864e5);}
+function todayKey(){return keyOf(new Date());}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function allDays(){return [true,true,true,true,true,true,true];}
+
+var I={
+  left:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
+  right:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+  check:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  x:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>',
+  plus:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  minus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>',
+  grip:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>',
+  chev:'<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+  down:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>',
+  up:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7 9l5-5 5 5M5 20h14"/></svg>'
+};
+
+/* ---------- storage ---------- */
+function blank(){return {v:1,habits:[],logs:{}};}
+function valid(d){return d&&Array.isArray(d.habits)&&d.logs&&typeof d.logs==='object'&&!Array.isArray(d.logs);}
+function normalize(d){
+  if(!valid(d))return null;
+  var habits=d.habits.filter(function(h){return h&&h.id&&h.name;}).map(function(h){
+    return {id:String(h.id),name:String(h.name).slice(0,40),kind:h.kind==='bad'?'bad':'good',
+      method:h.method==='count'?'count':'check',
+      days:Array.isArray(h.days)&&h.days.length===7?h.days.map(Boolean):allDays(),
+      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived};
+  });
+  var logs={};
+  Object.keys(d.logs).forEach(function(k){
+    if(!/^\d{4}-\d\d-\d\d$/.test(k))return;var l=d.logs[k]||{},o={};
+    if(l.h&&typeof l.h==='object'){o.h={};Object.keys(l.h).forEach(function(id){var v=Math.floor(+l.h[id]);if(v>0)o.h[id]=v;});if(!Object.keys(o.h).length)delete o.h;}
+    if(typeof l.mood==='number'&&l.mood>=0&&l.mood<=4)o.mood=l.mood;
+    if(typeof l.note==='string'&&l.note)o.note=l.note;
+    if(Object.keys(o).length)logs[k]=o;
+  });
+  return {v:1,habits:habits,logs:logs};
+}
+function load(){try{var s=localStorage.getItem(KEY);if(s){var d=normalize(JSON.parse(s));if(d)return d;}}catch(e){}return blank();}
+var db=load();
+var storageOK=true;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));storageOK=true;}catch(e){storageOK=false;}}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+
+var ui={view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
+
+/* ---------- data helpers ---------- */
+function active(kind){return db.habits.filter(function(h){return !h.archived&&h.kind===kind;});}
+function byId(id){for(var i=0;i<db.habits.length;i++)if(db.habits[i].id===id)return db.habits[i];return null;}
+function val(k,id){var l=db.logs[k];return (l&&l.h&&l.h[id])||0;}
+function tidy(k){var l=db.logs[k];if(!l)return;if(l.h&&!Object.keys(l.h).length)delete l.h;if(!l.note)delete l.note;if(l.mood==null)delete l.mood;if(!Object.keys(l).length)delete db.logs[k];}
+function setVal(k,id,v){
+  var l=db.logs[k]||(db.logs[k]={});l.h=l.h||{};
+  if(v>0)l.h[id]=v;else delete l.h[id];
+  var h=byId(id);if(h&&v>0&&k<h.created)h.created=k;
+  tidy(k);save();
+}
+function scheduled(h,k){return h.kind!=='good'||!!h.days[parseKey(k).getDay()];}
+function goodStreak(h,k){
+  var n=0,d=k;if(!(val(d,h.id)>0))d=addDays(d,-1);
+  for(var i=0;i<4000&&d>=h.created;i++){if(scheduled(h,d)){if(val(d,h.id)>0)n++;else break;}d=addDays(d,-1);}
+  return n;
+}
+function bestStreak(h,end){
+  var best=0,run=0,d=h.created;
+  for(var i=0;i<4000&&d<=end;i++){if(scheduled(h,d)){if(val(d,h.id)>0){run++;if(run>best)best=run;}else run=0;}d=addDays(d,1);}
+  return best;
+}
+function cleanDays(h,k){
+  var d=addDays(k,-1);
+  for(var i=0;i<4000&&d>=h.created;i++){if(val(d,h.id)>0)return diffDays(k,d);d=addDays(d,-1);}
+  return Math.max(1,diffDays(k,h.created)+1);
+}
+function removeHabit(id){
+  db.habits=db.habits.filter(function(h){return h.id!==id;});
+  Object.keys(db.logs).forEach(function(k){var l=db.logs[k];if(l.h)delete l.h[id];tidy(k);});
+  save();
+}
+function addExamples(){
+  var t=todayKey();
+  [['運動 30 分鐘','good','check',allDays()],['閱讀 20 頁','good','check',allDays()],['喝水 2000ml','good','check',allDays()],
+   ['12 點前睡覺','good','check',[true,true,true,true,true,false,false]],
+   ['滑手機超過 1 小時','bad','count',allDays()],['吃宵夜','bad','count',allDays()],['喝含糖飲料','bad','count',allDays()]
+  ].forEach(function(x){db.habits.push({id:uid(),name:x[0],kind:x[1],method:x[2],days:x[3],created:t,archived:false});});
+  save();
+}
+
+/* ---------- views ---------- */
+function dateLabel(k){var t=todayKey();if(k===t)return '今天';if(k===addDays(t,-1))return '昨天';var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日';}
+function dateSub(k){var d=parseKey(k);return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()];}
+
+function counter(id,v,kind){
+  return '<div class="counter"><button class="minus" data-act="dec" data-id="'+id+'" aria-label="減一次"'+(v?'':' disabled')+'>'+I.minus+'</button>'+
+    '<span class="cnt '+(v?kind+'-t':'zero')+'">'+v+'</span>'+
+    '<button class="plus '+kind+'" data-act="inc" data-id="'+id+'" aria-label="加一次">'+I.plus+'</button></div>';
+}
+function goodCard(h,k){
+  var v=val(k,h.id),on=v>0,st=goodStreak(h,k);
+  var sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';
+  if(h.method==='count'){
+    return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div></div>'+counter(h.id,v,'good')+'</div>';
+  }
+  return '<button class="hcard'+(on?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div></div><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span></button>';
+}
+function badCard(h,k){
+  var v=val(k,h.id),on=v>0;
+  var sub=on?(h.method==='count'?'今天犯了 '+v+' 次':'今天有犯'):'已 '+cleanDays(h,k)+' 天沒犯';
+  if(h.method==='check'){
+    return '<button class="hcard'+(on?' b-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div><span class="check bad'+(on?' on':'')+'" aria-hidden="true">'+(on?I.x:'')+'</span></button>';
+  }
+  return '<div class="hcard'+(on?' b-on':'')+'"><div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div>'+counter(h.id,v,'bad')+'</div>';
+}
+
+function vToday(){
+  var k=ui.date,t=todayKey();
+  var goods=active('good'),bads=active('bad');
+  var gs=goods.filter(function(h){return scheduled(h,k);}),rest=goods.filter(function(h){return !scheduled(h,k);});
+  var done=gs.filter(function(h){return val(k,h.id)>0;}).length;
+  var badSum=bads.reduce(function(a,h){return a+val(k,h.id);},0);
+  var log=db.logs[k]||{};
+  var s='<div class="page"><header class="datebar">'+
+    '<button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天">'+I.left+'</button>'+
+    '<div class="datebar-mid"><div class="sub">'+dateSub(k)+'</div><h1 class="h1">'+dateLabel(k)+'</h1></div>'+
+    '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></header>';
+  if(k!==t)s+='<button class="linkbtn" data-act="gotoday">回到今天</button>';
+  if(!goods.length&&!bads.length){
+    s+='<div class="empty"><div class="empty-t">還沒有習慣</div><p>新增幾個想養成、或想戒掉的習慣。之後每天打開，點幾下就記好了。</p>'+
+      '<div class="btnrow"><button class="primary" data-act="new">新增習慣</button><button class="secondary" data-act="examples">用範例開始</button></div></div>';
+    return s+'</div>';
+  }
+  s+='<div class="sum"><div class="sum-card good"><div class="sum-l">好習慣</div><div class="sum-v">'+done+'<small> / '+gs.length+'</small></div></div>'+
+     '<div class="sum-card"><div class="sum-l muted">壞習慣</div><div class="sum-v bad-t">'+badSum+'<small class="muted"> 次</small></div></div></div>';
+  if(goods.length){
+    s+='<section class="sec"><h2 class="sec-t good-t">好習慣</h2>';
+    if(!gs.length)s+='<p class="small muted">這天沒有排定的好習慣。</p>';
+    gs.forEach(function(h){s+=goodCard(h,k);});
+    if(rest.length)s+='<p class="small muted">這天休息：'+rest.map(function(h){return esc(h.name);}).join('、')+'</p>';
+    s+='</section>';
+  }
+  if(bads.length){s+='<section class="sec"><h2 class="sec-t bad-t">壞習慣</h2>';bads.forEach(function(h){s+=badCard(h,k);});s+='</section>';}
+  s+='<section class="sec"><h2 class="sec-t">心情</h2><div class="moods">'+
+    MOODS.map(function(m,i){var on=log.mood===i;return '<button class="mood'+(on?' on':'')+'" data-act="mood" data-i="'+i+'" aria-pressed="'+on+'">'+m+'</button>';}).join('')+
+    '</div><label for="note" class="lbl">備註</label><textarea id="note" rows="3" placeholder="今天發生了什麼？">'+esc(log.note||'')+'</textarea></section>';
+  return s+'</div>';
+}
+
+function vStats(){
+  var t=todayKey(),now=new Date();
+  if(!ui.month)ui.month=[now.getFullYear(),now.getMonth()];
+  var y=ui.month[0],m=ui.month[1];
+  var first=new Date(y,m,1),lastDay=new Date(y,m+1,0).getDate();
+  var isCur=y===now.getFullYear()&&m===now.getMonth();
+  var goods=active('good'),bads=active('bad');
+  var s='<div class="page"><header class="titlebar"><h1 class="h1">統計</h1><div class="monthnav">'+
+    '<button class="iconbtn" data-act="month" data-n="-1" aria-label="上個月">'+I.left+'</button>'+
+    '<div class="month-l">'+y+' 年 '+(m+1)+' 月</div>'+
+    '<button class="iconbtn" data-act="month" data-n="1" aria-label="下個月"'+(isCur||first>now?' disabled':'')+'>'+I.right+'</button></div></header>';
+  if(!goods.length&&!bads.length){
+    return s+'<div class="empty"><div class="empty-t">還沒有資料</div><p>先到「習慣設定」新增習慣，記錄幾天後這裡就會出現月曆和趨勢。</p><button class="primary" data-act="new">新增習慣</button></div></div>';
+  }
+  var S=0,D=0,B=0,cells=[];
+  for(var b=0;b<first.getDay();b++)cells.push('<span class="cell blank"></span>');
+  for(var d=1;d<=lastDay;d++){
+    var k=keyOf(new Date(y,m,d));
+    if(k>t){cells.push('<span class="cell future">'+d+'</span>');continue;}
+    var sc=0,dn=0;
+    goods.forEach(function(h){if(k>=h.created&&scheduled(h,k)){sc++;if(val(k,h.id)>0)dn++;}});
+    var bb=bads.reduce(function(a,h){return a+val(k,h.id);},0);
+    S+=sc;D+=dn;B+=bb;
+    var r=sc?dn/sc:0,lv=(!sc||!dn)?0:(r>=1?3:(r>=0.5?2:1));
+    cells.push('<button class="cell'+(lv?' l'+lv:'')+(k===t?' today':'')+'" data-act="pickday" data-k="'+k+'" aria-label="'+(m+1)+'月'+d+'日，好習慣 '+dn+'/'+sc+(bb?'，壞習慣 '+bb+' 次':'')+'">'+d+(bb?'<i class="dot"></i>':'')+'</button>');
+  }
+  s+='<div class="panel"><div class="heat">'+WD.map(function(w){return '<div class="wd">'+w+'</div>';}).join('')+'</div><div class="heat">'+cells.join('')+'</div>'+
+    '<div class="legend"><span>少 <i class="sw" style="background:var(--chip)"></i><i class="sw" style="background:var(--h1)"></i><i class="sw" style="background:var(--h2)"></i><i class="sw" style="background:var(--good)"></i> 多</span><span><i class="sw" style="width:6px;height:6px;border-radius:3px;background:var(--bad)"></i> 有壞習慣</span></div>'+
+    '<p class="small muted">點日期可以回去補記那一天。</p></div>';
+  var best=goods.reduce(function(a,h){return Math.max(a,bestStreak(h,t));},0);
+  s+='<div class="tiles"><div class="tile"><div class="tile-l">本月完成率</div><div class="tile-v good-t">'+(S?Math.round(D/S*100)+'%':'—')+'</div></div>'+
+    '<div class="tile"><div class="tile-l">最長連續</div><div class="tile-v">'+best+' 天</div></div>'+
+    '<div class="tile"><div class="tile-l">本月壞習慣</div><div class="tile-v bad-t">'+B+' 次</div></div></div>';
+  var start=keyOf(first),end=keyOf(new Date(y,m,lastDay));if(end>t)end=t;
+  var rows=[],badMax=0,badRows=[];
+  goods.forEach(function(h){
+    var sc=0,dn=0;
+    if(start<=t){for(var dd=start>h.created?start:h.created;dd<=end;dd=addDays(dd,1)){if(scheduled(h,dd)){sc++;if(val(dd,h.id)>0)dn++;}}}
+    var pct=sc?Math.round(dn/sc*100):0;
+    rows.push({name:h.name,v:sc?pct+'%':'—',w:pct,c:'var(--good)',cls:'good-t'});
+  });
+  bads.forEach(function(h){
+    var n=0;if(start<=t){for(var dd=start;dd<=end;dd=addDays(dd,1))n+=val(dd,h.id);}
+    if(n>badMax)badMax=n;badRows.push({name:h.name,n:n});
+  });
+  badRows.forEach(function(r){rows.push({name:r.name,v:r.n+' 次',w:badMax?Math.round(r.n/badMax*100):0,c:'var(--bad)',cls:'bad-t'});});
+  s+='<section class="sec"><h2 class="sec-t">各習慣本月</h2>'+rows.map(function(r){
+    return '<div class="barcard"><div class="bar-top"><div class="bar-name">'+esc(r.name)+'</div><div class="bar-v '+r.cls+'">'+r.v+'</div></div><div class="track"><div class="fill" style="width:'+r.w+'%;background:'+r.c+'"></div></div></div>';
+  }).join('')+'<p class="small muted">好習慣是排定日子的完成比例；壞習慣是本月總次數，最多的那個填滿整條。</p></section>';
+  return s+'</div>';
+}
+
+function meta(h){
+  var m=h.method==='check'?'打勾':'計次';
+  if(h.kind!=='good')return m;
+  var n=h.days.filter(Boolean).length;
+  return m+' · '+(n===7?'每天':'每週'+WD.filter(function(_,i){return h.days[i];}).join(''));
+}
+function vSettings(){
+  var s='<div class="page"><header class="titlebar"><h1 class="h1">習慣設定</h1><button class="addbtn" data-act="new" aria-label="新增習慣">'+I.plus+'</button></header>';
+  ['good','bad'].forEach(function(kind){
+    var list=active(kind),nm=kind==='good'?'好習慣':'壞習慣';
+    s+='<section class="sec"><div class="sec-row"><h2 class="sec-t '+kind+'-t">'+nm+'</h2>'+(list.length>1?'<span class="small muted">按住左邊拖曳排序</span>':'')+'</div>';
+    if(!list.length)s+='<button class="list-empty" data-act="new" data-kind="'+kind+'">新增'+nm+'</button>';
+    else s+='<div class="list">'+list.map(function(h){
+      return '<div class="row'+(ui.dragId===h.id?' dragging':'')+'" data-row="'+h.id+'"><span class="handle" data-drag="'+h.id+'" aria-hidden="true">'+I.grip+'</span>'+
+        '<button class="row-main" data-act="edit" data-id="'+h.id+'"><span class="row-text"><span class="row-name">'+esc(h.name)+'</span><span class="row-meta">'+meta(h)+'</span></span>'+I.chev+'</button></div>';
+    }).join('')+'</div>';
+    s+='</section>';
+  });
+  var arch=db.habits.filter(function(h){return h.archived;}).length;
+  s+='<section class="sec"><h2 class="sec-t">資料</h2><div class="list">'+
+    '<button class="row-btn" data-act="archived"><span>已封存的習慣</span><span class="side">'+arch+'</span></button>'+
+    '<button class="row-btn" data-act="export"><span>匯出備份</span><span class="side">'+I.down+'</span></button>'+
+    '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button></div>'+
+    '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p>'+
+    (storageOK?'':'<p class="small bad-t"><strong>目前無法寫入手機儲存空間，新的紀錄不會被保存。</strong>如果開著私密瀏覽，請改用一般模式。</p>')+
+    '</section>';
+  return s+'</div>';
+}
+function vArchived(){
+  var list=db.habits.filter(function(h){return h.archived;});
+  var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="back" aria-label="返回習慣設定">'+I.left+'</button><h1 class="h1" style="font-size:22px">已封存的習慣</h1><span style="width:44px"></span></header>';
+  if(!list.length)return s+'<p class="small muted">沒有封存的習慣。在編輯畫面按「封存」，習慣就會收到這裡，過去的紀錄都會保留。</p></div>';
+  s+='<div class="list">'+list.map(function(h){
+    var conf=ui.confirmDel===h.id;
+    return '<div class="arch-row"><span class="row-text"><span class="row-name">'+esc(h.name)+'</span><span class="row-meta">'+(h.kind==='good'?'好習慣':'壞習慣')+' · '+(h.method==='check'?'打勾':'計次')+'</span></span>'+
+      '<button class="minibtn" data-act="restore" data-id="'+h.id+'">恢復</button><button class="minibtn bad" data-act="delarch" data-id="'+h.id+'">'+(conf?'確定刪除':'刪除')+'</button></div>';
+  }).join('')+'</div>';
+  if(ui.confirmDel)s+='<p class="small bad-t">再按一次「確定刪除」，會永久刪除這個習慣和它所有的紀錄。</p>';
+  return s+'</div>';
+}
+function vEdit(){
+  var d=ui.draft,isNew=!d.id,good=d.kind==='good',chk=d.method==='check';
+  var hint=chk?(good?'做到就點一下，一天算一次。':'當天有犯就點一下，只記有或沒有。'):(good?'一天可以記好幾次，例如喝了幾杯水。':'每犯一次就 +1，看得出次數有沒有變少。');
+  var n=d.days.filter(Boolean).length;
+  var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="cancel">取消</button><h1 class="edit-t">'+(isNew?'新增習慣':'編輯習慣')+'</h1><button class="textbtn strong" data-act="save">儲存</button></header>'+
+    '<div class="field"><label class="lbl" for="hname">名稱</label><input id="hname" type="text" maxlength="40" placeholder="例如：冥想 10 分鐘" value="'+esc(d.name)+'" autocomplete="off" enterkeyhint="done"></div>'+
+    (ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'')+
+    '<div class="field"><div class="lbl">類型</div><div class="two">'+
+      '<button class="typebtn'+(good?' on good':'')+'" data-act="kind" data-v="good" aria-pressed="'+good+'"><b>好習慣</b><span>想要多做的事</span></button>'+
+      '<button class="typebtn'+(!good?' on bad':'')+'" data-act="kind" data-v="bad" aria-pressed="'+(!good)+'"><b>壞習慣</b><span>想要少做的事</span></button></div></div>'+
+    '<div class="field"><div class="lbl">記錄方式</div><div class="seg">'+
+      '<button class="'+(chk?'on':'')+'" data-act="method" data-v="check" aria-pressed="'+chk+'">打勾</button>'+
+      '<button class="'+(!chk?'on':'')+'" data-act="method" data-v="count" aria-pressed="'+(!chk)+'">計次</button></div><p class="hint">'+hint+'</p></div>';
+  if(good){
+    s+='<div class="field"><div class="lbl">哪幾天要做</div><div class="days">'+WD.map(function(w,i){
+      return '<button class="day'+(d.days[i]?' on':'')+'" data-act="dayt" data-i="'+i+'" aria-pressed="'+d.days[i]+'" aria-label="星期'+w+'">'+w+'</button>';
+    }).join('')+'</div><p class="hint">'+(n===7?'每天都要做。':n?'每週 '+n+' 天，其他天不會中斷連續天數。':'請至少選一天。')+'</p></div>';
+  }
+  if(!isNew){
+    s+='<div class="danger-zone"><button class="row-btn" data-act="archive">封存（保留過去紀錄，不再出現在今天）</button>'+
+      '<button class="row-btn bad-t" data-act="delete">'+(ui.confirmDel?'再按一次，永久刪除這個習慣和所有紀錄':'刪除習慣與所有紀錄')+'</button></div>';
+  }
+  return s+'</div>';
+}
+
+/* ---------- sheet & toast ---------- */
+function renderSheet(){
+  var el=$('#sheet'),sh=ui.sheet;
+  if(!sh){el.hidden=true;el.innerHTML='';return;}
+  var h='';
+  if(sh.type==='export'){
+    h='<h2>匯出備份</h2><p>把備份內容複製起來，貼到「備忘錄」或存成檔案。之後在「從備份還原」貼回來就能復原。</p>'+
+      '<div class="stack"><button class="primary" data-act="copy">複製備份內容</button>'+(document.documentElement.classList.contains('own-host')?'<button class="secondary" data-act="download">下載成檔案</button>':'')+'</div>'+
+      '<label class="lbl" for="exporttext">備份內容</label><textarea id="exporttext" class="code" rows="5" readonly>'+esc(sh.text)+'</textarea>';
+  }else if(sh.type==='import'){
+    h='<h2>從備份還原</h2><div class="stack"><button class="primary" data-act="pickfile">選擇備份檔案</button></div>'+
+      '<label class="lbl" for="pastebox">或貼上備份內容</label><textarea id="pastebox" class="code" rows="5" placeholder="貼上匯出的備份內容">'+esc(sh.paste||'')+'</textarea>'+
+      (sh.err?'<p class="err0" role="alert">'+sh.err+'</p>':'')+
+      '<button class="secondary" data-act="usepaste">使用貼上的內容</button>';
+  }else if(sh.type==='confirm'){
+    h='<h2>確定要還原嗎？</h2><p>備份裡有 '+sh.data.habits.length+' 個習慣、'+Object.keys(sh.data.logs).length+' 天的紀錄。還原後會取代這支手機上目前的所有資料。</p>'+
+      '<div class="stack"><button class="primary danger" data-act="confirmimport">取代目前資料</button></div>';
+  }
+  h+='<button class="secondary" data-act="closesheet">取消</button>';
+  el.innerHTML='<div class="sheet" role="dialog" aria-modal="true">'+h+'</div>';
+  el.hidden=false;
+}
+var toastT;
+function toast(msg){var el=$('#toast');el.textContent=msg;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){el.hidden=true;},1800);}
+
+/* ---------- render ---------- */
+function render(){
+  var main=$('#main'),v=ui.view;
+  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():vArchived();
+  $('#tabs').hidden=v==='edit';
+  var tabv=v==='archived'?'settings':v;
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
+  renderSheet();
+  if(ui.top){main.scrollTop=0;ui.top=false;}
+}
+function go(view){ui.view=view;ui.top=true;ui.confirmDel=false;}
+
+function saveDraft(){
+  var d=ui.draft,name=(d.name||'').trim();
+  if(!name){ui.err='請輸入習慣名稱。';render();return;}
+  if(d.kind==='good'&&!d.days.some(Boolean)){ui.err='請至少選一天。';render();return;}
+  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'?d.days.slice():allDays();}}
+  else db.habits.push({id:uid(),name:name,kind:d.kind,method:d.method,days:d.kind==='good'?d.days.slice():allDays(),created:todayKey(),archived:false});
+  save();go(ui.back||'settings');render();toast('已儲存');
+}
+
+function doExport(){
+  var text=JSON.stringify(db),name='habits-backup-'+todayKey()+'.json';
+  try{
+    var f=new File([text],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){
+      navigator.share({files:[f]}).then(function(){toast('已匯出');}).catch(function(e){
+        if(e&&e.name==='AbortError')return;ui.sheet={type:'export',text:text,name:name};render();
+      });
+      return;
+    }
+  }catch(e){}
+  ui.sheet={type:'export',text:text,name:name};render();
+}
+function copyText(text){
+  function fallback(){var ta=$('#exporttext');if(ta){ta.focus();ta.select();}toast('已選取內容，請按「拷貝」');}
+  try{navigator.clipboard.writeText(text).then(function(){toast('已複製，可以貼到備忘錄');},fallback);}catch(e){fallback();}
+}
+function downloadText(text,name){
+  try{var url=URL.createObjectURL(new Blob([text],{type:'application/json'}));var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},4000);}catch(e){}
+  toast('如果沒有開始下載，請改用「複製備份內容」');
+}
+function tryImport(text){
+  var d=null;try{d=normalize(JSON.parse(text));}catch(e){}
+  if(!d){ui.sheet={type:'import',paste:text,err:'讀不懂這份內容，請確認是從這個 App 匯出的備份。'};render();return;}
+  ui.sheet={type:'confirm',data:d};render();
+}
+
+/* ---------- events ---------- */
+function act(a,b){
+  var t=todayKey(),id=b.dataset.id,n,k,h,l;
+  switch(a){
+    case 'tab': go(b.dataset.tab);if(ui.view==='today'&&ui.follow)ui.date=t;break;
+    case 'day': k=addDays(ui.date,+b.dataset.n);if(k>t)return;ui.date=k;ui.follow=k===t;break;
+    case 'gotoday': ui.date=t;ui.follow=true;break;
+    case 'toggle': setVal(ui.date,id,val(ui.date,id)>0?0:1);break;
+    case 'inc': setVal(ui.date,id,val(ui.date,id)+1);break;
+    case 'dec': setVal(ui.date,id,Math.max(0,val(ui.date,id)-1));break;
+    case 'mood': n=+b.dataset.i;l=db.logs[ui.date]||(db.logs[ui.date]={});l.mood=l.mood===n?null:n;tidy(ui.date);save();break;
+    case 'month': n=ui.month[1]+(+b.dataset.n);ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
+    case 'pickday': ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
+    case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「習慣設定」修改');break;
+    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays()};ui.err='';go('edit');break;
+    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice()};ui.err='';go('edit');break;
+    case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
+    case 'method': ui.draft.method=b.dataset.v;break;
+    case 'dayt': n=+b.dataset.i;ui.draft.days[n]=!ui.draft.days[n];ui.err='';break;
+    case 'cancel': go(ui.back||'settings');break;
+    case 'save': saveDraft();return;
+    case 'archive': h=byId(ui.draft.id);if(h){h.archived=true;save();}go('settings');toast('已封存');break;
+    case 'delete': if(!ui.confirmDel){ui.confirmDel=true;break;}removeHabit(ui.draft.id);go('settings');toast('已刪除');break;
+    case 'archived': go('archived');break;
+    case 'back': go('settings');break;
+    case 'restore': h=byId(id);if(h){h.archived=false;save();}ui.confirmDel=false;toast('已恢復');break;
+    case 'delarch': if(ui.confirmDel!==id){ui.confirmDel=id;break;}removeHabit(id);ui.confirmDel=false;toast('已刪除');break;
+    case 'export': doExport();return;
+    case 'import': ui.sheet={type:'import',paste:''};break;
+    case 'pickfile': $('#importFile').click();return;
+    case 'usepaste': tryImport((ui.sheet&&ui.sheet.paste)||'');return;
+    case 'confirmimport': db=ui.sheet.data;save();ui.sheet=null;ui.date=t;ui.follow=true;go('today');toast('已還原備份');break;
+    case 'copy': copyText(ui.sheet.text);return;
+    case 'download': downloadText(ui.sheet.text,ui.sheet.name);return;
+    case 'closesheet': ui.sheet=null;break;
+  }
+  render();
+}
+document.addEventListener('click',function(e){
+  if(e.target.id==='sheet'){ui.sheet=null;render();return;}
+  var b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  act(b.dataset.act,b);
+});
+document.addEventListener('input',function(e){
+  var el=e.target;
+  if(el.id==='note'){var l=db.logs[ui.date]||(db.logs[ui.date]={});l.note=el.value;tidy(ui.date);save();}
+  else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;}
+  else if(el.id==='pastebox'&&ui.sheet){ui.sheet.paste=el.value;}
+});
+document.addEventListener('keydown',function(e){if(e.target.id==='hname'&&e.key==='Enter'){e.preventDefault();saveDraft();}});
+$('#importFile').addEventListener('change',function(e){
+  var f=e.target.files&&e.target.files[0];if(!f)return;
+  var r=new FileReader();r.onload=function(){tryImport(String(r.result||''));};r.readAsText(f);e.target.value='';
+});
+
+/* drag to reorder in settings */
+document.addEventListener('pointerdown',function(e){
+  var hd=e.target.closest('[data-drag]');if(!hd)return;
+  e.preventDefault();
+  try{hd.releasePointerCapture(e.pointerId);}catch(err){}
+  ui.dragId=hd.dataset.drag;render();
+  function move(ev){
+    var el=document.elementFromPoint(ev.clientX,ev.clientY),row=el&&el.closest('[data-row]');
+    if(!row||row.dataset.row===ui.dragId)return;
+    var a=byId(ui.dragId),b=byId(row.dataset.row);if(!a||!b||a.kind!==b.kind)return;
+    var from=db.habits.indexOf(a),bi=db.habits.indexOf(b),down=from<bi;
+    db.habits.splice(from,1);bi=db.habits.indexOf(b);db.habits.splice(down?bi+1:bi,0,a);
+    render();
+  }
+  function up(){window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);ui.dragId=null;save();render();}
+  window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
+});
+
+/* swipe left/right on 今天 to change day */
+var sx=null,sy=0;
+$('#main').addEventListener('touchstart',function(e){
+  if(ui.view!=='today'||e.touches.length!==1||e.target.closest('textarea,input')){sx=null;return;}
+  sx=e.touches[0].clientX;sy=e.touches[0].clientY;
+},{passive:true});
+$('#main').addEventListener('touchend',function(e){
+  if(sx==null)return;var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;
+  if(Math.abs(dx)<70||Math.abs(dy)>50)return;
+  var k=addDays(ui.date,dx>0?-1:1),today=todayKey();if(k>today)return;
+  ui.date=k;ui.follow=k===today;render();
+},{passive:true});
+
+/* a new day while the app sat in the background */
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden)return;var t=todayKey();
+  if(ui.follow&&ui.date!==t&&ui.view==='today'){ui.date=t;render();}
+  else if(ui.follow)ui.date=t;
+});
+
+if('serviceWorker' in navigator&&document.documentElement.classList.contains('own-host')){
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+render();
+})();
+</script>
+
+</body>
+</html>
