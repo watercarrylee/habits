@@ -207,6 +207,18 @@ input[type=text]{height:52px;font-size:17px}
 .sheet textarea.code{font-family:var(--mono);font-size:12px}
 .stack{display:flex;flex-direction:column;gap:8px}
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--on-ink);padding:10px 18px;border-radius:20px;font-size:14px;font-weight:700;z-index:20;max-width:calc(100% - 48px);text-align:center}
+.hc-lead{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:12px}
+.hico{flex:0 0 auto;width:40px;height:40px;border-radius:12px;background:var(--chip);color:var(--fg);display:flex;align-items:center;justify-content:center}
+.g-on .hico,.b-on .hico{background:var(--surface)}
+.sico{flex:0 0 auto;width:32px;height:32px;border-radius:10px;background:var(--chip);color:var(--fg);display:flex;align-items:center;justify-content:center}
+.namerow{display:flex;gap:8px;align-items:center}
+.namerow input{flex:1 1 auto;min-width:0}
+.icobtn{flex:0 0 auto;width:52px;height:52px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);display:flex;align-items:center;justify-content:center;padding:0}
+.icobtn.empty{border-style:dashed;color:var(--muted)}
+.icogrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:8px}
+.icogrid button{aspect-ratio:1;max-width:100%;min-height:44px;border-radius:12px;border:1.5px solid transparent;background:none;color:var(--fg);display:flex;align-items:center;justify-content:center;padding:0}
+.icogrid button[aria-pressed="true"]{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.icogrid .none{font-size:12px;color:var(--muted)}
 </style>
 
 <div class="app">
@@ -236,6 +248,39 @@ document.documentElement.lang='zh-Hant';
 var KEY='habit-tracker-v1';
 var WD=['日','一','二','三','四','五','六'];
 var MOODS=['很差','差','普通','好','很好'];
+var ICONS={
+  fitness:['健身','<path d="M6.5 7.5v9M17.5 7.5v9M4 10v4M20 10v4M6.5 12h11"/>'],
+  run:['跑步','<circle cx="14" cy="4.8" r="1.7"/><path d="M8 20.5l2.6-4.6 3.1 2.1.8 3.2M6.5 12.3l2.8-3h4.3l2.6 3 2.3-.8M10.6 15.9l2.3-6.6"/>'],
+  water:['喝水','<path d="M12 3.5c3 3.9 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2.5-6.1 5.5-10z"/>'],
+  food:['吃飯','<path d="M5.5 3v6a2 2 0 0 0 4 0V3M7.5 11v10M17.5 21V3c-2.2 1.5-3 4.2-3 7.5V13h3"/>'],
+  cloth:['穿搭','<path d="M8.5 4L4 6.5l1.5 4L8 9.6V20h8V9.6l2.5.9 1.5-4L15.5 4c-.6 1.4-1.9 2.3-3.5 2.3S9.1 5.4 8.5 4z"/>'],
+  book:['閱讀','<path d="M4 5.5c2.5-1 5.5-1 8 .5 2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5zM12 6v13"/>'],
+  study:['學習','<path d="M15 4.5L19.5 9 9 19.5H4.5V15zM13 6.5l4.5 4.5"/>'],
+  sleep:['睡覺','<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/>'],
+  sun:['早起','<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>'],
+  tooth:['刷牙','<path d="M7.5 4C5 4 4 6 4 8c0 3 1.5 4 2 7 .4 2.7.8 5 2 5s1.5-3 2-4.5c.5-1.3 1.5-1.3 2 0 .5 1.5.8 4.5 2 4.5s1.6-2.3 2-5c.5-3 2-4 2-7 0-2-1-4-3.5-4-1.8 0-2.7 1-4.5 1S9.3 4 7.5 4z"/>'],
+  pill:['保健','<path d="M10.5 4.5a4.95 4.95 0 0 1 7 7l-6 6a4.95 4.95 0 0 1-7-7zM7.5 9.5l7 7"/>'],
+  heart:['健康','<path d="M12 20s-7.5-4.5-7.5-10A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7.5 3c0 5.5-7.5 10-7.5 10z"/>'],
+  leaf:['冥想','<path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14zM5 19l8-8"/>'],
+  home:['家事','<path d="M4 11l8-7 8 7M6 9.5V20h12V9.5M10 20v-5h4v5"/>'],
+  money:['理財','<circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1 0-2-.5-2.5-1.5M12 6.5V8M12 16v1.5"/>'],
+  work:['工作','<rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5v-2A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5v2M3.5 12.5h17"/>'],
+  music:['音樂','<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>'],
+  people:['社交','<circle cx="9" cy="8" r="3"/><path d="M3.5 19.5c.5-3 2.8-5 5.5-5s5 2 5.5 5M16 11a2.5 2.5 0 1 0 0-5M17.5 14.5c1.7.5 2.8 2.2 3 5"/>'],
+  phone:['手機','<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>'],
+  tv:['追劇','<rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 20.5h8M12 17v3.5"/>'],
+  game:['遊戲','<path d="M6.5 8h11a3.5 3.5 0 0 1 3.4 4.3l-1 4.2a2.4 2.4 0 0 1-4.2 1L14 15.5h-4l-1.7 2a2.4 2.4 0 0 1-4.2-1l-1-4.2A3.5 3.5 0 0 1 6.5 8zM8 10.5v3M6.5 12h3M15.5 11h.01M17.5 13h.01"/>'],
+  coffee:['咖啡','<path d="M5 8.5h11v5.5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10.5h1.5a2.5 2.5 0 0 1 0 5H16M8.5 3.5v2.5M11.5 3.5v2.5"/>'],
+  drink:['喝酒','<path d="M8 3h8v4a4 4 0 0 1-8 0zM12 11v9M8.5 20.5h7"/>'],
+  smoke:['抽菸','<path d="M3 15h14v3H3zM19.5 15v3M17 11.5c0-2 2-2 2-4.5"/>'],
+  sweet:['甜食','<path d="M4 20h16M5 20v-7h14v7M5 16c2 1 3-1 4.7 0s3 1 4.6 0 3-1 4.7 0M12 13V9.5M12 6.5v.5"/>']
+};
+var ICON_KEYS=Object.keys(ICONS);
+function icoSvg(key,size){var x=ICONS[key];if(!x)return '';return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+x[1]+'</svg>';}
+function cardIco(h){return h.icon&&ICONS[h.icon]?'<span class="hico">'+icoSvg(h.icon,22)+'</span>':'';}
+function rowIco(h){return h.icon&&ICONS[h.icon]?'<span class="sico">'+icoSvg(h.icon,18)+'</span>':'';}
+var GUESS=[[/水/,'water'],[/跑/,'run'],[/運動|健身|重訓|伏地|深蹲|瑜珈|瑜伽/,'fitness'],[/讀|書/,'book'],[/學|英文|日文|課/,'study'],[/睡|熬夜/,'sleep'],[/早起|起床/,'sun'],[/牙/,'tooth'],[/藥|維他命|保健/,'pill'],[/冥想|靜坐|呼吸/,'leaf'],[/打掃|家事|洗碗|洗衣|整理/,'home'],[/記帳|存錢|理財|投資/,'money'],[/工作|加班/,'work'],[/音樂|練琴|吉他|鋼琴/,'music'],[/朋友|家人|社交/,'people'],[/手機|滑/,'phone'],[/劇|電視|追/,'tv'],[/遊戲|電玩/,'game'],[/咖啡/,'coffee'],[/酒/,'drink'],[/菸/,'smoke'],[/甜|糖|零食|蛋糕/,'sweet'],[/宵夜|吃|飯|餐/,'food'],[/穿|衣/,'cloth']];
+function guessIcon(name){for(var i=0;i<GUESS.length;i++)if(GUESS[i][0].test(name))return GUESS[i][1];return '';}
 function $(s){return document.querySelector(s);}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function pad(n){return String(n).padStart(2,'0');}
@@ -269,7 +314,7 @@ function normalize(d){
     return {id:String(h.id),name:String(h.name).slice(0,40),kind:h.kind==='bad'?'bad':'good',
       method:h.method==='count'?'count':'check',
       days:Array.isArray(h.days)&&h.days.length===7?h.days.map(Boolean):allDays(),
-      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived};
+      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:''};
   });
   var logs={};
   Object.keys(d.logs).forEach(function(k){
@@ -326,7 +371,7 @@ function addExamples(){
   [['運動 30 分鐘','good','check',allDays()],['閱讀 20 頁','good','check',allDays()],['喝水 2000ml','good','check',allDays()],
    ['12 點前睡覺','good','check',[true,true,true,true,true,false,false]],
    ['滑手機超過 1 小時','bad','count',allDays()],['吃宵夜','bad','count',allDays()],['喝含糖飲料','bad','count',allDays()]
-  ].forEach(function(x){db.habits.push({id:uid(),name:x[0],kind:x[1],method:x[2],days:x[3],created:t,archived:false});});
+  ].forEach(function(x){db.habits.push({id:uid(),name:x[0],kind:x[1],method:x[2],days:x[3],created:t,archived:false,icon:guessIcon(x[0])});});
   save();
 }
 
@@ -343,17 +388,17 @@ function goodCard(h,k){
   var v=val(k,h.id),on=v>0,st=goodStreak(h,k);
   var sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';
   if(h.method==='count'){
-    return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div></div>'+counter(h.id,v,'good')+'</div>';
+    return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div></div></div>'+counter(h.id,v,'good')+'</div>';
   }
-  return '<button class="hcard'+(on?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div></div><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span></button>';
+  return '<button class="hcard'+(on?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div></div></div><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span></button>';
 }
 function badCard(h,k){
   var v=val(k,h.id),on=v>0;
   var sub=on?(h.method==='count'?'今天犯了 '+v+' 次':'今天有犯'):'已 '+cleanDays(h,k)+' 天沒犯';
   if(h.method==='check'){
-    return '<button class="hcard'+(on?' b-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div><span class="check bad'+(on?' on':'')+'" aria-hidden="true">'+(on?I.x:'')+'</span></button>';
+    return '<button class="hcard'+(on?' b-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div></div><span class="check bad'+(on?' on':'')+'" aria-hidden="true">'+(on?I.x:'')+'</span></button>';
   }
-  return '<div class="hcard'+(on?' b-on':'')+'"><div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div>'+counter(h.id,v,'bad')+'</div>';
+  return '<div class="hcard'+(on?' b-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div></div>'+counter(h.id,v,'bad')+'</div>';
 }
 
 function vToday(){
@@ -455,7 +500,7 @@ function vSettings(){
     if(!list.length)s+='<button class="list-empty" data-act="new" data-kind="'+kind+'">新增'+nm+'</button>';
     else s+='<div class="list">'+list.map(function(h){
       return '<div class="row'+(ui.dragId===h.id?' dragging':'')+'" data-row="'+h.id+'"><span class="handle" data-drag="'+h.id+'" aria-hidden="true">'+I.grip+'</span>'+
-        '<button class="row-main" data-act="edit" data-id="'+h.id+'"><span class="row-text"><span class="row-name">'+esc(h.name)+'</span><span class="row-meta">'+meta(h)+'</span></span>'+I.chev+'</button></div>';
+        '<button class="row-main" data-act="edit" data-id="'+h.id+'">'+rowIco(h)+'<span class="row-text"><span class="row-name">'+esc(h.name)+'</span><span class="row-meta">'+meta(h)+'</span></span>'+I.chev+'</button></div>';
     }).join('')+'</div>';
     s+='</section>';
   });
@@ -486,7 +531,13 @@ function vEdit(){
   var hint=chk?(good?'做到就點一下，一天算一次。':'當天有犯就點一下，只記有或沒有。'):(good?'一天可以記好幾次，例如喝了幾杯水。':'每犯一次就 +1，看得出次數有沒有變少。');
   var n=d.days.filter(Boolean).length;
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="cancel">取消</button><h1 class="edit-t">'+(isNew?'新增習慣':'編輯習慣')+'</h1><button class="textbtn strong" data-act="save">儲存</button></header>'+
-    '<div class="field"><label class="lbl" for="hname">名稱</label><input id="hname" type="text" maxlength="40" placeholder="例如：冥想 10 分鐘" value="'+esc(d.name)+'" autocomplete="off" enterkeyhint="done"></div>'+
+    '<div class="field"><label class="lbl" for="hname">名稱與圖示</label><div class="namerow">'+
+      '<button id="icobtn" class="icobtn'+(d.icon?'':' empty')+'" data-act="iconpick" aria-expanded="'+!!ui.pickIcon+'" aria-label="選擇圖示，目前：'+(d.icon?ICONS[d.icon][0]:'沒有圖示')+'">'+(d.icon?icoSvg(d.icon,24):I.plus)+'</button>'+
+      '<input id="hname" type="text" maxlength="40" placeholder="例如：冥想 10 分鐘" value="'+esc(d.name)+'" autocomplete="off" enterkeyhint="done"></div>'+
+      (ui.pickIcon?'<div class="icogrid" role="group" aria-label="圖示">'+
+        '<button class="none" data-act="seticon" data-v="" aria-pressed="'+(!d.icon)+'">無</button>'+
+        ICON_KEYS.map(function(k){return '<button data-act="seticon" data-v="'+k+'" aria-pressed="'+(d.icon===k)+'" aria-label="'+ICONS[k][0]+'" title="'+ICONS[k][0]+'">'+icoSvg(k,22)+'</button>';}).join('')+'</div>':'')+
+    '</div>'+
     (ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'')+
     '<div class="field"><div class="lbl">類型</div><div class="two">'+
       '<button class="typebtn'+(good?' on good':'')+'" data-act="kind" data-v="good" aria-pressed="'+good+'"><b>好習慣</b><span>想要多做的事</span></button>'+
@@ -547,8 +598,8 @@ function saveDraft(){
   var d=ui.draft,name=(d.name||'').trim();
   if(!name){ui.err='請輸入習慣名稱。';render();return;}
   if(d.kind==='good'&&!d.days.some(Boolean)){ui.err='請至少選一天。';render();return;}
-  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'?d.days.slice():allDays();}}
-  else db.habits.push({id:uid(),name:name,kind:d.kind,method:d.method,days:d.kind==='good'?d.days.slice():allDays(),created:todayKey(),archived:false});
+  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'?d.days.slice():allDays();h.icon=d.icon||'';}}
+  else db.habits.push({id:uid(),name:name,kind:d.kind,method:d.method,days:d.kind==='good'?d.days.slice():allDays(),created:todayKey(),archived:false,icon:d.icon||''});
   save();go(ui.back||'settings');render();toast('已儲存');
 }
 
@@ -593,9 +644,11 @@ function act(a,b){
     case 'month': n=ui.month[1]+(+b.dataset.n);ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
     case 'pickday': ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
     case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「習慣設定」修改');break;
-    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays()};ui.err='';go('edit');break;
-    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice()};ui.err='';go('edit');break;
+    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'',iconTouched:false};ui.pickIcon=true;ui.err='';go('edit');break;
+    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:true};ui.pickIcon=false;ui.err='';go('edit');break;
     case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
+    case 'iconpick': ui.pickIcon=!ui.pickIcon;break;
+    case 'seticon': ui.draft.icon=b.dataset.v;ui.draft.iconTouched=true;ui.pickIcon=false;break;
     case 'method': ui.draft.method=b.dataset.v;break;
     case 'dayt': n=+b.dataset.i;ui.draft.days[n]=!ui.draft.days[n];ui.err='';break;
     case 'cancel': go(ui.back||'settings');break;
@@ -625,7 +678,9 @@ document.addEventListener('click',function(e){
 document.addEventListener('input',function(e){
   var el=e.target;
   if(el.id==='note'){var l=db.logs[ui.date]||(db.logs[ui.date]={});l.note=el.value;tidy(ui.date);save();}
-  else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;}
+  else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;
+    if(!ui.draft.iconTouched){var g=guessIcon(el.value);if(g!==ui.draft.icon){ui.draft.icon=g;var ib=$('#icobtn');if(ib){ib.innerHTML=g?icoSvg(g,24):I.plus;ib.classList.toggle('empty',!g);}
+      Array.prototype.forEach.call(document.querySelectorAll('.icogrid [data-act=seticon]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.v===g));});}}}
   else if(el.id==='pastebox'&&ui.sheet){ui.sheet.paste=el.value;}
 });
 document.addEventListener('keydown',function(e){if(e.target.id==='hname'&&e.key==='Enter'){e.preventDefault();saveDraft();}});
