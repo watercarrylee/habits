@@ -528,7 +528,7 @@ function noteBox(k,log){
   var n=log.note||'';
   if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div><div class="note-view" id="note-view">'+esc(n)+'</div>';
   return '<div class="note-h"><label for="note" class="lbl">備註</label></div><textarea id="note" rows="3" placeholder="今天發生了什麼？">'+esc(n)+'</textarea>'+
-    '<div class="note-foot"><button class="minibtn" data-act="notedone">確認</button></div>';
+    '<div class="note-foot" id="note-foot"'+(n.trim()?'':' hidden')+'><button class="minibtn" data-act="notedone">確認</button></div>';
 }
 function tidy(k){var l=db.logs[k];if(!l)return;if(l.h&&!Object.keys(l.h).length)delete l.h;if(!l.note)delete l.note;if(l.mood==null)delete l.mood;if(typeof l.pnl!=='number')delete l.pnl;if(!l.rest)delete l.rest;if(!Object.keys(l).length)delete db.logs[k];}
 function setVal(k,id,v){
@@ -1357,7 +1357,7 @@ document.addEventListener('click',function(e){
 });
 document.addEventListener('input',function(e){
   var el=e.target;
-  if(el.id==='note'){ui.noteEdit=ui.date;var l=db.logs[ui.date]||(db.logs[ui.date]={});l.note=el.value;tidy(ui.date);save();}
+  if(el.id==='note'){ui.noteEdit=ui.date;var nf=document.getElementById('note-foot');if(nf)nf.hidden=!el.value.trim();var l=db.logs[ui.date]||(db.logs[ui.date]={});l.note=el.value;tidy(ui.date);save();}
   else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;
     if(!ui.draft.iconTouched){var g=guessIcon(el.value);if(g!==ui.draft.icon){ui.draft.icon=g;var ib=$('#icobtn');if(ib){ib.innerHTML=g?icoSvg(g,24):I.plus;ib.classList.toggle('empty',!g);ib.setAttribute('aria-label','選擇圖示，目前：'+(ICONS[g]?ICONS[g][0]:'沒有圖示'));}
       Array.prototype.forEach.call(document.querySelectorAll('.icogrid [data-act=seticon]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.v===g));});}}}
