@@ -120,6 +120,9 @@ button.hcard{padding-right:16px}
 input[type=search]{-webkit-appearance:none;appearance:none;box-sizing:border-box;width:100%;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);padding:0 14px;height:48px;font-size:16px}
 textarea,input[type=text]{box-sizing:border-box;width:100%;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);padding:12px 14px;font-size:16px}
 textarea{resize:none;line-height:1.5}
+.note-h{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px}
+.note-view{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;font-size:16px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.note-foot{display:flex;justify-content:flex-end}
 input[type=text]{height:52px;font-size:17px}
 
 .empty{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
@@ -521,6 +524,12 @@ var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',da
 function active(kind){return db.habits.filter(function(h){return !h.archived&&h.kind===kind;});}
 function byId(id){for(var i=0;i<db.habits.length;i++)if(db.habits[i].id===id)return db.habits[i];return null;}
 function val(k,id){var l=db.logs[k];return (l&&l.h&&l.h[id])||0;}
+function noteBox(k,log){
+  var n=log.note||'';
+  if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div><div class="note-view" id="note-view">'+esc(n)+'</div>';
+  return '<div class="note-h"><label for="note" class="lbl">備註</label></div><textarea id="note" rows="3" placeholder="今天發生了什麼？">'+esc(n)+'</textarea>'+
+    '<div class="note-foot"><button class="minibtn" data-act="notedone">確認</button></div>';
+}
 function tidy(k){var l=db.logs[k];if(!l)return;if(l.h&&!Object.keys(l.h).length)delete l.h;if(!l.note)delete l.note;if(l.mood==null)delete l.mood;if(typeof l.pnl!=='number')delete l.pnl;if(!l.rest)delete l.rest;if(!Object.keys(l).length)delete db.logs[k];}
 function setVal(k,id,v){
   var l=db.logs[k]||(db.logs[k]={});l.h=l.h||{};
@@ -853,7 +862,7 @@ function pnlSection(k){
   }else{
     s+='<div class="pnl-top"><div><div class="pnl-l">還沒有紀錄</div><div class="pnl-v prompt">輸入收盤後的帳面損益</div></div><span class="pnl-chip">輸入</span></div>';
   }
-  s+='</button><p class="small muted">週末和休市日不用記，會顯示上一次的數字。</p></section>';
+  s+='</button></section>';
   return s;
 }
 function vPnl(){
@@ -1068,7 +1077,7 @@ function vToday(){
   if(pOn)s+=pnlSection(k);
   s+='<section class="sec"><h2 class="sec-t">心情</h2><div class="moods">'+
     MOODS.map(function(m,i){var on=log.mood===i;return '<button class="mood'+(on?' on':'')+'" data-act="mood" data-i="'+i+'" aria-pressed="'+on+'">'+m+'</button>';}).join('')+
-    '</div><label for="note" class="lbl">備註</label><textarea id="note" rows="3" placeholder="今天發生了什麼？">'+esc(log.note||'')+'</textarea></section>';
+    '</div>'+noteBox(k,log)+'</section>';
   return s+'</div>';
 }
 
@@ -1269,6 +1278,8 @@ function act(a,b){
   switch(a){
     case 'tab': go(b.dataset.tab);if(ui.view==='today'&&ui.follow)ui.date=t;break;
     case 'day': k=addDays(ui.date,+b.dataset.n);if(k>t)return;ui.date=k;ui.follow=k===t;break;
+    case 'noteedit': ui.noteEdit=ui.date;render();var ta=document.getElementById('note');if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}return;
+    case 'notedone': var nl=db.logs[ui.date];if(nl&&nl.note){nl.note=nl.note.replace(/\s+$/,'');tidy(ui.date);save();}ui.noteEdit=null;render();if(nl&&nl.note)toast('備註已確認');return;
     case 'gotoday': ui.date=t;ui.follow=true;break;
     case 'toggle': setVal(ui.date,id,val(ui.date,id)>0?0:1);break;
     case 'inc': setVal(ui.date,id,val(ui.date,id)+1);break;
@@ -1346,7 +1357,7 @@ document.addEventListener('click',function(e){
 });
 document.addEventListener('input',function(e){
   var el=e.target;
-  if(el.id==='note'){var l=db.logs[ui.date]||(db.logs[ui.date]={});l.note=el.value;tidy(ui.date);save();}
+  if(el.id==='note'){ui.noteEdit=ui.date;var l=db.logs[ui.date]||(db.logs[ui.date]={});l.note=el.value;tidy(ui.date);save();}
   else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;
     if(!ui.draft.iconTouched){var g=guessIcon(el.value);if(g!==ui.draft.icon){ui.draft.icon=g;var ib=$('#icobtn');if(ib){ib.innerHTML=g?icoSvg(g,24):I.plus;ib.classList.toggle('empty',!g);ib.setAttribute('aria-label','選擇圖示，目前：'+(ICONS[g]?ICONS[g][0]:'沒有圖示'));}
       Array.prototype.forEach.call(document.querySelectorAll('.icogrid [data-act=seticon]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.v===g));});}}}
