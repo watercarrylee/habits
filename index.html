@@ -226,16 +226,18 @@ input[type=text]{height:52px;font-size:17px}
 .up-t{color:var(--up)} .down-t{color:var(--down)}
 .seg button.on.up-t{color:var(--up)} .seg button.on.down-t{color:var(--down)}
 .sum.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.sum.three .sum-card{padding:12px}
+.sum.three .sum-card{padding:12px 10px}
 .sum.three .sum-v{font-size:22px}
 button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
-.sum-v.amt{font-size:18px!important;white-space:nowrap}
+.sum-v.amt{font-size:clamp(13px,4.1vw,17px)!important;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sum-card,.tile{min-width:0}
+.tile-v.sm{overflow:hidden;text-overflow:ellipsis}
 .eyebtn{height:36px;padding:0 6px;border:0;background:none;color:var(--muted);font-size:12px;display:flex;align-items:center;gap:4px}
 .pnl-card{width:100%;box-sizing:border-box;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;color:var(--fg)}
 .pnl-top{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
 .pnl-top>div{min-width:0}
 .pnl-l{font-size:12px;color:var(--muted)}
-.pnl-v{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.pnl-v{font-size:clamp(22px,7.5vw,30px);font-weight:900;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .pnl-v.sm{font-size:24px}
 .pnl-v.faint{color:var(--faint);font-size:22px}
 .pnl-v.prompt{color:var(--muted);font-size:16px;font-weight:700}
@@ -244,7 +246,7 @@ button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
 .pe{display:flex;flex-direction:column;min-height:100%}
 .pe-body{flex:1 1 auto;padding:8px 20px 20px;display:flex;flex-direction:column;gap:16px;max-width:520px;width:100%;margin:0 auto;box-sizing:border-box}
 .pe-date{text-align:center;font-size:13px;color:var(--muted)}
-.pe-num{text-align:center;font-size:44px;font-weight:900;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;padding-top:8px}
+.pe-num{text-align:center;font-size:clamp(30px,11vw,44px);font-weight:900;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;padding-top:8px}
 .pe-hint{text-align:center;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.6}
 .pe-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
 .ghost{height:36px;padding:0 14px;border-radius:18px;border:1.5px solid var(--line);background:var(--surface);font-size:13px;color:var(--muted)}
@@ -439,6 +441,9 @@ function pnlKeys(){return Object.keys(db.logs).filter(hasP).sort();}
 function pnlAt(k){return db.logs[k].pnl;}
 function prevPnlKey(k){var ks=pnlKeys(),r=null;for(var i=0;i<ks.length&&ks[i]<k;i++)r=ks[i];return r;}
 function fmtN(v){return Math.abs(v).toLocaleString('en-US');}
+function cmpN(v){var a=Math.abs(v);if(a<1e5)return a.toLocaleString('en-US');if(a<1e7)return (Math.round(a/1e3)/10).toLocaleString('en-US')+'萬';if(a<1e8)return Math.round(a/1e4).toLocaleString('en-US')+'萬';return (Math.round(a/1e6)/100)+'億';}
+function cchg(v){return (v>0?'▲':v<0?'▼':'')+cmpN(v);}
+function csgn(v){return (v>0?'+':v<0?'−':'')+cmpN(v);}
 function sgn(v){return (v>0?'+':v<0?'−':'')+fmtN(v);}
 function chg(v){return (v>0?'▲ ':v<0?'▼ ':'')+fmtN(v);}
 function pcls(v){return v>0?'up-t':v<0?'down-t':'';}
@@ -453,7 +458,7 @@ function monthChange(y,m,endKey){
 }
 function pnlTile(k){
   var h=hid(),pk=prevPnlKey(k),txt='—',cls='';
-  if(hasP(k)&&pk){var d=pnlAt(k)-pnlAt(pk);txt=h?'••••':chg(d).replace(' ','');cls=h?'':pcls(d);}
+  if(hasP(k)&&pk){var d=pnlAt(k)-pnlAt(pk);txt=h?'••••':cchg(d);cls=h?'':pcls(d);}
   return '<button class="sum-card" data-act="pnlopen"><div class="sum-l muted">損益變動</div><div class="sum-v amt '+cls+'">'+txt+'</div></button>';
 }
 function pnlSection(k){
@@ -523,9 +528,9 @@ function pnlStats(y,m){
     svg+'<div class="chart-x"><span>'+shortMD(ks[0])+'</span>'+(ks.length>1?'<span>'+shortMD(ks[ks.length-1])+'</span>':'')+'</div>'+
     '<p class="small muted">只畫有記錄的日子，點圓點看那一天。</p></div>';
   s+='<div class="tiles">'+
-    '<div class="tile"><div class="tile-l">本月變動</div><div class="tile-v sm '+(h||!mc.show?'':pcls(mc.change))+'">'+(!mc.show?'—':h?'••••':chg(mc.change).replace(' ',''))+'</div></div>'+
-    '<div class="tile"><div class="tile-l">本月最高</div><div class="tile-v sm">'+(h?'••••':sgn(hiV))+'</div></div>'+
-    '<div class="tile"><div class="tile-l">本月最低</div><div class="tile-v sm">'+(h?'••••':sgn(loV))+'</div></div></div>';
+    '<div class="tile"><div class="tile-l">本月變動</div><div class="tile-v sm '+(h||!mc.show?'':pcls(mc.change))+'">'+(!mc.show?'—':h?'••••':cchg(mc.change))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">本月最高</div><div class="tile-v sm">'+(h?'••••':csgn(hiV))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">本月最低</div><div class="tile-v sm">'+(h?'••••':csgn(loV))+'</div></div></div>';
   return s;
 }
 
