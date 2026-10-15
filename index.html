@@ -338,6 +338,27 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .toast-act{margin-left:12px;border:0;background:none;color:var(--good-line);font-weight:700;font-size:14px;padding:0;min-height:24px}
 .savefrom{display:flex;flex-direction:column;gap:8px;padding-top:4px}
 .datein{box-sizing:border-box;width:100%;height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 12px;font-size:16px;color:var(--fg);font-family:inherit;-webkit-appearance:none;appearance:none}
+.rk{padding:12px 16px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line-soft)}
+.list .rk:last-child{border-bottom:0}
+.rk-top{display:flex;align-items:center;gap:12px}
+.rk-n{flex:0 0 auto;width:22px;text-align:center;font-size:15px;font-weight:900;color:var(--faint);font-variant-numeric:tabular-nums}
+.rk-n.first{color:var(--good)}
+.rk-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rk-name{font-size:15px;font-weight:700;overflow-wrap:anywhere}
+.rk-sub{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rk-v{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.rk-val{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums}
+.rk-c{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.rk-c.up{color:var(--good)}
+.rk-c.down{color:var(--bad)}
+.rk-c.same{color:var(--faint);font-weight:400}
+.rk-new{font-size:11px;font-weight:700;color:var(--muted);background:var(--chip);padding:1px 6px;border-radius:6px}
+.rk-bar{margin-left:34px;height:5px;border-radius:3px;background:var(--chip);overflow:hidden}
+.rk-bar i{display:block;height:100%;border-radius:3px;background:var(--h2)}
+.rk-bar i.first{background:var(--good)}
+.rk-sep{padding:10px 16px 4px;font-size:12px;color:var(--faint);border-top:1px solid var(--line-soft)}
+.rk.fresh .rk-name{color:var(--muted)}
+.rk.fresh .rk-val{color:var(--faint)}
 </style>
 
 <div class="app">
@@ -928,6 +949,65 @@ function vSearch(){
     '<div id="results" style="display:flex;flex-direction:column;gap:10px">'+searchResults()+'</div></div>';
 }
 
+/* ---------- ranking ---------- */
+function rankMonth(y,m){
+  var t=todayKey(),ms=keyOf(new Date(y,m,1)),me=keyOf(new Date(y,m+1,0)),to=me>t?t:me,good=[],bad=[];
+  if(ms>t)return {good:[],bad:[],ms:ms,me:me};
+  db.habits.forEach(function(h){
+    if(h.archived||h.created>to)return;
+    var from=ms>h.created?ms:h.created;
+    if(h.kind==='good'){
+      var sc=0,dn=0;for(var d=from;d<=to;d=addDays(d,1)){if(scheduled(h,d)){sc++;if(val(d,h.id)>0)dn++;}}
+      good.push({h:h,sc:sc,dn:dn,rate:sc?Math.round(dn/sc*100):0,st:goodStreak(h,to),ok:sc>=7});
+    }else{
+      var sl=0,days=0;for(var d2=from;d2<=to;d2=addDays(d2,1)){sl+=val(d2,h.id);days++;}
+      bad.push({h:h,sl:sl,days:days,clean:val(to,h.id)>0?0:cleanDays(h,to),ok:days>=7});
+    }
+  });
+  good.sort(function(a,b){return (b.ok-a.ok)||(b.rate-a.rate)||(b.st-a.st)||(a.h.name<b.h.name?-1:1);});
+  bad.sort(function(a,b){return (b.ok-a.ok)||(a.sl-b.sl)||(b.clean-a.clean)||(a.h.name<b.h.name?-1:1);});
+  var r=1;good.forEach(function(x){x.rank=x.ok?r++:null;});r=1;bad.forEach(function(x){x.rank=x.ok?r++:null;});
+  return {good:good,bad:bad,ms:ms,me:me};
+}
+function rankChange(x,prev,prevMe){
+  if(x.h.created>prevMe)return '<span class="rk-new">新</span>';
+  var p=null;prev.forEach(function(y){if(y.h.id===x.h.id)p=y.rank;});
+  if(!x.rank||!p||p===x.rank)return '<span class="rk-c same">—</span>';
+  return p>x.rank?'<span class="rk-c up">▲'+(p-x.rank)+'</span>':'<span class="rk-c down">▼'+(x.rank-p)+'</span>';
+}
+function rankingHTML(y,m){
+  var cur=rankMonth(y,m),py=m?y:y-1,pm=m?m-1:11,prev=rankMonth(py,pm),prevMe=keyOf(new Date(py,pm+1,0)),s='';
+  function ico(h){return rowIco(h)||'<span class="sico" aria-hidden="true"></span>';}
+  function rows(list,isGood){
+    var main=list.filter(function(x){return x.ok;}),fresh=list.filter(function(x){return !x.ok;}),out='';
+    out+=main.map(function(x){
+      var first=x.rank===1,sub,valTxt;
+      if(isGood){sub=(x.st?'連續 '+x.st+' 天 · ':'')+x.dn+' / '+x.sc+' 天';valTxt=x.rate+'%';}
+      else{sub=x.clean?'已 '+x.clean+' 天沒犯':'這天有犯';valTxt=x.sl+' 次';}
+      return '<div class="rk"><div class="rk-top"><span class="rk-n'+(first?' first':'')+'">'+x.rank+'</span>'+ico(x.h)+
+        '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
+        '<div class="rk-v"><span class="rk-val">'+valTxt+'</span>'+rankChange(x,isGood?prev.good:prev.bad,prevMe)+'</div></div>'+
+        (isGood?'<div class="rk-bar"><i class="'+(first?'first':'')+'" style="width:'+x.rate+'%"></i></div>':'')+'</div>';
+    }).join('');
+    if(fresh.length){
+      out+='<div class="rk-sep">天數還少（本月'+(isGood?'排定':'記錄')+'不到 7 天）</div>'+fresh.map(function(x){
+        var since=x.h.created>=cur.ms?shortMD(x.h.created)+' 才開始 · ':'';
+        var sub=isGood?since+x.dn+' / '+x.sc+' 天':since+x.days+' 天';
+        var v=isGood?(x.sc?x.rate+'%':'—'):x.sl+' 次';
+        return '<div class="rk fresh"><div class="rk-top"><span class="rk-n">·</span>'+ico(x.h)+
+          '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
+          '<div class="rk-v"><span class="rk-val">'+v+'</span>'+rankChange(x,isGood?prev.good:prev.bad,prevMe)+'</div></div></div>';
+      }).join('');
+    }
+    return out;
+  }
+  var pl='和 '+(pm+1)+' 月比';
+  if(cur.good.length)s+='<section class="sec"><div class="sec-row"><h2 class="sec-t good-t">好習慣排行</h2><span class="small muted">本月完成率 · '+pl+'</span></div><div class="list">'+rows(cur.good,true)+'</div></section>';
+  if(cur.bad.length)s+='<section class="sec"><div class="sec-row"><h2 class="sec-t bad-t">壞習慣排行</h2><span class="small muted">犯最少的排前面 · '+pl+'</span></div><div class="list">'+rows(cur.bad,false)+'</div></section>';
+  if(s)s+='<p class="small muted">名次變化是和上個月比較，這個月才建立的習慣標「新」。休息日不算進完成率。完成率一樣時，連續天數長的排前面；壞習慣次數一樣時，沒犯的天數長的排前面。</p>';
+  return s;
+}
+
 /* ---------- views ---------- */
 function dateLabel(k){var t=todayKey();if(k===t)return '今天';if(k===addDays(t,-1))return '昨天';var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日';}
 function dateSub(k){var d=parseKey(k);return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()];}
@@ -1029,22 +1109,7 @@ function vStats(){
   s+='<div class="tiles"><div class="tile"><div class="tile-l">本月完成率</div><div class="tile-v good-t">'+(S?Math.round(D/S*100)+'%':'—')+'</div></div>'+
     '<div class="tile"><div class="tile-l">最長連續</div><div class="tile-v">'+best+' 天</div></div>'+
     '<div class="tile"><div class="tile-l">本月壞習慣</div><div class="tile-v bad-t">'+B+' 次</div></div></div>';
-  var start=keyOf(first),end=keyOf(new Date(y,m,lastDay));if(end>t)end=t;
-  var rows=[],badMax=0,badRows=[];
-  goods.forEach(function(h){
-    var sc=0,dn=0;
-    if(start<=t){for(var dd=start>h.created?start:h.created;dd<=end;dd=addDays(dd,1)){if(scheduled(h,dd)){sc++;if(val(dd,h.id)>0)dn++;}}}
-    var pct=sc?Math.round(dn/sc*100):0;
-    rows.push({name:h.name,v:sc?pct+'%':'—',w:pct,c:'var(--good)',cls:'good-t'});
-  });
-  bads.forEach(function(h){
-    var n=0;if(start<=t){for(var dd=start;dd<=end;dd=addDays(dd,1))n+=val(dd,h.id);}
-    if(n>badMax)badMax=n;badRows.push({name:h.name,n:n});
-  });
-  badRows.forEach(function(r){rows.push({name:r.name,v:r.n+' 次',w:badMax?Math.round(r.n/badMax*100):0,c:'var(--bad)',cls:'bad-t'});});
-  s+='<section class="sec"><h2 class="sec-t">各習慣本月</h2>'+rows.map(function(r){
-    return '<div class="barcard"><div class="bar-top"><div class="bar-name">'+esc(r.name)+'</div><div class="bar-v '+r.cls+'">'+r.v+'</div></div><div class="track"><div class="fill" style="width:'+r.w+'%;background:'+r.c+'"></div></div></div>';
-  }).join('')+'<p class="small muted">好習慣是排定日子的完成比例；壞習慣是本月總次數，最多的那個填滿整條。</p></section>';
+  s+=rankingHTML(y,m);
   return s+'</div>';
 }
 
