@@ -2,6 +2,8 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-J23a1MzSmkcHdJfc/QRFXQq5PnbDrIE4lZWbZMrAMUQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -263,6 +265,8 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .sheet .err0{color:var(--bad)}
 .sheet textarea.code{font-family:var(--mono);font-size:12px}
 .stack{display:flex;flex-direction:column;gap:8px}
+.sheet input[type=password]{box-sizing:border-box;width:100%;height:48px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding:0 14px;font-size:16px;color:var(--fg)}
+.pwrow{display:flex;flex-direction:column;gap:6px}
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--on-ink);padding:10px 18px;border-radius:20px;font-size:14px;font-weight:700;z-index:20;max-width:calc(100% - 48px);text-align:center}
 .hc-lead{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:12px}
 .hico{flex:0 0 auto;width:40px;height:40px;border-radius:12px;background:var(--chip);color:var(--fg);display:flex;align-items:center;justify-content:center}
@@ -441,6 +445,7 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 
 <script>
 (function(){
+if(window.top!==window.self){document.body.innerHTML='<p style="padding:24px;font:16px/1.6 -apple-system,sans-serif">為了保護你的資料，這個 App 不能嵌在其他網頁裡，請直接開啟。</p>';return;}
 document.documentElement.lang='zh-Hant';
 var KEY='habit-tracker-v1';
 var WD=['日','一','二','三','四','五','六'];
@@ -574,7 +579,7 @@ if(!db.rewards)db.rewards=[];
 if(!db.redeemed)db.redeemed=[];
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
-var APP_VER='2026.10.15-6';
+var APP_VER='2026.10.15-7';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1375,14 +1380,27 @@ function renderSheet(){
   var el=$('#sheet'),sh=ui.sheet;
   if(!sh){el.hidden=true;el.innerHTML='';return;}
   var h='';
-  if(sh.type==='export'){
-    h='<h2>匯出備份</h2><p>把備份內容複製起來，貼到「備忘錄」或存成檔案。之後在「從備份還原」貼回來就能復原。</p>'+
+  if(sh.type==='exportpw'){
+    h='<h2>幫備份設密碼</h2><p>建議設定。加密後就算備份檔外流，沒有密碼也打不開。<b>密碼忘記就無法還原</b>，請記好。</p>'+
+      '<div class="pwrow"><label class="lbl" for="pw1">密碼（至少 6 個字）</label><input id="pw1" type="password" autocomplete="new-password"></div>'+
+      '<div class="pwrow"><label class="lbl" for="pw2">再輸入一次</label><input id="pw2" type="password" autocomplete="new-password"></div>'+
+      (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
+      '<div class="stack"><button class="primary" data-act="exportenc">加密後匯出</button><button class="secondary" data-act="exportplain">不加密，直接匯出</button></div>';
+  }else if(sh.type==='unlock'){
+    h='<h2>這是加密的備份</h2><p>請輸入匯出時設定的密碼。</p>'+
+      '<div class="pwrow"><label class="lbl" for="pw3">密碼</label><input id="pw3" type="password" autocomplete="current-password"></div>'+
+      (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
+      '<div class="stack"><button class="primary" data-act="unlockimp">解開並還原</button></div>';
+  }else if(sh.type==='busy'){
+    el.innerHTML='<div class="sheet" role="dialog" aria-modal="true" aria-busy="true"><h2>'+esc(sh.msg)+'</h2><p>大約需要一兩秒。</p></div>';el.hidden=false;return;
+  }else if(sh.type==='export'){
+    h='<h2>匯出'+(sh.enc?'加密':'')+'備份</h2><p>把備份內容複製起來，貼到「備忘錄」或存成檔案。之後在「從備份還原」貼回來就能復原。</p>'+
       '<div class="stack"><button class="primary" data-act="copy">複製備份內容</button>'+(document.documentElement.classList.contains('own-host')?'<button class="secondary" data-act="download">下載成檔案</button>':'')+'</div>'+
       '<label class="lbl" for="exporttext">備份內容</label><textarea id="exporttext" class="code" rows="5" readonly>'+esc(sh.text)+'</textarea>';
   }else if(sh.type==='import'){
     h='<h2>從備份還原</h2><div class="stack"><button class="primary" data-act="pickfile">選擇備份檔案</button></div>'+
       '<label class="lbl" for="pastebox">或貼上備份內容</label><textarea id="pastebox" class="code" rows="5" placeholder="貼上匯出的備份內容">'+esc(sh.paste||'')+'</textarea>'+
-      (sh.err?'<p class="err0" role="alert">'+sh.err+'</p>':'')+
+      (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
       '<button class="secondary" data-act="usepaste">使用貼上的內容</button>';
   }else if(sh.type==='confirm'){
     h='<h2>確定要還原嗎？</h2><p>備份裡有 '+sh.data.habits.length+' 個習慣、'+Object.keys(sh.data.logs).length+' 天的紀錄。還原後會取代這支手機上目前的所有資料。</p>'+
@@ -1416,18 +1434,49 @@ function saveDraft(){
   save();go(ui.back||'settings');render();toast('已儲存');
 }
 
-function doExport(){
-  var text=JSON.stringify(db),name='habits-backup-'+todayKey()+'.json';
+/* ---------- backup encryption (PBKDF2-SHA256 + AES-GCM) ---------- */
+var MAX_BACKUP=5e6,KDF_ITER=600000;
+function canCrypt(){try{return !!(window.crypto&&crypto.subtle&&window.TextEncoder);}catch(e){return false;}}
+function b64(buf){var a=new Uint8Array(buf),s='';for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s);}
+function unb64(str){var s=atob(str),a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a;}
+function deriveKey(pw,salt,iter){
+  return crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']).then(function(base){
+    return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);});
+}
+function encryptText(text,pw){
+  var salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+  return deriveKey(pw,salt,KDF_ITER).then(function(key){return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,new TextEncoder().encode(text));})
+    .then(function(ct){return JSON.stringify({habitsBackup:1,enc:'AES-GCM',kdf:'PBKDF2-SHA256',iter:KDF_ITER,salt:b64(salt),iv:b64(iv),data:b64(ct)});});
+}
+function decryptText(o,pw){
+  var iter=Math.min(Math.max(+o.iter||KDF_ITER,100000),5000000);
+  return deriveKey(pw,unb64(o.salt),iter).then(function(key){return crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(o.iv)},key,unb64(o.data));})
+    .then(function(pt){return new TextDecoder().decode(pt);});
+}
+function isEncBackup(o){return o&&o.habitsBackup===1&&o.enc==='AES-GCM'&&typeof o.salt==='string'&&typeof o.iv==='string'&&typeof o.data==='string';}
+function startExport(){
+  if(!canCrypt()){doExport(null);return;}
+  ui.sheet={type:'exportpw',err:''};render();var f=$('#pw1');if(f)f.focus();
+}
+function exportWithPw(){
+  var p1=($('#pw1')||{}).value||'',p2=($('#pw2')||{}).value||'';
+  if(p1.length<6){ui.sheet.err='密碼至少 6 個字。';render();return;}
+  if(p1!==p2){ui.sheet.err='兩次輸入的密碼不一樣。';render();return;}
+  ui.sheet={type:'busy',msg:'加密中⋯'};render();
+  encryptText(JSON.stringify(db),p1).then(function(t){doExport(t,true);},function(){ui.sheet={type:'exportpw',err:'加密失敗，請再試一次。'};render();});
+}
+function doExport(encText,isEnc){
+  var text=encText||JSON.stringify(db),name='habits-backup-'+todayKey()+(isEnc?'-locked':'')+'.json';
   try{
     var f=new File([text],name,{type:'application/json'});
     if(navigator.canShare&&navigator.canShare({files:[f]})){
-      navigator.share({files:[f]}).then(function(){toast('已匯出');}).catch(function(e){
-        if(e&&e.name==='AbortError')return;ui.sheet={type:'export',text:text,name:name};render();
+      ui.sheet=null;render();navigator.share({files:[f]}).then(function(){toast(isEnc?'已匯出加密備份':'已匯出');}).catch(function(e){
+        if(e&&e.name==='AbortError'){ui.sheet=null;render();return;}ui.sheet={type:'export',text:text,name:name,enc:!!isEnc};render();
       });
       return;
     }
   }catch(e){}
-  ui.sheet={type:'export',text:text,name:name};render();
+  ui.sheet={type:'export',text:text,name:name,enc:!!isEnc};render();
 }
 function copyText(text){
   function fallback(){var ta=$('#exporttext');if(ta){ta.focus();ta.select();}toast('已選取內容，請按「拷貝」');}
@@ -1437,8 +1486,22 @@ function downloadText(text,name){
   try{var url=URL.createObjectURL(new Blob([text],{type:'application/json'}));var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},4000);}catch(e){}
   toast('如果沒有開始下載，請改用「複製備份內容」');
 }
+function unlockImport(){
+  var pw=($('#pw3')||{}).value||'',raw=ui.sheet.raw;if(!pw){ui.sheet.err='請輸入密碼。';render();return;}
+  ui.sheet={type:'busy',msg:'解密中⋯'};render();
+  decryptText(raw,pw).then(function(t){var d=null;try{d=normalize(JSON.parse(t));}catch(e){}
+    if(!d){ui.sheet={type:'import',paste:'',err:'解開了，但內容讀不懂。'};render();return;}
+    ui.sheet={type:'confirm',data:d};render();
+  },function(){ui.sheet={type:'unlock',raw:raw,err:'密碼不對，請再試一次。'};render();var f=$('#pw3');if(f)f.focus();});
+}
 function tryImport(text){
-  var d=null;try{d=normalize(JSON.parse(text));}catch(e){}
+  if(text.length>MAX_BACKUP){ui.sheet={type:'import',paste:'',err:'檔案太大，不像是這個 App 的備份。'};render();return;}
+  var raw=null;try{raw=JSON.parse(text);}catch(e){}
+  if(isEncBackup(raw)){
+    if(!canCrypt()){ui.sheet={type:'import',paste:'',err:'這是加密備份，但這個瀏覽器不支援解密。'};render();return;}
+    ui.sheet={type:'unlock',raw:raw,err:''};render();var f=$('#pw3');if(f)f.focus();return;
+  }
+  var d=null;try{d=normalize(raw);}catch(e){}
   if(!d){ui.sheet={type:'import',paste:text,err:'讀不懂這份內容，請確認是從這個 App 匯出的備份。'};render();return;}
   ui.sheet={type:'confirm',data:d};render();
 }
@@ -1526,7 +1589,10 @@ function act(a,b){
       save();ui.lastRedeem=rx.id;render();toast('已兌換，好好享受',5000,'<button class="toast-act" data-act="undoredeem">復原</button>');return;
     case 'undoredeem': if(ui.lastRedeem){removeRedemption(ui.lastRedeem);ui.lastRedeem=null;}$('#toast').hidden=true;break;
     case 'rdel': if(ui.confirmDel!==id){ui.confirmDel=id;break;}removeRedemption(id);ui.confirmDel=false;toast('已刪除這筆兌換紀錄');break;
-    case 'export': doExport();return;
+    case 'export': startExport();return;
+    case 'exportenc': exportWithPw();return;
+    case 'exportplain': doExport(null);return;
+    case 'unlockimp': unlockImport();return;
     case 'import': ui.sheet={type:'import',paste:''};break;
     case 'pickfile': $('#importFile').click();return;
     case 'usepaste': tryImport((ui.sheet&&ui.sheet.paste)||'');return;
@@ -1538,7 +1604,7 @@ function act(a,b){
   render();
 }
 document.addEventListener('click',function(e){
-  if(e.target.id==='sheet'){ui.sheet=null;render();return;}
+  if(e.target.id==='sheet'){if(ui.sheet&&ui.sheet.type==='busy')return;ui.sheet=null;render();return;}
   var b=e.target.closest('[data-act]');if(!b||b.disabled)return;
   act(b.dataset.act,b);
 });
@@ -1559,6 +1625,8 @@ document.addEventListener('input',function(e){
   else if(el.id==='q'){ui.q=el.value;var r=$('#results');if(r)r.innerHTML=searchResults();}
 });
 document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&(e.target.id==='pw1'||e.target.id==='pw2')){e.preventDefault();exportWithPw();return;}
+  if(e.key==='Enter'&&e.target.id==='pw3'){e.preventDefault();unlockImport();return;}
   if(e.target.id==='hname'&&e.key==='Enter'){e.preventDefault();saveDraft();return;}
   if(ui.view==='search'&&e.key==='Escape'){act('sback',{dataset:{}});return;}
   if(ui.view==='pnl'&&!e.metaKey&&!e.ctrlKey){
@@ -1571,6 +1639,7 @@ document.addEventListener('keydown',function(e){
 });
 $('#importFile').addEventListener('change',function(e){
   var f=e.target.files&&e.target.files[0];if(!f)return;
+  if(f.size>MAX_BACKUP){e.target.value='';ui.sheet={type:'import',paste:'',err:'檔案太大，不像是這個 App 的備份。'};render();return;}
   var r=new FileReader();r.onload=function(){tryImport(String(r.result||''));};r.readAsText(f);e.target.value='';
 });
 
