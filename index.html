@@ -192,6 +192,11 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .dtl b{font-size:16px}.dtl span{font-size:12px;color:var(--muted)}
 .dw{display:flex;flex-direction:column;min-height:100%}
 .dw-body{flex:1 1 auto;padding:8px 20px 24px;display:flex;flex-direction:column;gap:14px;max-width:620px;width:100%;margin:0 auto;box-sizing:border-box}
+.dnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dnav-c{text-align:center;display:flex;flex-direction:column;gap:1px}
+.dnav-c b{font-size:17px}
+.dnav-c span{font-size:12px;color:var(--muted)}
+.dnav .iconbtn:disabled{opacity:.35}
 .dw-sub{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:1px}
 .mchip{align-self:flex-start;min-height:28px;padding:0 10px;border-radius:14px;background:var(--chip);display:inline-flex;align-items:center;font-size:13px}
 .dprompt{background:var(--good-soft);border:1.5px solid var(--good-line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
@@ -587,12 +592,19 @@ function diaryCard(k){
   }
   return s+'</section>';
 }
+function dPrevKey(k){var ks=Object.keys(db.logs).filter(function(x){return x<k&&dText(x);}).sort();return ks.length?ks[ks.length-1]:null;}
+function dNextKey(k){var t=todayKey();if(k>=t)return null;var ks=Object.keys(db.logs).filter(function(x){return x>k&&x<=t&&dText(x);}).sort();return ks.length?ks[0]:t;}
+function dGo(k){var l=db.logs[ui.date];if(l&&l.diary&&!(l.diary.t||'').trim()){delete l.diary;tidy(ui.date);save();}ui.date=k;ui.follow=k===todayKey();ui.dEdit=dText(k)?null:k;ui.dSkip=null;ui.top=true;}
 function vDiary(){
   var k=ui.date,t=dText(k),q=dQ(k),l=db.logs[k]||{},ed=!t||ui.dEdit===k,n=dCount(t);
   var s='<div class="dw"><div class="page" style="padding-bottom:0"><header class="editbar"><button class="textbtn" data-act="dback">'+(ui.dBack==='stats'?'統計':ui.dBack==='search'?'搜尋':'今天')+'</button>'+
-    '<h1 class="edit-t">日記<span class="dw-sub">'+dDate(k)+'</span></h1>'+
-    (ed?'<button class="textbtn strong" id="ddone" data-act="ddone"'+(t.trim()?'':' disabled')+'>完成</button>':'<button class="textbtn" style="color:var(--fg);font-weight:700" data-act="dedit">編輯</button>')+
+    '<h1 class="edit-t">日記</h1>'+
+    (ed?'<button class="textbtn strong" id="ddone" data-act="ddone">完成</button>':'<button class="textbtn" style="color:var(--fg);font-weight:700" data-act="dedit">編輯</button>')+
     '</header></div><div class="dw-body">';
+  var pk=dPrevKey(k),nk=dNextKey(k),tk=todayKey(),dd0=parseKey(k);
+  s+='<div class="dnav"><button class="iconbtn" data-act="dgo" data-k="'+(pk||'')+'" aria-label="上一篇日記'+(pk?'，'+shortMD(pk):'')+'"'+(pk?'':' disabled')+'>'+I.left+'</button>'+
+    '<div class="dnav-c"><b>'+(dd0.getMonth()+1)+'月'+dd0.getDate()+'日 · 週'+WD[dd0.getDay()]+'</b><span>'+(k===tk?'今天':k===addDays(tk,-1)?'昨天':dd0.getFullYear()!==parseKey(tk).getFullYear()?dd0.getFullYear()+' 年':Math.round((parseKey(tk)-dd0)/864e5)+' 天前')+'</span></div>'+
+    '<button class="iconbtn" data-act="dgo" data-k="'+(nk||'')+'" aria-label="'+(nk===tk&&!dText(tk)?'回到今天':'下一篇日記')+'"'+(nk?'':' disabled')+'>'+I.right+'</button></div>';
   s+='<span class="mchip">'+(l.mood!=null?'心情：'+MOODS[l.mood]:'這天還沒選心情')+'</span>';
   if(ed&&!q&&!t&&!db.settings.dNoPrompt&&ui.dSkip!==k){
     s+='<div class="dprompt" id="dprompt"><div class="dprompt-l">引導題</div><div class="dprompt-q">'+esc(DPROMPTS[dpIdx(k)])+'</div>'+
@@ -1415,8 +1427,10 @@ function act(a,b){
     case 'dhide': db.settings.hideDiary=!db.settings.hideDiary;save();break;
     case 'dsel': ui.dSel=b.dataset.k;break;
     case 'dopen': k=b.dataset.k||ui.date;ui.dBack=ui.view==='stats'?'stats':ui.view==='search'?'search':'today';ui.date=k;ui.follow=k===t;ui.dEdit=dText(k)?null:k;ui.dSkip=null;go('diary');break;
-    case 'dback': l=db.logs[ui.date];if(l&&l.diary&&!l.diary.t){delete l.diary;tidy(ui.date);save();}ui.dEdit=null;if(ui.dBack==='stats')ui.dSel=ui.date;go(ui.dBack||'today');break;
-    case 'ddone': l=db.logs[ui.date];if(l&&l.diary&&l.diary.t){l.diary.t=l.diary.t.replace(/\s+$/,'');tidy(ui.date);save();ui.dEdit=null;render();toast('日記已完成');}return;
+    case 'dback': l=db.logs[ui.date];if(l&&l.diary&&!(l.diary.t||'').trim()){delete l.diary;tidy(ui.date);save();}ui.dEdit=null;if(ui.dBack==='stats')ui.dSel=ui.date;go(ui.dBack||'today');break;
+    case 'ddone': l=db.logs[ui.date];if(l&&l.diary&&l.diary.t&&l.diary.t.trim()){l.diary.t=l.diary.t.replace(/\s+$/,'');tidy(ui.date);save();ui.dEdit=null;render();toast('日記已完成');return;}
+      act('dback',b);return;
+    case 'dgo': if(b.dataset.k){dGo(b.dataset.k);}break;
     case 'dedit': ui.dEdit=ui.date;render();var dta=document.getElementById('diary');if(dta){dta.focus();dta.setSelectionRange(dta.value.length,dta.value.length);}return;
     case 'duse': l=db.logs[ui.date]||(db.logs[ui.date]={});l.diary={t:dText(ui.date),q:DPROMPTS[dpIdx(ui.date)]};save();ui.dEdit=ui.date;render();var dtb=document.getElementById('diary');if(dtb)dtb.focus();return;
     case 'dswap': ui.dp={k:ui.date,i:(dpIdx(ui.date)+1)%DPROMPTS.length};break;
@@ -1510,7 +1524,7 @@ document.addEventListener('input',function(e){
   else if(el.id==='hsave'&&ui.draft){ui.draft.save=parseInt(el.value.replace(/[^0-9]/g,''),10)||0;Array.prototype.forEach.call(document.querySelectorAll('[data-act=savechip]'),function(c){c.classList.toggle('on',+c.dataset.v===ui.draft.save);});}
   else if(el.id==='diary'){var dl=db.logs[ui.date]||(db.logs[ui.date]={});dl.diary=dl.diary||{};dl.diary.t=el.value;ui.dEdit=ui.date;tidy(ui.date);save();
     var n=dCount(el.value),dd=$('#ddone'),dc=$('#dcount'),ds=$('#dstatus'),dpp=$('#dprompt');
-    if(dd)dd.disabled=!el.value.trim();if(dc)dc.textContent=fmtN(n)+' 字';if(ds)ds.textContent=n?'草稿已自動儲存':'寫的時候會自動存草稿';if(dpp)dpp.hidden=!!el.value;}
+    if(dc)dc.textContent=fmtN(n)+' 字';if(ds)ds.textContent=n?'草稿已自動儲存':'寫的時候會自動存草稿';if(dpp)dpp.hidden=!!el.value;}
   else if(el.id==='q'){ui.q=el.value;var r=$('#results');if(r)r.innerHTML=searchResults();}
 });
 document.addEventListener('keydown',function(e){
