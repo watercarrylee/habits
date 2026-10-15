@@ -565,6 +565,7 @@ if(!db.rewards)db.rewards=[];
 if(!db.redeemed)db.redeemed=[];
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
+var APP_VER='2026.10.15-4';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1291,7 +1292,7 @@ function vSettings(){
     '<button class="row-btn" data-act="archived"><span>已封存的習慣</span><span class="side">'+arch+'</span></button>'+
     '<button class="row-btn" data-act="export"><span>匯出備份</span><span class="side">'+I.down+'</span></button>'+
     '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button></div>'+
-    '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p>'+
+    '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><p class="small muted" style="text-align:center;margin-top:-8px">版本 '+APP_VER+'</p>'+
     (storageOK?'':'<p class="small bad-t"><strong>目前無法寫入手機儲存空間，新的紀錄不會被保存。</strong>如果開著私密瀏覽，請改用一般模式。</p>')+
     '</section>';
   return s+'</div>';
