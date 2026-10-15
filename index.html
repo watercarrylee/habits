@@ -192,6 +192,13 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .dtl b{font-size:16px}.dtl span{font-size:12px;color:var(--muted)}
 .dw{display:flex;flex-direction:column;min-height:100%}
 .dw-body{flex:1 1 auto;padding:8px 20px 24px;display:flex;flex-direction:column;gap:14px;max-width:620px;width:100%;margin:0 auto;box-sizing:border-box}
+.a2{background:var(--surface);border:1.5px solid var(--good-line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.a2-t{font-size:16px;font-weight:700}
+.a2 ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.6}
+.a2 ol svg{vertical-align:-3px}
+.a2-f{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.a2never{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);min-height:44px}
+.a2never input{width:20px;height:20px;accent-color:var(--good);margin:0}
 .dnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .dnav-c{text-align:center;display:flex;flex-direction:column;gap:1px}
 .dnav-c b{font-size:17px}
@@ -502,6 +509,7 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function allDays(){return [true,true,true,true,true,true,true];}
 
 var I={
+  share:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="分享"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M7 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1"/></svg>',
   pen:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
   lock:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
   hist:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>',
@@ -565,7 +573,7 @@ if(!db.rewards)db.rewards=[];
 if(!db.redeemed)db.redeemed=[];
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
-var APP_VER='2026.10.15-4';
+var APP_VER='2026.10.15-5';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1179,6 +1187,23 @@ function badCard(h,k){
   return '<div class="hcard'+(on?' b-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div></div>'+counter(h.id,v,'bad')+'</div>';
 }
 
+/* ---------- add to home screen hint ---------- */
+var A2KEY='habit-a2hs';
+function a2Get(){try{return JSON.parse(localStorage.getItem(A2KEY)||'{}')||{};}catch(e){return {};}}
+function a2Set(o){try{localStorage.setItem(A2KEY,JSON.stringify(o));}catch(e){}}
+function isIOS(){var u=navigator.userAgent||'';return /iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1);}
+function isStandalone(){try{return navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);}catch(e){return false;}}
+function a2Eligible(){return (isIOS()||ui.a2Force)&&!isStandalone();}
+function a2Banner(){
+  if(!a2Eligible())return '';var o=a2Get();if(o.never||(o.until&&Date.now()<o.until))return '';
+  var has=db.habits.length||Object.keys(db.logs).length;
+  return '<section class="a2" aria-label="加到主畫面"><div class="a2-t">加到主畫面，用起來就像 App</div><ol>'+
+    (has?'<li>先到「習慣設定」按<b>匯出備份</b>，把目前的紀錄帶過去</li>':'')+
+    '<li>點瀏覽器的分享按鈕 '+I.share+'（Safari 在下方工具列，或「⋯」選單裡），選<b>加入主畫面</b></li>'+
+    '<li>從主畫面打開'+(has?'，到「習慣設定」按<b>從備份還原</b>':'就完成了')+'</li></ol>'+
+    (has?'<p class="small muted">主畫面的 App 和這個瀏覽器分頁的資料是分開存的，所以要用備份搬過去。</p>':'')+
+    '<div class="a2-f"><label class="a2never"><input type="checkbox" id="a2never">不再提示</label><button class="ghost" data-act="a2close">知道了</button></div></section>';
+}
 function vToday(){
   var k=ui.date,t=todayKey();
   var goods=active('good'),bads=active('bad');
@@ -1191,6 +1216,7 @@ function vToday(){
     '<div class="datebar-mid"><div class="sub">'+dateSub(k)+'</div><h1 class="h1">'+dateLabel(k)+'</h1></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></header>';
   if(k!==t)s+='<button class="linkbtn" data-act="gotoday">回到今天</button>';
+  s+=a2Banner();
   if(!goods.length&&!bads.length){
     s+='<div class="empty"><div class="empty-t">還沒有習慣</div><p>新增幾個想養成、或想戒掉的習慣。之後每天打開，點幾下就記好了。</p>'+
       '<div class="btnrow"><button class="primary" data-act="new">新增習慣</button><button class="secondary" data-act="examples">用範例開始</button></div></div>';
@@ -1291,7 +1317,8 @@ function vSettings(){
   s+='<section class="sec"><h2 class="sec-t">資料</h2><div class="list">'+
     '<button class="row-btn" data-act="archived"><span>已封存的習慣</span><span class="side">'+arch+'</span></button>'+
     '<button class="row-btn" data-act="export"><span>匯出備份</span><span class="side">'+I.down+'</span></button>'+
-    '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button></div>'+
+    '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button>'+
+    (a2Eligible()?'<button class="row-btn" data-act="a2how"><span>加到主畫面的方法</span><span class="side">'+I.share+'</span></button>':'')+'</div>'+
     '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><p class="small muted" style="text-align:center;margin-top:-8px">版本 '+APP_VER+'</p>'+
     (storageOK?'':'<p class="small bad-t"><strong>目前無法寫入手機儲存空間，新的紀錄不會被保存。</strong>如果開著私密瀏覽，請改用一般模式。</p>')+
     '</section>';
@@ -1437,6 +1464,8 @@ function act(a,b){
     case 'dswap': ui.dp={k:ui.date,i:(dpIdx(ui.date)+1)%DPROMPTS.length};break;
     case 'dskip': ui.dSkip=ui.date;break;
     case 'dqx': l=db.logs[ui.date];if(l&&l.diary){delete l.diary.q;tidy(ui.date);save();}ui.dSkip=null;break;
+    case 'a2close': var nv=$('#a2never');a2Set(nv&&nv.checked?{never:true}:{until:Date.now()+7*864e5});toast(nv&&nv.checked?'之後不會再提示':'7 天後再提醒你');break;
+    case 'a2how': a2Set({});ui.date=t;ui.follow=true;go('today');break;
     case 'gotoday': ui.date=t;ui.follow=true;break;
     case 'toggle': setVal(ui.date,id,val(ui.date,id)>0?0:1);break;
     case 'inc': setVal(ui.date,id,val(ui.date,id)+1);break;
