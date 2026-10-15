@@ -533,10 +533,11 @@ var I={
 /* ---------- storage ---------- */
 function blank(){return {v:1,habits:[],logs:{},settings:{},rewards:[],redeemed:[]};}
 function valid(d){return d&&Array.isArray(d.habits)&&d.logs&&typeof d.logs==='object'&&!Array.isArray(d.logs);}
+function cid(v){var c=String(v==null?'':v).replace(/[^A-Za-z0-9_-]/g,'').slice(0,40);return /^(__proto__|constructor|prototype)$/.test(c)?'':c;}
 function normalize(d){
   if(!valid(d))return null;
-  var habits=d.habits.filter(function(h){return h&&h.id&&h.name;}).map(function(h){
-    return {id:String(h.id),name:String(h.name).slice(0,40),kind:h.kind==='bad'?'bad':'good',
+  var habits=d.habits.filter(function(h){return h&&cid(h.id)&&h.name;}).map(function(h){
+    return {id:cid(h.id),name:String(h.name).slice(0,40),kind:h.kind==='bad'?'bad':'good',
       method:h.method==='count'?'count':'check',
       days:Array.isArray(h.days)&&h.days.length===7?h.days.map(Boolean):allDays(),
       created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist)};
@@ -544,7 +545,7 @@ function normalize(d){
   var logs={};
   Object.keys(d.logs).forEach(function(k){
     if(!/^\d{4}-\d\d-\d\d$/.test(k))return;var l=d.logs[k]||{},o={};
-    if(l.h&&typeof l.h==='object'){o.h={};Object.keys(l.h).forEach(function(id){var v=Math.floor(+l.h[id]);if(v>0)o.h[id]=v;});if(!Object.keys(o.h).length)delete o.h;}
+    if(l.h&&typeof l.h==='object'){o.h={};Object.keys(l.h).forEach(function(id){var v=Math.floor(+l.h[id]),c=cid(id);if(v>0&&c)o.h[c]=v;});if(!Object.keys(o.h).length)delete o.h;}
     if(typeof l.mood==='number'&&l.mood>=0&&l.mood<=4)o.mood=l.mood;
     if(typeof l.note==='string'&&l.note)o.note=l.note;
     if(typeof l.pnl==='number'&&isFinite(l.pnl))o.pnl=Math.round(l.pnl);
@@ -553,12 +554,12 @@ function normalize(d){
     if(Object.keys(o).length)logs[k]=o;
   });
   var st=d.settings||{};
-  var rewards=(Array.isArray(d.rewards)?d.rewards:[]).filter(function(r){return r&&r.id&&r.name&&RTYPES[r.type];}).map(function(r){
-    return {id:String(r.id),name:String(r.name).slice(0,40),type:r.type,habit:r.habit?String(r.habit):null,target:Math.max(0,Math.round(+r.target)||0),
+  var rewards=(Array.isArray(d.rewards)?d.rewards:[]).filter(function(r){return r&&cid(r.id)&&r.name&&RTYPES[r.type];}).map(function(r){
+    return {id:cid(r.id),name:String(r.name).slice(0,40),type:r.type,habit:r.habit?cid(r.habit)||null:null,target:Math.max(0,Math.round(+r.target)||0),
       repeat:!!r.repeat,created:isKey(r.created)?r.created:todayKey(),earned:(Array.isArray(r.earned)?r.earned:[]).filter(isKey),done:!!r.done};
   });
-  var redeemed=(Array.isArray(d.redeemed)?d.redeemed:[]).filter(function(x){return x&&x.id&&isKey(x.date);}).map(function(x){
-    return {id:String(x.id),rid:String(x.rid||''),name:String(x.name||'').slice(0,40),date:x.date,amount:Math.max(0,Math.round(+x.amount)||0)};
+  var redeemed=(Array.isArray(d.redeemed)?d.redeemed:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.date);}).map(function(x){
+    return {id:cid(x.id),rid:cid(x.rid),name:String(x.name||'').slice(0,40),date:x.date,amount:Math.max(0,Math.round(+x.amount)||0)};
   });
   return {v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary},rewards:rewards,redeemed:redeemed};
 }
@@ -573,7 +574,7 @@ if(!db.rewards)db.rewards=[];
 if(!db.redeemed)db.redeemed=[];
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
-var APP_VER='2026.10.15-5';
+var APP_VER='2026.10.15-6';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
