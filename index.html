@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-c4dl2W+C0e2/TLInvkN58gVaLXJGUd6l9gcV8C8KQJw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-WCBjZWNj+3UmPW+1Vc7lGfbLjHb5LYm4J86hAuWhNho='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -251,6 +251,15 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .nunit{font-size:11px;color:var(--muted);margin-right:2px}
 .setx{width:28px;height:30px;border:0;background:none;color:var(--faint);font-size:18px;padding:0}
 .setx:disabled{visibility:hidden}
+.sameset{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:2px 12px 2px 16px;display:flex;flex-direction:column}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:60px;border-bottom:1px solid var(--line-soft)}
+.srow:last-child{border-bottom:0}
+.srow-l{font-size:15px;color:var(--muted)}
+.nstep.big{gap:6px}
+.nstep.big button{width:38px;height:38px;border-radius:19px;font-size:18px}
+.nstep.big .fnum{width:64px;font-size:20px}
+.nstep.big .fnum.r{width:44px}
+.fcnt{min-width:40px;text-align:right;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
 .addset{height:48px;border-radius:16px;border:1.5px dashed var(--faint);background:none;color:var(--fg);font-size:15px;font-weight:700}
 .fsum{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
 .fsum.pr{background:var(--good-soft);border-color:var(--good-line)}
@@ -670,6 +679,11 @@ function setMetric(e,sets){
   return r1(sets.reduce(function(a,s){return Math.max(a,e1rm(s[0],s[1]));},0));
 }
 function setsText(e,sets){var u=exU(e);return sets.map(function(s){return isBW(e)?s[1]+' '+mUnit(e):fmtW(s[0],u)+' × '+s[1];}).join('　');}
+function allSame(sets){return sets.every(function(x){return x[0]===sets[0][0]&&x[1]===sets[0][1];});}
+function setsCompact(e,sets){var out=[],i=0,u=exU(e),mu=fMode(e)==='s'?' 秒':' 下';
+  while(i<sets.length){var j=i;while(j+1<sets.length&&sets[j+1][0]===sets[i][0]&&sets[j+1][1]===sets[i][1])j++;var n=j-i+1,x=sets[i];
+    out.push((isBW(e)?'':fmtW(x[0],u)+' × ')+x[1]+mu+(n>1?' × '+n+' 組':''));i=j+1;}
+  return out.join('　');}
 function setsShort(e,sets){return sets.map(function(s){return isBW(e)?String(s[1]):r1(s[0])+'×'+s[1];}).join(' · ');}
 function exHist(id){
   var e=exById(id),out=[];if(!e)return out;
@@ -721,20 +735,21 @@ function fitLogHTML(){
     '<div class="dnav-c"><b>'+mdw(k)+'</b><span>'+relDay(k)+'</span></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></div>';
   var ss=(l.s||[]).filter(function(en){return exById(en.ex);}),cc=l.c||[];
-  if(ss.length){
-    s+='<section class="sec"><h2 class="sec-t">重訓</h2>';
-    ss.forEach(function(en){
+  var partsOrder=[];ss.forEach(function(en){var pt=exById(en.ex).part;if(partsOrder.indexOf(pt)<0)partsOrder.push(pt);});
+  partsOrder.forEach(function(pt){
+    s+='<section class="sec"><h2 class="sec-t">重訓 · '+pt+'</h2>';
+    ss.filter(function(en){return exById(en.ex).part===pt;}).forEach(function(en){
       var e=exById(en.ex),u=exU(e),m=setMetric(e,en.sets),b=bestBefore(e.id,k),pr=b!==null&&m>b,met;
       if(isBW(e))met=(fMode(e)==='s'?'單組最久 ':'單組最多 ')+m+' '+mUnit(e)+(b!==null?'（'+(m-b>=0?'+':'')+(m-b)+'）':'');
       else if(!m)met='每組都超過 12 下，不算 1RM';
       else met='估計 1RM '+fmtW(m,u)+(b!==null?'（'+(m-b>=0?'+':'')+r1(m-b)+'）':'');
       s+='<button class="fcard" data-act="fedit" data-id="'+en.id+'">'+fBox(EQI[e.eq])+'<span class="fbody">'+
-        '<span class="fhead"><b>'+esc(e.name)+'</b><span class="ftag">'+esc(exTag(e))+'</span></span>'+
-        '<span class="fsets">'+esc(setsText(e,en.sets))+'</span>'+
+        '<span class="fhead"><b>'+esc(e.name)+'</b><span class="ftag">'+esc(e.eq+(e.eq==='啞鈴'?' · 單手':''))+'</span></span>'+
+        '<span class="fsets">'+esc(setsCompact(e,en.sets))+'</span>'+
         '<span class="fmet"><span>'+met+'</span>'+(pr?'<span class="prb">新紀錄</span>':'')+'</span></span></button>';
     });
     s+='</section>';
-  }
+  });
   if(cc.length){
     s+='<section class="sec"><h2 class="sec-t">有氧</h2>';
     cc.forEach(function(c){s+='<button class="fcard center" data-act="cedit" data-id="'+c.id+'">'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b></span><span class="fmins">'+c.min+' 分鐘</span></button>';});
@@ -776,7 +791,7 @@ function fitProgHTML(){
     else s+='<p class="small muted" style="padding:24px 0;text-align:center">這段期間'+(data.length?'只有一次紀錄':'沒有紀錄')+'，至少要兩次才畫得出趨勢。</p>';
     s+='<div class="legend"><span><i class="prdot"></i> 破紀錄的那天</span><span>最高 '+fmtW(best.m,unitTxt)+' · '+shortMD(best.k)+'</span></div></div>';
     s+='<section class="sec"><h2 class="sec-t">最近幾次</h2><div class="list">'+H.slice(-5).reverse().map(function(h,i){
-      return '<div class="frow"><span class="row-l"><span>'+shortMD(h.k)+' 週'+WD[parseKey(h.k).getDay()]+'</span><span class="row-sub">'+esc(setsShort(e,h.sets))+' '+(bw?mUnit(e):u)+'</span></span><b class="'+(i===0?'good-t':'')+'">'+(h.m?(bw?(sec?'最久 ':'最多 '):'1RM ')+fmtW(h.m,unitTxt):'—')+'</b></div>';}).join('')+'</div></section>';
+      return '<div class="frow"><span class="row-l"><span>'+shortMD(h.k)+' 週'+WD[parseKey(h.k).getDay()]+'</span><span class="row-sub">'+esc(setsCompact(e,h.sets))+'</span></span><b class="'+(i===0?'good-t':'')+'">'+(h.m?(bw?(sec?'最久 ':'最多 '):'1RM ')+fmtW(h.m,unitTxt):'—')+'</b></div>';}).join('')+'</div></section>';
   }
   s+=fitPartsHTML()+fitCardioHTML();
   return s;
@@ -871,8 +886,8 @@ function fpList(){
   return s;
 }
 function newEntry(exId,k){
-  var e=exById(exId),lb=lastBefore(exId,k),sets=lb?lb.sets.map(function(x){return x.slice();}):[[isBW(e)?0:(exU(e)==='lbs'?45:20),fMode(e)==='s'?30:8]];
-  return {id:null,ex:exId,k:k,sets:sets,changing:false};
+  var e=exById(exId),lb=lastBefore(exId,k),d0=[isBW(e)?0:(exU(e)==='lbs'?45:20),fMode(e)==='s'?30:8],sets=lb?lb.sets.map(function(x){return x.slice();}):[d0,d0.slice(),d0.slice()];
+  return {id:null,ex:exId,k:k,sets:sets,changing:false,same:allSame(sets)};
 }
 
 /* strength log */
@@ -880,16 +895,26 @@ function vFLog(){
   var f=ui.fl,e=exById(f.ex),u=exU(e),bw=isBW(e),lb=lastBefore(e.id,f.k),sec=fMode(e)==='s',rl=sec?'秒數':'次數';
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="flcancel">取消</button><h1 class="edit-t">記錄重訓<span class="dw-sub">'+mdw(f.k)+'</span></h1><button class="textbtn strong" data-act="flsave">儲存</button></header>'+
     '<button class="fcard center" data-act="flchange">'+fBox(EQI[e.eq])+'<span class="fbody"><b style="font-size:18px">'+esc(e.name)+'</b><span class="ftag" style="text-align:left">'+esc(exTag(e))+'</span></span><span class="small muted" style="display:flex;align-items:center;gap:2px;flex:0 0 auto">換動作'+I.right+'</span></button>'+
-    '<div class="sec-row" style="align-items:center"><span class="small muted">'+(lb?'上次 '+shortMD(lb.k)+'：'+esc(setsShort(e,lb.sets))+(bw?' '+mUnit(e):''):'第一次記錄這個動作')+'</span>'+
+    '<div class="sec-row" style="align-items:center"><span class="small muted">'+(lb?'上次 '+shortMD(lb.k)+'：'+esc(setsCompact(e,lb.sets)):'第一次記錄這個動作')+'</span>'+
     (bw?'':'<span class="useg"><button class="'+(u==='kg'?'on':'')+'" data-act="flunit" data-v="kg" aria-pressed="'+(u==='kg')+'">kg</button><button class="'+(u==='lbs'?'on':'')+'" data-act="flunit" data-v="lbs" aria-pressed="'+(u==='lbs')+'">lbs</button></span>')+'</div>'+
     '<div style="display:flex;flex-direction:column;gap:8px">';
-  f.sets.forEach(function(x,i){
-    s+='<div class="setrow'+(bw?' bw':'')+'"><span class="setn">'+(i+1)+'</span>'+
-      (bw?'':'<span class="nstep"><button data-act="flw" data-i="'+i+'" data-d="-1" aria-label="第 '+(i+1)+' 組減重量">−</button><input class="fnum" id="fw'+i+'" data-i="'+i+'" data-f="0" inputmode="decimal" value="'+r1(x[0])+'" aria-label="第 '+(i+1)+' 組重量（'+u+'）"><span class="nunit">'+u+'</span><button data-act="flw" data-i="'+i+'" data-d="1" aria-label="第 '+(i+1)+' 組加重量">＋</button></span><span class="muted">×</span>')+
-      '<span class="nstep"><button data-act="flr" data-i="'+i+'" data-d="-1" aria-label="第 '+(i+1)+' 組減'+rl+'">−</button><input class="fnum r'+(sec?' s':'')+'" id="fr'+i+'" data-i="'+i+'" data-f="1" inputmode="numeric" value="'+x[1]+'" aria-label="第 '+(i+1)+' 組'+rl+'"><span class="nunit">'+(sec?'秒':'下')+'</span><button data-act="flr" data-i="'+i+'" data-d="1" aria-label="第 '+(i+1)+' 組加'+rl+'">＋</button></span>'+
-      '<button class="setx" data-act="fldelset" data-i="'+i+'" aria-label="刪除第 '+(i+1)+' 組"'+(f.sets.length<2?' disabled':'')+'>×</button></div>';
-  });
-  s+='<button class="addset" data-act="fladd">＋ 加一組（帶入上一組）</button><p class="small muted" style="text-align:center">'+(sec?'每次 ＋／− 是 5 秒，點數字也可以直接輸入':bw?'只記次數，趨勢看單組最多次數':'點數字可以直接輸入 · 超過 12 下的組不算進 1RM')+'</p></div>'+
+  if(f.same){
+    var x0=f.sets[0],step=function(act,lbl,inner){return '<span class="nstep big"><button data-act="'+act+'" data-i="all" data-d="-1" aria-label="減'+lbl+'">−</button>'+inner+'<button data-act="'+act+'" data-i="all" data-d="1" aria-label="加'+lbl+'">＋</button></span>';};
+    s+='<div class="sameset">'+
+      (bw?'':'<div class="srow"><span class="srow-l">重量</span>'+step('flw','重量','<input class="fnum" id="fwall" data-i="all" data-f="0" inputmode="decimal" value="'+r1(x0[0])+'" aria-label="每組重量（'+u+'）"><span class="nunit">'+u+'</span>')+'</div>')+
+      '<div class="srow"><span class="srow-l">'+(sec?'秒數':'次數')+'</span>'+step('flr',rl,'<input class="fnum r'+(sec?' s':'')+'" id="frall" data-i="all" data-f="1" inputmode="numeric" value="'+x0[1]+'" aria-label="每組'+rl+'"><span class="nunit">'+(sec?'秒':'下')+'</span>')+'</div>'+
+      '<div class="srow"><span class="srow-l">組數</span>'+step('flcnt','組數','<span class="fcnt">'+f.sets.length+'</span><span class="nunit">組</span>')+'</div></div>'+
+      '<button class="linkbtn" style="margin-top:0" data-act="flsame" data-v="0">每組不同'+(sec?'秒數':bw?'次數':'重量')+' ›</button>';
+  }else{
+    f.sets.forEach(function(x,i){
+      s+='<div class="setrow'+(bw?' bw':'')+'"><span class="setn">'+(i+1)+'</span>'+
+        (bw?'':'<span class="nstep"><button data-act="flw" data-i="'+i+'" data-d="-1" aria-label="第 '+(i+1)+' 組減重量">−</button><input class="fnum" id="fw'+i+'" data-i="'+i+'" data-f="0" inputmode="decimal" value="'+r1(x[0])+'" aria-label="第 '+(i+1)+' 組重量（'+u+'）"><span class="nunit">'+u+'</span><button data-act="flw" data-i="'+i+'" data-d="1" aria-label="第 '+(i+1)+' 組加重量">＋</button></span><span class="muted">×</span>')+
+        '<span class="nstep"><button data-act="flr" data-i="'+i+'" data-d="-1" aria-label="第 '+(i+1)+' 組減'+rl+'">−</button><input class="fnum r'+(sec?' s':'')+'" id="fr'+i+'" data-i="'+i+'" data-f="1" inputmode="numeric" value="'+x[1]+'" aria-label="第 '+(i+1)+' 組'+rl+'"><span class="nunit">'+(sec?'秒':'下')+'</span><button data-act="flr" data-i="'+i+'" data-d="1" aria-label="第 '+(i+1)+' 組加'+rl+'">＋</button></span>'+
+        '<button class="setx" data-act="fldelset" data-i="'+i+'" aria-label="刪除第 '+(i+1)+' 組"'+(f.sets.length<2?' disabled':'')+'>×</button></div>';
+    });
+    s+='<button class="addset" data-act="fladd">＋ 加一組（帶入上一組）</button><button class="linkbtn" style="margin-top:0" data-act="flsame" data-v="1">改回每組一樣</button>';
+  }
+  s+='<p class="small muted" style="text-align:center">'+(sec?'每次 ＋／− 是 5 秒，點數字也可以直接輸入':bw?'只記次數，趨勢看單組最多次數':'點數字可以直接輸入 · 超過 12 下的組不算進 1RM')+'</p></div>'+
     '<div id="flsum">'+flSumHTML()+'</div>';
   if(f.id)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="fldel">'+(ui.confirmDel==='fl'?'再按一次，刪除這筆紀錄':'刪除這筆紀錄')+'</button></div>';
   return s+'</div>';
@@ -1010,7 +1035,7 @@ if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};
 if(db.settings.fit&&fSeed())save();
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
-var APP_VER='2026.10.16-3';
+var APP_VER='2026.10.16-4';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2007,13 +2032,15 @@ function act(a,b){
       go('flog');toast('已新增「'+n+'」');break;
     case 'fxarchive': h=exById(ui.fx.id);if(h){h.archived=true;save();toast('已封存，紀錄會保留');}go('fpick');break;
     case 'fedit': l=fLog(ui.date);n=l&&(l.s||[]).filter(function(x){return x.id===id;})[0];if(!n||!exById(n.ex))return;
-      ui.fl={id:n.id,ex:n.ex,k:ui.date,sets:n.sets.map(function(x){return x.slice();}),changing:false};ui.flHelp=false;ui.confirmDel=false;go('flog');break;
+      ui.fl={id:n.id,ex:n.ex,k:ui.date,sets:n.sets.map(function(x){return x.slice();}),changing:false,same:allSame(n.sets)};ui.flHelp=false;ui.confirmDel=false;go('flog');break;
     case 'flchange': ui.fl.changing=true;ui.fpEdit=false;ui.fq='';go('fpick');break;
     case 'flcancel': ui.fl=null;go('fit');break;
     case 'flhelp': ui.flHelp=!ui.flHelp;var fs=$('#flsum');if(fs){fs.innerHTML=flSumHTML();return;}break;
     case 'flunit': h=exById(ui.fl.ex);if(h&&exU(h)!==b.dataset.v){convertEx(h,b.dataset.v==='lbs'?'lbs':'kg');save();toast('已改成 '+exU(h)+'，這個動作的舊紀錄也換算好了',2600);}break;
-    case 'flw': h=exById(ui.fl.ex);n=+b.dataset.i;ui.fl.sets[n][0]=Math.max(0,r1(ui.fl.sets[n][0]+(+b.dataset.d)*(exU(h)==='lbs'?5:2.5)));break;
-    case 'flr': n=+b.dataset.i;ui.fl.sets[n][1]=Math.max(1,ui.fl.sets[n][1]+(+b.dataset.d)*(fMode(exById(ui.fl.ex))==='s'?5:1));break;
+    case 'flw': h=exById(ui.fl.ex);n=b.dataset.i;ui.fl.sets.forEach(function(x,i){if(n==='all'||+n===i)x[0]=Math.max(0,r1(x[0]+(+b.dataset.d)*(exU(h)==='lbs'?5:2.5)));});break;
+    case 'flr': n=b.dataset.i;ui.fl.sets.forEach(function(x,i){if(n==='all'||+n===i)x[1]=Math.max(1,x[1]+(+b.dataset.d)*(fMode(exById(ui.fl.ex))==='s'?5:1));});break;
+    case 'flcnt': n=ui.fl.sets.length+(+b.dataset.d);if(n<1||n>30)return;if(n>ui.fl.sets.length)ui.fl.sets.push(ui.fl.sets[0].slice());else ui.fl.sets.pop();break;
+    case 'flsame': if(b.dataset.v==='1'){if(!allSame(ui.fl.sets)){var f0=ui.fl.sets[0];ui.fl.sets=ui.fl.sets.map(function(){return f0.slice();});toast('每組都改成第一組的數字',2400);}ui.fl.same=true;}else ui.fl.same=false;break;
     case 'fladd': n=ui.fl.sets[ui.fl.sets.length-1];ui.fl.sets.push(n?n.slice():[0,8]);break;
     case 'fldelset': if(ui.fl.sets.length>1)ui.fl.sets.splice(+b.dataset.i,1);break;
     case 'flsave':
@@ -2132,8 +2159,9 @@ document.addEventListener('input',function(e){
   else if(el.id==='diary'){var dl=db.logs[ui.date]||(db.logs[ui.date]={});dl.diary=dl.diary||{};dl.diary.t=el.value;ui.dEdit=ui.date;tidy(ui.date);save();
     var n=dCount(el.value),dd=$('#ddone'),dc=$('#dcount'),ds=$('#dstatus'),dpp=$('#dprompt');
     if(dc)dc.textContent=fmtN(n)+' 字';if(ds)ds.textContent=n?'草稿已自動儲存':'寫的時候會自動存草稿';if(dpp)dpp.hidden=!!el.value;}
-  else if(el.classList&&el.classList.contains('fnum')&&ui.fl){var fi=+el.dataset.i,ff=+el.dataset.f,fv=parseFloat(String(el.value).replace(',','.'));
-    if(ui.fl.sets[fi]){ui.fl.sets[fi][ff]=ff?Math.min(Math.max(Math.floor(fv)||0,0),fMode(exById(ui.fl.ex))==='s'?3600:999):Math.min(Math.max(isFinite(fv)?fv:0,0),2000);var fsm=$('#flsum');if(fsm)fsm.innerHTML=flSumHTML();}}
+  else if(el.classList&&el.classList.contains('fnum')&&ui.fl){var fi=el.dataset.i,ff=+el.dataset.f,fv=parseFloat(String(el.value).replace(',','.'));
+    var nv=ff?Math.min(Math.max(Math.floor(fv)||0,0),fMode(exById(ui.fl.ex))==='s'?3600:999):Math.min(Math.max(isFinite(fv)?fv:0,0),2000);
+    ui.fl.sets.forEach(function(x,i){if(fi==='all'||+fi===i)x[ff]=nv;});var fsm=$('#flsum');if(fsm)fsm.innerHTML=flSumHTML();}
   else if(el.id==='fq'){ui.fq=el.value;var fpl=$('#fplist');if(fpl)fpl.innerHTML=fpList();}
   else if(el.id==='fxname'&&ui.fx){ui.fx.name=el.value;}
   else if(el.id==='fxen'&&ui.fx){ui.fx.en=el.value;}
