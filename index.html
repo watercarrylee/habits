@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-PGfDQbZuYgoMj69Fydmp53Ya1LWAv8Y18unXYb5kem8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-D4NktMJzpHWWXo5KGkrSdI8gbG2Hj/oGULf3o2BVG3k='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -305,6 +305,11 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .own-host .demobar{padding-top:calc(8px + env(safe-area-inset-top,0px))}
 .demobar span{flex:1 1 auto;min-width:0}
 .demobar button,.demobar a{flex:0 0 auto;height:30px;padding:0 12px;border-radius:15px;border:1.5px solid currentColor;background:none;color:inherit;font-size:12px;font-weight:700;display:inline-flex;align-items:center;text-decoration:none}
+.ulink{color:var(--good);text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+.bk{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.bk.warn{border-color:var(--bad-line)}
+.bk-t{font-size:16px;font-weight:700}
+.bk p{margin:0;font-size:13px;line-height:1.6;color:var(--muted)}
 .dnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .dnav-c{text-align:center;display:flex;flex-direction:column;gap:1px}
 .dnav-c b{font-size:17px}
@@ -1103,7 +1108,7 @@ if(DEMO){
   demoBar.innerHTML='<span>示範模式 · 假資料，不會影響你的紀錄</span><button data-act="demoreset">重置</button><a href="./">離開</a>';
   document.querySelector('.app').insertBefore(demoBar,$('#main'));
 }
-var APP_VER='2026.10.16-5';
+var APP_VER='2026.10.16-6';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1151,7 +1156,7 @@ function vDiary(){
   }
   if(q)s+='<div class="dq"><span>'+esc(q)+'</span>'+(ed?'<button data-act="dqx" aria-label="拿掉題目">'+I.x+'</button>':'')+'</div>';
   if(ed)s+='<label class="sr" for="diary">日記內容</label><textarea id="diary" placeholder="想到什麼就寫什麼⋯">'+esc(t)+'</textarea>';
-  else s+='<div class="dview">'+esc(t)+'</div>';
+  else s+='<div class="dview">'+linkify(t)+'</div>';
   s+='<div class="dstat"><span id="dstatus">'+(ed?(n?'草稿已自動儲存':'寫的時候會自動存草稿'):'已鎖定 · 按「編輯」修改')+'</span><span id="dcount">'+fmtN(n)+' 字</span></div>';
   return s+'</div></div>';
 }
@@ -1192,9 +1197,26 @@ function diaryStats(y,m){
   }
   return s;
 }
+/* turn http(s) URLs in plain text into links; everything else stays escaped text */
+var URL_RE=/(https?:\/\/|www\.)[^\s<>"'，。、；：！？「」『』（）【】《》]+/gi;
+function linkify(text){
+  text=String(text==null?'':text);var out='',last=0,m;URL_RE.lastIndex=0;
+  while((m=URL_RE.exec(text))){
+    var raw=m[0],trail=raw.match(/[.,;:!?)\]}'"]+$/);if(trail)raw=raw.slice(0,-trail[0].length);
+    var href=/^www\./i.test(raw)?'https://'+raw:raw;
+    out+=esc(text.slice(last,m.index));
+    if(/^https?:\/\/[^\s/]+\.[^\s]+/i.test(href)||/^https?:\/\/localhost/i.test(href)){
+      var show=raw.replace(/^https?:\/\//i,'');
+      if(show.length>36){var pt=show.split('/'),c2=pt.length>2?pt[0]+'/'+pt[1]+'/…':'';show=c2&&c2.length<=36?c2:pt.length>1&&pt[0].length<=34?pt[0]+'/…':show.slice(0,33)+'…';}
+      out+='<a class="ulink" href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+esc(show)+'</a>';
+    }else out+=esc(raw);
+    last=m.index+raw.length;URL_RE.lastIndex=last;
+  }
+  return out+esc(text.slice(last));
+}
 function noteBox(k,log){
   var n=log.note||'';
-  if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div><div class="note-view" id="note-view">'+esc(n)+'</div>';
+  if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div><div class="note-view" id="note-view">'+linkify(n)+'</div>';
   return '<div class="note-h"><label for="note" class="lbl">備註</label></div><textarea id="note" rows="3" placeholder="今天發生了什麼？">'+esc(n)+'</textarea>'+
     '<div class="note-foot" id="note-foot"'+(n.trim()?'':' hidden')+'><button class="minibtn" data-act="notedone">確認</button></div>';
 }
@@ -1724,6 +1746,22 @@ function a2Set(o){try{localStorage.setItem(A2KEY,JSON.stringify(o));}catch(e){}}
 function isIOS(){var u=navigator.userAgent||'';return /iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1);}
 function isStandalone(){try{return navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);}catch(e){return false;}}
 function a2Eligible(){return !DEMO&&(isIOS()||ui.a2Force)&&!isStandalone();}
+var BKKEY=KEY+'-backup';
+function bkGet(){try{return JSON.parse(localStorage.getItem(BKKEY)||'{}')||{};}catch(e){return {};}}
+function bkSet(o){try{localStorage.setItem(BKKEY,JSON.stringify(o));}catch(e){}}
+function markBackup(){var o=bkGet();o.at=todayKey();delete o.snooze;bkSet(o);}
+function daysSince(k){return Math.round((parseKey(todayKey())-parseKey(k))/864e5);}
+function firstUseKey(){var k=Object.keys(db.logs).sort()[0]||todayKey();db.habits.forEach(function(h){if(h.created<k)k=h.created;});return k;}
+function bkAgeText(){var o=bkGet();if(!o.at)return '還沒備份過';var n=daysSince(o.at);return n<=0?'今天備份過':'上次 '+n+' 天前';}
+function bkBanner(){
+  if(DEMO||!db.habits.length)return '';
+  var o=bkGet(),t=todayKey();if(o.snooze&&o.snooze>t)return '';
+  var tab=isIOS()&&!isStandalone(),lim=tab?7:14,age=o.at?daysSince(o.at):daysSince(firstUseKey());
+  if(age<lim)return '';
+  return '<section class="bk'+(tab?' warn':'')+'" aria-label="備份提醒"><div class="bk-t">'+(o.at?'已經 '+age+' 天沒備份了':'還沒備份過紀錄')+'</div>'+
+    '<p>'+(tab?'你正在用 Safari 分頁開這個 App，iOS 可能在一段時間沒開之後清掉網站資料。建議先備份，再加到主畫面。':'所有紀錄只存在這支手機上，換手機或清除資料就救不回來。備份一次只要幾秒。')+'</p>'+
+    '<div class="btnrow"><button class="primary" data-act="export">現在備份</button><button class="secondary" data-act="bksnooze">之後再說</button></div></section>';
+}
 function a2Banner(){
   if(!a2Eligible())return '';var o=a2Get();if(o.never||(o.until&&Date.now()<o.until))return '';
   var has=db.habits.length||Object.keys(db.logs).length;
@@ -1746,7 +1784,7 @@ function vToday(){
     '<div class="datebar-mid"><div class="sub">'+dateSub(k)+'</div><h1 class="h1">'+dateLabel(k)+'</h1></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></header>';
   if(k!==t)s+='<button class="linkbtn" data-act="gotoday">回到今天</button>';
-  s+=a2Banner();
+  var a2b=a2Banner();s+=a2b||bkBanner();
   if(!goods.length&&!bads.length){
     s+='<div class="empty"><div class="empty-t">還沒有習慣</div><p>新增幾個想養成、或想戒掉的習慣。之後每天打開，點幾下就記好了。</p>'+
       '<div class="btnrow"><button class="primary" data-act="new">新增習慣</button><button class="secondary" data-act="examples">用範例開始</button></div></div>';
@@ -1850,7 +1888,7 @@ function vSettings(){
     '</div><p class="small muted">關閉只是先藏起來，寫過的資料會保留，重新打開就會回來。</p></section>';
   s+='<section class="sec"><h2 class="sec-t">資料</h2><div class="list">'+
     '<button class="row-btn" data-act="archived"><span>已封存的習慣</span><span class="side">'+arch+'</span></button>'+
-    '<button class="row-btn" data-act="export"><span>匯出備份</span><span class="side">'+I.down+'</span></button>'+
+    '<button class="row-btn" data-act="export"><span>匯出備份</span><span class="side"><span class="small muted" style="margin-right:6px">'+bkAgeText()+'</span>'+I.down+'</span></button>'+
     '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button>'+
     (a2Eligible()?'<button class="row-btn" data-act="a2how"><span>加到主畫面的方法</span><span class="side">'+I.share+'</span></button>':'')+'</div>'+
     '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><p class="small muted" style="text-align:center;margin-top:-8px">版本 '+APP_VER+'</p>'+
@@ -2008,7 +2046,7 @@ function doExport(encText,isEnc){
   try{
     var f=new File([text],name,{type:'application/json'});
     if(navigator.canShare&&navigator.canShare({files:[f]})){
-      ui.sheet=null;render();navigator.share({files:[f]}).then(function(){toast(isEnc?'已匯出加密備份':'已匯出');}).catch(function(e){
+      ui.sheet=null;render();navigator.share({files:[f]}).then(function(){markBackup();render();toast(isEnc?'已匯出加密備份':'已匯出');}).catch(function(e){
         if(e&&e.name==='AbortError'){ui.sheet=null;render();return;}ui.sheet={type:'export',text:text,name:name,enc:!!isEnc};render();
       });
       return;
@@ -2017,12 +2055,12 @@ function doExport(encText,isEnc){
   ui.sheet={type:'export',text:text,name:name,enc:!!isEnc};render();
 }
 function copyText(text){
-  function fallback(){var ta=$('#exporttext');if(ta){ta.focus();ta.select();}toast('已選取內容，請按「拷貝」');}
-  try{navigator.clipboard.writeText(text).then(function(){toast('已複製，可以貼到備忘錄');},fallback);}catch(e){fallback();}
+  function fallback(){var ta=$('#exporttext');if(ta){ta.focus();ta.select();}markBackup();toast('已選取內容，請按「拷貝」');}
+  try{navigator.clipboard.writeText(text).then(function(){markBackup();toast('已複製，可以貼到備忘錄');},fallback);}catch(e){fallback();}
 }
 function downloadText(text,name){
   try{var url=URL.createObjectURL(new Blob([text],{type:'application/json'}));var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},4000);}catch(e){}
-  toast('如果沒有開始下載，請改用「複製備份內容」');
+  markBackup();toast('如果沒有開始下載，請改用「複製備份內容」');
 }
 function unlockImport(){
   var pw=($('#pw3')||{}).value||'',raw=ui.sheet.raw;if(!pw){ui.sheet.err='請輸入密碼。';render();return;}
@@ -2135,6 +2173,7 @@ function act(a,b){
       fTidy(k);fitSync(k);save();ui.fc=null;ui.date=k;go('fit');ui.fitTab='log';toast('已儲存');break;
     case 'fcdel': if(ui.confirmDel!=='fc'){ui.confirmDel='fc';break;}k=ui.fc.k;l=fLog(k);if(l&&l.c)l.c=l.c.filter(function(x){return x.id!==ui.fc.id;});fTidy(k);fitSync(k);save();ui.fc=null;ui.confirmDel=false;go('fit');toast('已刪除這筆紀錄');break;
     case 'demoreset': if(!DEMO)return;demoBuild();ui.date=t;ui.follow=true;ui.fpx=null;go('today');toast('示範資料已重置');break;
+    case 'bksnooze': n=bkGet();n.snooze=addDays(t,3);bkSet(n);toast('3 天後再提醒你');break;
     case 'gotoday': ui.date=t;ui.follow=true;break;
     case 'toggle': unAuto(ui.date,id);setVal(ui.date,id,val(ui.date,id)>0?0:1);break;
     case 'inc': unAuto(ui.date,id);setVal(ui.date,id,val(ui.date,id)+1);break;
