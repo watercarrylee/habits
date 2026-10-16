@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-KkXJx4mTCcqaTGim2ivogJzvJivi+L90EPvjKwXJXAg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-c4dl2W+C0e2/TLInvkN58gVaLXJGUd6l9gcV8C8KQJw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -233,7 +233,11 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .fchip.on{background:var(--fg);border-color:var(--fg);color:var(--bg);font-weight:700}
 .fprow{width:100%;display:flex;align-items:center;gap:12px;padding:10px 16px;min-height:56px;box-sizing:border-box;border:0;border-bottom:1px solid var(--line-soft);background:none;text-align:left;color:var(--fg);font-size:16px}
 .fp-n{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere}
-.fp-n small{font-size:12px;color:var(--muted)}
+.fp-n small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fgrp{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;font-weight:700;color:var(--muted)}
+.fgrp span{font-weight:400;color:var(--faint)}
+.fnum.r.s{width:42px}
+#fxen{height:44px;font-size:15px}
 .fp-t{font-size:12px;color:var(--muted);text-align:right;flex:0 1 auto;font-variant-numeric:tabular-nums}
 .fp-ed{font-size:13px;color:var(--good);font-weight:700;flex:0 0 auto}
 .setrow{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:8px 4px 8px 10px;display:grid;grid-template-columns:18px minmax(0,1fr) auto minmax(0,1fr) 28px;align-items:center;gap:2px}
@@ -628,33 +632,36 @@ var I={
 
 /* ---------- storage ---------- */
 /* ---------- fitness ---------- */
-var EQ_LIST=['槓鈴','啞鈴','壺鈴','固定式器械','繩索','史密斯機','徒手','彈力帶'];
-var PARTS=['胸','背','肩','二頭','三頭','腿','臀','核心'];
+var EQ_LIST=['器械','滑輪','槓鈴','啞鈴','壺鈴','史密斯機','徒手','彈力帶'];
+var EQ_ALIAS={'固定式器械':'器械','繩索':'滑輪'};
+var PARTS=['胸','背','肩','二頭','三頭','腿','臀','核心','小腿','全身'];
 var CARDIO=['跑步機','飛輪','划船機','橢圓機','爬梯機','戶外跑步','游泳','跳繩'];
-var EQI={'槓鈴':'M2 12h20M5 8.5v7M8 6.5v11M16 6.5v11M19 8.5v7','啞鈴':'M7.5 12h9M5.5 7v10M3 9.5v5M18.5 7v10M21 9.5v5','壺鈴':'M9 9.2V7.5a3 3 0 0 1 6 0v1.7M7 14.5a5 5 0 1 0 10 0a5 5 0 1 0-10 0','固定式器械':'M5 21V3h9v4M11 7h6v5h-6zM11 14.5h6M3 21h18','繩索':'M9.5 4.5a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M12 7v10M7.5 17h9M8.5 17v3.5M15.5 17v3.5','史密斯機':'M5 3v18M19 3v18M3 10h18M7.5 7.5v5M16.5 7.5v5','徒手':'M10 3.8a2 2 0 1 0 4 0a2 2 0 1 0-4 0M12 6.5v8M5.5 10l6.5-2.5 6.5 2.5M8.5 21.5l3.5-7 3.5 7','彈力帶':'M5 9c0-7 14-7 14 0v6c0 7-14 7-14 0zM8.5 9c0-3 7-3 7 0v6c0 3-7 3-7 0z'};
+var EQI={'槓鈴':'M2 12h20M5 8.5v7M8 6.5v11M16 6.5v11M19 8.5v7','啞鈴':'M7.5 12h9M5.5 7v10M3 9.5v5M18.5 7v10M21 9.5v5','壺鈴':'M9 9.2V7.5a3 3 0 0 1 6 0v1.7M7 14.5a5 5 0 1 0 10 0a5 5 0 1 0-10 0','器械':'M5 21V3h9v4M11 7h6v5h-6zM11 14.5h6M3 21h18','滑輪':'M9.5 4.5a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M12 7v10M7.5 17h9M8.5 17v3.5M15.5 17v3.5','史密斯機':'M5 3v18M19 3v18M3 10h18M7.5 7.5v5M16.5 7.5v5','徒手':'M10 3.8a2 2 0 1 0 4 0a2 2 0 1 0-4 0M12 6.5v8M5.5 10l6.5-2.5 6.5 2.5M8.5 21.5l3.5-7 3.5 7','彈力帶':'M5 9c0-7 14-7 14 0v6c0 7-14 7-14 0zM8.5 9c0-3 7-3 7 0v6c0 3-7 3-7 0z'};
 var CAI={'跑步機':'M3 18h14l3.5-3M6 18v2.5M16 18v2.5M14 15V6l4-2','飛輪':'M3.5 17a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0M7 17l5-8h5M12 9l-1-3H8M17 9v8.5M15 17.5h4','划船機':'M3 18h18M6 18v-3h4.5M17 18V8M15 8h4M10.5 15l6.5-4.5','橢圓機':'M5 17c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3zM8.5 16l2.5-10M15.5 16L13 6M9.5 6h5','爬梯機':'M4 20h4v-4h4v-4h4V8h4V4','戶外跑步':'M13 4.5a2 2 0 1 0 4 0a2 2 0 1 0-4 0M7 21l3.5-6 3 2.5V21M5 11.5l4-3 4.5 1 2 3 3.5 1M10.5 15l2-6','游泳':'M14 7a2 2 0 1 0 4 0a2 2 0 1 0-4 0M3 15.5c2 1.5 4 1.5 6 0s4-1.5 6 0 4 1.5 6 0M3 19.5c2 1.5 4 1.5 6 0s4-1.5 6 0 4 1.5 6 0M6 12.5l5-3 3 3','跳繩':'M5 3v7M19 3v7M5 10c0 13 14 13 14 0'};
 var CA_OTHER='M3 12h4l2-5 4 10 2-5h6',ADD_PATH='M12 5v14M5 12h14';
-var PRESETS=[['槓鈴臥推','槓鈴','胸'],['啞鈴臥推','啞鈴','胸'],['上斜啞鈴臥推','啞鈴','胸'],['蝴蝶機夾胸','固定式器械','胸'],['伏地挺身','徒手','胸'],
-  ['滑輪下拉','繩索','背'],['坐姿划船','繩索','背'],['槓鈴划船','槓鈴','背'],['引體向上','徒手','背'],['硬舉','槓鈴','背'],
-  ['啞鈴肩推','啞鈴','肩'],['側平舉','啞鈴','肩'],['臉拉','繩索','肩'],['啞鈴彎舉','啞鈴','二頭'],['槓鈴彎舉','槓鈴','二頭'],
-  ['繩索下壓','繩索','三頭'],['雙槓撐體','徒手','三頭'],['槓鈴深蹲','槓鈴','腿'],['腿推機','固定式器械','腿'],['腿伸屈','固定式器械','腿'],
-  ['羅馬尼亞硬舉','槓鈴','臀'],['臀推','槓鈴','臀'],['棒式','徒手','核心'],['懸垂舉腿','徒手','核心'],
-  ['反向蝴蝶機','固定式器械','背']];
+var PRESETS=[["槓鈴臥推", "槓鈴", "胸", "", ""], ["啞鈴臥推", "啞鈴", "胸", "", ""], ["上斜啞鈴臥推", "啞鈴", "胸", "", ""], ["蝴蝶機夾胸", "器械", "胸", "Pec Fly", ""], ["伏地挺身", "徒手", "胸", "", ""], ["滑輪下拉", "滑輪", "背", "Lat Pulldown", ""], ["滑輪坐姿划船", "滑輪", "背", "Seated Cable Row", ""], ["槓鈴划船", "槓鈴", "背", "", ""], ["引體向上", "徒手", "背", "", ""], ["硬舉", "槓鈴", "背", "", ""], ["啞鈴肩推", "啞鈴", "肩", "", ""], ["側平舉", "啞鈴", "肩", "", ""], ["臉拉", "滑輪", "肩", "Face Pull", ""], ["啞鈴彎舉", "啞鈴", "二頭", "", ""], ["槓鈴彎舉", "槓鈴", "二頭", "", ""], ["滑輪三頭下壓", "滑輪", "三頭", "Triceps Pushdown", ""], ["雙槓撐體", "徒手", "三頭", "", ""], ["槓鈴深蹲", "槓鈴", "腿", "", ""], ["腿推機", "器械", "腿", "Leg Press", ""], ["腿伸屈機", "器械", "腿", "Leg Extension", ""], ["羅馬尼亞硬舉", "槓鈴", "臀", "", ""], ["臀推", "槓鈴", "臀", "", ""], ["棒式", "徒手", "核心", "", "s"], ["懸垂舉腿", "徒手", "核心", "", ""], ["反向蝴蝶機", "器械", "背", "Rear Delt", ""], ["坐姿推胸機", "器械", "胸", "Chest Press", ""], ["上斜槓鈴臥推", "槓鈴", "胸", "", ""], ["滑輪夾胸", "滑輪", "胸", "Cable Fly", ""], ["單臂啞鈴划船", "啞鈴", "背", "", ""], ["坐姿划船機", "器械", "背", "Seated Row", ""], ["坐姿划船機（單邊）", "器械", "背", "Seated Row · 單邊", ""], ["輔助引體向上機", "器械", "背", "Assisted Pull-up", ""], ["背部伸展", "徒手", "背", "Back Extension", ""], ["肩推機", "器械", "肩", "Shoulder Press", ""], ["槓鈴肩推", "槓鈴", "肩", "", ""], ["滑輪側平舉", "滑輪", "肩", "Cable Lateral Raise", ""], ["聳肩", "啞鈴", "肩", "", ""], ["錘式彎舉", "啞鈴", "二頭", "", ""], ["滑輪彎舉", "滑輪", "二頭", "Cable Curl", ""], ["過頭三頭伸展", "啞鈴", "三頭", "", ""], ["窄握臥推", "槓鈴", "三頭", "", ""], ["腿彎舉機", "器械", "腿", "Leg Curl", ""], ["保加利亞分腿蹲", "啞鈴", "腿", "", ""], ["高腳杯深蹲", "壺鈴", "腿", "", ""], ["史密斯深蹲", "史密斯機", "腿", "", ""], ["髖外展機", "器械", "臀", "Hip Abduction", ""], ["髖內收機", "器械", "臀", "Hip Adduction", ""], ["捲腹", "徒手", "核心", "", ""], ["健腹輪", "徒手", "核心", "", ""], ["滑輪捲腹", "滑輪", "核心", "Cable Crunch", ""], ["站姿提踵機", "器械", "小腿", "Standing Calf Raise", ""], ["壺鈴擺盪", "壺鈴", "全身", "", ""]];
+var PRESET_OLD={p7:'坐姿划船',p16:'繩索下壓',p20:'腿伸屈'};
 // presets are matched by position (p1, p2, ...): only ever append to this list
 var FRANGES=[['1 個月',30],['3 個月',91],['6 個月',182],['全部',0]];
 function fOn(){return !!db.settings.fit;}
 function fIco(d,sz){sz=sz||22;return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+d+'"/></svg>';}
 function fBox(d,cls){return '<span class="fico'+(cls?' '+cls:'')+'">'+fIco(d)+'</span>';}
 function exById(id){var a=db.fit.ex;for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
-function isBW(e){return !!e&&e.eq==='徒手';}
+function fMode(e){return e&&(e.mode==='r'||e.mode==='s')?e.mode:'wr';}
+function isBW(e){return fMode(e)!=='wr';}
+function mUnit(e){var m=fMode(e);return m==='s'?'秒':m==='r'?'下':exU(e);}
 function exU(e){return isBW(e)?'':(e.unit==='lbs'?'lbs':'kg');}
 function exTag(e){return e.eq+' · '+e.part+(e.eq==='啞鈴'?' · 單手':'');}
 function caIco(t){return CAI[t]||CA_OTHER;}
 function fLog(k){return db.fit.logs[k];}
 function fLogMk(k){return db.fit.logs[k]||(db.fit.logs[k]={});}
 function fTidy(k){var l=db.fit.logs[k];if(!l)return;if(l.s&&!l.s.length)delete l.s;if(l.c&&!l.c.length)delete l.c;if(!l.min)delete l.min;if(!Object.keys(l).length)delete db.fit.logs[k];}
-function fSeed(){var u=db.settings.fitUnit==='lbs'?'lbs':'kg',added=0;PRESETS.forEach(function(p,i){var id='p'+(i+1);
-  if(exById(id)||db.fit.ex.some(function(e){return e.name===p[0];}))return;db.fit.ex.push({id:id,name:p[0],eq:p[1],part:p[2],unit:p[1]==='徒手'?'':u});added++;});return added;}
+function fSeed(){var u=db.settings.fitUnit==='lbs'?'lbs':'kg',n=0;PRESETS.forEach(function(p,i){var id='p'+(i+1),e=exById(id);
+  if(e){if(PRESET_OLD[id]&&e.name===PRESET_OLD[id]){e.name=p[0];n++;}if(!e.en&&p[3]&&e.name===p[0]){e.en=p[3];n++;}return;}
+  if(db.fit.ex.some(function(x){return x.name===p[0];}))return;
+  var m=p[4]||(p[1]==='徒手'?'r':'wr');db.fit.ex.push({id:id,name:p[0],eq:p[1],part:p[2],en:p[3]||'',mode:m,unit:m==='wr'?u:''});n++;});return n;}
+function presetMode(id,name,eq){var i=/^p(\d+)$/.test(id)?+id.slice(1)-1:-1,pr=PRESETS[i];
+  if(pr&&(name===pr[0]||name===PRESET_OLD[id]))return pr[4]||(pr[1]==='徒手'?'r':'wr');return eq==='徒手'?'r':'wr';}
 function r1(v){return Math.round(v*10)/10;}
 function fmtW(v,u){return r1(v).toLocaleString('en-US')+(u?' '+u:'');}
 function e1rm(w,r){if(!(w>0)||!(r>=1)||r>12)return 0;return r===1?w:w*(1+r/30);}
@@ -662,7 +669,7 @@ function setMetric(e,sets){
   if(isBW(e))return sets.reduce(function(a,s){return Math.max(a,s[1]||0);},0);
   return r1(sets.reduce(function(a,s){return Math.max(a,e1rm(s[0],s[1]));},0));
 }
-function setsText(e,sets){var u=exU(e);return sets.map(function(s){return isBW(e)?s[1]+' 下':fmtW(s[0],u)+' × '+s[1];}).join('　');}
+function setsText(e,sets){var u=exU(e);return sets.map(function(s){return isBW(e)?s[1]+' '+mUnit(e):fmtW(s[0],u)+' × '+s[1];}).join('　');}
 function setsShort(e,sets){return sets.map(function(s){return isBW(e)?String(s[1]):r1(s[0])+'×'+s[1];}).join(' · ');}
 function exHist(id){
   var e=exById(id),out=[];if(!e)return out;
@@ -718,7 +725,7 @@ function fitLogHTML(){
     s+='<section class="sec"><h2 class="sec-t">重訓</h2>';
     ss.forEach(function(en){
       var e=exById(en.ex),u=exU(e),m=setMetric(e,en.sets),b=bestBefore(e.id,k),pr=b!==null&&m>b,met;
-      if(isBW(e))met='單組最多 '+m+' 下'+(b!==null?'（'+(m-b>=0?'+':'')+(m-b)+'）':'');
+      if(isBW(e))met=(fMode(e)==='s'?'單組最久 ':'單組最多 ')+m+' '+mUnit(e)+(b!==null?'（'+(m-b>=0?'+':'')+(m-b)+'）':'');
       else if(!m)met='每組都超過 12 下，不算 1RM';
       else met='估計 1RM '+fmtW(m,u)+(b!==null?'（'+(m-b>=0?'+':'')+r1(m-b)+'）':'');
       s+='<button class="fcard" data-act="fedit" data-id="'+en.id+'">'+fBox(EQI[e.eq])+'<span class="fbody">'+
@@ -754,14 +761,14 @@ function fitProgHTML(){
   if(!withData.length){
     s+='<div class="empty"><div class="empty-t">還沒有重訓紀錄</div><p>到「紀錄」記幾次之後，這裡會畫出每個動作的進步趨勢。</p><button class="primary" data-act="ftab" data-v="log">去記錄</button></div>';
   }else{
-    var cur=withData.filter(function(x){return x.e.id===ui.fpx;})[0]||withData[0],e=cur.e,H=cur.h,u=exU(e),bw=isBW(e),unitTxt=bw?'下':u;
+    var cur=withData.filter(function(x){return x.e.id===ui.fpx;})[0]||withData[0],e=cur.e,H=cur.h,u=exU(e),bw=isBW(e),unitTxt=bw?mUnit(e):u,sec=fMode(e)==='s';
     ui.fpx=e.id;
     s+='<div class="fxsel">'+fBox(EQI[e.eq])+'<label class="sr" for="fpx">選動作</label><select id="fpx">'+withData.map(function(x){return '<option value="'+x.e.id+'"'+(x.e.id===e.id?' selected':'')+'>'+esc(x.e.name)+'</option>';}).join('')+'</select>'+
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--muted);flex:0 0 auto"><path d="M6 9l6 6 6-6"/></svg></div>';
     var rg=ui.frange==null?1:ui.frange,days=FRANGES[rg][1],last=H[H.length-1],cut=days?addDays(t,-days):'',data=H.filter(function(h){return !cut||h.k>=cut;}),lastV=last.m;
     var ago=null;for(var i=H.length-1;i>=0;i--)if(H[i].k<=addDays(last.k,-28)&&H[i].m>0){ago=H[i];break;}
     var best=H.reduce(function(a,h){return h.m>a.m?h:a;},H[0]);
-    s+='<div class="panel"><div class="fsum-l">'+(bw?'單組最多次數':'估計 1RM')+(bw?'':'<button class="qbtn" data-act="fphelp" aria-label="什麼是 1RM" aria-expanded="'+!!ui.fpHelp+'">'+QICON+'</button>')+'</div>'+
+    s+='<div class="panel"><div class="fsum-l">'+(bw?(sec?'單組最久秒數':'單組最多次數'):'估計 1RM')+(bw?'':'<button class="qbtn" data-act="fphelp" aria-label="什麼是 1RM" aria-expanded="'+!!ui.fpHelp+'">'+QICON+'</button>')+'</div>'+
       (ui.fpHelp&&!bw?'<div class="fhelp">'+RM_HELP+'</div>':'')+
       '<div class="fsum-v"><b>'+(lastV?fmtW(lastV,unitTxt):'—')+'</b>'+(ago&&lastV?'<span class="good-t" style="font-weight:700;font-size:14px">比 4 週前 '+(lastV-ago.m>=0?'+':'')+r1(lastV-ago.m)+' '+unitTxt+'（'+(lastV-ago.m>=0?'+':'')+Math.round((lastV-ago.m)/ago.m*100)+'%）</span>':'<span class="small muted">再記幾週就能看到變化</span>')+'</div>'+
       '<div class="fchips">'+FRANGES.map(function(r,i){return '<button class="fchip sm'+(i===rg?' on':'')+'" data-act="frange" data-v="'+i+'" aria-pressed="'+(i===rg)+'">'+r[0]+'</button>';}).join('')+'</div>';
@@ -769,7 +776,7 @@ function fitProgHTML(){
     else s+='<p class="small muted" style="padding:24px 0;text-align:center">這段期間'+(data.length?'只有一次紀錄':'沒有紀錄')+'，至少要兩次才畫得出趨勢。</p>';
     s+='<div class="legend"><span><i class="prdot"></i> 破紀錄的那天</span><span>最高 '+fmtW(best.m,unitTxt)+' · '+shortMD(best.k)+'</span></div></div>';
     s+='<section class="sec"><h2 class="sec-t">最近幾次</h2><div class="list">'+H.slice(-5).reverse().map(function(h,i){
-      return '<div class="frow"><span class="row-l"><span>'+shortMD(h.k)+' 週'+WD[parseKey(h.k).getDay()]+'</span><span class="row-sub">'+esc(setsShort(e,h.sets))+(bw?' 下':' '+u)+'</span></span><b class="'+(i===0?'good-t':'')+'">'+(h.m?(bw?'最多 ':'1RM ')+fmtW(h.m,unitTxt):'—')+'</b></div>';}).join('')+'</div></section>';
+      return '<div class="frow"><span class="row-l"><span>'+shortMD(h.k)+' 週'+WD[parseKey(h.k).getDay()]+'</span><span class="row-sub">'+esc(setsShort(e,h.sets))+' '+(bw?mUnit(e):u)+'</span></span><b class="'+(i===0?'good-t':'')+'">'+(h.m?(bw?(sec?'最久 ':'最多 '):'1RM ')+fmtW(h.m,unitTxt):'—')+'</b></div>';}).join('')+'</div></section>';
   }
   s+=fitPartsHTML()+fitCardioHTML();
   return s;
@@ -819,66 +826,82 @@ function fitCardioHTML(){
 }
 
 /* picker */
+function fDefaultPart(){var ks=Object.keys(db.fit.logs).sort().reverse();
+  for(var i=0;i<ks.length;i++){var ss=db.fit.logs[ks[i]].s||[];for(var j=ss.length-1;j>=0;j--){var e=exById(ss[j].ex);if(e)return e.part;}}return '胸';}
+function exUsed(id){return Object.keys(db.fit.logs).some(function(k){return (db.fit.logs[k].s||[]).some(function(en){return en.ex===id;});});}
 function vFPick(){
-  var p=ui.fpart||'全部',ed=!!ui.fpEdit;
+  if(PARTS.indexOf(ui.fpart)<0)ui.fpart=fDefaultPart();
+  var p=ui.fpart,ed=!!ui.fpEdit;
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="fpback">'+(ui.fl&&ui.fl.changing?'返回':'取消')+'</button><h1 class="edit-t">'+(ed?'管理動作':'選動作')+'</h1>'+
     '<button class="textbtn'+(ed?' strong':'')+'" data-act="fpedit">'+(ed?'完成':'編輯')+'</button></header>'+
-    '<label class="sr" for="fq">搜尋動作</label><input id="fq" type="search" placeholder="搜尋動作" value="'+esc(ui.fq||'')+'" autocomplete="off">'+
-    '<div class="fchips">'+['全部'].concat(PARTS).map(function(x){return '<button class="fchip'+(x===p?' on':'')+'" data-act="fpart" data-v="'+x+'" aria-pressed="'+(x===p)+'">'+x+'</button>';}).join('')+'</div>'+
-    '<div id="fplist" style="display:flex;flex-direction:column;gap:14px">'+fpList()+'</div></div>';
+    '<label class="sr" for="fq">搜尋動作</label><input id="fq" type="search" placeholder="搜尋動作，也可以打英文" value="'+esc(ui.fq||'')+'" autocomplete="off">'+
+    '<div class="fchips">'+PARTS.map(function(x){return '<button class="fchip'+(x===p?' on':'')+'" data-act="fpart" data-v="'+x+'" aria-pressed="'+(x===p)+'">'+x+'</button>';}).join('')+'</div>'+
+    (ed?'<div class="row-btn" style="background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>隱藏沒用過的內建動作</span><span class="row-sub">清單只留練過的和自訂的，搜尋還是找得到全部</span></span>'+
+      '<button class="switch" role="switch" aria-checked="'+!!db.settings.fitHideUnused+'" aria-label="隱藏沒用過的內建動作" data-act="fphide"><span class="knob"></span></button></div>':'')+
+    '<div id="fplist" style="display:flex;flex-direction:column;gap:16px">'+fpList()+'</div></div>';
   return s;
 }
-function fpRow(e,sub){
-  return '<button class="fprow" data-act="'+(ui.fpEdit?'fexedit':'fpickex')+'" data-id="'+e.id+'">'+fBox(EQI[e.eq],'sm')+
-    '<span class="fp-n">'+esc(e.name)+(sub?'<small>'+esc(exTag(e))+'</small>':'')+'</span>'+
-    (ui.fpEdit?'<span class="fp-ed">編輯</span>':'<span class="fp-t">'+esc(sub||exTag(e))+'</span>')+'</button>';
+function fpItem(e,o){o=o||{};
+  var right=ui.fpEdit&&!o.restore?'<span class="fp-ed">編輯</span>':o.restore?'<span class="fp-ed">恢復</span>':'<span class="fp-t">'+esc(o.side!=null?o.side:(fMode(e)==='s'?'秒數':e.eq==='啞鈴'?'單手':''))+'</span>';
+  var sub=o.sub!=null?o.sub:e.en;
+  return '<button class="fprow" data-act="'+(o.restore?'fexrestore':ui.fpEdit?'fexedit':'fpickex')+'" data-id="'+e.id+'">'+(o.icon?fBox(EQI[e.eq],'sm'):'')+
+    '<span class="fp-n"><span>'+esc(e.name)+'</span>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span>'+right+'</button>';
 }
 function fpList(){
-  var p=ui.fpart||'全部',q=(ui.fq||'').trim().toLowerCase(),ed=!!ui.fpEdit,s='',t=todayKey();
+  var p=ui.fpart,q=(ui.fq||'').trim().toLowerCase(),ed=!!ui.fpEdit,s='',t=todayKey();
   var act=db.fit.ex.filter(function(e){return !e.archived;});
-  if(p==='全部'&&!q&&!ed){
-    var rec=act.map(function(e){var lb=lastBefore(e.id,addDays(t,1));return {e:e,lb:lb};}).filter(function(x){return x.lb;}).sort(function(a,b){return a.lb.k<b.lb.k?1:-1;}).slice(0,5);
-    if(rec.length)s+='<section class="sec"><h2 class="lbl">最近練過</h2><div class="list">'+rec.map(function(x){return fpRow(x.e,shortMD(x.lb.k)+' · '+setsShort(x.e,x.lb.sets.slice(-1)));}).join('')+'</div></section>';
+  if(q){
+    var hits=act.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||(e.en||'').toLowerCase().indexOf(q)>=0;});
+    s+='<section class="sec"><h2 class="lbl">搜尋結果 · '+hits.length+'</h2>'+(hits.length?'<div class="list">'+hits.map(function(e){return fpItem(e,{icon:true,sub:e.part+' · '+e.eq+(e.en?' · '+e.en:'')});}).join('')+'</div>':'<p class="small muted">找不到，可以自己新增一個。</p>')+'</section>';
+  }else{
+    if(!ed){
+      var rec=act.filter(function(e){return e.part===p;}).map(function(e){return {e:e,lb:lastBefore(e.id,addDays(t,1))};}).filter(function(x){return x.lb;})
+        .sort(function(a,b){return a.lb.k<b.lb.k?1:-1;}).slice(0,3);
+      if(rec.length)s+='<section class="sec"><h2 class="lbl">最近練過</h2><div class="list">'+rec.map(function(x){var ls=x.lb.sets[x.lb.sets.length-1];
+        return fpItem(x.e,{icon:true,sub:x.e.en||x.e.eq,side:shortMD(x.lb.k)+' · '+setsShort(x.e,[ls])+(isBW(x.e)?' '+mUnit(x.e):'')});}).join('')+'</div></section>';
+    }
+    var hide=!!db.settings.fitHideUnused,items=act.filter(function(e){return e.part===p&&(!hide||!/^p\d+$/.test(e.id)||exUsed(e.id));}),groups=0;
+    EQ_LIST.forEach(function(eq){var its=items.filter(function(e){return e.eq===eq;});if(!its.length)return;groups++;
+      s+='<section class="sec"><h2 class="fgrp">'+fIco(EQI[eq],16)+eq+'<span>· '+its.length+'</span></h2><div class="list">'+its.map(function(e){return fpItem(e);}).join('')+'</div></section>';});
+    if(!groups)s+='<p class="small muted">'+(hide?'這個部位還沒練過任何動作。關掉上面的開關，或用搜尋找。':'這個部位還沒有動作，可以自己新增一個。')+'</p>';
   }
-  var list=act.filter(function(e){return (p==='全部'||e.part===p)&&(!q||e.name.toLowerCase().indexOf(q)>=0);});
-  s+='<section class="sec"><h2 class="lbl">'+(q?'搜尋結果':p==='全部'?'所有動作':p)+'</h2>'+(list.length?'<div class="list">'+list.map(function(e){return fpRow(e,'');}).join('')+'</div>':'<p class="small muted">找不到，可以自己新增一個。</p>')+'</section>';
-  s+='<button class="addset" data-act="fexnew">＋ 自訂動作</button>';
+  s+='<button class="addset" data-act="fexnew">＋ 自訂'+(q?'':esc(p))+'動作</button>';
   if(ed){var ar=db.fit.ex.filter(function(e){return e.archived;});
-    if(ar.length)s+='<section class="sec"><h2 class="lbl">已封存（紀錄都還在）</h2><div class="list">'+ar.map(function(e){return '<button class="fprow" data-act="fexrestore" data-id="'+e.id+'">'+fBox(EQI[e.eq],'sm')+'<span class="fp-n">'+esc(e.name)+'</span><span class="fp-ed">恢復</span></button>';}).join('')+'</div></section>';}
+    if(ar.length)s+='<section class="sec"><h2 class="lbl">已封存（紀錄都還在）</h2><div class="list">'+ar.map(function(e){return fpItem(e,{icon:true,restore:true,sub:e.part+' · '+e.eq});}).join('')+'</div></section>';}
   return s;
 }
 function newEntry(exId,k){
-  var e=exById(exId),lb=lastBefore(exId,k),sets=lb?lb.sets.map(function(x){return x.slice();}):[[isBW(e)?0:(exU(e)==='lbs'?45:20),8]];
+  var e=exById(exId),lb=lastBefore(exId,k),sets=lb?lb.sets.map(function(x){return x.slice();}):[[isBW(e)?0:(exU(e)==='lbs'?45:20),fMode(e)==='s'?30:8]];
   return {id:null,ex:exId,k:k,sets:sets,changing:false};
 }
 
 /* strength log */
 function vFLog(){
-  var f=ui.fl,e=exById(f.ex),u=exU(e),bw=isBW(e),lb=lastBefore(e.id,f.k);
+  var f=ui.fl,e=exById(f.ex),u=exU(e),bw=isBW(e),lb=lastBefore(e.id,f.k),sec=fMode(e)==='s',rl=sec?'秒數':'次數';
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="flcancel">取消</button><h1 class="edit-t">記錄重訓<span class="dw-sub">'+mdw(f.k)+'</span></h1><button class="textbtn strong" data-act="flsave">儲存</button></header>'+
     '<button class="fcard center" data-act="flchange">'+fBox(EQI[e.eq])+'<span class="fbody"><b style="font-size:18px">'+esc(e.name)+'</b><span class="ftag" style="text-align:left">'+esc(exTag(e))+'</span></span><span class="small muted" style="display:flex;align-items:center;gap:2px;flex:0 0 auto">換動作'+I.right+'</span></button>'+
-    '<div class="sec-row" style="align-items:center"><span class="small muted">'+(lb?'上次 '+shortMD(lb.k)+'：'+esc(setsShort(e,lb.sets))+(bw?' 下':''):'第一次記錄這個動作')+'</span>'+
+    '<div class="sec-row" style="align-items:center"><span class="small muted">'+(lb?'上次 '+shortMD(lb.k)+'：'+esc(setsShort(e,lb.sets))+(bw?' '+mUnit(e):''):'第一次記錄這個動作')+'</span>'+
     (bw?'':'<span class="useg"><button class="'+(u==='kg'?'on':'')+'" data-act="flunit" data-v="kg" aria-pressed="'+(u==='kg')+'">kg</button><button class="'+(u==='lbs'?'on':'')+'" data-act="flunit" data-v="lbs" aria-pressed="'+(u==='lbs')+'">lbs</button></span>')+'</div>'+
     '<div style="display:flex;flex-direction:column;gap:8px">';
   f.sets.forEach(function(x,i){
     s+='<div class="setrow'+(bw?' bw':'')+'"><span class="setn">'+(i+1)+'</span>'+
       (bw?'':'<span class="nstep"><button data-act="flw" data-i="'+i+'" data-d="-1" aria-label="第 '+(i+1)+' 組減重量">−</button><input class="fnum" id="fw'+i+'" data-i="'+i+'" data-f="0" inputmode="decimal" value="'+r1(x[0])+'" aria-label="第 '+(i+1)+' 組重量（'+u+'）"><span class="nunit">'+u+'</span><button data-act="flw" data-i="'+i+'" data-d="1" aria-label="第 '+(i+1)+' 組加重量">＋</button></span><span class="muted">×</span>')+
-      '<span class="nstep"><button data-act="flr" data-i="'+i+'" data-d="-1" aria-label="第 '+(i+1)+' 組減次數">−</button><input class="fnum r" id="fr'+i+'" data-i="'+i+'" data-f="1" inputmode="numeric" value="'+x[1]+'" aria-label="第 '+(i+1)+' 組次數"><span class="nunit">下</span><button data-act="flr" data-i="'+i+'" data-d="1" aria-label="第 '+(i+1)+' 組加次數">＋</button></span>'+
+      '<span class="nstep"><button data-act="flr" data-i="'+i+'" data-d="-1" aria-label="第 '+(i+1)+' 組減'+rl+'">−</button><input class="fnum r'+(sec?' s':'')+'" id="fr'+i+'" data-i="'+i+'" data-f="1" inputmode="numeric" value="'+x[1]+'" aria-label="第 '+(i+1)+' 組'+rl+'"><span class="nunit">'+(sec?'秒':'下')+'</span><button data-act="flr" data-i="'+i+'" data-d="1" aria-label="第 '+(i+1)+' 組加'+rl+'">＋</button></span>'+
       '<button class="setx" data-act="fldelset" data-i="'+i+'" aria-label="刪除第 '+(i+1)+' 組"'+(f.sets.length<2?' disabled':'')+'>×</button></div>';
   });
-  s+='<button class="addset" data-act="fladd">＋ 加一組（帶入上一組）</button><p class="small muted" style="text-align:center">'+(bw?'徒手動作記次數，趨勢看單組最多次數':'點數字可以直接輸入 · 超過 12 下的組不算進 1RM')+'</p></div>'+
+  s+='<button class="addset" data-act="fladd">＋ 加一組（帶入上一組）</button><p class="small muted" style="text-align:center">'+(sec?'每次 ＋／− 是 5 秒，點數字也可以直接輸入':bw?'只記次數，趨勢看單組最多次數':'點數字可以直接輸入 · 超過 12 下的組不算進 1RM')+'</p></div>'+
     '<div id="flsum">'+flSumHTML()+'</div>';
   if(f.id)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="fldel">'+(ui.confirmDel==='fl'?'再按一次，刪除這筆紀錄':'刪除這筆紀錄')+'</button></div>';
   return s+'</div>';
 }
 function flSumHTML(){
-  var f=ui.fl,e=exById(f.ex),u=exU(e),bw=isBW(e),m=setMetric(e,f.sets),b=bestBefore(e.id,f.k),pr=b!==null&&m>b,vol=0,unitTxt=bw?'下':u;
-  f.sets.forEach(function(x){vol+=(x[0]||0)*(x[1]||0);});
-  var delta=!m?(bw?'':'每組都超過 12 下，不算 1RM'):b===null?'第一次記錄，之後會跟這次比較':pr?'新紀錄！比之前最高 +'+r1(m-b):'目前最高 '+fmtW(b,unitTxt);
-  return '<div class="fsum'+(pr?' pr':'')+'"><div class="fsum-l">'+(bw?'這次單組最多':'這次估計 1RM')+(bw?'':'<button class="qbtn" data-act="flhelp" aria-label="什麼是 1RM" aria-expanded="'+!!ui.flHelp+'">'+QICON+'</button>')+'</div>'+
+  var f=ui.fl,e=exById(f.ex),u=exU(e),bw=isBW(e),m=setMetric(e,f.sets),b=bestBefore(e.id,f.k),pr=b!==null&&m>b,vol=0,unitTxt=bw?mUnit(e):u,sec=fMode(e)==='s',tot=0;
+  f.sets.forEach(function(x){vol+=(x[0]||0)*(x[1]||0);tot+=x[1]||0;});
+  var delta=!m?(bw?'':'每組都超過 12 下，不算 1RM'):b===null?'第一次記錄，之後會跟這次比較':pr?'新紀錄！比之前'+(sec?'最久':'最高')+' +'+r1(m-b)+(bw?' '+unitTxt:''):'目前'+(sec?'最久 ':'最高 ')+fmtW(b,unitTxt);
+  return '<div class="fsum'+(pr?' pr':'')+'"><div class="fsum-l">'+(bw?(sec?'這次單組最久':'這次單組最多'):'這次估計 1RM')+(bw?'':'<button class="qbtn" data-act="flhelp" aria-label="什麼是 1RM" aria-expanded="'+!!ui.flHelp+'">'+QICON+'</button>')+'</div>'+
     '<div class="fsum-v"><b>'+(m?fmtW(m,unitTxt):'—')+'</b><span style="font-size:14px;font-weight:700" class="'+(pr?'good-t':'muted')+'">'+delta+'</span></div>'+
     (ui.flHelp&&!bw?'<div class="fhelp">'+RM_HELP+'</div>':'')+
-    (bw?'':'<div class="small muted">總訓練量 '+fmtW(vol,u)+'</div>')+'</div>';
+    (sec?'<div class="small muted">總共 '+tot+' 秒</div>':bw?'':'<div class="small muted">總訓練量 '+fmtW(vol,u)+'</div>')+'</div>';
 }
 function convertEx(e,to){
   if(isBW(e)||exU(e)===to)return;var f=to==='lbs'?2.20462:1/2.20462,st=to==='kg'?0.5:1;
@@ -904,17 +927,21 @@ function vFCardio(){
 }
 
 /* custom exercise */
-var EQ_HINT={'固定式器械':'不同健身房的器械，同樣數字重量可能不一樣。換健身房時建議另外建一個動作，趨勢才準。','啞鈴':'啞鈴記單手的重量，也就是啞鈴上標的數字。','徒手':'徒手動作不用填重量，趨勢圖看「單組最多次數」。有掛負重的話，建議另外建一個「負重」動作。'};
+var EQ_HINT={'器械':'有座椅、軌道固定的機器，插銷選重量或掛槓片都算，例如推胸機、腿推機、坐姿划船機。不同健身房的同款機器重量可能不一樣，換健身房時建議另外建一個。','滑輪':'鋼索加滑輪的機器：龍門架、滑輪下拉、滑輪划船。','槓鈴':'長槓，兩邊掛槓片。','啞鈴':'記單手的重量，也就是啞鈴上標的數字。','壺鈴':'','史密斯機':'槓鈴固定在軌道上的架子。','徒手':'用自己的體重，例如引體向上、伏地挺身、棒式。有掛負重的話，記錄方式選「重量 × 次數」。','彈力帶':''};
+var MODE_HINT={wr:'每組記重量和次數，趨勢看估計 1RM。',r:'每組只記次數，趨勢看單組最多次數。',s:'每組只記秒數，趨勢看單組最久秒數。'};
 function vFEx(){
-  var x=ui.fx,bw=x.eq==='徒手';
+  var x=ui.fx,showEn=x.eq==='器械'||x.eq==='滑輪';
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="fxcancel">取消</button><h1 class="edit-t">'+(x.id?'編輯動作':'自訂動作')+'</h1><button class="textbtn strong" data-act="fxsave">儲存</button></header>'+
-    '<div class="field"><label class="lbl" for="fxname">名稱</label><input id="fxname" type="text" maxlength="30" placeholder="例如：推胸機（公司樓下）" value="'+esc(x.name)+'" autocomplete="off"></div>'+
+    '<div class="field"><label class="lbl" for="fxpart">1　部位</label><select id="fxpart" class="fsel">'+PARTS.map(function(v){return '<option'+(v===x.part?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>'+
+    '<div class="field"><label class="lbl" for="fxeq">2　器材</label><div class="selrow"><span id="fxico" class="fico big">'+fIco(EQI[x.eq],24)+'</span><select id="fxeq" class="fsel">'+EQ_LIST.map(function(v){return '<option'+(v===x.eq?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>'+
+      (EQ_HINT[x.eq]?'<p class="hint">'+EQ_HINT[x.eq]+'</p>':'')+'</div>'+
+    '<div class="field"><label class="lbl" for="fxname">3　名稱</label><input id="fxname" type="text" maxlength="30" placeholder="例如：坐姿划船機（公司樓下）" value="'+esc(x.name)+'" autocomplete="off">'+
+      (showEn?'<label class="sr" for="fxen">英文名稱（選填）</label><input id="fxen" class="small-in" type="text" maxlength="40" placeholder="英文名稱（選填），例如 Seated Row" value="'+esc(x.en||'')+'" autocomplete="off"><p class="hint">照機器上貼的英文寫，看著機器比較好找，也能用英文搜尋。</p>':'')+'</div>'+
     (x.err?'<p class="err" role="alert">'+esc(x.err)+'</p>':'')+
-    '<div class="field"><label class="lbl" for="fxeq">器材</label><div class="selrow"><span id="fxico" class="fico big">'+fIco(EQI[x.eq],24)+'</span><select id="fxeq" class="fsel">'+EQ_LIST.map(function(v){return '<option'+(v===x.eq?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div></div>'+
-    '<div class="field"><label class="lbl" for="fxpart">部位</label><select id="fxpart" class="fsel">'+PARTS.map(function(v){return '<option'+(v===x.part?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>'+
-    (bw?'':'<div class="field"><div class="lbl">單位</div><div class="seg"><button class="'+(x.unit==='kg'?'on':'')+'" data-act="fxunit" data-v="kg" aria-pressed="'+(x.unit==='kg')+'">kg</button><button class="'+(x.unit==='lbs'?'on':'')+'" data-act="fxunit" data-v="lbs" aria-pressed="'+(x.unit==='lbs')+'">lbs</button></div>'+
-      (x.id&&x.orig&&x.orig!==x.unit?'<p class="hint">儲存後，這個動作過去的紀錄會換算成 '+x.unit+'。</p>':'')+'</div>')+
-    '<div class="flink" id="fxhint">'+(EQ_HINT[x.eq]||'這個動作固定用 '+x.unit+' 記錄，趨勢圖也用 '+x.unit+' 畫，不用換算。')+'</div>';
+    '<div class="field"><div class="lbl">記錄方式</div><div class="seg three">'+[['wr','重量 × 次數'],['r','只記次數'],['s','只記秒數']].map(function(m){return '<button class="'+(x.mode===m[0]?'on':'')+'" data-act="fxmode" data-v="'+m[0]+'" aria-pressed="'+(x.mode===m[0])+'">'+m[1]+'</button>';}).join('')+'</div>'+
+      '<p class="hint">'+MODE_HINT[x.mode]+(x.id&&x.origMode&&x.origMode!==x.mode?' 舊紀錄的數字會照新的方式顯示。':'')+'</p></div>'+
+    (x.mode==='wr'?'<div class="field"><div class="lbl">單位</div><div class="seg"><button class="'+(x.unit==='kg'?'on':'')+'" data-act="fxunit" data-v="kg" aria-pressed="'+(x.unit==='kg')+'">kg</button><button class="'+(x.unit==='lbs'?'on':'')+'" data-act="fxunit" data-v="lbs" aria-pressed="'+(x.unit==='lbs')+'">lbs</button></div>'+
+      (x.id&&x.orig&&x.orig!==x.unit?'<p class="hint">儲存後，這個動作過去的紀錄會換算成 '+x.unit+'。</p>':'')+'</div>':'');
   if(x.id)s+='<div class="danger-zone"><button class="row-btn" data-act="fxarchive">封存這個動作（紀錄會保留）</button></div>';
   return s+'</div>';
 }
@@ -951,8 +978,9 @@ function normalize(d){
     return {id:cid(x.id),rid:cid(x.rid),name:String(x.name||'').slice(0,40),date:x.date,amount:Math.max(0,Math.round(+x.amount)||0)};
   });
   var fd=d.fit&&typeof d.fit==='object'?d.fit:{},fex=[],seen={};
-  (Array.isArray(fd.ex)?fd.ex:[]).forEach(function(e){if(!e||!cid(e.id)||!e.name||seen[cid(e.id)])return;var id=cid(e.id),eq=EQ_LIST.indexOf(e.eq)>=0?e.eq:'槓鈴';seen[id]=1;
-    fex.push({id:id,name:String(e.name).slice(0,30),eq:eq,part:PARTS.indexOf(e.part)>=0?e.part:'胸',unit:eq==='徒手'?'':(e.unit==='lbs'?'lbs':'kg'),archived:!!e.archived});});
+  (Array.isArray(fd.ex)?fd.ex:[]).forEach(function(e){if(!e||!cid(e.id)||!e.name||seen[cid(e.id)])return;var id=cid(e.id),eq=EQ_ALIAS[e.eq]||e.eq;eq=EQ_LIST.indexOf(eq)>=0?eq:'槓鈴';seen[id]=1;
+    var nm=String(e.name).slice(0,30),md=e.mode==='wr'||e.mode==='r'||e.mode==='s'?e.mode:presetMode(id,nm,eq);
+    fex.push({id:id,name:nm,en:typeof e.en==='string'?e.en.slice(0,40):'',eq:eq,part:PARTS.indexOf(e.part)>=0?e.part:'胸',mode:md,unit:md==='wr'?(e.unit==='lbs'?'lbs':(e.unit==='kg'?'kg':(st.fitUnit==='lbs'?'lbs':'kg'))):'',archived:!!e.archived});});
   var flogs={};
   if(fd.logs&&typeof fd.logs==='object'&&!Array.isArray(fd.logs))Object.keys(fd.logs).forEach(function(k){if(!isKey(k))return;var l=fd.logs[k]||{},o={};
     if(Array.isArray(l.s)){o.s=l.s.filter(function(en){return en&&cid(en.id)&&seen[cid(en.ex)]&&Array.isArray(en.sets);}).slice(0,100).map(function(en){
@@ -962,7 +990,7 @@ function normalize(d){
     var mn=Math.floor(+l.min);if(isFinite(mn)&&mn>0)o.min=Math.min(mn,1440);
     if(Object.keys(o).length)flogs[k]=o;});
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg'},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k))R[k]=d[k];});
@@ -982,7 +1010,7 @@ if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};
 if(db.settings.fit&&fSeed())save();
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
-var APP_VER='2026.10.16-2';
+var APP_VER='2026.10.16-3';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1959,8 +1987,10 @@ function act(a,b){
     case 'fpedit': ui.fpEdit=!ui.fpEdit;break;
     case 'fpart': ui.fpart=b.dataset.v;break;
     case 'fpickex': if(ui.fl&&ui.fl.changing){n=newEntry(id,ui.fl.k);n.id=ui.fl.id;ui.fl=n;}else ui.fl=newEntry(id,ui.date);ui.flHelp=false;ui.confirmDel=false;go('flog');break;
-    case 'fexnew': ui.fx={id:null,name:'',eq:'固定式器械',part:ui.fpart&&ui.fpart!=='全部'?ui.fpart:'胸',unit:db.settings.fitUnit==='lbs'?'lbs':'kg'};go('fex');break;
-    case 'fexedit': h=exById(id);if(!h)return;ui.fx={id:h.id,name:h.name,eq:h.eq,part:h.part,unit:exU(h)||db.settings.fitUnit||'kg',orig:exU(h)};go('fex');break;
+    case 'fexnew': ui.fx={id:null,name:(ui.fq||'').trim().slice(0,30),en:'',eq:'器械',part:PARTS.indexOf(ui.fpart)>=0?ui.fpart:'胸',mode:'wr',unit:db.settings.fitUnit==='lbs'?'lbs':'kg'};go('fex');break;
+    case 'fphide': db.settings.fitHideUnused=!db.settings.fitHideUnused;save();break;
+    case 'fxmode': ui.fx.mode=b.dataset.v;break;
+    case 'fexedit': h=exById(id);if(!h)return;ui.fx={id:h.id,name:h.name,en:h.en||'',eq:h.eq,part:h.part,mode:fMode(h),origMode:fMode(h),unit:exU(h)||db.settings.fitUnit||'kg',orig:exU(h)};go('fex');break;
     case 'fexrestore': h=exById(id);if(h){h.archived=false;save();toast('已恢復「'+h.name+'」');}break;
     case 'fxcancel': go('fpick');break;
     case 'fxunit': ui.fx.unit=b.dataset.v;break;
@@ -1968,10 +1998,11 @@ function act(a,b){
       n=(ui.fx.name||'').trim();
       if(!n){ui.fx.err='請輸入動作名稱。';break;}
       if(db.fit.ex.some(function(e){return !e.archived&&e.id!==ui.fx.id&&e.name===n;})){ui.fx.err='已經有同名的動作了。';break;}
-      if(ui.fx.id){h=exById(ui.fx.id);h.name=n;h.part=ui.fx.part;
-        if(ui.fx.eq==='徒手'){h.eq='徒手';h.unit='';}else{var wasBW=h.eq==='徒手';h.eq=ui.fx.eq;if(wasBW)h.unit=ui.fx.unit;else convertEx(h,ui.fx.unit);}
-        save();go('fpick');toast('已更新動作');break;}
-      h={id:uid(),name:n,eq:ui.fx.eq,part:ui.fx.part,unit:ui.fx.eq==='徒手'?'':ui.fx.unit};db.fit.ex.push(h);save();
+      var fen=(ui.fx.eq==='器械'||ui.fx.eq==='滑輪')?(ui.fx.en||'').trim().slice(0,40):'';
+      if(ui.fx.id){h=exById(ui.fx.id);h.name=n;h.en=fen;h.part=ui.fx.part;h.eq=ui.fx.eq;
+        if(ui.fx.mode==='wr'){if(fMode(h)==='wr')convertEx(h,ui.fx.unit);else h.unit=ui.fx.unit;}else h.unit='';
+        h.mode=ui.fx.mode;save();go('fpick');toast('已更新動作');break;}
+      h={id:uid(),name:n,en:fen,eq:ui.fx.eq,part:ui.fx.part,mode:ui.fx.mode,unit:ui.fx.mode==='wr'?ui.fx.unit:''};db.fit.ex.push(h);save();
       if(ui.fl&&ui.fl.changing){k=ui.fl.id;ui.fl=newEntry(h.id,ui.fl.k);ui.fl.id=k;}else ui.fl=newEntry(h.id,ui.date);
       go('flog');toast('已新增「'+n+'」');break;
     case 'fxarchive': h=exById(ui.fx.id);if(h){h.archived=true;save();toast('已封存，紀錄會保留');}go('fpick');break;
@@ -1982,17 +2013,17 @@ function act(a,b){
     case 'flhelp': ui.flHelp=!ui.flHelp;var fs=$('#flsum');if(fs){fs.innerHTML=flSumHTML();return;}break;
     case 'flunit': h=exById(ui.fl.ex);if(h&&exU(h)!==b.dataset.v){convertEx(h,b.dataset.v==='lbs'?'lbs':'kg');save();toast('已改成 '+exU(h)+'，這個動作的舊紀錄也換算好了',2600);}break;
     case 'flw': h=exById(ui.fl.ex);n=+b.dataset.i;ui.fl.sets[n][0]=Math.max(0,r1(ui.fl.sets[n][0]+(+b.dataset.d)*(exU(h)==='lbs'?5:2.5)));break;
-    case 'flr': n=+b.dataset.i;ui.fl.sets[n][1]=Math.max(1,ui.fl.sets[n][1]+(+b.dataset.d));break;
+    case 'flr': n=+b.dataset.i;ui.fl.sets[n][1]=Math.max(1,ui.fl.sets[n][1]+(+b.dataset.d)*(fMode(exById(ui.fl.ex))==='s'?5:1));break;
     case 'fladd': n=ui.fl.sets[ui.fl.sets.length-1];ui.fl.sets.push(n?n.slice():[0,8]);break;
     case 'fldelset': if(ui.fl.sets.length>1)ui.fl.sets.splice(+b.dataset.i,1);break;
     case 'flsave':
-      h=exById(ui.fl.ex);var sets=ui.fl.sets.map(function(x){return [isBW(h)?0:Math.min(Math.max(+x[0]||0,0),2000),Math.min(Math.max(Math.floor(+x[1]||0),0),999)];}).filter(function(x){return x[1]>=1;});
+      h=exById(ui.fl.ex);var sets=ui.fl.sets.map(function(x){return [isBW(h)?0:Math.min(Math.max(+x[0]||0,0),2000),Math.min(Math.max(Math.floor(+x[1]||0),0),fMode(h)==='s'?3600:999)];}).filter(function(x){return x[1]>=1;});
       if(!sets.length){toast('至少要有一組，次數要大於 0');return;}
       k=ui.fl.k;var mm=setMetric(h,sets),bb=bestBefore(h.id,k),isPr=bb!==null&&mm>bb;
       l=fLogMk(k);l.s=l.s||[];
       if(ui.fl.id){l.s=l.s.map(function(x){return x.id===ui.fl.id?{id:x.id,ex:h.id,sets:sets}:x;});}else l.s.push({id:uid(),ex:h.id,sets:sets});
       fTidy(k);fitSync(k);save();ui.fl=null;ui.date=k;go('fit');ui.fitTab='log';render();
-      toast(isPr?'新紀錄！'+h.name+' '+fmtW(mm,isBW(h)?'下':exU(h)):'已儲存',isPr?3000:1800);return;
+      toast(isPr?'新紀錄！'+h.name+' '+fmtW(mm,mUnit(h)):'已儲存',isPr?3000:1800);return;
     case 'fldel': if(ui.confirmDel!=='fl'){ui.confirmDel='fl';break;}l=fLog(ui.fl.k);if(l&&l.s)l.s=l.s.filter(function(x){return x.id!==ui.fl.id;});k=ui.fl.k;fTidy(k);fitSync(k);save();ui.fl=null;ui.confirmDel=false;go('fit');toast('已刪除這筆紀錄');break;
     case 'fcnew': n=null;Object.keys(db.fit.logs).sort().reverse().some(function(x){var c=db.fit.logs[x].c||[];if(c.length){n=c[c.length-1];return true;}return false;});
       ui.fc={id:null,type:n?n.type:'跑步機',min:n?n.min:30,k:ui.date,adding:false};ui.confirmDel=false;go('fcardio');break;
@@ -2102,14 +2133,15 @@ document.addEventListener('input',function(e){
     var n=dCount(el.value),dd=$('#ddone'),dc=$('#dcount'),ds=$('#dstatus'),dpp=$('#dprompt');
     if(dc)dc.textContent=fmtN(n)+' 字';if(ds)ds.textContent=n?'草稿已自動儲存':'寫的時候會自動存草稿';if(dpp)dpp.hidden=!!el.value;}
   else if(el.classList&&el.classList.contains('fnum')&&ui.fl){var fi=+el.dataset.i,ff=+el.dataset.f,fv=parseFloat(String(el.value).replace(',','.'));
-    if(ui.fl.sets[fi]){ui.fl.sets[fi][ff]=ff?Math.min(Math.max(Math.floor(fv)||0,0),999):Math.min(Math.max(isFinite(fv)?fv:0,0),2000);var fsm=$('#flsum');if(fsm)fsm.innerHTML=flSumHTML();}}
+    if(ui.fl.sets[fi]){ui.fl.sets[fi][ff]=ff?Math.min(Math.max(Math.floor(fv)||0,0),fMode(exById(ui.fl.ex))==='s'?3600:999):Math.min(Math.max(isFinite(fv)?fv:0,0),2000);var fsm=$('#flsum');if(fsm)fsm.innerHTML=flSumHTML();}}
   else if(el.id==='fq'){ui.fq=el.value;var fpl=$('#fplist');if(fpl)fpl.innerHTML=fpList();}
   else if(el.id==='fxname'&&ui.fx){ui.fx.name=el.value;}
+  else if(el.id==='fxen'&&ui.fx){ui.fx.en=el.value;}
   else if(el.id==='q'){ui.q=el.value;var r=$('#results');if(r)r.innerHTML=searchResults();}
 });
 function fitSelect(el){
   if(el.id==='fpx'){ui.fpx=el.value;render();return true;}
-  if(el.id==='fxeq'&&ui.fx){if(ui.fx.eq!==el.value){ui.fx.eq=el.value;render();}return true;}
+  if(el.id==='fxeq'&&ui.fx){if(ui.fx.eq!==el.value){ui.fx.eq=el.value;if(!ui.fx.id)ui.fx.mode=el.value==='徒手'?'r':'wr';render();}return true;}
   if(el.id==='fxpart'&&ui.fx){ui.fx.part=el.value;return true;}
   return false;
 }
