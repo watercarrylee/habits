@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-WCBjZWNj+3UmPW+1Vc7lGfbLjHb5LYm4J86hAuWhNho='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-PGfDQbZuYgoMj69Fydmp53Ya1LWAv8Y18unXYb5kem8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -301,6 +301,10 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .wk i{display:block;width:100%;max-width:24px;border-radius:6px 6px 2px 2px;background:var(--good-line)}
 .wk i.cur{background:var(--good)}
 .wkl{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;font-size:10px;color:var(--faint);text-align:center;font-variant-numeric:tabular-nums}
+.demobar{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--fg);color:var(--bg);font-size:12px}
+.own-host .demobar{padding-top:calc(8px + env(safe-area-inset-top,0px))}
+.demobar span{flex:1 1 auto;min-width:0}
+.demobar button,.demobar a{flex:0 0 auto;height:30px;padding:0 12px;border-radius:15px;border:1.5px solid currentColor;background:none;color:inherit;font-size:12px;font-weight:700;display:inline-flex;align-items:center;text-decoration:none}
 .dnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .dnav-c{text-align:center;display:flex;flex-direction:column;gap:1px}
 .dnav-c b{font-size:17px}
@@ -551,7 +555,8 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 (function(){
 if(window.top!==window.self){document.body.innerHTML='<p style="padding:24px;font:16px/1.6 -apple-system,sans-serif">為了保護你的資料，這個 App 不能嵌在其他網頁裡，請直接開啟。</p>';return;}
 document.documentElement.lang='zh-Hant';
-var KEY='habit-tracker-v1';
+var DEMO=/[?&]demo(=|&|$)/.test(location.search);
+var KEY=DEMO?'habit-tracker-demo':'habit-tracker-v1';
 var WD=['日','一','二','三','四','五','六'];
 var MOODS=['很差','差','普通','好','很好'];
 var ICONS={
@@ -1035,7 +1040,70 @@ if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};
 if(db.settings.fit&&fSeed())save();
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
-var APP_VER='2026.10.16-4';
+
+/* ---------- demo mode: open the app with ?demo — fake data under its own storage key ---------- */
+function demoBuild(){
+  var r=20261016,rnd=function(){r=(r*1103515245+12345)%2147483648;return r/2147483648;};
+  var t=todayKey(),start=addDays(t,-120),k,dow,n=0;
+  db={v:1,habits:[],logs:{},settings:{pnl:true,diary:true,fit:true,fitUnit:'kg',iconAuto:true},rewards:[],redeemed:[],fit:{ex:[],logs:{},ctypes:['拳擊有氧']}};
+  var H=function(id,name,kind,method,days,amt){db.habits.push({id:id,name:name,kind:kind,method:method,days:days||allDays(),created:start,archived:false,icon:guessIcon(name),saveHist:amt?[{from:start,amt:amt}]:[],fitLink:id==='d1'});};
+  H('d1','運動 30 分鐘','good','check');H('d2','11:30 前睡覺','good','check');H('d3','喝水 2000ml','good','count');H('d4','沒有買咖啡','good','check',null,80);
+  H('d5','閱讀 20 頁','good','check',[false,true,true,true,true,true,false]);H('d6','吃宵夜','bad','count',null,150);H('d7','睡前滑手機','bad','check');H('d8','喝含糖飲料','bad','count',null,60);
+  var notes=['跟客戶開會，進度順利','下雨，改在家拉筋','和朋友吃火鍋','加班到很晚','早起去河濱跑步','週末大掃除','看了一部好電影','整理了書桌','回家陪爸媽吃飯','專案上線了！'];
+  var D=[['今天最有感的一件事？','下午那場會議比預期順利，對方主動問起下一步的時程。回家路上一直在想要怎麼安排。'],['今天想感謝什麼？','謝謝同事幫我 cover 早上的會議，讓我可以去看牙醫。'],
+    ['今天學到了什麼？','原來深蹲時膝蓋往外推，腰就不會那麼痠。'],['','連假第一天，睡到自然醒，下午去書店待了三小時，買了兩本書。'],
+    ['明天最想做好的一件事？','把提案大綱寫完，晚上去練背。'],['有什麼事讓你卡住？','報告的數字一直對不起來，明天早上頭腦清楚再看一次。']];
+  var pnl=120000,di=0;
+  for(k=start;k<=t;k=addDays(k,1)){
+    var prog=1-(parseKey(t)-parseKey(k))/864e5/120,l={h:{}},isT=k===t;dow=parseKey(k).getDay();
+    db.habits.forEach(function(h){
+      if(isT&&h.id!=='d3'&&h.id!=='d4')return;
+      if(h.kind==='good'){if(!h.days[dow]||h.id==='d1')return;
+        if(h.id==='d3'){var c=isT?3:Math.floor(rnd()*4+4*prog+2);if(c>0)l.h[h.id]=c;return;}
+        if(rnd()<0.5+0.4*prog)l.h[h.id]=1;}
+      else if(rnd()<0.35-0.25*prog)l.h[h.id]=h.method==='count'&&rnd()<0.3?2:1;
+    });
+    if(!isT){l.mood=Math.max(0,Math.min(4,Math.round(2+prog+(rnd()-0.5)*2)));if(rnd()<0.35)l.note=notes[Math.floor(rnd()*notes.length)];
+      if(rnd()<0.4){var dd=D[di++%D.length];l.diary={t:dd[1]};if(dd[0])l.diary.q=dd[0];}}
+    if(dow>0&&dow<6){pnl+=Math.round((rnd()-0.45)*9000);l.pnl=pnl;}
+    if(!Object.keys(l.h).length)delete l.h;
+    db.logs[k]=l;
+  }
+  var rk=addDays(t,-4);if(db.logs[rk])db.logs[rk].rest=true;
+  var td=parseKey(t),ly=keyOf(new Date(td.getFullYear()-1,td.getMonth(),td.getDate()));
+  db.logs[ly]={mood:4,diary:{t:'第一次一個人去看電影，比想像中自在。散場後在附近繞了一圈才回家，覺得這樣的晚上很好。'}};
+  fSeed();
+  var exId=function(nm){var e=db.fit.ex.filter(function(x){return x.name===nm;})[0];return e?e.id:null;};
+  var plan={1:[['槓鈴臥推',50,8,4,1.25],['坐姿推胸機',40,10,3,1.25],['滑輪三頭下壓',20,12,3,0.5]],
+    3:[['滑輪下拉',40,10,4,1.25],['坐姿划船機',35,10,4,1.25],['反向蝴蝶機',10,12,3,0.5],['啞鈴彎舉',8,10,3,0.25]],
+    5:[['槓鈴深蹲',60,8,4,2.5],['腿推機',100,10,3,5],['腿彎舉機',30,12,3,1.25],['肩推機',25,10,3,1.25],['棒式',0,45,3,0]]};
+  for(k=start;k<=t;k=addDays(k,1)){
+    dow=parseKey(k).getDay();var fl={},wk=Math.floor((parseKey(k)-parseKey(start))/864e5/7);
+    if(plan[dow]&&(k===t||rnd()<0.85)){
+      fl.s=plan[dow].map(function(p){var e=exById(exId(p[0]));if(!e)return null;
+        if(fMode(e)==='s'){var sec=p[2]+wk*2;return {id:'s'+(n++),ex:e.id,sets:[[0,sec],[0,sec],[0,Math.max(15,sec-10)]]};}
+        var w=Math.round((p[1]+Math.floor(wk/2)*p[4])/2.5)*2.5,sets=[];for(var i=0;i<p[3];i++)sets.push([w,p[2]]);
+        if(rnd()<0.3)sets[p[3]-1]=[w+2.5,Math.max(1,p[2]-2)];
+        return {id:'s'+(n++),ex:e.id,sets:sets};}).filter(Boolean);
+      fl.min=45+Math.floor(rnd()*4)*5;}
+    if((dow===2||dow===6)&&k!==t&&rnd()<0.8)fl.c=[{id:'c'+(n++),type:dow===2?'跑步機':(rnd()<0.5?'飛輪':'拳擊有氧'),min:20+Math.floor(rnd()*5)*5}];
+    if(Object.keys(fl).length)db.fit.logs[k]=fl;
+  }
+  for(k=start;k<=t;k=addDays(k,1))fitSync(k);
+  var R=function(id,name,type,habit,target,repeat){db.rewards.push({id:id,name:name,type:type,habit:habit,target:target,repeat:repeat,created:start,earned:[],done:false});};
+  R('r1','買新跑鞋','streak','d2',7,false);R('r2','週末看電影','weekly','d5',4,true);R('r3','去按摩','rate','d2',70,true);R('r4','吃一頓大餐','limit','d6',4,true);R('r5','買降噪耳機','saved',null,8000,false);
+  syncRewards();
+  db.redeemed.push({id:'x1',rid:'r2',name:'週末看電影',date:addDays(t,-20),amount:350});
+  db=normalize(db)||db;save();
+}
+if(DEMO){
+  document.title='習慣（示範）';
+  if(!db.habits.length)demoBuild();
+  var demoBar=document.createElement('div');demoBar.className='demobar';
+  demoBar.innerHTML='<span>示範模式 · 假資料，不會影響你的紀錄</span><button data-act="demoreset">重置</button><a href="./">離開</a>';
+  document.querySelector('.app').insertBefore(demoBar,$('#main'));
+}
+var APP_VER='2026.10.16-5';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1655,7 +1723,7 @@ function a2Get(){try{return JSON.parse(localStorage.getItem(A2KEY)||'{}')||{};}c
 function a2Set(o){try{localStorage.setItem(A2KEY,JSON.stringify(o));}catch(e){}}
 function isIOS(){var u=navigator.userAgent||'';return /iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1);}
 function isStandalone(){try{return navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);}catch(e){return false;}}
-function a2Eligible(){return (isIOS()||ui.a2Force)&&!isStandalone();}
+function a2Eligible(){return !DEMO&&(isIOS()||ui.a2Force)&&!isStandalone();}
 function a2Banner(){
   if(!a2Eligible())return '';var o=a2Get();if(o.never||(o.until&&Date.now()<o.until))return '';
   var has=db.habits.length||Object.keys(db.logs).length;
@@ -2066,6 +2134,7 @@ function act(a,b){
       if(ui.fc.id)l.c=l.c.map(function(x){return x.id===n.id?n:x;});else l.c.push(n);
       fTidy(k);fitSync(k);save();ui.fc=null;ui.date=k;go('fit');ui.fitTab='log';toast('已儲存');break;
     case 'fcdel': if(ui.confirmDel!=='fc'){ui.confirmDel='fc';break;}k=ui.fc.k;l=fLog(k);if(l&&l.c)l.c=l.c.filter(function(x){return x.id!==ui.fc.id;});fTidy(k);fitSync(k);save();ui.fc=null;ui.confirmDel=false;go('fit');toast('已刪除這筆紀錄');break;
+    case 'demoreset': if(!DEMO)return;demoBuild();ui.date=t;ui.follow=true;ui.fpx=null;go('today');toast('示範資料已重置');break;
     case 'gotoday': ui.date=t;ui.follow=true;break;
     case 'toggle': unAuto(ui.date,id);setVal(ui.date,id,val(ui.date,id)>0?0:1);break;
     case 'inc': unAuto(ui.date,id);setVal(ui.date,id,val(ui.date,id)+1);break;
