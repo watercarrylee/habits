@@ -7,3 +7,4 @@ Single-file PWA (index.html + sw.js), hosted on GitHub Pages from `main`.
 - All data is local (localStorage key `habit-tracker-v1`); `normalize()` is the single gate for loaded/imported data — IDs must pass `cid()`.
 - Tag every release `vYYYY.MM.DD-N` matching `APP_VER`, and push tags (`git push origin --tags`) so a version can be named for rollback.
 - `normalize()` keeps unknown top-level keys and simple unknown settings, so rolling back to an older build does not erase data added by newer features.
+- Add each release to VERSIONS.md (version → commit). Tag pushes are blocked from the cloud session, so VERSIONS.md is the rollback index.
