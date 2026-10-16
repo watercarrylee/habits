@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-tocRFGFohXw3nk2yHN6uVssWUZHaOdxZpc5DRalfHeY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-KkXJx4mTCcqaTGim2ivogJzvJivi+L90EPvjKwXJXAg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -638,7 +638,9 @@ var PRESETS=[['槓鈴臥推','槓鈴','胸'],['啞鈴臥推','啞鈴','胸'],['�
   ['滑輪下拉','繩索','背'],['坐姿划船','繩索','背'],['槓鈴划船','槓鈴','背'],['引體向上','徒手','背'],['硬舉','槓鈴','背'],
   ['啞鈴肩推','啞鈴','肩'],['側平舉','啞鈴','肩'],['臉拉','繩索','肩'],['啞鈴彎舉','啞鈴','二頭'],['槓鈴彎舉','槓鈴','二頭'],
   ['繩索下壓','繩索','三頭'],['雙槓撐體','徒手','三頭'],['槓鈴深蹲','槓鈴','腿'],['腿推機','固定式器械','腿'],['腿伸屈','固定式器械','腿'],
-  ['羅馬尼亞硬舉','槓鈴','臀'],['臀推','槓鈴','臀'],['棒式','徒手','核心'],['懸垂舉腿','徒手','核心']];
+  ['羅馬尼亞硬舉','槓鈴','臀'],['臀推','槓鈴','臀'],['棒式','徒手','核心'],['懸垂舉腿','徒手','核心'],
+  ['反向蝴蝶機','固定式器械','背']];
+// presets are matched by position (p1, p2, ...): only ever append to this list
 var FRANGES=[['1 個月',30],['3 個月',91],['6 個月',182],['全部',0]];
 function fOn(){return !!db.settings.fit;}
 function fIco(d,sz){sz=sz||22;return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+d+'"/></svg>';}
@@ -651,7 +653,8 @@ function caIco(t){return CAI[t]||CA_OTHER;}
 function fLog(k){return db.fit.logs[k];}
 function fLogMk(k){return db.fit.logs[k]||(db.fit.logs[k]={});}
 function fTidy(k){var l=db.fit.logs[k];if(!l)return;if(l.s&&!l.s.length)delete l.s;if(l.c&&!l.c.length)delete l.c;if(!l.min)delete l.min;if(!Object.keys(l).length)delete db.fit.logs[k];}
-function fSeed(){if(db.fit.ex.length)return;var u=db.settings.fitUnit==='lbs'?'lbs':'kg';PRESETS.forEach(function(p,i){db.fit.ex.push({id:'p'+(i+1),name:p[0],eq:p[1],part:p[2],unit:p[1]==='徒手'?'':u});});}
+function fSeed(){var u=db.settings.fitUnit==='lbs'?'lbs':'kg',added=0;PRESETS.forEach(function(p,i){var id='p'+(i+1);
+  if(exById(id)||db.fit.ex.some(function(e){return e.name===p[0];}))return;db.fit.ex.push({id:id,name:p[0],eq:p[1],part:p[2],unit:p[1]==='徒手'?'':u});added++;});return added;}
 function r1(v){return Math.round(v*10)/10;}
 function fmtW(v,u){return r1(v).toLocaleString('en-US')+(u?' '+u:'');}
 function e1rm(w,r){if(!(w>0)||!(r>=1)||r>12)return 0;return r===1?w:w*(1+r/30);}
@@ -976,9 +979,10 @@ if(!db.settings)db.settings={};
 if(!db.rewards)db.rewards=[];
 if(!db.redeemed)db.redeemed=[];
 if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};
+if(db.settings.fit&&fSeed())save();
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
-var APP_VER='2026.10.16-1';
+var APP_VER='2026.10.16-2';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
