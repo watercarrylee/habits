@@ -156,18 +156,49 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     { id: 'w1', name: '喝水', kind: 'good', method: 'count', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10) }] } });
   await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=edit][data-id=w1]');
   for (let i = 0; i < 3; i++) await p.click('[data-act=goalstep][data-n="1"]');
-  ok((await p.$eval('.goalv', e => e.textContent)) === '4' && (await p.content()).includes('從今天開始用新目標'), 'editor sets goal and explains it starts today');
+  ok((await p.$eval('#hgoal', e => e.value)) === '4' && (await p.content()).includes('新目標從今天開始'), 'editor sets goal and explains it starts today');
   await p.click('[data-act=save]'); d = await db(p);
   ok(JSON.stringify(d.habits[0].goalHist) === JSON.stringify([{ from: T, n: 4 }]), 'goal stored from today');
   await p.click('[data-act=tab][data-tab=today]');
   for (let i = 0; i < 3; i++) await p.click('[data-act=inc][data-id=w1]');
-  ok(!(await p.$('.hcard.g-on')) && (await p.$eval('.cnt', e => e.innerText.replace(/\s/g, ''))) === '3/4', 'not done below goal, shows 3/4');
-  ok(!!(await p.$('.gbar')) && (await p.$eval('.hc-sub', e => e.innerText)).includes('還差 1 次'), 'progress bar and remaining count');
+  ok(!(await p.$('.hcard.g-on')) && (await p.$eval('.hc-sub', e => e.innerText)).includes('3 / 4 次'), 'not done below goal, shows 3 / 4 次');
+  ok(!!(await p.$('.gbar')), 'progress bar shown');
   ok((await p.$eval('.hc-sub', e => e.innerText)).includes('連續 1 天'), 'yesterday (2 times, before the goal) still counts');
   await p.click('[data-act=inc][data-id=w1]');
   ok(!!(await p.$('.hcard.g-on')) && (await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'reaching the goal completes and celebrates');
   ok((await p.$eval('.hc-sub', e => e.innerText)).includes('連續 2 天'), 'streak continues');
   await done(p, 'goal');
+
+  console.log('• units, amount per tap, typing a total');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: {}, rewards: [], redeemed: [], logs: { [daysAgo(1)]: { h: { u1: 3 } }, [daysAgo(2)]: { h: { u1: 4 } } }, habits: [
+    { id: 'u1', name: '喝水', kind: 'good', method: 'count', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10), saveHist: [{ from: daysAgo(10), amt: 10 }] },
+    { id: 'b1', name: '宵夜', kind: 'bad', method: 'count', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10) }] } });
+  await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=edit][data-id=u1]');
+  await p.click('[data-act=unitchip][data-v=ml]'); await p.fill('#hstep', '500'); await p.fill('#hgoal', '2000');
+  const gh = await p.$eval('#ghint', e => e.innerText);
+  ok(gh.includes('大約按 4 下') && gh.includes('一起換算'), 'hint shows taps needed and warns about conversion');
+  await p.click('[data-act=save]'); d = await db(p); let u = d.habits.find(h => h.id === 'u1');
+  ok(u.unit === 'ml' && u.step === 500 && d.logs[daysAgo(1)].h.u1 === 1500 && d.logs[daysAgo(2)].h.u1 === 2000, 'past presses converted to ml');
+  ok(JSON.stringify(u.goalHist) === JSON.stringify([{ from: T, n: 2000 }]), 'goal 2000 from today');
+  await p.click('[data-act=tab][data-tab=rewards]');
+  ok((await p.content()).includes('NT$70'), 'savings unchanged after conversion (7 presses x 10)');
+  await p.click('[data-act=tab][data-tab=today]');
+  await p.click('[data-act=inc][data-id=u1]'); await p.click('[data-act=inc][data-id=u1]');
+  ok((await db(p)).logs[T].h.u1 === 1000 && (await p.$eval('.hc-sub', e => e.innerText)).includes('1,000 / 2,000 ml'), 'each tap adds 500 ml, shows 1,000 / 2,000 ml');
+  await p.click('[data-act=dec][data-id=u1]'); ok((await db(p)).logs[T].h.u1 === 500, 'minus removes 500 ml');
+  await p.click('[data-act=inc][data-id=b1]'); ok((await db(p)).logs[T].h.b1 === 1, 'bad habit +1');
+  await p.click('[data-act=tab][data-tab=stats]');
+  ok(/本月共 .* ml · 平均每天/.test(await p.content()), 'stats show monthly total and daily average');
+  await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=edit][data-id=u1]');
+  ok(!(await p.$eval('#ghint', e => e.innerText)).includes('換算'), 'no conversion warning when step unchanged');
+  await p.click('[data-act=unitchip][data-v=杯]'); await p.click('[data-act=save]'); d = await db(p); u = d.habits.find(h => h.id === 'u1');
+  ok(u.unit === '杯' && d.logs[daysAgo(1)].h.u1 === 1500 && d.logs[T].h.u1 === 500, 're-saving / renaming unit does not rescale again');
+  await p.click('[data-act=tab][data-tab=today]'); await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="-1"]');
+  ok(!(await p.$('[data-act=amt]')), 'no tap-to-type on the number');
+  await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=fittoggle]');
+  await p.click('[data-act=edit][data-id=u1]'); ok(!(await p.$('[data-act=fitlink]')), 'counted habits cannot be linked to 運動');
+  await p.click('[data-act=method][data-v=check]'); ok(!!(await p.$('[data-act=fitlink]')), 'check habits can be linked');
+  await done(p, 'units');
 
   console.log('• past days are locked');
   const lockSeed = st => ({ 'habit-tracker-v1': { v: 1, settings: st || {}, rewards: [], redeemed: [], logs: {}, habits: [

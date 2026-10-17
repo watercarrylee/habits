@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-L/9aZp1ZfnEaKDd/hxHTWFUdcdzk8CiCnXSs+iR64Ic='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-0963Xb7KUfZHxK6xUM9j2vVRVroSSV3w8hTyc+UIWPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -120,7 +120,9 @@ button.hcard{padding-right:16px}
 .lockbar.open{border-color:var(--good);color:var(--good)}
 .page.locked .hcard,.page.locked .moods,.page.locked .restbar{opacity:.55}
 .row-btn.lockn{flex-direction:column;align-items:stretch;gap:10px}.lockn .useg{display:grid;grid-template-columns:repeat(4,1fr)}.lockn .useg button{white-space:nowrap}
-.cnt.of{min-width:44px;font-size:18px}.cnt small{font-size:12px;font-weight:700;color:var(--muted);margin-left:1px}
+.cnt.big{font-size:16px;min-width:44px}
+.unitchips{align-items:center}.unitchips input.unitin{flex:0 0 auto;width:84px;height:36px;border:1.5px solid var(--line);border-radius:18px;background:var(--surface);padding:0 12px;font-size:16px;text-align:center}.unitchips input.unitin.on{border-color:var(--fg)}
+.rk-amt{display:block;margin-top:2px}
 .gbar{height:4px;border-radius:2px;background:var(--line);margin-top:6px;max-width:140px;overflow:hidden}.gbar i{display:block;height:100%;background:var(--good);border-radius:2px;transition:width .25s}
 .goalv{font-size:24px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums}
 
@@ -649,7 +651,9 @@ var RTYPES={
   saved:{label:'省下的錢',ex:'累計存到 NT$3,000',unit:'NT$',min:100,max:9999999,step:100,def:3000,kind:null,tl:'省下的錢累計到',again:'重新累計',rep:false}
 };
 function isKey(k){return typeof k==='string'&&/^\d{4}-\d\d-\d\d$/.test(k);}
-function normGoal(a){return (Array.isArray(a)?a:[]).filter(function(e){return e&&isKey(e.from)&&+e.n>=1;}).map(function(e){return {from:e.from,n:Math.min(99,Math.round(+e.n)||1)};}).sort(function(x,y){return x.from<y.from?-1:1;});}
+function clampInt(v,lo,hi,d){v=Math.round(+v);return isFinite(v)&&v>=lo?Math.min(hi,v):d;}
+function normUnit(u){u=typeof u==='string'?u.replace(/[<>&"'\u0000-\u001f]/g,'').trim().slice(0,8):'';return u||'次';}
+function normGoal(a){return (Array.isArray(a)?a:[]).filter(function(e){return e&&isKey(e.from)&&+e.n>=1;}).map(function(e){return {from:e.from,n:clampInt(e.n,1,999999,1)};}).sort(function(x,y){return x.from<y.from?-1:1;});}
 function normHist(a){return (Array.isArray(a)?a:[]).filter(function(e){return e&&isKey(e.from)&&+e.amt>=0;}).map(function(e){return {from:e.from,amt:Math.round(+e.amt)||0};}).sort(function(x,y){return x.from<y.from?-1:1;});}
 function icoSvg(key,size){var x=ICONS[key];if(!x)return '';return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+x[1]+'</svg>';}
 function cardIco(h){return h.icon&&ICONS[h.icon]?'<span class="hico">'+icoSvg(h.icon,22)+'</span>':'';}
@@ -759,7 +763,7 @@ function relDay(k){var tk=todayKey(),d=parseKey(k);return k===tk?'今天':k===ad
 function mdw(k){var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()];}
 
 /* habit link */
-function fitLinked(){return db.habits.filter(function(h){return h.fitLink&&!h.archived&&h.kind==='good';});}
+function fitLinked(){return db.habits.filter(function(h){return h.fitLink&&!h.archived&&h.kind==='good'&&h.method==='check';});}
 function fitTarget(h){var m=String(h.name).match(/(\d+)\s*(分鐘|分|min)/i);return m?+m[1]:0;}
 function fitMinutes(k){var l=fLog(k);if(!l)return {c:0,s:0,tot:0,any:false};var c=(l.c||[]).reduce(function(a,x){return a+x.min;},0),s=l.min||0;
   return {c:c,s:s,tot:c+s,any:!!((l.s&&l.s.length)||(l.c&&l.c.length)||s)};}
@@ -768,7 +772,7 @@ function fitSync(k){
   if(!fOn())return;
   var fm=fitMinutes(k),fa=((db.logs[k]||{}).fa||[]).slice(),changed=false;
   db.habits.forEach(function(h){
-    if(h.kind!=='good'||h.archived||!h.fitLink)return;
+    if(h.kind!=='good'||h.archived||!h.fitLink||h.method!=='check')return;
     var auto=fa.indexOf(h.id)>=0,on=val(k,h.id)>0;
     var tg=fitTarget(h),ok=tg?fm.tot>=tg:fm.any;
     if(ok&&!on){var l=db.logs[k]||(db.logs[k]={});l.h=l.h||{};l.h[h.id]=1;if(k<h.created)h.created=k;fa.push(h.id);changed=true;}
@@ -1039,12 +1043,12 @@ function normalize(d){
     return {id:cid(h.id),name:String(h.name).slice(0,40),kind:h.kind==='bad'?'bad':'good',
       method:h.method==='count'?'count':'check',
       days:Array.isArray(h.days)&&h.days.length===7?h.days.map(Boolean):allDays(),
-      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),fitLink:!!h.fitLink};
+      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),unit:normUnit(h.unit),step:clampInt(h.step,1,9999,1),fitLink:!!h.fitLink};
   });
   var logs={};
   Object.keys(d.logs).forEach(function(k){
     if(!/^\d{4}-\d\d-\d\d$/.test(k))return;var l=d.logs[k]||{},o={};
-    if(l.h&&typeof l.h==='object'){o.h={};Object.keys(l.h).forEach(function(id){var v=Math.floor(+l.h[id]),c=cid(id);if(v>0&&c)o.h[c]=v;});if(!Object.keys(o.h).length)delete o.h;}
+    if(l.h&&typeof l.h==='object'){o.h={};Object.keys(l.h).forEach(function(id){var v=Math.min(999999,Math.floor(+l.h[id])),c=cid(id);if(v>0&&c)o.h[c]=v;});if(!Object.keys(o.h).length)delete o.h;}
     if(typeof l.mood==='number'&&l.mood>=0&&l.mood<=4)o.mood=l.mood;
     if(typeof l.note==='string'&&l.note)o.note=l.note;
     if(typeof l.pnl==='number'&&isFinite(l.pnl))o.pnl=Math.round(l.pnl);
@@ -1112,9 +1116,9 @@ function demoFill(days){
   for(k=start;k<t;k=addDays(k,1)){
     var prog=1-(parseKey(t)-parseKey(k))/864e5/days,l=db.logs[k]||{};l.h=l.h||{};dow=parseKey(k).getDay();
     db.habits.forEach(function(h){
-      if(h.archived||h.fitLink&&db.settings.fit)return;
+      if(h.archived||h.fitLink&&h.method==='check'&&db.settings.fit)return;
       if(h.kind==='good'){if(!h.days[dow])return;
-        if(h.method==='count'){var c=Math.floor(rnd()*4+4*prog+2);if(c>0)l.h[h.id]=c;return;}
+        if(h.method==='count'){var c=Math.floor(rnd()*4+4*prog+2);if(c>0)l.h[h.id]=c*hStep(h);return;}
         if(rnd()<0.5+0.4*prog)l.h[h.id]=1;}
       else if(rnd()<0.35-0.25*prog)l.h[h.id]=h.method==='count'&&rnd()<0.3?2:1;
     });
@@ -1160,7 +1164,7 @@ function demoBuild(){
   var t=todayKey();
   db={v:1,habits:[],logs:{},settings:{pnl:true,diary:true,fit:true,fitUnit:'kg',iconAuto:true,onboarded:true},rewards:[],redeemed:[],fit:{ex:[],logs:{},ctypes:['拳擊有氧']}};
   var H=function(id,name,kind,method,days,amt){db.habits.push({id:id,name:name,kind:kind,method:method,days:days||allDays(),created:t,archived:false,icon:guessIcon(name),saveHist:amt?[{from:t,amt:amt}]:[],fitLink:id==='d1'});};
-  H('d1','運動 30 分鐘','good','check');H('d2','11:30 前睡覺','good','check');H('d3','喝水 2000ml','good','count');db.habits[db.habits.length-1].goalHist=[{from:GOAL_ALL,n:6}];H('d4','沒有買咖啡','good','check',null,80);
+  H('d1','運動 30 分鐘','good','check');H('d2','11:30 前睡覺','good','check');H('d3','喝水','good','count');(function(w){w.unit='ml';w.step=500;w.goalHist=[{from:GOAL_ALL,n:2000}];})(db.habits[db.habits.length-1]);H('d4','沒有買咖啡','good','check',null,80);
   H('d5','閱讀 20 頁','good','check',[false,true,true,true,true,true,false]);H('d6','吃宵夜','bad','count',null,150);H('d7','睡前滑手機','bad','check');H('d8','喝含糖飲料','bad','count',null,60);
   db.logs[t]={h:{d3:3,d4:1}};
   var start=addDays(t,-120);
@@ -1243,7 +1247,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.17-5';
+var APP_VER='2026.10.17-6';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1406,7 +1410,15 @@ function addExamples(){
 var GOAL_ALL='2000-01-01';
 function goalOn(h,k){if(!h||h.kind!=='good'||h.method!=='count')return 1;var n=1;(h.goalHist||[]).forEach(function(e){if(e.from<=k)n=e.n;});return n;}
 function isDone(h,k){return val(k,h.id)>=goalOn(h,k);}
-function setGoal(h,n,isNew){n=Math.max(1,Math.min(99,Math.round(+n)||1));
+function isAmt(h){return !!h&&h.kind==='good'&&h.method==='count';}
+function hUnit(h){return isAmt(h)?(h.unit||'次'):'次';}
+function hStep(h){return isAmt(h)?(h.step||1):1;}
+function amtTxt(h,v){return fmtN(v)+(hUnit(h)==='次'?' 次':' '+hUnit(h));}
+/* changing "每按一次" rescales past records so one old press still equals one press */
+function rescaleStep(h,s0,s1){if(s0===s1||!s0||!s1)return;var r=s1/s0;
+  Object.keys(db.logs).forEach(function(k){var l=db.logs[k];if(l.h&&l.h[h.id])l.h[h.id]=Math.max(1,Math.min(999999,Math.round(l.h[h.id]*r)));});
+  (h.goalHist||[]).forEach(function(e){e.n=Math.max(1,Math.min(999999,Math.round(e.n*r)));});}
+function setGoal(h,n,isNew){n=clampInt(n,1,999999,1);
   if(isNew){h.goalHist=n>1?[{from:GOAL_ALL,n:n}]:[];return;}
   var t=todayKey();if(goalOn(h,t)===n)return;h.goalHist=h.goalHist||[];var last=h.goalHist[h.goalHist.length-1];
   if(last&&last.from===t)last.n=n;else h.goalHist.push({from:t,n:n});}
@@ -1423,7 +1435,7 @@ function setSave(h,amt,from){
 }
 function savedFor(h,k){
   var a=amtOn(h,k);if(!a)return 0;var v=val(k,h.id);
-  if(h.kind==='good')return h.method==='count'?v*a:(v>0?a:0);
+  if(h.kind==='good')return h.method==='count'?Math.floor(v/hStep(h))*a:(v>0?a:0);
   return (db.logs[k]&&!(v>0))?a:0;
 }
 function savingsTotals(){
@@ -1652,13 +1664,20 @@ function saveFromRow(d){
     '<div class="chips">'+opts.map(function(o){return '<button class="chip'+(d.saveFrom===o[1]?' on':'')+'" data-act="savefrom" data-v="'+o[1]+'">'+o[0]+'</button>';}).join('')+'</div>'+
     (d.saveFrom<t?'<p class="hint" style="color:var(--good)">會把 '+shortMD(d.saveFrom)+' 之後的紀錄一起補算。</p>':'')+'</div>';
 }
+var UNITS=['次','杯','ml','分鐘','頁'];
+function goalHint(d,isNew){var g=d.goal||1,st=d.step||1,u=d.unit||'次',out;
+  if(g<=1&&st===1)out='按一次就算完成。想要做到幾次才算，就把目標調高。';
+  else out='每天達到 '+fmtN(g)+' '+esc(u)+' 才算完成'+(g>st?'，大約按 '+Math.ceil(g/st)+' 下':'')+'。';
+  if(!isNew&&d.goal0!==undefined&&g!==d.goal0&&(d.step||1)===d.step0)out+='新目標從今天開始，以前的紀錄照舊。';
+  if(!isNew&&d.step0&&st!==d.step0)out+='<b>改了「每按一次」，以前的紀錄會一起換算</b>（以前按 1 下 = 現在的 '+fmtN(st)+' '+esc(u)+'）。';
+  return out;}
 function saveField(d){
   var good=d.kind==='good';
   return '<div class="field savebox"><div class="sec-row"><label class="lbl" for="hsave" style="color:var(--fg);font-weight:700;font-size:15px">'+(good?'每做到一次，省下':'每天沒犯，省下')+'</label><span class="small muted">選填</span></div>'+
     '<div class="moneyin"><span>NT$</span><input id="hsave" type="text" inputmode="numeric" placeholder="0" value="'+(d.save||'')+'" aria-label="省下的錢"></div>'+
     '<div class="chips">'+[50,80,100,150].map(function(v){return '<button class="chip'+(+d.save===v?' on':'')+'" data-act="savechip" data-v="'+v+'">NT$'+v+'</button>';}).join('')+'</div>'+
     (d.firstSave?saveFromRow(d):'')+
-    '<p class="hint">'+(good?'每次打勾累計一次，計次的習慣按次數算。':'那天有在 App 記錄、而且沒犯，才累計一次。')+'總額會出現在「獎勵」頁。'+(d.firstSave?'設定後再改金額，只影響之後的日子。':'改金額只影響之後的日子。')+'</p></div>';
+    '<p class="hint">'+(good?'每次打勾累計一次，計次的習慣每按一次 ＋ 算一次。':'那天有在 App 記錄、而且沒犯，才累計一次。')+'總額會出現在「獎勵」頁。'+(d.firstSave?'設定後再改金額，只影響之後的日子。':'改金額只影響之後的日子。')+'</p></div>';
 }
 
 /* ---------- unrealized P&L ---------- */
@@ -1812,7 +1831,8 @@ function rankMonth(y,m){
     var from=ms>h.created?ms:h.created;
     if(h.kind==='good'){
       var sc=0,dn=0;for(var d=from;d<=to;d=addDays(d,1)){if(scheduled(h,d)){sc++;if(isDone(h,d))dn++;}}
-      good.push({h:h,sc:sc,dn:dn,rate:sc?Math.round(dn/sc*100):0,st:goodStreak(h,to),ok:sc>=7});
+      var tot=0,nd=0;if(isAmt(h))for(var d3=from;d3<=to;d3=addDays(d3,1)){tot+=val(d3,h.id);nd++;}
+      good.push({h:h,sc:sc,dn:dn,rate:sc?Math.round(dn/sc*100):0,st:goodStreak(h,to),ok:sc>=7,tot:tot,nd:nd});
     }else{
       var sl=0,days=0;for(var d2=from;d2<=to;d2=addDays(d2,1)){sl+=val(d2,h.id);days++;}
       bad.push({h:h,sl:sl,days:days,clean:val(to,h.id)>0?0:cleanDays(h,to),ok:days>=7});
@@ -1823,6 +1843,7 @@ function rankMonth(y,m){
   var r=1;good.forEach(function(x){x.rank=x.ok?r++:null;});r=1;bad.forEach(function(x){x.rank=x.ok?r++:null;});
   return {good:good,bad:bad,ms:ms,me:me};
 }
+function amtLine(x){if(!isAmt(x.h)||!x.nd)return '';return '<span class="rk-amt">本月共 '+esc(amtTxt(x.h,x.tot))+' · 平均每天 '+esc(amtTxt(x.h,Math.round(x.tot/x.nd)))+'</span>';}
 function rankChange(x,prev,prevMe){
   if(x.h.created>prevMe)return '<span class="rk-new">新</span>';
   var p=null;prev.forEach(function(y){if(y.h.id===x.h.id)p=y.rank;});
@@ -1836,7 +1857,7 @@ function rankingHTML(y,m){
     var main=list.filter(function(x){return x.ok;}),fresh=list.filter(function(x){return !x.ok;}),out='';
     out+=main.map(function(x){
       var first=x.rank===1,sub,valTxt;
-      if(isGood){sub=(x.st?'連續 '+x.st+' 天 · ':'')+x.dn+' / '+x.sc+' 天';valTxt=x.rate+'%';}
+      if(isGood){sub=(x.st?'連續 '+x.st+' 天 · ':'')+x.dn+' / '+x.sc+' 天'+amtLine(x);valTxt=x.rate+'%';}
       else{sub=x.clean?'已 '+x.clean+' 天沒犯':'這天有犯';valTxt=x.sl+' 次';}
       return '<div class="rk"><div class="rk-top"><span class="rk-n'+(first?' first':'')+'">'+x.rank+'</span>'+ico(x.h)+
         '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
@@ -1846,7 +1867,7 @@ function rankingHTML(y,m){
     if(fresh.length){
       out+='<div class="rk-sep">天數還少（本月'+(isGood?'排定':'記錄')+'不到 7 天）</div>'+fresh.map(function(x){
         var since=x.h.created>=cur.ms?shortMD(x.h.created)+' 才開始 · ':'';
-        var sub=isGood?since+x.dn+' / '+x.sc+' 天':since+x.days+' 天';
+        var sub=isGood?since+x.dn+' / '+x.sc+' 天'+amtLine(x):since+x.days+' 天';
         var v=isGood?(x.sc?x.rate+'%':'—'):x.sl+' 次';
         return '<div class="rk fresh"><div class="rk-top"><span class="rk-n">·</span>'+ico(x.h)+
           '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
@@ -1866,9 +1887,10 @@ function rankingHTML(y,m){
 function dateLabel(k){var t=todayKey();if(k===t)return '今天';if(k===addDays(t,-1))return '昨天';var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日';}
 function dateSub(k){var d=parseKey(k);return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()];}
 
-function counter(id,v,kind,gl){
+function counter(id,v,kind){
+  var cls='cnt '+(v?kind+'-t':'zero')+(v>=1000?' big':'');
   return '<div class="counter"><button class="minus" data-act="dec" data-id="'+id+'" aria-label="減一次"'+(v?'':' disabled')+'>'+I.minus+'</button>'+
-    '<span class="cnt '+(v?kind+'-t':'zero')+(gl>1?' of':'')+'">'+v+(gl>1?'<small>/'+gl+'</small>':'')+'</span>'+
+    '<span class="'+cls+'">'+v+'</span>'+
     '<button class="plus '+kind+'" data-act="inc" data-id="'+id+'" aria-label="加一次">'+I.plus+'</button></div>';
 }
 function goodCard(h,k){
@@ -1876,7 +1898,7 @@ function goodCard(h,k){
   var sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';
   var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);
   if(h.method==='count'){
-    return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+(gl>1&&!on&&v>0?'還差 '+(gl-v)+' 次 · ':'')+sub+'</div>'+(gl>1?'<div class="gbar" aria-hidden="true"><i style="width:'+Math.min(100,Math.round(v/gl*100))+'%"></i></div>':'')+'</div></div>'+counter(h.id,v,'good',gl)+'</div>';
+    return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+(gl>1||hUnit(h)!=='次'?fmtN(v)+(gl>1?' / '+fmtN(gl):'')+(hUnit(h)==='次'?' 次':' '+esc(hUnit(h)))+' · ':'')+sub+'</div>'+(gl>1?'<div class="gbar" aria-hidden="true"><i style="width:'+Math.min(100,Math.round(v/gl*100))+'%"></i></div>':'')+'</div></div>'+counter(h.id,v,'good')+'</div>';
   }
   return '<button class="hcard'+(on?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div></div></div><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span></button>';
 }
@@ -2100,19 +2122,22 @@ function vEdit(){
     '<div class="field"><div class="lbl">記錄方式</div><div class="seg">'+
       '<button class="'+(chk?'on':'')+'" data-act="method" data-v="check" aria-pressed="'+chk+'">打勾</button>'+
       '<button class="'+(!chk?'on':'')+'" data-act="method" data-v="count" aria-pressed="'+(!chk)+'">計次</button></div><p class="hint">'+hint+'</p></div>';
-  if(good&&!chk){var gv=d.goal||1,gch=!isNew&&d.goal0!==undefined&&gv!==d.goal0;
-    s+='<div class="field"><div class="lbl">每天目標</div><div class="stepper">'+
-      '<button class="stepbtn" data-act="goalstep" data-n="-1" aria-label="減少目標"'+(gv<=1?' disabled':'')+'>−</button>'+
-      '<div class="stepval"><b class="goalv">'+gv+'</b><span>次</span></div>'+
-      '<button class="stepbtn dark" data-act="goalstep" data-n="1" aria-label="增加目標"'+(gv>=99?' disabled':'')+'>+</button></div>'+
-      '<p class="hint">'+(gv>1?'一天達到 '+gv+' 次才算完成，才會算進連續天數。':'按一次就算完成。想要做到幾次才算，就把目標調高。')+(gch?'從今天開始用新目標，以前的紀錄照舊。':'')+'</p></div>';}
+  if(good&&!chk){var gv=d.goal||1,du=d.unit||'次';
+    s+='<div class="field"><div class="lbl">單位</div><div class="chips unitchips">'+UNITS.map(function(u){return '<button class="chip'+(du===u?' on':'')+'" data-act="unitchip" data-v="'+u+'" aria-pressed="'+(du===u)+'">'+u+'</button>';}).join('')+
+      '<input id="hunit" class="unitin'+(UNITS.indexOf(du)<0?' on':'')+'" type="text" maxlength="8" placeholder="自訂" aria-label="自訂單位" value="'+(UNITS.indexOf(du)<0?esc(du):'')+'"></div></div>'+
+      '<div class="field"><label class="lbl" for="hstep">每按一次 ＋</label><div class="stepval"><input id="hstep" type="text" inputmode="numeric" value="'+(d.step||1)+'"><span class="uname">'+esc(du)+'</span></div></div>'+
+      '<div class="field"><label class="lbl" for="hgoal">每天目標</label><div class="stepper">'+
+      '<button class="stepbtn" data-act="goalstep" data-n="-1" aria-label="減少目標">−</button>'+
+      '<div class="stepval"><input id="hgoal" type="text" inputmode="numeric" value="'+gv+'"><span class="uname">'+esc(du)+'</span></div>'+
+      '<button class="stepbtn dark" data-act="goalstep" data-n="1" aria-label="增加目標">+</button></div>'+
+      '<p class="hint" id="ghint">'+goalHint(d,isNew)+'</p></div>';}
   s+=saveField(d);
   if(good){
     s+='<div class="field"><div class="lbl">哪幾天要做</div><div class="days">'+WD.map(function(w,i){
       return '<button class="day'+(d.days[i]?' on':'')+'" data-act="dayt" data-i="'+i+'" aria-pressed="'+d.days[i]+'" aria-label="星期'+w+'">'+w+'</button>';
     }).join('')+'</div><p class="hint">'+(n===7?'每天都要做。':n?'每週 '+n+' 天，其他天不會中斷連續天數。':'請至少選一天。')+'</p></div>';
   }
-  if(good&&fOn()){
+  if(good&&chk&&fOn()){
     var tg=fitTarget({name:d.name||''});
     s+='<div class="field"><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用運動紀錄自動打勾</span><span class="row-sub">預設關閉</span></span>'+
       '<button class="switch" role="switch" aria-checked="'+!!d.fitLink+'" aria-label="用運動紀錄自動打勾" data-act="fitlink"><span class="knob"></span></button></div>'+
@@ -2192,8 +2217,8 @@ function saveDraft(){
   var d=ui.draft,name=(d.name||'').trim();
   if(!name){ui.err='請輸入習慣名稱。';render();return;}
   if(d.kind==='good'&&!d.days.some(Boolean)){ui.err='請至少選一天。';render();return;}
-  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'?d.days.slice():allDays();h.icon=d.icon||'';h.fitLink=d.kind==='good'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count')setGoal(h,d.goal||1);}}
-  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,days:d.kind==='good'?d.days.slice():allDays(),created:todayKey(),archived:false,icon:d.icon||'',saveHist:[],fitLink:d.kind==='good'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count')setGoal(nh,d.goal||1,true);}
+  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'?d.days.slice():allDays();h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1);rescaleStep(h,h.step||1,s1);h.step=s1;h.unit=normUnit(d.unit);setGoal(h,d.goal||1);}}}
+  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,days:d.kind==='good'?d.days.slice():allDays(),created:todayKey(),archived:false,icon:d.icon||'',saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
   fitSync(todayKey());if(ui.date!==todayKey())fitSync(ui.date);
   save();go(ui.back||'settings');render();toast('已儲存');
 }
@@ -2394,19 +2419,20 @@ function act(a,b){
     case 'bksnooze': n=bkGet();n.snooze=addDays(t,3);bkSet(n);toast('3 天後再提醒你');break;
     case 'gotoday': ui.date=t;ui.follow=true;break;
     case 'toggle': unAuto(ui.date,id);n=val(ui.date,id)>0;setVal(ui.date,id,n?0:1);h=byId(id);if(!n&&h&&h.kind==='good')celebrate(id);break;
-    case 'inc': unAuto(ui.date,id);h=byId(id);n=h&&h.kind==='good'&&!isDone(h,ui.date);setVal(ui.date,id,val(ui.date,id)+1);if(n&&isDone(h,ui.date))celebrate(id);break;
-    case 'dec': unAuto(ui.date,id);setVal(ui.date,id,Math.max(0,val(ui.date,id)-1));break;
+    case 'inc': unAuto(ui.date,id);h=byId(id);n=h&&h.kind==='good'&&!isDone(h,ui.date);setVal(ui.date,id,Math.min(999999,val(ui.date,id)+hStep(h)));if(n&&isDone(h,ui.date))celebrate(id);break;
+    case 'dec': unAuto(ui.date,id);h=byId(id);setVal(ui.date,id,Math.max(0,val(ui.date,id)-hStep(h)));break;
     case 'mood': n=+b.dataset.i;l=db.logs[ui.date]||(db.logs[ui.date]={});l.mood=l.mood===n?null:n;tidy(ui.date);save();break;
     case 'month': n=ui.month[1]+(+b.dataset.n);ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
     case 'pickday': ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
     case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「習慣設定」修改');break;
-    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),fitLink:false,goal:1};ui.pickIcon=true;ui.err='';go('edit');break;
-    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:true,save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey())};ui.pickIcon=false;ui.err='';go('edit');break;
+    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),fitLink:false,goal:1,unit:'次',step:1};ui.pickIcon=true;ui.err='';go('edit');break;
+    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:true,save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1};ui.pickIcon=false;ui.err='';go('edit');break;
     case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
     case 'iconpick': ui.pickIcon=!ui.pickIcon;break;
     case 'seticon': ui.draft.icon=b.dataset.v;ui.draft.iconTouched=true;ui.pickIcon=false;break;
     case 'method': ui.draft.method=b.dataset.v;break;
-    case 'goalstep': ui.draft.goal=Math.max(1,Math.min(99,(ui.draft.goal||1)+(+b.dataset.n)));break;
+    case 'goalstep': var gs0=ui.draft.step||1;ui.draft.goal=Math.max(1,Math.min(999999,(ui.draft.goal||1)+gs0*(+b.dataset.n)));break;
+    case 'unitchip': ui.draft.unit=b.dataset.v;break;
     case 'dayt': n=+b.dataset.i;ui.draft.days[n]=!ui.draft.days[n];ui.err='';break;
     case 'cancel': go(ui.back||'settings');break;
     case 'save': saveDraft();return;
@@ -2481,6 +2507,11 @@ document.addEventListener('input',function(e){
   else if(el.id==='pastebox'&&ui.sheet){ui.sheet.paste=el.value;}
   else if(el.id==='rname'&&ui.rd){ui.rd.name=el.value;var rp=$('#rpreview');if(rp)rp.innerHTML=rPreview(ui.rd);}
   else if(el.id==='rtarget'&&ui.rd){ui.rd.target=parseInt(el.value.replace(/[^0-9]/g,''),10)||0;var rp2=$('#rpreview');if(rp2)rp2.innerHTML=rPreview(ui.rd);}
+  else if((el.id==='hunit'||el.id==='hstep'||el.id==='hgoal')&&ui.draft){
+    if(el.id==='hunit'){ui.draft.unit=normUnit(el.value);Array.prototype.forEach.call(document.querySelectorAll('[data-act=unitchip]'),function(x){x.classList.remove('on');x.setAttribute('aria-pressed','false');});el.classList.toggle('on',!!el.value.trim());}
+    else{var nv=parseInt(el.value.replace(/[^0-9]/g,''),10);if(el.id==='hstep')ui.draft.step=nv>0?Math.min(9999,nv):1;else ui.draft.goal=nv>0?Math.min(999999,nv):1;}
+    Array.prototype.forEach.call(document.querySelectorAll('.uname'),function(x){x.textContent=ui.draft.unit;});
+    var gh=$('#ghint');if(gh)gh.innerHTML=goalHint(ui.draft,!ui.draft.id);}
   else if(el.id==='hsavefrom'&&ui.draft){var tk=todayKey();if(isKey(el.value)){ui.draft.saveFrom=el.value>tk?tk:el.value;render();}}
   else if(el.id==='hsave'&&ui.draft){ui.draft.save=parseInt(el.value.replace(/[^0-9]/g,''),10)||0;Array.prototype.forEach.call(document.querySelectorAll('[data-act=savechip]'),function(c){c.classList.toggle('on',+c.dataset.v===ui.draft.save);});}
   else if(el.id==='diary'){var dl=db.logs[ui.date]||(db.logs[ui.date]={});dl.diary=dl.diary||{};dl.diary.t=el.value;ui.dEdit=ui.date;tidy(ui.date);save();
