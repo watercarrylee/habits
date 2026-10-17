@@ -124,6 +124,33 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.goto(BASE); ok(!(await p.$('.ob')), 'real app does not show onboarding yet');
   await done(p, 'onboarding');
 
+  console.log('• 運動 tab + all-done celebration');
+  const celSeed = histDays => {
+    const logs = {};
+    for (let i = 1; i <= histDays; i++) logs[daysAgo(i)] = { h: { c1: 1, c2: 1 } };
+    return { 'habit-tracker-v1': { v: 1, logs, settings: { fit: true }, rewards: [], redeemed: [], habits: [
+      { id: 'c1', name: '伸展', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) },
+      { id: 'c2', name: '閱讀', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) }] } };
+  };
+  p = await page(b, celSeed(2));
+  ok((await p.$eval('#tabs', e => e.innerText)).includes('運動') && !(await p.$eval('#tabs', e => e.innerText)).includes('健身'), 'tab is named 運動');
+  await p.click('[data-act=toggle][data-id="c1"]');
+  ok(!(await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'no celebration while one habit left');
+  await p.click('[data-act=toggle][data-id="c2"]');
+  ok(await p.$eval('.sum-card', e => e.classList.contains('alldone') && e.innerText.includes('今天全部完成')), 'card shows 今天全部完成');
+  ok(/完成.*連續 3 天/.test(await p.$eval('#toast', e => e.hidden ? '' : e.innerText)), 'cheer toast with streak');
+  ok((await p.evaluate(() => localStorage.getItem('habit-tracker-v1-cel'))) === T, 'celebration remembered for today');
+  await p.evaluate(() => { document.getElementById('toast').hidden = true; });
+  await p.click('[data-act=toggle][data-id="c2"]'); await p.click('[data-act=toggle][data-id="c2"]');
+  ok(await p.$eval('#toast', e => e.hidden), 'celebrates only once a day');
+  await done(p, 'celebration');
+
+  p = await page(b, celSeed(6));
+  await p.click('[data-act=toggle][data-id="c1"]'); await p.click('[data-act=toggle][data-id="c2"]');
+  ok(await p.$eval('.sheet', e => e.innerText.includes('連續 7 天全部完成')), 'milestone sheet at 7 days');
+  await p.click('.sheet [data-act=closesheet]'); ok(!(await p.$('.sheet')), 'milestone sheet closes');
+  await done(p, 'milestone');
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');

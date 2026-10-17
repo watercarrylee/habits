@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-AiT9vIBPXArz23cPBzyMDX/+nZrGrkpt61z294ICUI8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-8HM34fYSrn05DqFWdVATM0YTHDepuvj8dkHolET1VPM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -339,6 +339,16 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .obtips b{color:var(--fg)}
 .obfoot{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:auto;padding-top:8px}
 .obfoot .primary:disabled{opacity:.4}
+.sum-card.alldone{background:linear-gradient(135deg,var(--good),#3E8A68)}
+.sum-card.glow{animation:glow 1.2s ease-out 1}
+@keyframes glow{0%{box-shadow:0 0 0 0 rgba(47,107,82,.55)}100%{box-shadow:0 0 0 14px rgba(47,107,82,0)}}
+.pop{position:relative;animation:pop .5s ease-out 1}
+.pop::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--good);animation:ring .6s ease-out 1 forwards;pointer-events:none}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes ring{0%{opacity:.9;transform:scale(.8)}100%{opacity:0;transform:scale(1.7)}}
+.sheet.ms{align-items:center;text-align:center}
+.ms-n{font-size:64px;font-weight:900;line-height:1;color:var(--good);font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){.sum-card.glow,.pop,.pop::after{animation:none}.pop::after{display:none}}
 .dnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .dnav-c{text-align:center;display:flex;flex-direction:column;gap:1px}
 .dnav-c b{font-size:17px}
@@ -564,8 +574,8 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
       今天
     </button>
     <button class="tab" data-act="tab" data-tab="fit" id="fitTab" hidden>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 7v10M4 9.5v5M17.5 7v10M20 9.5v5M6.5 12h11"></path></svg>
-      健身
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4.5a2 2 0 1 0 4 0a2 2 0 1 0-4 0M7 21l3.5-6 3 2.5V21M5 11.5l4-3 4.5 1 2 3 3.5 1M10.5 15l2-6"></path></svg>
+      運動
     </button>
     <button class="tab" data-act="tab" data-tab="stats">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg>
@@ -757,13 +767,13 @@ function fitSync(k){
   if(changed){var L=db.logs[k]||(db.logs[k]={});if(fa.length)L.fa=fa;else delete L.fa;tidy(k);}
 }
 function fitLinkMsg(h,k){var tg=fitTarget(h),fm=fitMinutes(k),on=val(k,h.id)>0;
-  if(!tg)return '「'+esc(h.name)+'」：這天有健身紀錄就自動打勾'+(on?'，已打勾 ✓':'');
+  if(!tg)return '「'+esc(h.name)+'」：這天有運動紀錄就自動打勾'+(on?'，已打勾 ✓':'');
   return '「'+esc(h.name)+'」：有氧 '+fm.c+' 分 ＋ 重訓 '+fm.s+' 分 ＝ '+fm.tot+' 分，'+(on?'已打勾 ✓':'還差 '+(tg-fm.tot)+' 分');}
 
 /* tab: log */
 function vFit(){
   var tab=ui.fitTab==='prog'?'prog':'log';
-  var s='<div class="page"><header class="titlebar"><h1 class="h1">健身</h1></header>'+
+  var s='<div class="page"><header class="titlebar"><h1 class="h1">運動</h1></header>'+
     '<div class="seg"><button class="'+(tab==='log'?'on':'')+'" data-act="ftab" data-v="log" aria-pressed="'+(tab==='log')+'">紀錄</button>'+
     '<button class="'+(tab==='prog'?'on':'')+'" data-act="ftab" data-v="prog" aria-pressed="'+(tab==='prog')+'">進步</button></div>';
   return s+(tab==='log'?fitLogHTML():fitProgHTML())+'</div>';
@@ -795,7 +805,7 @@ function fitLogHTML(){
     s+='</section>';
   }
   if(!ss.length&&!cc.length){
-    s+='<div class="empty" style="align-items:center;text-align:center"><div class="empty-t">這天沒有健身紀錄</div><p>'+(k<t?'補記一下，趨勢圖會比較完整。':'練完記下來，之後就能看到進步。')+'</p></div>';
+    s+='<div class="empty" style="align-items:center;text-align:center"><div class="empty-t">這天沒有運動紀錄</div><p>'+(k<t?'補記一下，趨勢圖會比較完整。':'練完記下來，之後就能看到進步。')+'</p></div>';
   }
   var linked=fitLinked();
   if(linked.length){
@@ -1196,13 +1206,13 @@ function vOnboard(){
     s+='<div><h1 class="ob-t">想從幾個習慣開始？</h1><p class="ob-s">一開始少一點比較容易持續，之後隨時可以再加。</p></div><div class="stack">'+
       OB_SIZES.map(function(z){var on=o.size===z[0];return '<button class="obopt'+(on?' on':'')+'" data-act="obsize" data-v="'+z[0]+'" aria-pressed="'+on+'"><b>'+z[1]+' · '+z[0]+' 個</b><span>'+z[2]+'</span></button>';}).join('')+'</div>';
   }else if(st===2){
-    var F=[['pnl','記錄投資損益','每天記一次帳面損益，看走勢'],['diary','寫日記','有引導題，寫得比備註長'],['fit','記錄健身','重訓、有氧，看進步趨勢圖']];
+    var F=[['pnl','記錄投資損益','每天記一次帳面損益，看走勢'],['diary','寫日記','有引導題，寫得比備註長'],['fit','記錄運動','重訓、有氧，看進步趨勢圖']];
     s+='<div><h1 class="ob-t">要不要打開這些功能？</h1><p class="ob-s">都可以之後在「習慣設定」再開或關。</p></div><div class="list">'+
       F.map(function(f){var on=!!o.feats[f[0]];return '<div class="row-btn"><span class="row-l"><span>'+f[1]+'</span><span class="row-sub">'+f[2]+'</span></span><button class="switch" role="switch" aria-checked="'+on+'" aria-label="'+f[1]+'" data-act="obfeat" data-v="'+f[0]+'"><span class="knob"></span></button></div>';}).join('')+'</div>';
   }else{
     var n=o.picks.filter(function(p){return p.on;}).length;
     s+='<div><h1 class="ob-t">推薦給你的習慣</h1><p class="ob-s">不要的取消勾選，名稱可以直接改。</p></div><div class="list">'+
-      o.picks.map(function(p,i){var meta=(p.kind==='good'?'好習慣':'壞習慣')+' · '+(p.method==='count'?'計次':'打勾')+(p.save?' · 每次省 NT$'+p.save:'')+(p.fitLink&&o.feats.fit?' · 連動健身紀錄':'');
+      o.picks.map(function(p,i){var meta=(p.kind==='good'?'好習慣':'壞習慣')+' · '+(p.method==='count'?'計次':'打勾')+(p.save?' · 每次省 NT$'+p.save:'')+(p.fitLink&&o.feats.fit?' · 連動運動紀錄':'');
         return '<div class="obpick'+(p.on?'':' off')+'"><button class="obchk'+(p.on?' on':'')+'" data-act="obpick" data-i="'+i+'" aria-pressed="'+p.on+'" aria-label="選取 '+esc(p.name)+'">'+(p.on?I.check:'')+'</button>'+
           '<span class="obico">'+icoSvg(guessIcon(p.name),20)+'</span><span class="obname"><input class="obin" data-i="'+i+'" value="'+esc(p.name)+'" maxlength="40" aria-label="習慣名稱"><small class="'+(p.kind==='bad'?'bad-t':'')+'">'+meta+'</small></span></div>';}).join('')+'</div>'+
       '<div class="obtips"><b>兩個小提醒</b><span>· 加到主畫面：Safari 的分享按鈕 →「加入主畫面」，用起來像 App。</span><span>· 記得備份：紀錄只存在這支手機上，在「習慣設定 → 匯出備份」。</span></div>';
@@ -1223,7 +1233,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.17-2';
+var APP_VER='2026.10.17-3';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1887,6 +1897,19 @@ function a2Banner(){
     (has?'<p class="small muted">主畫面的 App 和這個瀏覽器分頁的資料是分開存的，所以要用備份搬過去。</p>':'')+
     '<div class="a2-f"><label class="a2never"><input type="checkbox" id="a2never">不再提示</label><button class="ghost" data-act="a2close">知道了</button></div></section>';
 }
+/* ---------- all-done celebration ---------- */
+var CELKEY=KEY+'-cel',MILESTONES=[7,21,30,50,100,200,365];
+var CHEERS=['今天全部完成！','做得好，今天全部完成！','漂亮，今天的習慣都完成了！','今天也辦到了！'];
+function allDone(k){var g=active('good').filter(function(h){return k>=h.created&&scheduled(h,k);});return g.length>0&&g.every(function(h){return val(k,h.id)>0;});}
+function doneStreak(k){var n=0,d=k,guard=0;while(guard++<800){var g=active('good').filter(function(h){return d>=h.created&&scheduled(h,d);});
+  if(g.length){if(!g.every(function(h){return val(d,h.id)>0;}))break;n++;}else if(!active('good').some(function(h){return d>=h.created;}))break;d=addDays(d,-1);}return n;}
+function celebrate(id){
+  var t=todayKey();if(ui.date!==t||!allDone(t))return;
+  try{if(localStorage.getItem(CELKEY)===t)return;localStorage.setItem(CELKEY,t);}catch(e){}
+  var st=doneStreak(t);ui.celAnim=id||true;
+  if(MILESTONES.indexOf(st)>=0){ui.sheet={type:'milestone',n:st};return;}
+  var c=CHEERS[Math.floor(Math.random()*CHEERS.length)];toast(c+(st>1?' 連續 '+st+' 天了':''),2600);
+}
 function vToday(){
   var k=ui.date,t=todayKey();
   var goods=active('good'),bads=active('bad');
@@ -1907,7 +1930,8 @@ function vToday(){
   }
   s+=rewardBanner();
   var pOn=!!db.settings.pnl;
-  s+='<div class="sum'+(pOn?' three':'')+'"><div class="sum-card good"><div class="sum-l">好習慣</div><div class="sum-v">'+done+'<small> / '+gs.length+'</small></div></div>'+
+  var ad=gs.length>0&&done===gs.length;
+  s+='<div class="sum'+(pOn?' three':'')+'"><div class="sum-card good'+(ad?' alldone':'')+(ad&&ui.celAnim?' glow':'')+'"><div class="sum-l">'+(ad?(k===t?'今天全部完成':'全部完成'):'好習慣')+'</div><div class="sum-v">'+done+'<small> / '+gs.length+'</small></div></div>'+
      '<div class="sum-card"><div class="sum-l muted">壞習慣</div><div class="sum-v bad-t">'+badSum+'<small class="muted"> 次</small></div></div>'+(pOn?pnlTile(k):'')+'</div>';
   if(goods.length){
     s+='<section class="sec"><h2 class="sec-t good-t">好習慣</h2>';
@@ -1996,8 +2020,8 @@ function vSettings(){
     '<button class="switch" role="switch" aria-checked="'+dO+'" aria-label="日記" data-act="dtoggle"><span class="knob"></span></button></div>'+
     (dO?'<div class="row-btn subrow"><span class="row-l"><span>引導題</span><span class="row-sub">還沒寫的時候給一個小問題</span></span>'+
     '<button class="switch" role="switch" aria-checked="'+dP+'" aria-label="引導題" data-act="dptoggle"><span class="knob"></span></button></div>':'')+
-    '<div class="row-btn"'+(fOn()?'':' style="border-bottom:0"')+'><span class="row-l"><span>健身</span><span class="row-sub">底部多一個「健身」分頁，記重訓和有氧</span></span>'+
-    '<button class="switch" role="switch" aria-checked="'+fOn()+'" aria-label="健身" data-act="fittoggle"><span class="knob"></span></button></div>'+
+    '<div class="row-btn"'+(fOn()?'':' style="border-bottom:0"')+'><span class="row-l"><span>運動紀錄</span><span class="row-sub">底部多一個「運動」分頁，記重訓和有氧</span></span>'+
+    '<button class="switch" role="switch" aria-checked="'+fOn()+'" aria-label="運動紀錄" data-act="fittoggle"><span class="knob"></span></button></div>'+
     (fOn()?'<div class="row-btn subrow" style="border-bottom:0"><span class="row-l"><span>新動作的預設單位</span><span class="row-sub">每個動作還是可以個別改</span></span>'+
     '<span class="useg"><button class="'+(db.settings.fitUnit!=='lbs'?'on':'')+'" data-act="fitunit" data-v="kg">kg</button><button class="'+(db.settings.fitUnit==='lbs'?'on':'')+'" data-act="fitunit" data-v="lbs">lbs</button></span></div>':'')+
     '</div><p class="small muted">關閉只是先藏起來，寫過的資料會保留，重新打開就會回來。</p></section>';
@@ -2050,9 +2074,9 @@ function vEdit(){
   }
   if(good&&fOn()){
     var tg=fitTarget({name:d.name||''});
-    s+='<div class="field"><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用健身紀錄自動打勾</span><span class="row-sub">預設關閉</span></span>'+
-      '<button class="switch" role="switch" aria-checked="'+!!d.fitLink+'" aria-label="用健身紀錄自動打勾" data-act="fitlink"><span class="knob"></span></button></div>'+
-      (d.fitLink?'<p class="hint">'+(tg?'目標 '+tg+' 分鐘（從名稱抓到的數字）。當天「有氧分鐘 ＋ 健身頁填的重訓分鐘」達到 '+tg+' 分就自動打勾。':'名稱裡沒有分鐘數，所以當天只要有任何健身紀錄就自動打勾。')+'紀錄刪掉時，只會取消自動打的勾。</p>':'')+'</div>';
+    s+='<div class="field"><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用運動紀錄自動打勾</span><span class="row-sub">預設關閉</span></span>'+
+      '<button class="switch" role="switch" aria-checked="'+!!d.fitLink+'" aria-label="用運動紀錄自動打勾" data-act="fitlink"><span class="knob"></span></button></div>'+
+      (d.fitLink?'<p class="hint">'+(tg?'目標 '+tg+' 分鐘（從名稱抓到的數字）。當天「有氧分鐘 ＋ 運動頁填的重訓分鐘」達到 '+tg+' 分就自動打勾。':'名稱裡沒有分鐘數，所以當天只要有任何運動紀錄就自動打勾。')+'紀錄刪掉時，只會取消自動打的勾。</p>':'')+'</div>';
   }
   if(!isNew){
     var relR=db.rewards.filter(function(r){return r.habit===d.id;}).length;
@@ -2089,6 +2113,10 @@ function renderSheet(){
       '<label class="lbl" for="pastebox">或貼上備份內容</label><textarea id="pastebox" class="code" rows="5" placeholder="貼上匯出的備份內容">'+esc(sh.paste||'')+'</textarea>'+
       (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
       '<button class="secondary" data-act="usepaste">使用貼上的內容</button>';
+  }else if(sh.type==='milestone'){
+    el.innerHTML='<div class="sheet ms" role="dialog" aria-modal="true"><div class="ms-n">'+sh.n+'</div><h2>連續 '+sh.n+' 天全部完成！</h2>'+
+      '<p>'+(sh.n>=100?'這已經不是習慣，是你的生活方式了。':sh.n>=30?'一整個月都沒有中斷，真的很厲害。':sh.n>=21?'三週了，習慣正在變成自然。':'一整週都做到了，好的開始！')+'</p>'+
+      '<div class="stack"><button class="primary" data-act="closesheet">繼續保持</button></div></div>';el.hidden=false;return;
   }else if(sh.type==='confirm'){
     h='<h2>確定要還原嗎？</h2>'+metaLine(sh.meta)+'<p>備份裡有 '+sh.data.habits.length+' 個習慣、'+Object.keys(sh.data.logs).length+' 天的紀錄。還原後會取代這支手機上目前的所有資料。</p>'+
       '<div class="stack"><button class="primary danger" data-act="confirmimport">取代目前資料</button></div>';
@@ -2114,6 +2142,7 @@ function render(){
   var tabv=v==='archived'?'settings':v==='search'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
   renderSheet();
+  if(ui.celAnim){var ce=typeof ui.celAnim==='string'?main.querySelector('[data-id="'+ui.celAnim+'"] .check, [data-act=inc][data-id="'+ui.celAnim+'"]'):null;if(ce)ce.classList.add('pop');ui.celAnim=null;}
   if(ui.top){main.scrollTop=0;ui.top=false;}
 }
 function go(view){ui.view=view;ui.top=true;ui.confirmDel=false;}
@@ -2234,7 +2263,7 @@ function act(a,b){
     case 'dqx': l=db.logs[ui.date];if(l&&l.diary){delete l.diary.q;tidy(ui.date);save();}ui.dSkip=null;break;
     case 'a2close': var nv=$('#a2never');a2Set(nv&&nv.checked?{never:true}:{until:Date.now()+7*864e5});toast(nv&&nv.checked?'之後不會再提示':'7 天後再提醒你');break;
     case 'a2how': a2Set({});ui.date=t;ui.follow=true;go('today');break;
-    case 'fittoggle': db.settings.fit=!db.settings.fit;if(db.settings.fit){fSeed();fitSync(t);}save();toast(db.settings.fit?'已開啟健身，底部多了「健身」分頁':'已關閉，健身紀錄仍保留');break;
+    case 'fittoggle': db.settings.fit=!db.settings.fit;if(db.settings.fit){fSeed();fitSync(t);}save();toast(db.settings.fit?'已開啟運動紀錄，底部多了「運動」分頁':'已關閉，運動紀錄仍保留');break;
     case 'fitunit': db.settings.fitUnit=b.dataset.v==='lbs'?'lbs':'kg';save();break;
     case 'fitlink': ui.draft.fitLink=!ui.draft.fitLink;break;
     case 'ftab': ui.fitTab=b.dataset.v;ui.top=true;break;
@@ -2317,8 +2346,8 @@ function act(a,b){
       ui.ob.step++;ui.top=true;break;
     case 'bksnooze': n=bkGet();n.snooze=addDays(t,3);bkSet(n);toast('3 天後再提醒你');break;
     case 'gotoday': ui.date=t;ui.follow=true;break;
-    case 'toggle': unAuto(ui.date,id);setVal(ui.date,id,val(ui.date,id)>0?0:1);break;
-    case 'inc': unAuto(ui.date,id);setVal(ui.date,id,val(ui.date,id)+1);break;
+    case 'toggle': unAuto(ui.date,id);n=val(ui.date,id)>0;setVal(ui.date,id,n?0:1);if(!n)celebrate(id);break;
+    case 'inc': unAuto(ui.date,id);n=val(ui.date,id)===0;setVal(ui.date,id,val(ui.date,id)+1);if(n)celebrate(id);break;
     case 'dec': unAuto(ui.date,id);setVal(ui.date,id,Math.max(0,val(ui.date,id)-1));break;
     case 'mood': n=+b.dataset.i;l=db.logs[ui.date]||(db.logs[ui.date]={});l.mood=l.mood===n?null:n;tidy(ui.date);save();break;
     case 'month': n=ui.month[1]+(+b.dataset.n);ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
