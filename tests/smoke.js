@@ -138,7 +138,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!(await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'no celebration while one habit left');
   await p.click('[data-act=toggle][data-id="c2"]');
   ok(await p.$eval('.sum-card', e => e.classList.contains('alldone') && e.innerText.includes('今天全部完成')), 'card shows 今天全部完成');
-  ok(/完成.*連續 3 天/.test(await p.$eval('#toast', e => e.hidden ? '' : e.innerText)), 'cheer toast with streak');
+  ok(/連續 3 天/.test(await p.$eval('#toast', e => e.hidden ? '' : e.innerText)), 'cheer toast with streak');
   ok((await p.evaluate(() => localStorage.getItem('habit-tracker-v1-cel'))) === T, 'celebration remembered for today');
   await p.evaluate(() => { document.getElementById('toast').hidden = true; });
   await p.click('[data-act=toggle][data-id="c2"]'); await p.click('[data-act=toggle][data-id="c2"]');
@@ -150,6 +150,24 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(await p.$eval('.sheet', e => e.innerText.includes('連續 7 天全部完成')), 'milestone sheet at 7 days');
   await p.click('.sheet [data-act=closesheet]'); ok(!(await p.$('.sheet')), 'milestone sheet closes');
   await done(p, 'milestone');
+
+  console.log('• daily goal for counted habits (from the day it is set)');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: {}, rewards: [], redeemed: [], logs: { [daysAgo(1)]: { h: { w1: 2 } } }, habits: [
+    { id: 'w1', name: '喝水', kind: 'good', method: 'count', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10) }] } });
+  await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=edit][data-id=w1]');
+  for (let i = 0; i < 3; i++) await p.click('[data-act=goalstep][data-n="1"]');
+  ok((await p.$eval('.goalv', e => e.textContent)) === '4' && (await p.content()).includes('從今天開始用新目標'), 'editor sets goal and explains it starts today');
+  await p.click('[data-act=save]'); d = await db(p);
+  ok(JSON.stringify(d.habits[0].goalHist) === JSON.stringify([{ from: T, n: 4 }]), 'goal stored from today');
+  await p.click('[data-act=tab][data-tab=today]');
+  for (let i = 0; i < 3; i++) await p.click('[data-act=inc][data-id=w1]');
+  ok(!(await p.$('.hcard.g-on')) && (await p.$eval('.cnt', e => e.innerText.replace(/\s/g, ''))) === '3/4', 'not done below goal, shows 3/4');
+  ok(!!(await p.$('.gbar')) && (await p.$eval('.hc-sub', e => e.innerText)).includes('還差 1 次'), 'progress bar and remaining count');
+  ok((await p.$eval('.hc-sub', e => e.innerText)).includes('連續 1 天'), 'yesterday (2 times, before the goal) still counts');
+  await p.click('[data-act=inc][data-id=w1]');
+  ok(!!(await p.$('.hcard.g-on')) && (await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'reaching the goal completes and celebrates');
+  ok((await p.$eval('.hc-sub', e => e.innerText)).includes('連續 2 天'), 'streak continues');
+  await done(p, 'goal');
 
   console.log('• security headers in page');
   p = await page(b);
