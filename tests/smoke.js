@@ -246,6 +246,10 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   const ver = await p.evaluate(() => document.documentElement.innerHTML.match(/APP_VER='([^']+)'/)[1]);
   ok((await p.$eval('.cl-item.cur .cl-h b', e => e.textContent)) === ver, 'newest changelog entry matches APP_VER (' + ver + ')');
   ok((await p.$$('.cl-item')).length > 10, 'history listed');
+  await p.evaluate(() => { document.getElementById('toast').hidden = true; });
+  for (let i = 0; i < 4; i++) await p.click('[data-act=cltap]');
+  ok(await p.$eval('#toast', e => e.hidden), 'no easter egg before 5 taps');
+  await p.click('[data-act=cltap]'); ok((await p.$eval('#toast', e => e.innerText)).includes('Aaron 再找 Claude'), 'easter egg after 5 taps');
   await p.click('[data-act=back]'); ok(!(await p.$('.clink .cldot')), 'dot cleared after viewing');
   await done(p, 'changelog');
 

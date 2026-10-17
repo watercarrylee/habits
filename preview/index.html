@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-FfS5Y5BqOXxC9M0JthL04L7DD2Ks/Wwg5W0lr2Rohrw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-uoXM/KZIOhAjRDOpmjftmW26S2mHi4XKUn0P1e3AMhI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -121,7 +121,7 @@ button.hcard{padding-right:16px}
 .cl-item.cur{border-color:var(--good)}
 .cl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.cl-h b{font-size:15px;font-variant-numeric:tabular-nums}.cl-h span{font-size:12px;color:var(--muted);white-space:nowrap}
 .cl-item ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.5}
-.cl-foot{text-align:center;margin-top:4px}
+.cl-foot{display:block;margin:4px auto 0;border:0;background:transparent;font:inherit;font-size:13px;padding:8px 12px;-webkit-tap-highlight-color:transparent}
 .lockbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);font-size:13px;color:var(--muted)}
 .lockbar>span{display:flex;align-items:center;gap:6px;min-width:0}.lockbar svg{flex:0 0 auto}
 .lockbar .ghost{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
@@ -1260,7 +1260,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.17-8';
+var APP_VER='2026.10.17-9';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2107,6 +2107,7 @@ function vSettings(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.17-9','10/17',['藏了一個小彩蛋']],
  ['2026.10.17-8','10/17',['App 裡多了「更新紀錄」，就是這一頁']],
  ['2026.10.17-7','10/17',['連動運動的習慣，今天頁直接顯示「重訓 30 分 ＋ 有氧 20 分」','運動頁一定會出現「重訓時間」，沒連動習慣也能記']],
  ['2026.10.17-6','10/17',['計次的習慣可以設單位和「每按一次」多少，例如每次 500 ml、目標 2000 ml','統計頁顯示本月總量和每天平均']],
@@ -2134,7 +2135,7 @@ function vChangelog(){
     s+='<section class="cl-item'+(i===0?' cur':'')+'"><div class="cl-h"><b>'+(e[0]||'早期版本')+'</b><span>'+e[1]+(i===0?' · 目前版本':'')+'</span></div><ul>'+
       e[2].map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></section>';
   });
-  return s+'</div><p class="small muted cl-foot">Aaron × Claude</p></div>';
+  return s+'</div><button class="small muted cl-foot" data-act="cltap">Aaron × Claude</button></div>';
 }
 function vArchived(){
   var list=db.habits.filter(function(h){return h.archived;});
@@ -2486,6 +2487,7 @@ function act(a,b){
     case 'archived': go('archived');break;
     case 'back': go('settings');break;
     case 'changelog': clMarkSeen();go('changelog');break;
+    case 'cltap': var nowT=Date.now();ui.clTaps=(ui.clLast&&nowT-ui.clLast<1500?(ui.clTaps||0):0)+1;ui.clLast=nowT;if(ui.clTaps>=5){ui.clTaps=0;toast('有 bug 找 Aaron，Aaron 再找 Claude XD',3000);}return;
     case 'restore': h=byId(id);if(h){h.archived=false;save();}ui.confirmDel=false;toast('已恢復');break;
     case 'delarch': if(ui.confirmDel!==id){ui.confirmDel=id;break;}removeHabit(id);ui.confirmDel=false;toast('已刪除');break;
     case 'hideamt': db.settings.hideAmt=!db.settings.hideAmt;save();break;
