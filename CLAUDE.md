@@ -9,3 +9,4 @@ Single-file PWA (index.html + sw.js), hosted on GitHub Pages from `main`.
 - `normalize()` keeps unknown top-level keys and simple unknown settings, so rolling back to an older build does not erase data added by newer features.
 - Add each release to VERSIONS.md (version → commit). Tag pushes are blocked from the cloud session, so VERSIONS.md is the rollback index.
 - Before every release run `bash tests/run.sh` (Playwright smoke tests, must end with 0 failed). Add a check there for each new feature.
+- To let Aaron try a version before release: build it on a branch, run `python3 tools/preview.py`, and push only `preview/index.html` to main. It is served at /habits/preview/ with separate data (keys `habit-preview-*`). Merge the branch to main after he approves.
