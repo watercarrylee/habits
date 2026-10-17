@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-uoXM/KZIOhAjRDOpmjftmW26S2mHi4XKUn0P1e3AMhI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-b/+JTrxVCvysPB3tuqkxsCsPOTs12YEnPbJDN84CPCU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,6 +114,8 @@ button.hcard{padding-right:16px}
 .plus.bad{background:var(--bad);color:var(--on-bad)}
 .cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
 .cnt.zero{color:var(--faint)}
+.wdots{display:inline-flex;gap:3px;margin-right:6px;vertical-align:1px}.wdot{width:7px;height:7px;border-radius:4px;background:var(--line)}.wdot.on{background:var(--good)}
+.warn-t{color:#b4531f}
 .clink{display:block;margin:-8px auto 0;border:0;background:transparent;font:inherit;font-size:13px;color:var(--muted);padding:6px 10px;position:relative}
 .cldot{display:inline-block;width:6px;height:6px;border-radius:3px;background:var(--good);margin-left:5px;vertical-align:middle}
 .cl{display:flex;flex-direction:column;gap:12px}
@@ -789,6 +791,13 @@ function fitSync(k){
   if(changed){var L=db.logs[k]||(db.logs[k]={});if(fa.length)L.fa=fa;else delete L.fa;tidy(k);}
 }
 /* today card: what today's 運動 adds up to, e.g. 重訓 30 分 ＋ 有氧 20 分 */
+function wkLine(h,k,st){var w=weekStartKey(k),t=todayKey(),N=h.perWeek||3,c=wkCount(h,w,k>t?t:wkEnd(w)<t?wkEnd(w):t),met=c>=N,dots='';
+  for(var i=0;i<N;i++)dots+='<i class="wdot'+(i<c?' on':'')+'"></i>';
+  var out='<span class="wdots" aria-hidden="true">'+dots+'</span>'+(met?'本週達成 ✓'+(c>N?'（'+c+' 次）':''):c+' / '+N+' 次');
+  if(!met&&w===weekStartKey(t)){var left=diffDays(wkEnd(w),t)+(isDone(h,t)?0:1),need=N-c;
+    out+=need>left?' · <span class="warn-t">這週差 '+need+' 次</span>':' · <span class="'+(need>=left?'warn-t':'')+'">還差 '+need+' 次，剩 '+left+' 天</span>';}
+  if(st>0)out+=' · 連續 '+st+' 週';
+  return out;}
 function fitCardLine(h,k,on){var fm=fitMinutes(k),tg=fitTarget(h),l=fLog(k)||{},parts=[];
   if(fm.s)parts.push('重訓 '+fm.s+' 分');else if(l.s&&l.s.length)parts.push('有重訓');
   if(fm.c)parts.push('有氧 '+fm.c+' 分');else if(l.c&&l.c.length)parts.push('有氧');
@@ -1056,7 +1065,7 @@ function normalize(d){
     return {id:cid(h.id),name:String(h.name).slice(0,40),kind:h.kind==='bad'?'bad':'good',
       method:h.method==='count'?'count':'check',
       days:Array.isArray(h.days)&&h.days.length===7?h.days.map(Boolean):allDays(),
-      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),unit:normUnit(h.unit),step:clampInt(h.step,1,9999,1),fitLink:!!h.fitLink};
+      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),unit:normUnit(h.unit),step:clampInt(h.step,1,9999,1),freq:h.kind!=='bad'&&h.freq==='week'?'week':'day',perWeek:clampInt(h.perWeek,1,6,3),fitLink:!!h.fitLink};
   });
   var logs={};
   Object.keys(d.logs).forEach(function(k){
@@ -1177,7 +1186,7 @@ function demoBuild(){
   var t=todayKey();
   db={v:1,habits:[],logs:{},settings:{pnl:true,diary:true,fit:true,fitUnit:'kg',iconAuto:true,onboarded:true},rewards:[],redeemed:[],fit:{ex:[],logs:{},ctypes:['拳擊有氧']}};
   var H=function(id,name,kind,method,days,amt){db.habits.push({id:id,name:name,kind:kind,method:method,days:days||allDays(),created:t,archived:false,icon:guessIcon(name),saveHist:amt?[{from:t,amt:amt}]:[],fitLink:id==='d1'});};
-  H('d1','運動 30 分鐘','good','check');H('d2','11:30 前睡覺','good','check');H('d3','喝水','good','count');(function(w){w.unit='ml';w.step=500;w.goalHist=[{from:GOAL_ALL,n:2000}];})(db.habits[db.habits.length-1]);H('d4','沒有買咖啡','good','check',null,80);
+  H('d1','運動 30 分鐘','good','check');db.habits[db.habits.length-1].freq='week';db.habits[db.habits.length-1].perWeek=3;H('d2','11:30 前睡覺','good','check');H('d3','喝水','good','count');(function(w){w.unit='ml';w.step=500;w.goalHist=[{from:GOAL_ALL,n:2000}];})(db.habits[db.habits.length-1]);H('d4','沒有買咖啡','good','check',null,80);
   H('d5','閱讀 20 頁','good','check',[false,true,true,true,true,true,false]);H('d6','吃宵夜','bad','count',null,150);H('d7','睡前滑手機','bad','check');H('d8','喝含糖飲料','bad','count',null,60);
   db.logs[t]={h:{d3:3,d4:1}};
   var start=addDays(t,-120);
@@ -1260,7 +1269,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.17-9';
+var APP_VER='2026.10.17-10';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1386,15 +1395,30 @@ function setVal(k,id,v){
   var h=byId(id);if(h&&v>0&&k<h.created)h.created=k;
   tidy(k);save();
 }
-function sched(h,k){return h.kind!=='good'||!!h.days[parseKey(k).getDay()];}
+function sched(h,k){return h.kind!=='good'||!isWk(h)&&!!h.days[parseKey(k).getDay()];}
+/* ---------- weekly habits: 每週 N 次，哪天都可以 (weeks start Monday) ---------- */
+function isWk(h){return !!h&&h.kind==='good'&&h.freq==='week';}
+function wkEnd(w){return addDays(w,6);}
+function wkCount(h,w,upto){var c=0,e=wkEnd(w);if(upto&&upto<e)e=upto;for(var d=w;d<=e;d=addDays(d,1)){if(d>=h.created&&isDone(h,d))c++;}return c;}
+function wkMet(h,w){return wkCount(h,w)>=(h.perWeek||3);}
+/* the week a habit was created in only counts if it was met (第一週不算失敗) */
+function wkExcused(h,w){return h.created>w&&!wkMet(h,w);}
+function wkStreak(h,k){var w=weekStartKey(k),n=0,last=null;
+  if(wkMet(h,w)){n++;last=w;}
+  for(w=addDays(w,-7);wkEnd(w)>=h.created;w=addDays(w,-7)){if(wkMet(h,w)){n++;if(!last)last=w;}else break;}
+  return {n:n,last:last};}
+function wkBest(h,end){var best=0,run=0;for(var w=weekStartKey(h.created);w<=end;w=addDays(w,7)){var cur=w===weekStartKey(end);
+  if(wkMet(h,w)){run++;if(run>best)best=run;}else if(!cur&&!wkExcused(h,w))run=0;}return best;}
 function isRest(k){var l=db.logs[k];return !!(l&&l.rest);}
 function scheduled(h,k){return sched(h,k)&&!(h.kind==='good'&&isRest(k)&&!isDone(h,k));}
 function goodStreak(h,k){
+  if(isWk(h))return wkStreak(h,k).n;
   var n=0,d=k;if(!isDone(h,d))d=addDays(d,-1);
   for(var i=0;i<4000&&d>=h.created;i++){if(scheduled(h,d)){if(isDone(h,d))n++;else break;}d=addDays(d,-1);}
   return n;
 }
 function bestStreak(h,end){
+  if(isWk(h))return 0;
   var best=0,run=0,d=h.created;
   for(var i=0;i<4000&&d<=end;i++){if(scheduled(h,d)){if(isDone(h,d)){run++;if(run>best)best=run;}else run=0;}d=addDays(d,1);}
   return best;
@@ -1484,9 +1508,18 @@ function restUI(k){
 function monthEndKey(k){var d=parseKey(k);return keyOf(new Date(d.getFullYear(),d.getMonth()+1,0));}
 function nextMonthKey(k){var d=parseKey(k);return keyOf(new Date(d.getFullYear(),d.getMonth()+1,1));}
 function weekStartKey(k){var d=parseKey(k);return addDays(k,-((d.getDay()+6)%7));}
+/* weeks whose Sunday falls in [from,to]; a week still running counts only once met */
+function wkMonth(h,from,to){var t=todayKey(),sc=0,dn=0,cnt=0;
+  for(var w=weekStartKey(from);w<=to;w=addDays(w,7)){var e=wkEnd(w);if(e<from||e>to)continue;
+    var met=wkMet(h,w);if(e>=t&&!met)continue;if(wkExcused(h,w))continue;sc++;if(met)dn++;}
+  for(var d=from;d<=to&&d<=t;d=addDays(d,1))if(d>=h.created&&isDone(h,d))cnt++;
+  return {sc:sc,dn:dn,cnt:cnt};}
 function maxK(){var a=[].slice.call(arguments).filter(Boolean).sort();return a[a.length-1];}
 function rById(id){for(var i=0;i<db.rewards.length;i++)if(db.rewards[i].id===id)return db.rewards[i];return null;}
 function streakSince(h,end,since){
+  if(isWk(h)){var w=weekStartKey(end),n=0,last=null;if(wkMet(h,w)&&(!since||w>since)){n++;last=w;}
+    for(w=addDays(w,-7);wkEnd(w)>=h.created&&(!since||w>since);w=addDays(w,-7)){if(wkMet(h,w)){n++;if(!last)last=w;}else break;}
+    return {n:n,last:last};}
   var n=0,last=null,d=end;if(!isDone(h,d))d=addDays(d,-1);
   for(var i=0;i<4000&&d>=h.created&&(!since||d>since);i++){
     if(scheduled(h,d)){if(isDone(h,d)){n++;if(!last)last=d;}else break;}
@@ -1496,6 +1529,7 @@ function streakSince(h,end,since){
 }
 function weekCount(h,w,from,t){var c=0;for(var i=0;i<7;i++){var d=addDays(w,i);if(d>=from&&d>=h.created&&d<=t&&isDone(h,d))c++;}return c;}
 function monthResult(r,h,m,to){
+  if(isWk(h)&&r.type==='rate'){var wr=wkMonth(h,maxK(m,r.created),to);return {rate:wr.sc?Math.round(wr.dn/wr.sc*100):0,sc:wr.sc};}
   var from=maxK(m,r.created,h.created),sc=0,dn=0,slips=0;
   for(var d=from;d<=to;d=addDays(d,1)){
     if(r.type==='rate'){if(scheduled(h,d)){sc++;if(isDone(h,d))dn++;}}
@@ -1538,7 +1572,7 @@ function pending(r,tot){
 function pctOf(a,b){return b>0?Math.max(0,Math.min(100,Math.round(a/b*100))):0;}
 function ruleText(r,h,ml){
   var hn=h?'「'+esc(h.name)+'」':'「（已刪除的習慣）」',t=r.target,mm=ml||'這個月';
-  return {streak:hn+'連續做到 '+t+' 天',weekly:'一週內'+hn+'做到 '+t+' 天',rate:mm+hn+'完成率達到 '+t+'%',
+  return {streak:hn+'連續做到 '+t+(isWk(h)?' 週':' 天'),weekly:'一週內'+hn+'做到 '+t+' 天',rate:mm+hn+'完成率達到 '+t+'%',
     limit:mm+hn+'最多犯 '+t+' 次',saved:'省下的錢累計到 NT$'+fmtN(t)}[r.type];
 }
 function progressOf(r,h,tot){
@@ -1546,7 +1580,7 @@ function progressOf(r,h,tot){
   if(r.type==='saved')return {txt:'NT$'+fmtN(Math.max(0,tot.avail))+' / '+fmtN(r.target),pct:pctOf(tot.avail,r.target)};
   if(!h)return {txt:'',pct:0};
   if(h.archived)return {txt:'暫停中',pct:0,cls:'paused',note:'習慣已封存，恢復後會繼續計算。'};
-  if(r.type==='streak'){var n=streakSince(h,t,r.earned.length?r.earned[r.earned.length-1]:null).n;return {txt:n+' / '+r.target+' 天',pct:pctOf(n,r.target)};}
+  if(r.type==='streak'){var n=streakSince(h,t,r.earned.length?r.earned[r.earned.length-1]:null).n;return {txt:n+' / '+r.target+(isWk(h)?' 週':' 天'),pct:pctOf(n,r.target)};}
   if(r.type==='weekly'&&r.earned.indexOf(weekStartKey(t))>=0)return {txt:'本週已達成',pct:100,note:r.repeat?'下週重來':''};
   if(r.type==='weekly'){var c=weekCount(h,weekStartKey(t),r.created,t);return {txt:'本週 '+c+' / '+r.target+' 天',pct:pctOf(c,r.target)};}
   var m=t.slice(0,8)+'01';
@@ -1842,7 +1876,9 @@ function rankMonth(y,m){
   db.habits.forEach(function(h){
     if(h.archived||h.created>to)return;
     var from=ms>h.created?ms:h.created;
-    if(h.kind==='good'){
+    if(isWk(h)){var wm=wkMonth(h,from,me);var tot2=0,nd2=0;if(isAmt(h))for(var d4=from;d4<=to;d4=addDays(d4,1)){tot2+=val(d4,h.id);nd2++;}
+      good.push({h:h,sc:wm.sc,dn:wm.dn,cnt:wm.cnt,wk:true,rate:wm.sc?Math.round(wm.dn/wm.sc*100):0,st:goodStreak(h,to),ok:wm.sc>=2,tot:tot2,nd:nd2});
+    }else if(h.kind==='good'){
       var sc=0,dn=0;for(var d=from;d<=to;d=addDays(d,1)){if(scheduled(h,d)){sc++;if(isDone(h,d))dn++;}}
       var tot=0,nd=0;if(isAmt(h))for(var d3=from;d3<=to;d3=addDays(d3,1)){tot+=val(d3,h.id);nd++;}
       good.push({h:h,sc:sc,dn:dn,rate:sc?Math.round(dn/sc*100):0,st:goodStreak(h,to),ok:sc>=7,tot:tot,nd:nd});
@@ -1870,7 +1906,7 @@ function rankingHTML(y,m){
     var main=list.filter(function(x){return x.ok;}),fresh=list.filter(function(x){return !x.ok;}),out='';
     out+=main.map(function(x){
       var first=x.rank===1,sub,valTxt;
-      if(isGood){sub=(x.st?'連續 '+x.st+' 天 · ':'')+x.dn+' / '+x.sc+' 天'+amtLine(x);valTxt=x.rate+'%';}
+      if(isGood){sub=(x.st?'連續 '+x.st+(x.wk?' 週 · ':' 天 · '):'')+x.dn+' / '+x.sc+(x.wk?' 週 · 共 '+x.cnt+' 次':' 天')+amtLine(x);valTxt=x.rate+'%';}
       else{sub=x.clean?'已 '+x.clean+' 天沒犯':'這天有犯';valTxt=x.sl+' 次';}
       return '<div class="rk"><div class="rk-top"><span class="rk-n'+(first?' first':'')+'">'+x.rank+'</span>'+ico(x.h)+
         '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
@@ -1880,7 +1916,7 @@ function rankingHTML(y,m){
     if(fresh.length){
       out+='<div class="rk-sep">天數還少（本月'+(isGood?'排定':'記錄')+'不到 7 天）</div>'+fresh.map(function(x){
         var since=x.h.created>=cur.ms?shortMD(x.h.created)+' 才開始 · ':'';
-        var sub=isGood?since+x.dn+' / '+x.sc+' 天'+amtLine(x):since+x.days+' 天';
+        var sub=isGood?since+x.dn+' / '+x.sc+(x.wk?' 週 · 共 '+x.cnt+' 次':' 天')+amtLine(x):since+x.days+' 天';
         var v=isGood?(x.sc?x.rate+'%':'—'):x.sl+' 次';
         return '<div class="rk fresh"><div class="rk-top"><span class="rk-n">·</span>'+ico(x.h)+
           '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
@@ -1910,7 +1946,8 @@ function goodCard(h,k){
   var v=val(k,h.id),gl=goalOn(h,k),on=v>=gl,st=goodStreak(h,k);
   var sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';
   var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);
-  if(h.method==='check'&&h.fitLink&&fOn()){var fl=fitCardLine(h,k,on);if(fl)sub=fl+(st>0?' · '+sub:(svd?' · 省下 NT$'+fmtN(svd):''));}
+  if(isWk(h))sub=wkLine(h,k,st)+(svd?' · 省下 NT$'+fmtN(svd):'');
+  if(h.method==='check'&&h.fitLink&&fOn()){var fl=fitCardLine(h,k,on);if(fl)sub=isWk(h)?sub+'<br>'+fl:fl+(st>0?' · '+sub:(svd?' · 省下 NT$'+fmtN(svd):''));}
   if(h.method==='count'){
     return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+(gl>1||hUnit(h)!=='次'?fmtN(v)+(gl>1?' / '+fmtN(gl):'')+(hUnit(h)==='次'?' 次':' '+esc(hUnit(h)))+' · ':'')+sub+'</div>'+(gl>1?'<div class="gbar" aria-hidden="true"><i style="width:'+Math.min(100,Math.round(v/gl*100))+'%"></i></div>':'')+'</div></div>'+counter(h.id,v,'good')+'</div>';
   }
@@ -1974,7 +2011,7 @@ function celebrate(id){
 }
 function vToday(){
   var k=ui.date,t=todayKey();
-  var goods=active('good'),bads=active('bad');
+  var wks=active('good').filter(isWk),goods=active('good').filter(function(h){return !isWk(h);}),bads=active('bad');
   var gs=goods.filter(function(h){return scheduled(h,k);}),rest=goods.filter(function(h){return !scheduled(h,k);});
   var done=gs.filter(function(h){return isDone(h,k);}).length;
   var badSum=bads.reduce(function(a,h){return a+val(k,h.id);},0);
@@ -1986,7 +2023,7 @@ function vToday(){
   if(k!==t)s+='<button class="linkbtn" data-act="gotoday">回到今天</button>';
   s+=lockBar(k);
   var a2b=a2Banner();s+=a2b||bkBanner();
-  if(!goods.length&&!bads.length){
+  if(!goods.length&&!bads.length&&!wks.length){
     s+='<div class="empty"><div class="empty-t">還沒有習慣</div><p>新增幾個想養成、或想戒掉的習慣。之後每天打開，點幾下就記好了。</p>'+
       '<div class="btnrow"><button class="primary" data-act="new">新增習慣</button><button class="secondary" data-act="examples">用範例開始</button></div></div>';
     return s+'</div>';
@@ -2003,6 +2040,8 @@ function vToday(){
     if(rest.length)s+='<p class="small muted">這天休息：'+rest.map(function(h){return esc(h.name);}).join('、')+'</p>';
     s+='</section>'+restUI(k);
   }
+  var wkv=wks.filter(function(h){return wkEnd(weekStartKey(k))>=h.created;});
+  if(wkv.length){s+='<section class="sec"><h2 class="sec-t good-t">這週</h2>';wkv.forEach(function(h){s+=goodCard(h,k);});s+='</section>';}
   if(bads.length){s+='<section class="sec"><h2 class="sec-t bad-t">壞習慣</h2>';bads.forEach(function(h){s+=badCard(h,k);});s+='</section>';}
   if(pOn)s+=pnlSection(k);
   s+='<section class="sec"><h2 class="sec-t">心情</h2><div class="moods">'+
@@ -2039,9 +2078,10 @@ function vStats(){
     if(k>t){cells.push('<span class="cell future">'+d+'</span>');continue;}
     var sc=0,dn=0;
     goods.forEach(function(h){if(k>=h.created&&scheduled(h,k)){sc++;if(isDone(h,k))dn++;}});
+    var wx=goods.filter(function(h){return isWk(h)&&k>=h.created&&isDone(h,k);}).length;
     var bb=bads.reduce(function(a,h){return a+val(k,h.id);},0);
     S+=sc;D+=dn;B+=bb;
-    var r=sc?dn/sc:0,lv=(!sc||!dn)?0:(r>=1?3:(r>=0.5?2:1));
+    var r=sc?dn/sc:(wx?1:0),lv=(!sc&&!wx)||(!dn&&!wx)?0:(r>=1?3:(r>=0.5?2:1));
     cells.push('<button class="cell'+(lv?' l'+lv:'')+(k===t?' today':'')+'" data-act="pickday" data-k="'+k+'" aria-label="'+(m+1)+'月'+d+'日，好習慣 '+dn+'/'+sc+(bb?'，壞習慣 '+bb+' 次':'')+'">'+d+(bb?'<i class="dot"></i>':'')+'</button>');
   }
   s+='<div class="panel"><div class="heat">'+WD.map(function(w){return '<div class="wd">'+w+'</div>';}).join('')+'</div><div class="heat">'+cells.join('')+'</div>'+
@@ -2058,6 +2098,7 @@ function vStats(){
 function meta(h){
   var m=h.method==='check'?'打勾':'計次';
   if(h.kind!=='good')return m;
+  if(isWk(h))return m+' · 每週 '+(h.perWeek||3)+' 次';
   var n=h.days.filter(Boolean).length;
   return m+' · '+(n===7?'每天':'每週'+WD.filter(function(_,i){return h.days[i];}).join(''));
 }
@@ -2107,6 +2148,7 @@ function vSettings(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.17-10','10/17',['好習慣可以設「每週幾次，哪天都可以」，例如一週運動 3 次','今天頁多了「這週」區塊，顯示本週進度和連續幾週','統計排行用「週」計算這類習慣']],
  ['2026.10.17-9','10/17',['藏了一個小彩蛋']],
  ['2026.10.17-8','10/17',['App 裡多了「更新紀錄」，就是這一頁']],
  ['2026.10.17-7','10/17',['連動運動的習慣，今天頁直接顯示「重訓 30 分 ＋ 有氧 20 分」','運動頁一定會出現「重訓時間」，沒連動習慣也能記']],
@@ -2178,8 +2220,13 @@ function vEdit(){
       '<button class="stepbtn dark" data-act="goalstep" data-n="1" aria-label="增加目標">+</button></div>'+
       '<p class="hint" id="ghint">'+goalHint(d,isNew)+'</p></div>';}
   s+=saveField(d);
-  if(good){
-    s+='<div class="field"><div class="lbl">哪幾天要做</div><div class="days">'+WD.map(function(w,i){
+  if(good){var wkd=d.freq==='week',pw=d.perWeek||3;
+    s+='<div class="field"><div class="lbl">頻率</div><div class="seg"><button class="'+(!wkd?'on':'')+'" data-act="freq" data-v="day" aria-pressed="'+(!wkd)+'">固定星期幾</button>'+
+      '<button class="'+(wkd?'on':'')+'" data-act="freq" data-v="week" aria-pressed="'+wkd+'">每週幾次</button></div>';
+    if(wkd){s+='<div class="stepper" style="margin-top:10px"><button class="stepbtn" data-act="pwstep" data-n="-1" aria-label="減少"'+(pw<=1?' disabled':'')+'>−</button>'+
+      '<div class="stepval"><b class="goalv" id="pwv">'+pw+'</b><span>次 / 週</span></div><button class="stepbtn dark" data-act="pwstep" data-n="1" aria-label="增加"'+(pw>=6?' disabled':'')+'>+</button></div>'+
+      '<p class="hint">哪天做都可以，一週（週一到週日）做到 '+pw+' 次就算達成，會放在今天頁的「這週」。連續紀錄以「週」計算；剛建立的第一週沒達成不算中斷。</p></div>';}
+    else s+='<div class="days" style="margin-top:10px">'+WD.map(function(w,i){
       return '<button class="day'+(d.days[i]?' on':'')+'" data-act="dayt" data-i="'+i+'" aria-pressed="'+d.days[i]+'" aria-label="星期'+w+'">'+w+'</button>';
     }).join('')+'</div><p class="hint">'+(n===7?'每天都要做。':n?'每週 '+n+' 天，其他天不會中斷連續天數。':'請至少選一天。')+'</p></div>';
   }
@@ -2262,9 +2309,10 @@ function go(view){ui.view=view;ui.top=true;ui.confirmDel=false;ui.unlocked=null;
 function saveDraft(){
   var d=ui.draft,name=(d.name||'').trim();
   if(!name){ui.err='請輸入習慣名稱。';render();return;}
-  if(d.kind==='good'&&!d.days.some(Boolean)){ui.err='請至少選一天。';render();return;}
-  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'?d.days.slice():allDays();h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1);rescaleStep(h,h.step||1,s1);h.step=s1;h.unit=normUnit(d.unit);setGoal(h,d.goal||1);}}}
-  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,days:d.kind==='good'?d.days.slice():allDays(),created:todayKey(),archived:false,icon:d.icon||'',saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
+  if(d.kind==='good'&&d.freq!=='week'&&!d.days.some(Boolean)){ui.err='請至少選一天。';render();return;}
+  var fq=d.kind==='good'&&d.freq==='week'?'week':'day',pwk=Math.max(1,Math.min(6,d.perWeek||3));
+  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'&&fq==='day'?d.days.slice():allDays();h.freq=fq;h.perWeek=pwk;h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1);rescaleStep(h,h.step||1,s1);h.step=s1;h.unit=normUnit(d.unit);setGoal(h,d.goal||1);}}}
+  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,freq:fq,perWeek:pwk,days:d.kind==='good'&&fq==='day'?d.days.slice():allDays(),created:todayKey(),archived:false,icon:d.icon||'',saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
   fitSync(todayKey());if(ui.date!==todayKey())fitSync(ui.date);
   save();go(ui.back||'settings');render();toast('已儲存');
 }
@@ -2464,15 +2512,15 @@ function act(a,b){
       ui.ob.step++;ui.top=true;break;
     case 'bksnooze': n=bkGet();n.snooze=addDays(t,3);bkSet(n);toast('3 天後再提醒你');break;
     case 'gotoday': ui.date=t;ui.follow=true;break;
-    case 'toggle': unAuto(ui.date,id);n=val(ui.date,id)>0;setVal(ui.date,id,n?0:1);h=byId(id);if(!n&&h&&h.kind==='good')celebrate(id);break;
-    case 'inc': unAuto(ui.date,id);h=byId(id);n=h&&h.kind==='good'&&!isDone(h,ui.date);setVal(ui.date,id,Math.min(999999,val(ui.date,id)+hStep(h)));if(n&&isDone(h,ui.date))celebrate(id);break;
+    case 'toggle': unAuto(ui.date,id);h=byId(id);var wb=isWk(h)&&wkMet(h,weekStartKey(ui.date));n=val(ui.date,id)>0;setVal(ui.date,id,n?0:1);if(!n&&h&&h.kind==='good'){if(isWk(h)){if(!wb&&wkMet(h,weekStartKey(ui.date))){ui.celAnim=id;toast('「'+h.name+'」本週達成 ✓',2400);}}else celebrate(id);}break;
+    case 'inc': unAuto(ui.date,id);h=byId(id);n=h&&h.kind==='good'&&!isDone(h,ui.date);var wb2=isWk(h)&&wkMet(h,weekStartKey(ui.date));setVal(ui.date,id,Math.min(999999,val(ui.date,id)+hStep(h)));if(n&&isDone(h,ui.date)){if(isWk(h)){if(!wb2&&wkMet(h,weekStartKey(ui.date))){ui.celAnim=id;toast('「'+h.name+'」本週達成 ✓',2400);}}else celebrate(id);}break;
     case 'dec': unAuto(ui.date,id);h=byId(id);setVal(ui.date,id,Math.max(0,val(ui.date,id)-hStep(h)));break;
     case 'mood': n=+b.dataset.i;l=db.logs[ui.date]||(db.logs[ui.date]={});l.mood=l.mood===n?null:n;tidy(ui.date);save();break;
     case 'month': n=ui.month[1]+(+b.dataset.n);ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
     case 'pickday': ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
     case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「習慣設定」修改');break;
-    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),fitLink:false,goal:1,unit:'次',step:1};ui.pickIcon=true;ui.err='';go('edit');break;
-    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:true,save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1};ui.pickIcon=false;ui.err='';go('edit');break;
+    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
+    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:true,save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
     case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
     case 'iconpick': ui.pickIcon=!ui.pickIcon;break;
     case 'seticon': ui.draft.icon=b.dataset.v;ui.draft.iconTouched=true;ui.pickIcon=false;break;
@@ -2480,6 +2528,8 @@ function act(a,b){
     case 'goalstep': var gs0=ui.draft.step||1;ui.draft.goal=Math.max(1,Math.min(999999,(ui.draft.goal||1)+gs0*(+b.dataset.n)));break;
     case 'unitchip': ui.draft.unit=b.dataset.v;break;
     case 'dayt': n=+b.dataset.i;ui.draft.days[n]=!ui.draft.days[n];ui.err='';break;
+    case 'freq': ui.draft.freq=b.dataset.v==='week'?'week':'day';ui.err='';break;
+    case 'pwstep': ui.draft.perWeek=Math.max(1,Math.min(6,(ui.draft.perWeek||3)+(+b.dataset.n)));break;
     case 'cancel': go(ui.back||'settings');break;
     case 'save': saveDraft();return;
     case 'archive': h=byId(ui.draft.id);if(h){h.archived=true;save();}go('settings');toast('已封存');break;
