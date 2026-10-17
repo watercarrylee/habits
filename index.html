@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-HlBXDOV0hOENvNiL6PIEu8Csdo/5brLbueEkL+VuEMo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-0963Xb7KUfZHxK6xUM9j2vVRVroSSV3w8hTyc+UIWPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -121,9 +121,7 @@ button.hcard{padding-right:16px}
 .page.locked .hcard,.page.locked .moods,.page.locked .restbar{opacity:.55}
 .row-btn.lockn{flex-direction:column;align-items:stretch;gap:10px}.lockn .useg{display:grid;grid-template-columns:repeat(4,1fr)}.lockn .useg button{white-space:nowrap}
 .cnt.big{font-size:16px;min-width:44px}
-.cntbtn{border:0;background:transparent;padding:4px 2px;border-radius:8px;font-family:inherit;line-height:1.2;text-decoration:underline dotted;text-decoration-color:var(--line);text-underline-offset:4px}
 .unitchips{align-items:center}.unitchips input.unitin{flex:0 0 auto;width:84px;height:36px;border:1.5px solid var(--line);border-radius:18px;background:var(--surface);padding:0 12px;font-size:16px;text-align:center}.unitchips input.unitin.on{border-color:var(--fg)}
-.pwrow.amtrow{display:flex;flex-direction:row;align-items:center;gap:10px}.pwrow.amtrow input{flex:1 1 auto;width:auto;min-width:0;font-size:24px;font-weight:900;text-align:center}.pwrow.amtrow span{flex:0 0 auto;font-size:16px;color:var(--muted)}
 .rk-amt{display:block;margin-top:2px}
 .gbar{height:4px;border-radius:2px;background:var(--line);margin-top:6px;max-width:140px;overflow:hidden}.gbar i{display:block;height:100%;background:var(--good);border-radius:2px;transition:width .25s}
 .goalv{font-size:24px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums}
@@ -765,7 +763,7 @@ function relDay(k){var tk=todayKey(),d=parseKey(k);return k===tk?'今天':k===ad
 function mdw(k){var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()];}
 
 /* habit link */
-function fitLinked(){return db.habits.filter(function(h){return h.fitLink&&!h.archived&&h.kind==='good';});}
+function fitLinked(){return db.habits.filter(function(h){return h.fitLink&&!h.archived&&h.kind==='good'&&h.method==='check';});}
 function fitTarget(h){var m=String(h.name).match(/(\d+)\s*(分鐘|分|min)/i);return m?+m[1]:0;}
 function fitMinutes(k){var l=fLog(k);if(!l)return {c:0,s:0,tot:0,any:false};var c=(l.c||[]).reduce(function(a,x){return a+x.min;},0),s=l.min||0;
   return {c:c,s:s,tot:c+s,any:!!((l.s&&l.s.length)||(l.c&&l.c.length)||s)};}
@@ -774,7 +772,7 @@ function fitSync(k){
   if(!fOn())return;
   var fm=fitMinutes(k),fa=((db.logs[k]||{}).fa||[]).slice(),changed=false;
   db.habits.forEach(function(h){
-    if(h.kind!=='good'||h.archived||!h.fitLink)return;
+    if(h.kind!=='good'||h.archived||!h.fitLink||h.method!=='check')return;
     var auto=fa.indexOf(h.id)>=0,on=val(k,h.id)>0;
     var tg=fitTarget(h),ok=tg?fm.tot>=tg:fm.any;
     if(ok&&!on){var l=db.logs[k]||(db.logs[k]={});l.h=l.h||{};l.h[h.id]=1;if(k<h.created)h.created=k;fa.push(h.id);changed=true;}
@@ -1118,7 +1116,7 @@ function demoFill(days){
   for(k=start;k<t;k=addDays(k,1)){
     var prog=1-(parseKey(t)-parseKey(k))/864e5/days,l=db.logs[k]||{};l.h=l.h||{};dow=parseKey(k).getDay();
     db.habits.forEach(function(h){
-      if(h.archived||h.fitLink&&db.settings.fit)return;
+      if(h.archived||h.fitLink&&h.method==='check'&&db.settings.fit)return;
       if(h.kind==='good'){if(!h.days[dow])return;
         if(h.method==='count'){var c=Math.floor(rnd()*4+4*prog+2);if(c>0)l.h[h.id]=c*hStep(h);return;}
         if(rnd()<0.5+0.4*prog)l.h[h.id]=1;}
@@ -1669,7 +1667,7 @@ function saveFromRow(d){
 var UNITS=['次','杯','ml','分鐘','頁'];
 function goalHint(d,isNew){var g=d.goal||1,st=d.step||1,u=d.unit||'次',out;
   if(g<=1&&st===1)out='按一次就算完成。想要做到幾次才算，就把目標調高。';
-  else out='每天達到 '+fmtN(g)+' '+esc(u)+' 才算完成'+(g>st?'，大約按 '+Math.ceil(g/st)+' 下':'')+'。點今天頁中間的數字，可以直接輸入總量。';
+  else out='每天達到 '+fmtN(g)+' '+esc(u)+' 才算完成'+(g>st?'，大約按 '+Math.ceil(g/st)+' 下':'')+'。';
   if(!isNew&&d.goal0!==undefined&&g!==d.goal0&&(d.step||1)===d.step0)out+='新目標從今天開始，以前的紀錄照舊。';
   if(!isNew&&d.step0&&st!==d.step0)out+='<b>改了「每按一次」，以前的紀錄會一起換算</b>（以前按 1 下 = 現在的 '+fmtN(st)+' '+esc(u)+'）。';
   return out;}
@@ -1889,10 +1887,10 @@ function rankingHTML(y,m){
 function dateLabel(k){var t=todayKey();if(k===t)return '今天';if(k===addDays(t,-1))return '昨天';var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日';}
 function dateSub(k){var d=parseKey(k);return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()];}
 
-function counter(id,v,kind,typable){
-  var big=v>=1000,cls='cnt '+(v?kind+'-t':'zero')+(big?' big':'');
+function counter(id,v,kind){
+  var cls='cnt '+(v?kind+'-t':'zero')+(v>=1000?' big':'');
   return '<div class="counter"><button class="minus" data-act="dec" data-id="'+id+'" aria-label="減一次"'+(v?'':' disabled')+'>'+I.minus+'</button>'+
-    (typable?'<button class="'+cls+' cntbtn" data-act="amt" data-id="'+id+'" aria-label="直接輸入數量">'+v+'</button>':'<span class="'+cls+'">'+v+'</span>')+
+    '<span class="'+cls+'">'+v+'</span>'+
     '<button class="plus '+kind+'" data-act="inc" data-id="'+id+'" aria-label="加一次">'+I.plus+'</button></div>';
 }
 function goodCard(h,k){
@@ -1900,7 +1898,7 @@ function goodCard(h,k){
   var sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';
   var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);
   if(h.method==='count'){
-    return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+(gl>1||hUnit(h)!=='次'?fmtN(v)+(gl>1?' / '+fmtN(gl):'')+(hUnit(h)==='次'?' 次':' '+esc(hUnit(h)))+' · ':'')+sub+'</div>'+(gl>1?'<div class="gbar" aria-hidden="true"><i style="width:'+Math.min(100,Math.round(v/gl*100))+'%"></i></div>':'')+'</div></div>'+counter(h.id,v,'good',true)+'</div>';
+    return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+(gl>1||hUnit(h)!=='次'?fmtN(v)+(gl>1?' / '+fmtN(gl):'')+(hUnit(h)==='次'?' 次':' '+esc(hUnit(h)))+' · ':'')+sub+'</div>'+(gl>1?'<div class="gbar" aria-hidden="true"><i style="width:'+Math.min(100,Math.round(v/gl*100))+'%"></i></div>':'')+'</div></div>'+counter(h.id,v,'good')+'</div>';
   }
   return '<button class="hcard'+(on?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div></div></div><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span></button>';
 }
@@ -1953,13 +1951,6 @@ var CHEERS=['今天全部完成！','做得好，今天全部完成！','漂亮�
 function allDone(k){var g=active('good').filter(function(h){return k>=h.created&&scheduled(h,k);});return g.length>0&&g.every(function(h){return isDone(h,k);});}
 function doneStreak(k){var n=0,d=k,guard=0;while(guard++<800){var g=active('good').filter(function(h){return d>=h.created&&scheduled(h,d);});
   if(g.length){if(!g.every(function(h){return isDone(h,d);}))break;n++;}else if(!active('good').some(function(h){return d>=h.created;}))break;d=addDays(d,-1);}return n;}
-function amountSave(){var sh=ui.sheet;if(!sh||sh.type!=='amount')return;var h=byId(sh.id),inp=$('#amtin');if(!h||!inp)return;
-  var raw=inp.value.replace(/[,\s]/g,'');
-  if(!/^\d+$/.test(raw)){sh.err='請輸入整數，例如 35';render();return;}
-  var v=Math.min(999999,parseInt(raw,10)),was=isDone(h,sh.k);
-  if(sh.k!==ui.date||(ui.view==='today'&&dayLocked(sh.k))){ui.sheet=null;render();return;}
-  unAuto(sh.k,h.id);setVal(sh.k,h.id,v);ui.sheet=null;
-  if(!was&&isDone(h,sh.k))celebrate(h.id);render();}
 function celebrate(id){
   var t=todayKey();if(ui.date!==t||!allDone(t))return;
   try{if(localStorage.getItem(CELKEY)===t)return;localStorage.setItem(CELKEY,t);}catch(e){}
@@ -2146,7 +2137,7 @@ function vEdit(){
       return '<button class="day'+(d.days[i]?' on':'')+'" data-act="dayt" data-i="'+i+'" aria-pressed="'+d.days[i]+'" aria-label="星期'+w+'">'+w+'</button>';
     }).join('')+'</div><p class="hint">'+(n===7?'每天都要做。':n?'每週 '+n+' 天，其他天不會中斷連續天數。':'請至少選一天。')+'</p></div>';
   }
-  if(good&&fOn()){
+  if(good&&chk&&fOn()){
     var tg=fitTarget({name:d.name||''});
     s+='<div class="field"><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用運動紀錄自動打勾</span><span class="row-sub">預設關閉</span></span>'+
       '<button class="switch" role="switch" aria-checked="'+!!d.fitLink+'" aria-label="用運動紀錄自動打勾" data-act="fitlink"><span class="knob"></span></button></div>'+
@@ -2187,13 +2178,6 @@ function renderSheet(){
       '<label class="lbl" for="pastebox">或貼上備份內容</label><textarea id="pastebox" class="code" rows="5" placeholder="貼上匯出的備份內容">'+esc(sh.paste||'')+'</textarea>'+
       (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
       '<button class="secondary" data-act="usepaste">使用貼上的內容</button>';
-  }else if(sh.type==='amount'){
-    var ah=byId(sh.id);if(!ah){ui.sheet=null;el.hidden=true;return;}
-    var au=hUnit(ah),ag=goalOn(ah,sh.k);
-    h='<h2>'+esc(ah.name)+'</h2><p>'+(sh.k===todayKey()?'今天':dateLabel(sh.k))+'總共'+(ag>1?'（目標 '+esc(amtTxt(ah,ag))+'）':'')+'</p>'+
-      '<div class="pwrow amtrow"><label class="sr" for="amtin">數量</label><input id="amtin" type="text" inputmode="numeric" autocomplete="off" value="'+val(sh.k,ah.id)+'"><span>'+esc(au)+'</span></div>'+
-      (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
-      '<div class="stack"><button class="primary" data-act="amtok">儲存</button></div>';
   }else if(sh.type==='milestone'){
     el.innerHTML='<div class="sheet ms" role="dialog" aria-modal="true"><div class="ms-n">'+sh.n+'</div><h2>連續 '+sh.n+' 天全部完成！</h2>'+
       '<p>'+(sh.n>=100?'這已經不是習慣，是你的生活方式了。':sh.n>=30?'一整個月都沒有中斷，真的很厲害。':sh.n>=21?'三週了，習慣正在變成自然。':'一整週都做到了，好的開始！')+'</p>'+
@@ -2233,8 +2217,8 @@ function saveDraft(){
   var d=ui.draft,name=(d.name||'').trim();
   if(!name){ui.err='請輸入習慣名稱。';render();return;}
   if(d.kind==='good'&&!d.days.some(Boolean)){ui.err='請至少選一天。';render();return;}
-  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'?d.days.slice():allDays();h.icon=d.icon||'';h.fitLink=d.kind==='good'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1);rescaleStep(h,h.step||1,s1);h.step=s1;h.unit=normUnit(d.unit);setGoal(h,d.goal||1);}}}
-  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,days:d.kind==='good'?d.days.slice():allDays(),created:todayKey(),archived:false,icon:d.icon||'',saveHist:[],fitLink:d.kind==='good'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
+  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'?d.days.slice():allDays();h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1);rescaleStep(h,h.step||1,s1);h.step=s1;h.unit=normUnit(d.unit);setGoal(h,d.goal||1);}}}
+  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,days:d.kind==='good'?d.days.slice():allDays(),created:todayKey(),archived:false,icon:d.icon||'',saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
   fitSync(todayKey());if(ui.date!==todayKey())fitSync(ui.date);
   save();go(ui.back||'settings');render();toast('已儲存');
 }
@@ -2322,7 +2306,7 @@ function tryImport(text){
 }
 
 /* ---------- events ---------- */
-var LOCKED_ACTS=['toggle','inc','dec','amt','mood','userest','unrest'];
+var LOCKED_ACTS=['toggle','inc','dec','mood','userest','unrest'];
 function act(a,b){
   var t=todayKey(),id=b.dataset.id,n,k,h,l;
   if(LOCKED_ACTS.indexOf(a)>=0&&ui.view==='today'&&dayLocked(ui.date)){toast('這天已鎖定，按上方「編輯這天」才能修改',2400);return;}
@@ -2437,8 +2421,6 @@ function act(a,b){
     case 'toggle': unAuto(ui.date,id);n=val(ui.date,id)>0;setVal(ui.date,id,n?0:1);h=byId(id);if(!n&&h&&h.kind==='good')celebrate(id);break;
     case 'inc': unAuto(ui.date,id);h=byId(id);n=h&&h.kind==='good'&&!isDone(h,ui.date);setVal(ui.date,id,Math.min(999999,val(ui.date,id)+hStep(h)));if(n&&isDone(h,ui.date))celebrate(id);break;
     case 'dec': unAuto(ui.date,id);h=byId(id);setVal(ui.date,id,Math.max(0,val(ui.date,id)-hStep(h)));break;
-    case 'amt': h=byId(id);if(!h)return;ui.sheet={type:'amount',id:h.id,k:ui.date};render();var ai=$('#amtin');if(ai){ai.focus();ai.select();}return;
-    case 'amtok': amountSave();return;
     case 'mood': n=+b.dataset.i;l=db.logs[ui.date]||(db.logs[ui.date]={});l.mood=l.mood===n?null:n;tidy(ui.date);save();break;
     case 'month': n=ui.month[1]+(+b.dataset.n);ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
     case 'pickday': ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
@@ -2556,7 +2538,6 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('fnum')){e.preventDefault();e.target.blur();return;}
   if(e.key==='Enter'&&(e.target.id==='pw1'||e.target.id==='pw2')){e.preventDefault();exportWithPw();return;}
   if(e.key==='Enter'&&e.target.id==='pw3'){e.preventDefault();unlockImport();return;}
-  if(e.key==='Enter'&&e.target.id==='amtin'){e.preventDefault();amountSave();return;}
   if(e.target.id==='hname'&&e.key==='Enter'){e.preventDefault();saveDraft();return;}
   if(ui.view==='search'&&e.key==='Escape'){act('sback',{dataset:{}});return;}
   if(ui.view==='pnl'&&!e.metaKey&&!e.ctrlKey){

@@ -186,20 +186,18 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=inc][data-id=u1]'); await p.click('[data-act=inc][data-id=u1]');
   ok((await db(p)).logs[T].h.u1 === 1000 && (await p.$eval('.hc-sub', e => e.innerText)).includes('1,000 / 2,000 ml'), 'each tap adds 500 ml, shows 1,000 / 2,000 ml');
   await p.click('[data-act=dec][data-id=u1]'); ok((await db(p)).logs[T].h.u1 === 500, 'minus removes 500 ml');
-  await p.click('[data-act=amt][data-id=u1]'); await p.fill('#amtin', 'abc'); await p.click('[data-act=amtok]');
-  ok(!!(await p.$('.err0')), 'non-number rejected');
-  await p.fill('#amtin', '2300'); await p.press('#amtin', 'Enter');
-  ok((await db(p)).logs[T].h.u1 === 2300 && !!(await p.$('.hcard.g-on')), 'typed total saved; over goal still done');
-  ok(!(await p.$('[data-act=amt][data-id=b1]')), 'bad habits keep plain +1 counter');
   await p.click('[data-act=inc][data-id=b1]'); ok((await db(p)).logs[T].h.b1 === 1, 'bad habit +1');
   await p.click('[data-act=tab][data-tab=stats]');
   ok(/本月共 .* ml · 平均每天/.test(await p.content()), 'stats show monthly total and daily average');
   await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=edit][data-id=u1]');
   ok(!(await p.$eval('#ghint', e => e.innerText)).includes('換算'), 'no conversion warning when step unchanged');
   await p.click('[data-act=unitchip][data-v=杯]'); await p.click('[data-act=save]'); d = await db(p); u = d.habits.find(h => h.id === 'u1');
-  ok(u.unit === '杯' && d.logs[daysAgo(1)].h.u1 === 1500 && d.logs[T].h.u1 === 2300, 're-saving / renaming unit does not rescale again');
+  ok(u.unit === '杯' && d.logs[daysAgo(1)].h.u1 === 1500 && d.logs[T].h.u1 === 500, 're-saving / renaming unit does not rescale again');
   await p.click('[data-act=tab][data-tab=today]'); await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="-1"]');
-  await p.click('[data-act=amt][data-id=u1]'); ok(!(await p.$('#amtin')), 'locked day cannot type a total');
+  ok(!(await p.$('[data-act=amt]')), 'no tap-to-type on the number');
+  await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=fittoggle]');
+  await p.click('[data-act=edit][data-id=u1]'); ok(!(await p.$('[data-act=fitlink]')), 'counted habits cannot be linked to 運動');
+  await p.click('[data-act=method][data-v=check]'); ok(!!(await p.$('[data-act=fitlink]')), 'check habits can be linked');
   await done(p, 'units');
 
   console.log('• past days are locked');
