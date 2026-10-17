@@ -73,14 +73,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   d = await db(p); ok(d.logs[T] && d.logs[T].h && d.logs[T].h.g1 === 1, 'linked habit auto-checked at 30 min');
   await p.click('[data-act=fmin][data-n="-5"]'); d = await db(p); ok(!(d.logs[T] && d.logs[T].h && d.logs[T].h.g1), 'auto check removed below target');
   await p.click('[data-tab=today]');
-  ok((await p.$eval('.hc-sub', e => e.innerText)).includes('重訓 25 分 · 還差 5 分'), 'today card shows 重訓 minutes and what is left');
+  ok((await p.$eval('.hc-sub', e => e.innerText)).startsWith('83%') && !!(await p.$('.pbar')), 'linked card shows 83% (25 of 30 min) and a bar');
   await done(p, 'fitness');
   p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true }, rewards: [], redeemed: [], logs: { [T]: { h: { g1: 1 }, fa: ['g1'] } },
     fit: { ex: [], ctypes: [], logs: { [T]: { c: [{ id: 'x1', type: '跑步', min: 20 }], min: 30 } } },
     habits: [{ id: 'g1', name: '運動 30 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10), fitLink: true },
              { id: 'g2', name: '伸展', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10) }] } });
   const subs = await p.$$eval('.hc-sub', x => x.map(e => e.innerText));
-  ok(subs[0].startsWith('重訓 30 分 ＋ 有氧 20 分 · '), 'linked card shows 重訓 30 分 ＋ 有氧 20 分 (' + subs[0] + ')');
+  ok(subs[0].startsWith('✓ 達成') && !subs[0].includes('有氧'), 'linked card shows ✓ 達成 without the 運動 breakdown (' + subs[0] + ')');
   ok(!subs[1].includes('重訓'), 'unlinked habits unchanged');
   await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=g1]'); await p.click('[data-act=fitlink]'); await p.click('[data-act=save]');
   await p.click('[data-tab=fit]'); ok(!!(await p.$('[data-act=fmin][data-n="5"]')), '重訓時間 shown even with no linked habit');
@@ -175,8 +175,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(JSON.stringify(d.habits[0].goalHist) === JSON.stringify([{ from: T, n: 4 }]), 'goal stored from today');
   await p.click('[data-act=tab][data-tab=today]');
   for (let i = 0; i < 3; i++) await p.click('[data-act=inc][data-id=w1]');
-  ok(!(await p.$('.hcard.g-on')) && (await p.$eval('.hc-sub', e => e.innerText)).includes('3 / 4 次'), 'not done below goal, shows 3 / 4 次');
-  ok(!!(await p.$('.gbar')), 'progress bar shown');
+  ok(!(await p.$('.hcard.g-on')) && (await p.$eval('.hc-sub', e => e.innerText)).startsWith('75%'), 'not done below goal, shows 75%');
+  ok(!!(await p.$('.pbar')), 'progress bar shown');
   ok((await p.$eval('.hc-sub', e => e.innerText)).includes('連續 1 天'), 'yesterday (2 times, before the goal) still counts');
   await p.click('[data-act=inc][data-id=w1]');
   ok(!!(await p.$('.hcard.g-on')) && (await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'reaching the goal completes and celebrates');
@@ -198,7 +198,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await p.$eval('#main', e => e.innerText)).includes('NT$70'), 'savings unchanged after conversion (7 presses x 10)');
   await p.click('[data-act=tab][data-tab=today]');
   await p.click('[data-act=inc][data-id=u1]'); await p.click('[data-act=inc][data-id=u1]');
-  ok((await db(p)).logs[T].h.u1 === 1000 && (await p.$eval('.hc-sub', e => e.innerText)).includes('1,000 / 2,000 ml'), 'each tap adds 500 ml, shows 1,000 / 2,000 ml');
+  ok((await db(p)).logs[T].h.u1 === 1000 && (await p.$eval('.hc-sub', e => e.innerText)).startsWith('50%') && (await p.$eval('[data-id=u1] .cunit', e => e.textContent)) === 'ml', 'each tap adds 500 ml, shows 50% and ml under the number');
   await p.click('[data-act=dec][data-id=u1]'); ok((await db(p)).logs[T].h.u1 === 500, 'minus removes 500 ml');
   await p.click('[data-act=inc][data-id=b1]'); ok((await db(p)).logs[T].h.b1 === 1, 'bad habit +1');
   await p.click('[data-act=tab][data-tab=stats]');
@@ -257,16 +257,16 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await p.$$('section:has(h2:text-is("這週")) .hcard')).length === 2, 'weekly habits listed in 這週');
   ok((await p.$eval('.sum-card .sum-v', e => e.innerText.replace(/\s/g, ''))) === '0/1', 'today summary counts daily habits only');
   let wsub = await p.$eval('[data-id=w3] .hc-sub', e => e.innerText);
-  ok(wsub.includes('0 / 3 次') && wsub.includes('連續 2 週'), 'shows 0 / 3 次 and 連續 2 週 (' + wsub + ')');
-  ok((await p.$$('[data-id=w3] .wdot')).length === 3, 'three progress dots');
+  ok(/^(0%|還差|這週差)/.test(wsub) && wsub.includes('連續 2 週'), 'shows 0% (or a late-week warning) and 連續 2 週 (' + wsub + ')');
+  ok((await p.$$('[data-id=w3] .pbar.seg i')).length === 3, 'bar split into 3 segments');
   await p.click('[data-act=toggle][data-id=w3]');
   wsub = await p.$eval('[data-id=w3] .hc-sub', e => e.innerText);
-  ok(wsub.includes('1 / 3 次') && wsub.includes('連續 2 週') && (await p.$$('[data-id=w3] .wdot.on')).length === 1, 'tap today: 1 / 3, current week does not break streak');
+  ok(wsub.includes('連續 2 週') && (await p.$$('[data-id=w3] .pbar.seg i.on')).length === 1, 'tap today: 1 / 3, current week does not break streak');
   await p.evaluate(() => { document.getElementById('toast').hidden = true; });
   await p.click('[data-act=toggle][data-id=w1]');
   ok((await p.$eval('#toast', e => e.innerText)).includes('本週達成'), 'weekly goal reached toast');
   wsub = await p.$eval('[data-id=w1] .hc-sub', e => e.innerText);
-  ok(wsub.includes('本週達成 ✓') && wsub.includes('連續 2 週'), 'met week shows 本週達成 and counts (' + wsub + ')');
+  ok(wsub.startsWith('✓ 達成') && wsub.includes('連續 2 週'), 'met week shows ✓ 達成 and counts (' + wsub + ')');
   ok(!(await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'weekly taps do not complete the day');
   await p.click('[data-act=toggle][data-id=c1]');
   ok(await p.$eval('.sum-card', e => e.classList.contains('alldone')), 'daily all-done not blocked by unmet weekly habit');

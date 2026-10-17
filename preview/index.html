@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-0kxOF5ZwGnv1LTcBwcHPJ3ZP41GTxQkyoJs4GxK1yLc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-LWMIlvYpTF7ZGSPnkavXFt6OcS+rFgrSEhYaazK5fb4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,7 +114,9 @@ button.hcard{padding-right:16px}
 .plus.bad{background:var(--bad);color:var(--on-bad)}
 .cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
 .cnt.zero{color:var(--faint)}
-.wdots{display:inline-flex;gap:3px;margin-right:6px;vertical-align:1px}.wdot{width:7px;height:7px;border-radius:4px;background:var(--line)}.wdot.on{background:var(--good)}
+.pbar{height:5px;border-radius:3px;background:var(--line);margin-top:7px;width:120px;overflow:hidden}.pbar i{display:block;height:100%;background:var(--good);border-radius:3px;transition:width .25s}
+.pbar.seg{display:flex;gap:4px;background:transparent;border-radius:0;padding:0;margin-left:0}.pbar.seg i{margin:0}.pbar.seg i{flex:1 1 0;background:var(--line);border-radius:3px}.pbar.seg i.on{background:var(--good)}
+.cnt{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1}.cunit{font-size:11px;font-weight:700;color:var(--muted);margin-top:1px}
 .warn-t{color:#b4531f}
 .clink{display:block;margin:-8px auto 0;border:0;background:transparent;font:inherit;font-size:13px;color:var(--muted);padding:6px 10px;position:relative}
 .cldot{display:inline-block;width:6px;height:6px;border-radius:3px;background:var(--good);margin-left:5px;vertical-align:middle}
@@ -133,7 +135,6 @@ button.hcard{padding-right:16px}
 .cnt.big{font-size:16px;min-width:44px}
 .unitchips{align-items:center}.unitchips input.unitin{flex:0 0 auto;width:84px;height:36px;border:1.5px solid var(--line);border-radius:18px;background:var(--surface);padding:0 12px;font-size:16px;text-align:center}.unitchips input.unitin.on{border-color:var(--fg)}
 .rk-amt{display:block;margin-top:2px}
-.gbar{height:4px;border-radius:2px;background:var(--line);margin-top:6px;max-width:140px;overflow:hidden}.gbar i{display:block;height:100%;background:var(--good);border-radius:2px;transition:width .25s}
 .goalv{font-size:24px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums}
 
 .moods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
@@ -792,19 +793,6 @@ function fitSync(k){
   });
   if(changed){var L=db.logs[k]||(db.logs[k]={});if(fa.length)L.fa=fa;else delete L.fa;tidy(k);}
 }
-/* today card: what today's 運動 adds up to, e.g. 重訓 30 分 ＋ 有氧 20 分 */
-function wkLine(h,k,st){var w=weekStartKey(k),t=todayKey(),N=h.perWeek||3,c=wkCount(h,w,k>t?t:wkEnd(w)<t?wkEnd(w):t),met=c>=N,dots='';
-  for(var i=0;i<N;i++)dots+='<i class="wdot'+(i<c?' on':'')+'"></i>';
-  var out='<span class="wdots" aria-hidden="true">'+dots+'</span>'+(met?'本週達成 ✓'+(c>N?'（'+c+' 次）':''):c+' / '+N+' 次');
-  if(!met&&w===weekStartKey(t)){var left=diffDays(wkEnd(w),t)+(isDone(h,t)?0:1),need=N-c;
-    out+=need>left?' · <span class="warn-t">這週差 '+need+' 次</span>':' · <span class="'+(need>=left?'warn-t':'')+'">還差 '+need+' 次，剩 '+left+' 天</span>';}
-  if(st>0)out+=' · 連續 '+st+' 週';
-  return out;}
-function fitCardLine(h,k,on){var fm=fitMinutes(k),tg=fitTarget(h),l=fLog(k)||{},parts=[];
-  if(fm.s)parts.push('重訓 '+fm.s+' 分');else if(l.s&&l.s.length)parts.push('有重訓');
-  if(fm.c)parts.push('有氧 '+fm.c+' 分');else if(l.c&&l.c.length)parts.push('有氧');
-  if(!parts.length)return on?'':(tg?'目標 '+tg+' 分':'');
-  var t=parts.join(' ＋ ');if(!on&&tg&&fm.tot<tg)t+=' · 還差 '+(tg-fm.tot)+' 分';return t;}
 function fitLinkMsg(h,k){var tg=fitTarget(h),fm=fitMinutes(k),on=val(k,h.id)>0;
   if(!tg)return '「'+esc(h.name)+'」：這天有運動紀錄就自動打勾'+(on?'，已打勾 ✓':'');
   return '「'+esc(h.name)+'」：有氧 '+fm.c+' 分 ＋ 重訓 '+fm.s+' 分 ＝ '+fm.tot+' 分，'+(on?'已打勾 ✓':'還差 '+(tg-fm.tot)+' 分');}
@@ -1271,7 +1259,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.17-10';
+var APP_VER='2026.10.18-1';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1938,22 +1926,34 @@ function rankingHTML(y,m){
 function dateLabel(k){var t=todayKey();if(k===t)return '今天';if(k===addDays(t,-1))return '昨天';var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日';}
 function dateSub(k){var d=parseKey(k);return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()];}
 
-function counter(id,v,kind){
+function counter(id,v,kind,unit){
   var cls='cnt '+(v?kind+'-t':'zero')+(v>=1000?' big':'');
   return '<div class="counter"><button class="minus" data-act="dec" data-id="'+id+'" aria-label="減一次"'+(v?'':' disabled')+'>'+I.minus+'</button>'+
-    '<span class="'+cls+'">'+v+'</span>'+
+    '<span class="'+cls+'">'+v+(unit&&unit!=='次'?'<small class="cunit">'+esc(unit)+'</small>':'')+'</span>'+
     '<button class="plus '+kind+'" data-act="inc" data-id="'+id+'" aria-label="加一次">'+I.plus+'</button></div>';
 }
+/* every card with a target: name / "75% · 連續 5 天" (or ✓ 達成) / progress bar */
+function cardProg(h,k){
+  if(isWk(h)){var w=weekStartKey(k),t=todayKey(),N=h.perWeek||3,c=wkCount(h,w,wkEnd(w)<t?wkEnd(w):t),warn='';
+    if(c<N&&w===weekStartKey(t)){var left=diffDays(wkEnd(w),t)+(isDone(h,t)?0:1),need=N-c;if(need>=left)warn=need>left?'這週差 '+need+' 次':'還差 '+need+' 次 · 剩 '+left+' 天';}
+    return {cur:c,goal:N,seg:N,unit:'週',warn:warn};}
+  var gl=goalOn(h,k);
+  if(h.method==='count'&&(gl>1||hUnit(h)!=='次'))return {cur:val(k,h.id),goal:gl,unit:'天'};
+  if(h.method==='check'&&h.fitLink&&fOn()){var tg=fitTarget(h);if(tg){var on=isDone(h,k);return {cur:on?tg:Math.min(fitMinutes(k).tot,tg-1),goal:tg,unit:'天'};}}
+  return null;}
+function progLine(pg,st){var done=pg.cur>=pg.goal,pct=Math.round(pg.cur/pg.goal*100);if(!done&&pct>99)pct=99;
+  var a=pg.warn?'<span class="warn-t">'+pg.warn+'</span>':done?'✓ '+(pct>100&&!pg.seg?pct+'%':'達成'):pct+'%';
+  return a+(st>0?' · 連續 '+st+' '+pg.unit:'');}
+function progBar(pg){
+  if(pg.seg){var x='';for(var i=0;i<pg.seg;i++)x+='<i'+(i<pg.cur?' class="on"':'')+'></i>';return '<div class="pbar seg" aria-hidden="true">'+x+'</div>';}
+  return '<div class="pbar" aria-hidden="true"><i style="width:'+Math.min(100,Math.round(pg.cur/pg.goal*100))+'%"></i></div>';}
 function goodCard(h,k){
-  var v=val(k,h.id),gl=goalOn(h,k),on=v>=gl,st=goodStreak(h,k);
-  var sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';
-  var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);
-  if(isWk(h))sub=wkLine(h,k,st)+(svd?' · 省下 NT$'+fmtN(svd):'');
-  if(h.method==='check'&&h.fitLink&&fOn()){var fl=fitCardLine(h,k,on);if(fl)sub=isWk(h)?sub+'<br>'+fl:fl+(st>0?' · '+sub:(svd?' · 省下 NT$'+fmtN(svd):''));}
-  if(h.method==='count'){
-    return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+(gl>1||hUnit(h)!=='次'?fmtN(v)+(gl>1?' / '+fmtN(gl):'')+(hUnit(h)==='次'?' 次':' '+esc(hUnit(h)))+' · ':'')+sub+'</div>'+(gl>1?'<div class="gbar" aria-hidden="true"><i style="width:'+Math.min(100,Math.round(v/gl*100))+'%"></i></div>':'')+'</div></div>'+counter(h.id,v,'good')+'</div>';
-  }
-  return '<button class="hcard'+(on?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div></div></div><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span></button>';
+  var v=val(k,h.id),on=isDone(h,k),st=goodStreak(h,k),pg=cardProg(h,k),sub,bar='';
+  if(pg){sub=progLine(pg,st);bar=progBar(pg);}
+  else{sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);}
+  var txt='<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div>'+bar+'</div>';
+  if(h.method==='count')return '<div class="hcard'+(on?' g-on':'')+'" data-id="'+h.id+'"><div class="hc-lead">'+cardIco(h)+txt+'</div>'+counter(h.id,v,'good',hUnit(h))+'</div>';
+  return '<button class="hcard'+(on?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+txt+'</div><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span></button>';
 }
 function badCard(h,k){
   var v=val(k,h.id),on=v>0;
@@ -2150,6 +2150,7 @@ function vSettings(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.18-1','10/18',['有目標的習慣卡片統一成「名稱 / 75% · 連續 5 天 / 進度條」，畫面更整齊','每週幾次的習慣用分格進度條顯示']],
  ['2026.10.17-10','10/17',['編輯習慣時，自動選的圖示會跟著名稱更新；頻率移到前面','「用運動紀錄自動打勾」只在運動類的習慣出現','好習慣可以設「每週幾次，哪天都可以」，例如一週運動 3 次','今天頁多了「這週」區塊，顯示本週進度和連續幾週','統計排行用「週」計算這類習慣']],
  ['2026.10.17-9','10/17',['藏了一個小彩蛋']],
  ['2026.10.17-8','10/17',['App 裡多了「更新紀錄」，就是這一頁']],
