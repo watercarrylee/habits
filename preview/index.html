@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-LWMIlvYpTF7ZGSPnkavXFt6OcS+rFgrSEhYaazK5fb4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-I3bkXAg28lFRd4WDgBLoV5k/W/rXzPoGZwKeYEbtMbQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,6 +114,17 @@ button.hcard{padding-right:16px}
 .plus.bad{background:var(--bad);color:var(--on-bad)}
 .cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
 .cnt.zero{color:var(--faint)}
+.faqq{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-left:6px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--muted);font:700 12px/1 inherit;padding:0;vertical-align:1px;flex:0 0 auto}
+.lbl-q{display:flex;align-items:center}
+.faq{display:flex;flex-direction:column;gap:10px}
+.faq-cat{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;overflow:hidden}
+.faq-cat summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:16px;font-weight:700;font-size:16px;cursor:pointer}
+.faq-cat summary::-webkit-details-marker{display:none}
+.faq-cat summary::after{content:'';width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-left:10px;transition:transform .2s}
+.faq-cat[open] summary::after{transform:rotate(-135deg)}
+.faq-cat summary .small{margin-left:auto}
+.faq-list{display:flex;flex-direction:column;gap:14px;padding:0 16px 16px}
+.faq-item b{display:block;font-size:15px;margin-bottom:4px}.faq-item p{margin:0;font-size:14px;line-height:1.6;color:var(--muted)}
 .pbar{height:5px;border-radius:3px;background:var(--line);margin-top:7px;width:120px;overflow:hidden}.pbar i{display:block;height:100%;background:var(--good);border-radius:3px;transition:width .25s}
 .pbar.seg{display:flex;gap:4px;background:transparent;border-radius:0;padding:0;margin-left:0}.pbar.seg i{margin:0}.pbar.seg i{flex:1 1 0;background:var(--line);border-radius:3px}.pbar.seg i.on{background:var(--good)}
 .cnt{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1}.cunit{font-size:11px;font-weight:700;color:var(--muted);margin-top:1px}
@@ -1275,7 +1286,7 @@ function lockN(){return LOCK_NS.indexOf(db.settings.lockN)>=0?db.settings.lockN:
 function dayLocked(k){return !db.settings.lockOff&&diffDays(todayKey(),k)>lockN()&&ui.unlocked!==k;}
 function lockBar(k){if(db.settings.lockOff||diffDays(todayKey(),k)<=lockN())return '';
   if(ui.unlocked===k)return '<div class="lockbar open"><span>正在編輯這天</span><button class="ghost" data-act="relock">'+I.lock+'鎖回去</button></div>';
-  return '<div class="lockbar"><span>'+I.lock+'已鎖定，避免不小心改到過去的紀錄</span><button class="ghost" data-act="unlockday">編輯這天</button></div>';}
+  return '<div class="lockbar"><span>'+I.lock+'已鎖定，避免不小心改到過去的紀錄'+faqLink('edit')+'</span><button class="ghost" data-act="unlockday">編輯這天</button></div>';}
 function dText(k){var l=db.logs[k];return (l&&l.diary&&l.diary.t)||'';}
 function dQ(k){var l=db.logs[k];return (l&&l.diary&&l.diary.q)||'';}
 function dCount(t){return (t||'').replace(/\s/g,'').length;}
@@ -2138,6 +2149,7 @@ function vSettings(){
     (fOn()?'<div class="row-btn subrow" style="border-bottom:0"><span class="row-l"><span>新動作的預設單位</span><span class="row-sub">每個動作還是可以個別改</span></span>'+
     '<span class="useg"><button class="'+(db.settings.fitUnit!=='lbs'?'on':'')+'" data-act="fitunit" data-v="kg">kg</button><button class="'+(db.settings.fitUnit==='lbs'?'on':'')+'" data-act="fitunit" data-v="lbs">lbs</button></span></div>':'')+
     '</div><p class="small muted">關閉只是先藏起來，寫過的資料會保留，重新打開就會回來。</p></section>';
+  s+='<section class="sec"><h2 class="sec-t">說明</h2><div class="list"><button class="row-btn" data-act="faq"><span>常見問題</span><span class="side">'+I.chev+'</span></button></div></section>';
   s+='<section class="sec"><h2 class="sec-t">資料</h2><div class="list">'+
     '<button class="row-btn" data-act="archived"><span>已封存的習慣</span><span class="side">'+arch+'</span></button>'+
     '<button class="row-btn" data-act="export"><span>匯出備份</span><span class="side"><span class="small muted" style="margin-right:6px">'+bkAgeText()+'</span>'+I.down+'</span></button>'+
@@ -2148,9 +2160,47 @@ function vSettings(){
     '</section>';
   return s+'</div>';
 }
+/* ---------- 常見問題: design choices users may wonder about ---------- */
+var FAQ=[
+ ['habit','習慣與頻率',[
+  ['為什麼沒有「每月」或「每季」的頻率？','習慣靠頻繁重複才養得成。一個月或一季才做一次的事（例如洗牙、繳費），比較適合放在行事曆或提醒事項。所以最長的週期是「每週幾次」。'],
+  ['「每週幾次」的習慣，為什麼不算進今天的「好習慣 x / y」？','因為它本來就不用每天做。算進去的話，沒做的日子永遠不算「全部完成」，等於變相要你每天做。所以它獨立放在今天頁的「這週」區塊。'],
+  ['每週習慣剛建立的第一週沒達成，為什麼不算中斷？','例如週四才建立「每週 3 次」，剩下的天數本來就不太夠，算中斷不公平。從下一週開始才正式計算。'],
+  ['「每週幾次」算的是次數，還是總時數？','次數。例如「一週 3 次、每次 30 分鐘」，比「一週累積 90 分鐘」更像規律的習慣。只運動 20 分鐘的那天，不算一次。'],
+  ['休息卡為什麼不能用在每週習慣？','休息卡是用來補「某一天」的。每週習慣本來就能自己挑哪天做，不需要補。']]],
+ ['count','計次、目標與單位',[
+  ['為什麼不能點數字直接輸入數量？','很容易誤觸。把「每按一次」設成適合的量就好，例如喝水每次 500 ml、念書每次 10 分鐘。'],
+  ['改了「每天目標」，以前的紀錄會變嗎？','不會。新目標從改的那天開始算，以前的完成紀錄和連續天數都照舊。'],
+  ['改了「每按一次」，以前的紀錄為什麼會換算？','為了讓「以前按一下」等於「現在按一下」。例如從「次」改成「每次 500 ml」，以前的 4 次會變成 2000 ml，省下的錢也不會變。只改單位名稱（例如「次」改成「杯」）不會換算。'],
+  ['超過目標會怎樣？','照實記錄，一樣算完成，不會有額外的懲罰或獎勵。多做的部分會顯示出來，例如 120%。'],
+  ['壞習慣為什麼沒有目標和單位？','壞習慣是犯一次就算犯，重點是看次數有沒有變少，所以維持按一下 +1。']]],
+ ['fit','運動連動',[
+  ['為什麼有些習慣看不到「用運動紀錄自動打勾」？','只有名稱或圖示跟運動有關的習慣才會出現（例如運動、跑步、游泳、瑜伽），避免在「喝水」、「閱讀」這類習慣上造成困惑。已經開著連動的習慣，開關一定會顯示，方便你關掉。'],
+  ['為什麼計次的習慣不能連動運動？','運動頁本來就在算分鐘，兩邊同時記同一件事，數字很容易對不上。要連動運動，請用「打勾」的習慣，例如「運動 30 分鐘」。'],
+  ['卡片上為什麼不顯示重訓、有氧的明細？','為了讓每張卡片一樣整齊。完整的明細在「運動」分頁。']]],
+ ['edit','紀錄與編輯',[
+  ['為什麼過去的紀錄會被鎖住？為什麼昨天沒鎖？','避免翻舊紀錄時不小心改到。昨天不鎖，是因為「昨天忘了打勾，今天補」最常見。要改更早的日子，按「編輯這天」就好；也可以在「習慣設定 → 過去的紀錄」調整天數或關掉。'],
+  ['想改習慣的頻率，需要刪掉重建嗎？','不用，也不建議。刪除會把這個習慣所有的打勾紀錄一起刪掉。直接編輯原本的習慣，紀錄都會保留。'],
+  ['改了習慣名稱，圖示為什麼有時會跟著變、有時不會？','系統自動選的圖示，會跟著名稱更新；你手動挑過的圖示，會保留你的選擇。'],
+  ['「全部完成」的慶祝，為什麼一天只出現一次？補記過去的日子為什麼沒有？','慶祝是給「今天」的。一直重複出現，或補記時跳出來，就失去意義了。']]],
+ ['data','資料與更新',[
+  ['我的資料存在哪裡？','只存在這支手機的這個瀏覽器裡，不會上傳到任何地方。換手機、刪掉主畫面上的 App，或清除 Safari 網站資料之前，請先到「習慣設定 → 匯出備份」。'],
+  ['備份為什麼建議設密碼？','就算備份檔不小心外流，沒有密碼也打不開。但密碼忘記就無法還原，請記好。'],
+  ['為什麼更新後要把 App 關掉再開？多久更新一次？','App 要重新開啟才會抓到新版，有時要關掉重開兩次。新功能一天最多更新一次，影響使用的問題會盡快修正。每次改了什麼，可以看「習慣設定 → 更新紀錄」。']]]
+];
+function faqLink(cat){return '<button class="faqq" data-act="faq" data-v="'+cat+'" aria-label="相關的常見問題">?</button>';}
+function vFaq(){
+  var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="faqback" aria-label="返回">'+I.left+'</button><h1 class="h1" style="font-size:22px">常見問題</h1><span style="width:44px"></span></header>'+
+    '<p class="small muted" style="margin-top:-8px">這些是設計時刻意的取捨，點分類展開。</p><div class="faq">';
+  FAQ.forEach(function(c){
+    s+='<details class="faq-cat" id="faq-'+c[0]+'"'+(ui.faqOpen===c[0]?' open':'')+'><summary><span>'+c[1]+'</span><span class="muted small">'+c[2].length+' 題</span></summary><div class="faq-list">'+
+      c[2].map(function(q){return '<div class="faq-item"><b>'+esc(q[0])+'</b><p>'+esc(q[1])+'</p></div>';}).join('')+'</div></details>';
+  });
+  return s+'</div></div>';
+}
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
- ['2026.10.18-1','10/18',['有目標的習慣卡片統一成「名稱 / 75% · 連續 5 天 / 進度條」，畫面更整齊','每週幾次的習慣用分格進度條顯示']],
+ ['2026.10.18-1','10/18',['新增「常見問題」（習慣設定 → 說明），部分設定旁也有「?」可以直接看','有目標的習慣卡片統一成「名稱 / 75% · 連續 5 天 / 進度條」，畫面更整齊','每週幾次的習慣用分格進度條顯示']],
  ['2026.10.17-10','10/17',['編輯習慣時，自動選的圖示會跟著名稱更新；頻率移到前面','「用運動紀錄自動打勾」只在運動類的習慣出現','好習慣可以設「每週幾次，哪天都可以」，例如一週運動 3 次','今天頁多了「這週」區塊，顯示本週進度和連續幾週','統計排行用「週」計算這類習慣']],
  ['2026.10.17-9','10/17',['藏了一個小彩蛋']],
  ['2026.10.17-8','10/17',['App 裡多了「更新紀錄」，就是這一頁']],
@@ -2225,7 +2275,7 @@ function vEdit(){
       '<button class="stepbtn dark" data-act="goalstep" data-n="1" aria-label="增加目標">+</button></div>'+
       '<p class="hint" id="ghint">'+goalHint(d,isNew)+'</p></div>';}
   if(good){var wkd=d.freq==='week',pw=d.perWeek||3;
-    s+='<div class="field"><div class="lbl">頻率</div><div class="seg"><button class="'+(!wkd?'on':'')+'" data-act="freq" data-v="day" aria-pressed="'+(!wkd)+'">固定星期幾</button>'+
+    s+='<div class="field"><div class="lbl lbl-q">頻率'+faqLink('habit')+'</div><div class="seg"><button class="'+(!wkd?'on':'')+'" data-act="freq" data-v="day" aria-pressed="'+(!wkd)+'">固定星期幾</button>'+
       '<button class="'+(wkd?'on':'')+'" data-act="freq" data-v="week" aria-pressed="'+wkd+'">每週幾次</button></div>';
     if(wkd){s+='<div class="stepper" style="margin-top:10px"><button class="stepbtn" data-act="pwstep" data-n="-1" aria-label="減少"'+(pw<=1?' disabled':'')+'>−</button>'+
       '<div class="stepval"><b class="goalv" id="pwv">'+pw+'</b><span>次 / 週</span></div><button class="stepbtn dark" data-act="pwstep" data-n="1" aria-label="增加"'+(pw>=6?' disabled':'')+'>+</button></div>'+
@@ -2236,7 +2286,7 @@ function vEdit(){
   }
   if(good&&chk&&fOn()){
     var tg=fitTarget({name:d.name||''});
-    s+='<div class="field" id="fitlinkf"'+(fitEligible(d)?'':' hidden')+'><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用運動紀錄自動打勾</span><span class="row-sub">預設關閉</span></span>'+
+    s+='<div class="field" id="fitlinkf"'+(fitEligible(d)?'':' hidden')+'><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用運動紀錄自動打勾'+faqLink('fit')+'</span><span class="row-sub">預設關閉</span></span>'+
       '<button class="switch" role="switch" aria-checked="'+!!d.fitLink+'" aria-label="用運動紀錄自動打勾" data-act="fitlink"><span class="knob"></span></button></div>'+
       (d.fitLink?'<p class="hint">'+(tg?'目標 '+tg+' 分鐘（從名稱抓到的數字）。當天「有氧分鐘 ＋ 運動頁填的重訓分鐘」達到 '+tg+' 分就自動打勾。':'名稱裡沒有分鐘數，所以當天只要有任何運動紀錄就自動打勾。')+'紀錄刪掉時，只會取消自動打的勾。</p>':'')+'</div>';
   }
@@ -2301,9 +2351,9 @@ function render(){
   if(ui.view==='flog'&&(!ui.fl||!exById(ui.fl.ex)))ui.view='fit';
   var main=$('#main'),v=ui.view;
   $('#fitTab').hidden=!fOn();$('#tabs').classList.toggle('five',fOn());
-  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
-  $('#tabs').hidden=v==='edit'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
-  var tabv=v==='archived'||v==='changelog'?'settings':v==='search'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
+  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='faq'?vFaq():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
+  $('#tabs').hidden=(v==='faq'&&ui.faqBack&&ui.faqBack.view==='edit')||v==='edit'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
+  var tabv=v==='archived'||v==='changelog'||v==='faq'?'settings':v==='search'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
   renderSheet();
   if(ui.celAnim){var ce=typeof ui.celAnim==='string'?main.querySelector('[data-id="'+ui.celAnim+'"] .check, [data-act=inc][data-id="'+ui.celAnim+'"]'):null;if(ce)ce.classList.add('pop');ui.celAnim=null;}
@@ -2542,6 +2592,8 @@ function act(a,b){
     case 'archived': go('archived');break;
     case 'back': go('settings');break;
     case 'changelog': clMarkSeen();go('changelog');break;
+    case 'faq': if(ui.view!=='faq')ui.faqBack={view:ui.view,date:ui.date};ui.faqOpen=b.dataset.v||null;go('faq');render();if(ui.faqOpen){var fo=$('#faq-'+ui.faqOpen);if(fo)fo.scrollIntoView({block:'start'});}return;
+    case 'faqback': var fb=ui.faqBack||{view:'settings'};go(fb.view);if(fb.view==='today'&&fb.date)ui.date=fb.date;break;
     case 'cltap': var nowT=Date.now();ui.clTaps=(ui.clLast&&nowT-ui.clLast<1500?(ui.clTaps||0):0)+1;ui.clLast=nowT;if(ui.clTaps>=5){ui.clTaps=0;toast('有 bug 找 Aaron，Aaron 再找 Claude XD',3000);}return;
     case 'restore': h=byId(id);if(h){h.archived=false;save();}ui.confirmDel=false;toast('已恢復');break;
     case 'delarch': if(ui.confirmDel!==id){ui.confirmDel=id;break;}removeHabit(id);ui.confirmDel=false;toast('已刪除');break;
