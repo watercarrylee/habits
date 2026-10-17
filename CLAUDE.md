@@ -10,3 +10,4 @@ Single-file PWA (index.html + sw.js), hosted on GitHub Pages from `main`.
 - Add each release to VERSIONS.md (version → commit). Tag pushes are blocked from the cloud session, so VERSIONS.md is the rollback index.
 - Before every release run `bash tests/run.sh` (Playwright smoke tests, must end with 0 failed). Add a check there for each new feature.
 - To let Aaron try a version before release: build it on a branch, run `python3 tools/preview.py`, and push only `preview/index.html` to main. It is served at /habits/preview/ with separate data (keys `habit-preview-*`). Merge the branch to main after he approves.
+- Every release also gets a line at the top of `CHANGELOG` in index.html (user-facing Traditional Chinese, shown in 設定 → 更新紀錄). A smoke test fails if its newest entry doesn't match `APP_VER`.

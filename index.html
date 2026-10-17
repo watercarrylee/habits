@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-HNv1Hqv/CPlTLM7iwGQ57Z/H7jlIFL9IsTg0HqHigRI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-IcNh+Wnu/qgFSXjHhIuVukEBxzlSpv74Yga+0RXnnns='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,6 +114,14 @@ button.hcard{padding-right:16px}
 .plus.bad{background:var(--bad);color:var(--on-bad)}
 .cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
 .cnt.zero{color:var(--faint)}
+.clink{display:block;margin:-8px auto 0;border:0;background:transparent;font:inherit;font-size:13px;color:var(--muted);padding:6px 10px;position:relative}
+.cldot{display:inline-block;width:6px;height:6px;border-radius:3px;background:var(--good);margin-left:5px;vertical-align:middle}
+.cl{display:flex;flex-direction:column;gap:12px}
+.cl-item{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px}
+.cl-item.cur{border-color:var(--good)}
+.cl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.cl-h b{font-size:15px;font-variant-numeric:tabular-nums}.cl-h span{font-size:12px;color:var(--muted);white-space:nowrap}
+.cl-item ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.5}
+.cl-foot{text-align:center;margin-top:4px}
 .lockbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);font-size:13px;color:var(--muted)}
 .lockbar>span{display:flex;align-items:center;gap:6px;min-width:0}.lockbar svg{flex:0 0 auto}
 .lockbar .ghost{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
@@ -1252,7 +1260,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.17-7';
+var APP_VER='2026.10.17-8';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2092,10 +2100,41 @@ function vSettings(){
     '<button class="row-btn" data-act="export"><span>匯出備份</span><span class="side"><span class="small muted" style="margin-right:6px">'+bkAgeText()+'</span>'+I.down+'</span></button>'+
     '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button>'+
     (a2Eligible()?'<button class="row-btn" data-act="a2how"><span>加到主畫面的方法</span><span class="side">'+I.share+'</span></button>':'')+'</div>'+
-    '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><p class="small muted" style="text-align:center;margin-top:-8px">版本 '+APP_VER+'</p>'+
+    '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><button class="clink" data-act="changelog">版本 '+APP_VER+' · 更新紀錄'+(clSeen()?'':'<span class="cldot" aria-label="有新的更新"></span>')+'</button>'+
     (storageOK?'':'<p class="small bad-t"><strong>目前無法寫入手機儲存空間，新的紀錄不會被保存。</strong>如果開著私密瀏覽，請改用一般模式。</p>')+
     '</section>';
   return s+'</div>';
+}
+/* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
+var CHANGELOG=[
+ ['2026.10.17-8','10/17',['App 裡多了「更新紀錄」，就是這一頁']],
+ ['2026.10.17-7','10/17',['連動運動的習慣，今天頁直接顯示「重訓 30 分 ＋ 有氧 20 分」','運動頁一定會出現「重訓時間」，沒連動習慣也能記']],
+ ['2026.10.17-6','10/17',['計次的習慣可以設單位和「每按一次」多少，例如每次 500 ml、目標 2000 ml','統計頁顯示本月總量和每天平均']],
+ ['2026.10.17-5','10/17',['過去的紀錄預設鎖住，避免不小心改到；要改按「編輯這天」','可以在設定裡選從幾天前開始鎖，或整個關掉']],
+ ['2026.10.17-4','10/17',['計次的習慣可以設「每天目標」，達到才算完成']],
+ ['2026.10.17-3','10/17',['「健身」改名「運動」','今天的好習慣全部完成時有小慶祝，連續 7、21、30、100 天等有里程碑']],
+ ['2026.10.17-2','10/17',['備份檔名加上時間和來源，不會互相覆蓋','還原前會顯示這份備份是什麼時候、從哪裡匯出的']],
+ ['2026.10.16-6','10/16',['日記和備註裡的網址可以直接點開','太久沒備份會提醒']],
+ ['2026.10.16-4','10/16',['重訓紀錄依部位分組，一樣的組數合併成「15 kg × 12 下 × 4 組」','新增重訓時可以一次填重量、次數、組數']],
+ ['2026.10.16-3','10/16',['選動作時照器材分類，附英文名','新增小腿、全身和 27 個內建動作','每個動作可以選記重量×次數、只記次數或記秒數']],
+ ['2026.10.16-1','10/16',['新增健身分頁（可在設定開關）：重訓、估計 1RM、有氧、進步趨勢圖','習慣可以用運動紀錄自動打勾']],
+ ['2026.10.15-7','10/15',['安全性強化，備份可以加密碼']],
+ ['2026.10.15-5','10/15',['提示怎麼把 App 加到主畫面']],
+ ['2026.10.15-4','10/15',['更新後不會再卡在舊版；設定頁顯示版本號']],
+ [null,'10/15',['新增日記（可開關），有引導題，可以前後切換日期','備註寫完可以確認鎖住','統計頁改成每月習慣排行','新增獎勵、休息卡和「省下的錢」','記錄未實現損益（可開關）、搜尋備註']],
+ [null,'10/14',['習慣可以加圖示']],
+ [null,'10/13',['習慣紀錄 App 誕生：好習慣打勾、壞習慣計次、心情和備註']]
+];
+var CLKEY='habit-cl-seen';
+function clSeen(){try{return localStorage.getItem(CLKEY)===APP_VER;}catch(e){return true;}}
+function clMarkSeen(){try{localStorage.setItem(CLKEY,APP_VER);}catch(e){}}
+function vChangelog(){
+  var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="back" aria-label="返回習慣設定">'+I.left+'</button><h1 class="h1" style="font-size:22px">更新紀錄</h1><span style="width:44px"></span></header><div class="cl">';
+  CHANGELOG.forEach(function(e,i){
+    s+='<section class="cl-item'+(i===0?' cur':'')+'"><div class="cl-h"><b>'+(e[0]||'早期版本')+'</b><span>'+e[1]+(i===0?' · 目前版本':'')+'</span></div><ul>'+
+      e[2].map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></section>';
+  });
+  return s+'</div><p class="small muted cl-foot">由 Aaron 和 Claude 一起慢慢做出來的 🌱</p></div>';
 }
 function vArchived(){
   var list=db.habits.filter(function(h){return h.archived;});
@@ -2209,9 +2248,9 @@ function render(){
   if(ui.view==='flog'&&(!ui.fl||!exById(ui.fl.ex)))ui.view='fit';
   var main=$('#main'),v=ui.view;
   $('#fitTab').hidden=!fOn();$('#tabs').classList.toggle('five',fOn());
-  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
+  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
   $('#tabs').hidden=v==='edit'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
-  var tabv=v==='archived'?'settings':v==='search'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
+  var tabv=v==='archived'||v==='changelog'?'settings':v==='search'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
   renderSheet();
   if(ui.celAnim){var ce=typeof ui.celAnim==='string'?main.querySelector('[data-id="'+ui.celAnim+'"] .check, [data-act=inc][data-id="'+ui.celAnim+'"]'):null;if(ce)ce.classList.add('pop');ui.celAnim=null;}
@@ -2446,6 +2485,7 @@ function act(a,b){
     case 'delete': if(!ui.confirmDel){ui.confirmDel=true;break;}removeHabit(ui.draft.id);go('settings');toast('已刪除');break;
     case 'archived': go('archived');break;
     case 'back': go('settings');break;
+    case 'changelog': clMarkSeen();go('changelog');break;
     case 'restore': h=byId(id);if(h){h.archived=false;save();}ui.confirmDel=false;toast('已恢復');break;
     case 'delarch': if(ui.confirmDel!==id){ui.confirmDel=id;break;}removeHabit(id);ui.confirmDel=false;toast('已刪除');break;
     case 'hideamt': db.settings.hideAmt=!db.settings.hideAmt;save();break;
