@@ -99,6 +99,26 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!(await p.$('.bk')), 'no backup reminder in demo');
   await done(p, 'demo');
 
+  console.log('• new-user demo: onboarding');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, logs: {}, settings: {}, rewards: [], redeemed: [], habits: [] } }, BASE + '?demo=new');
+  ok(!!(await p.$('.ob')), 'onboarding shown in ?demo=new');
+  ok(await p.$eval('[data-act=obnext]', e => e.disabled), 'next disabled until an area is picked');
+  await p.click('[data-act=obarea][data-v=sleep]'); await p.click('[data-act=obarea][data-v=fit]'); await p.click('[data-act=obnext]');
+  await p.click('[data-act=obsize][data-v="5"]'); await p.click('[data-act=obnext]');
+  ok((await p.$eval('[data-act=obfeat][data-v=fit]', e => e.getAttribute('aria-checked'))) === 'true', 'fitness preselected when 運動健身 chosen');
+  await p.click('[data-act=obnext]');
+  ok((await p.$$('.obpick')).length === 5, '5 habits recommended');
+  await p.click('[data-act=obpick][data-i="4"]'); await p.fill('.obin[data-i="0"]', '11 點前睡覺'); await p.click('[data-act=obnext]');
+  d = await db(p, 'habit-tracker-demo-new');
+  ok(d.habits.length === 4 && d.habits[0].name === '11 點前睡覺', 'habits created with edits (' + d.habits.length + ')');
+  ok(d.habits.some(h => h.fitLink) && d.settings.fit && d.settings.onboarded, 'fitness on and 運動 linked');
+  await p.click('[data-act=demofill]'); d = await db(p, 'habit-tracker-demo-new');
+  ok(Object.keys(d.logs).length > 100 && Object.keys(d.fit.logs).length > 30, 'fake history filled for chosen habits');
+  await p.click('[data-act=demoreset]'); ok(!!(await p.$('.ob')), 'restart returns to onboarding');
+  ok((await db(p)).habits.length === 0, 'real data untouched');
+  await p.goto(BASE); ok(!(await p.$('.ob')), 'real app does not show onboarding yet');
+  await done(p, 'onboarding');
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
