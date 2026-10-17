@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-4eFbVeFed7+W60dsEPlNpwRmHkiWPbYCBQ6wyt8efZQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-AiT9vIBPXArz23cPBzyMDX/+nZrGrkpt61z294ICUI8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1223,7 +1223,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.17-1';
+var APP_VER='2026.10.17-2';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2090,7 +2090,7 @@ function renderSheet(){
       (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
       '<button class="secondary" data-act="usepaste">使用貼上的內容</button>';
   }else if(sh.type==='confirm'){
-    h='<h2>確定要還原嗎？</h2><p>備份裡有 '+sh.data.habits.length+' 個習慣、'+Object.keys(sh.data.logs).length+' 天的紀錄。還原後會取代這支手機上目前的所有資料。</p>'+
+    h='<h2>確定要還原嗎？</h2>'+metaLine(sh.meta)+'<p>備份裡有 '+sh.data.habits.length+' 個習慣、'+Object.keys(sh.data.logs).length+' 天的紀錄。還原後會取代這支手機上目前的所有資料。</p>'+
       '<div class="stack"><button class="primary danger" data-act="confirmimport">取代目前資料</button></div>';
   }
   h+='<button class="secondary" data-act="closesheet">取消</button>';
@@ -2157,10 +2157,20 @@ function exportWithPw(){
   if(p1.length<6){ui.sheet.err='密碼至少 6 個字。';render();return;}
   if(p1!==p2){ui.sheet.err='兩次輸入的密碼不一樣。';render();return;}
   ui.sheet={type:'busy',msg:'加密中⋯'};render();
-  encryptText(JSON.stringify(db),p1).then(function(t){doExport(t,true);},function(){ui.sheet={type:'exportpw',err:'加密失敗，請再試一次。'};render();});
+  encryptText(backupPayload(),p1).then(function(t){doExport(t,true);},function(){ui.sheet={type:'exportpw',err:'加密失敗，請再試一次。'};render();});
 }
+/* backup file naming: time + source, so backups from different browsers or times never share a name */
+var SRC_LABEL={app:'主畫面 App',safari:'Safari',chrome:'Chrome',edge:'Edge',firefox:'Firefox',demo:'示範',browser:'瀏覽器'};
+function backupSource(){if(DEMO)return 'demo';if(isStandalone())return 'app';var u=navigator.userAgent||'';
+  if(/EdgiOS|Edg\//.test(u))return 'edge';if(/FxiOS|Firefox\//.test(u))return 'firefox';if(/CriOS|Chrome\//.test(u))return 'chrome';if(/Safari\//.test(u))return 'safari';return 'browser';}
+function backupStamp(){var d=new Date(),p=function(n){return String(n).padStart(2,'0');};return todayKey()+'-'+p(d.getHours())+p(d.getMinutes());}
+function backupPayload(){var o={};for(var k in db)o[k]=db[k];o.meta={exportedAt:new Date().toISOString(),source:backupSource(),app:APP_VER};return JSON.stringify(o);}
+function takeMeta(o){if(!o||typeof o!=='object')return null;var m=o.meta;delete o.meta;if(!m||typeof m!=='object')return null;
+  var at=new Date(String(m.exportedAt||''));return {at:isNaN(at)?null:at,src:String(m.source||'').slice(0,12)};}
+function metaLine(m){if(!m||!m.at)return '';var p=function(n){return String(n).padStart(2,'0');},a=m.at;
+  return '<p>備份時間：'+a.getFullYear()+'/'+(a.getMonth()+1)+'/'+a.getDate()+' '+p(a.getHours())+':'+p(a.getMinutes())+(m.src?' · 來自 '+esc(SRC_LABEL[m.src]||m.src):'')+'</p>';}
 function doExport(encText,isEnc){
-  var text=encText||JSON.stringify(db),name='habits-backup-'+todayKey()+(isEnc?'-locked':'')+'.json';
+  var text=encText||backupPayload(),name='habits-backup-'+backupStamp()+'-'+backupSource()+(isEnc?'-locked':'')+'.json';
   try{
     var f=new File([text],name,{type:'application/json'});
     if(navigator.canShare&&navigator.canShare({files:[f]})){
@@ -2183,9 +2193,9 @@ function downloadText(text,name){
 function unlockImport(){
   var pw=($('#pw3')||{}).value||'',raw=ui.sheet.raw;if(!pw){ui.sheet.err='請輸入密碼。';render();return;}
   ui.sheet={type:'busy',msg:'解密中⋯'};render();
-  decryptText(raw,pw).then(function(t){var d=null;try{d=normalize(JSON.parse(t));}catch(e){}
+  decryptText(raw,pw).then(function(t){var d=null,mt=null;try{var o=JSON.parse(t);mt=takeMeta(o);d=normalize(o);}catch(e){}
     if(!d){ui.sheet={type:'import',paste:'',err:'解開了，但內容讀不懂。'};render();return;}
-    ui.sheet={type:'confirm',data:d};render();
+    ui.sheet={type:'confirm',data:d,meta:mt};render();
   },function(){ui.sheet={type:'unlock',raw:raw,err:'密碼不對，請再試一次。'};render();var f=$('#pw3');if(f)f.focus();});
 }
 function tryImport(text){
@@ -2195,9 +2205,9 @@ function tryImport(text){
     if(!canCrypt()){ui.sheet={type:'import',paste:'',err:'這是加密備份，但這個瀏覽器不支援解密。'};render();return;}
     ui.sheet={type:'unlock',raw:raw,err:''};render();var f=$('#pw3');if(f)f.focus();return;
   }
-  var d=null;try{d=normalize(raw);}catch(e){}
+  var d=null,mt=null;try{mt=takeMeta(raw);d=normalize(raw);}catch(e){}
   if(!d){ui.sheet={type:'import',paste:text,err:'讀不懂這份內容，請確認是從這個 App 匯出的備份。'};render();return;}
-  ui.sheet={type:'confirm',data:d};render();
+  ui.sheet={type:'confirm',data:d,meta:mt};render();
 }
 
 /* ---------- events ---------- */
