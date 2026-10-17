@@ -238,6 +238,49 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await db(p)).settings.lockOff === true && !(await p.$('[data-act=lockn]')), 'lock can be turned off');
   await done(p, 'lock');
 
+  console.log('• weekly habits (每週 N 次)');
+  const ws = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; })();
+  const wk = (weeksBack, i) => { const d = new Date(ws); d.setDate(d.getDate() - 7 * weeksBack + i); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const wlogs = {};
+  const put = (k, id) => { (wlogs[k] = wlogs[k] || { h: {} }).h[id] = 1; };
+  [0, 2, 4].forEach(i => { put(wk(1, i), 'w3'); put(wk(2, i), 'w3'); }); put(wk(3, 0), 'w3');
+  put(wk(1, 5), 'w1');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: {}, rewards: [], redeemed: [], logs: wlogs, habits: [
+    { id: 'c1', name: '伸展', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) },
+    { id: 'w3', name: '運動 30 分鐘', kind: 'good', method: 'check', freq: 'week', perWeek: 3, days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) },
+    { id: 'w1', name: '打電話回家', kind: 'good', method: 'check', freq: 'week', perWeek: 1, days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) }] } });
+  const secs = await p.$$eval('h2.sec-t', x => x.map(e => e.textContent));
+  ok(secs.includes('這週') && secs.indexOf('這週') > secs.indexOf('好習慣'), '這週 section after 好習慣');
+  ok((await p.$$('section:has(h2:text-is("這週")) .hcard')).length === 2, 'weekly habits listed in 這週');
+  ok((await p.$eval('.sum-card .sum-v', e => e.innerText.replace(/\s/g, ''))) === '0/1', 'today summary counts daily habits only');
+  let wsub = await p.$eval('[data-id=w3] .hc-sub', e => e.innerText);
+  ok(wsub.includes('0 / 3 次') && wsub.includes('連續 2 週'), 'shows 0 / 3 次 and 連續 2 週 (' + wsub + ')');
+  ok((await p.$$('[data-id=w3] .wdot')).length === 3, 'three progress dots');
+  await p.click('[data-act=toggle][data-id=w3]');
+  wsub = await p.$eval('[data-id=w3] .hc-sub', e => e.innerText);
+  ok(wsub.includes('1 / 3 次') && wsub.includes('連續 2 週') && (await p.$$('[data-id=w3] .wdot.on')).length === 1, 'tap today: 1 / 3, current week does not break streak');
+  await p.evaluate(() => { document.getElementById('toast').hidden = true; });
+  await p.click('[data-act=toggle][data-id=w1]');
+  ok((await p.$eval('#toast', e => e.innerText)).includes('本週達成'), 'weekly goal reached toast');
+  wsub = await p.$eval('[data-id=w1] .hc-sub', e => e.innerText);
+  ok(wsub.includes('本週達成 ✓') && wsub.includes('連續 2 週'), 'met week shows 本週達成 and counts (' + wsub + ')');
+  ok(!(await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'weekly taps do not complete the day');
+  await p.click('[data-act=toggle][data-id=c1]');
+  ok(await p.$eval('.sum-card', e => e.classList.contains('alldone')), 'daily all-done not blocked by unmet weekly habit');
+  await p.reload(); d = await db(p);
+  ok(d.habits.find(h => h.id === 'w3').freq === 'week' && d.habits.find(h => h.id === 'w3').perWeek === 3, 'freq survives reload');
+  await p.click('[data-tab=stats]');
+  ok(/週 · 共 \d+ 次/.test(await p.$eval('#main', e => e.innerText)), 'stats ranking counts weekly habits in weeks');
+  await p.click('[data-tab=settings]');
+  ok((await p.$eval('#main', e => e.innerText)).includes('每週 3 次'), 'settings list shows 每週 3 次');
+  await p.click('[data-act=new][data-kind=good]').catch(async () => { await p.click('[data-act=new]'); });
+  await p.fill('#hname', '游泳'); await p.click('[data-act=freq][data-v=week]');
+  ok(!(await p.$('[data-act=dayt]')) && (await p.$eval('#pwv', e => e.textContent)) === '3', 'weekly mode hides weekday picker, default 3');
+  await p.click('[data-act=pwstep][data-n="-1"]'); await p.click('[data-act=save]');
+  d = await db(p); const sw = d.habits.find(h => h.name === '游泳');
+  ok(sw && sw.freq === 'week' && sw.perWeek === 2, 'new weekly habit saved with 2 per week');
+  await done(p, 'weekly');
+
   console.log('• 更新紀錄');
   p = await page(b);
   await p.click('[data-tab=settings]');
