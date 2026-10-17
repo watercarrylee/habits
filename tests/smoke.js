@@ -211,7 +211,10 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!(await p.$('[data-act=amt]')), 'no tap-to-type on the number');
   await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=fittoggle]');
   await p.click('[data-act=edit][data-id=u1]'); ok(!(await p.$('[data-act=fitlink]')), 'counted habits cannot be linked to 運動');
-  await p.click('[data-act=method][data-v=check]'); ok(!!(await p.$('[data-act=fitlink]')), 'check habits can be linked');
+  await p.click('[data-act=method][data-v=check]'); ok(!(await p.isVisible('[data-act=fitlink]')), 'non-exercise habit (喝水) hides the 運動 link');
+  await p.fill('#hname', '晨跑'); ok(await p.isVisible('[data-act=fitlink]'), 'typing an exercise name shows the 運動 link');
+  const order = await p.$$eval('.field .lbl, .field label.lbl, .savebox .lbl', x => x.map(e => e.textContent));
+  ok(order.findIndex(t => t.includes('頻率')) < order.findIndex(t => t.includes('省下')), '頻率 comes before 省下 in the editor');
   await done(p, 'units');
 
   console.log('• past days are locked');
@@ -238,14 +241,67 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await db(p)).settings.lockOff === true && !(await p.$('[data-act=lockn]')), 'lock can be turned off');
   await done(p, 'lock');
 
+  console.log('• weekly habits (每週 N 次)');
+  const ws = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; })();
+  const wk = (weeksBack, i) => { const d = new Date(ws); d.setDate(d.getDate() - 7 * weeksBack + i); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const wlogs = {};
+  const put = (k, id) => { (wlogs[k] = wlogs[k] || { h: {} }).h[id] = 1; };
+  [0, 2, 4].forEach(i => { put(wk(1, i), 'w3'); put(wk(2, i), 'w3'); }); put(wk(3, 0), 'w3');
+  put(wk(1, 5), 'w1');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: {}, rewards: [], redeemed: [], logs: wlogs, habits: [
+    { id: 'c1', name: '伸展', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) },
+    { id: 'w3', name: '運動 30 分鐘', kind: 'good', method: 'check', freq: 'week', perWeek: 3, days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) },
+    { id: 'w1', name: '打電話回家', kind: 'good', method: 'check', freq: 'week', perWeek: 1, days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) }] } });
+  const secs = await p.$$eval('h2.sec-t', x => x.map(e => e.textContent));
+  ok(secs.includes('這週') && secs.indexOf('這週') > secs.indexOf('好習慣'), '這週 section after 好習慣');
+  ok((await p.$$('section:has(h2:text-is("這週")) .hcard')).length === 2, 'weekly habits listed in 這週');
+  ok((await p.$eval('.sum-card .sum-v', e => e.innerText.replace(/\s/g, ''))) === '0/1', 'today summary counts daily habits only');
+  let wsub = await p.$eval('[data-id=w3] .hc-sub', e => e.innerText);
+  ok(wsub.includes('0 / 3 次') && wsub.includes('連續 2 週'), 'shows 0 / 3 次 and 連續 2 週 (' + wsub + ')');
+  ok((await p.$$('[data-id=w3] .wdot')).length === 3, 'three progress dots');
+  await p.click('[data-act=toggle][data-id=w3]');
+  wsub = await p.$eval('[data-id=w3] .hc-sub', e => e.innerText);
+  ok(wsub.includes('1 / 3 次') && wsub.includes('連續 2 週') && (await p.$$('[data-id=w3] .wdot.on')).length === 1, 'tap today: 1 / 3, current week does not break streak');
+  await p.evaluate(() => { document.getElementById('toast').hidden = true; });
+  await p.click('[data-act=toggle][data-id=w1]');
+  ok((await p.$eval('#toast', e => e.innerText)).includes('本週達成'), 'weekly goal reached toast');
+  wsub = await p.$eval('[data-id=w1] .hc-sub', e => e.innerText);
+  ok(wsub.includes('本週達成 ✓') && wsub.includes('連續 2 週'), 'met week shows 本週達成 and counts (' + wsub + ')');
+  ok(!(await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'weekly taps do not complete the day');
+  await p.click('[data-act=toggle][data-id=c1]');
+  ok(await p.$eval('.sum-card', e => e.classList.contains('alldone')), 'daily all-done not blocked by unmet weekly habit');
+  await p.reload(); d = await db(p);
+  ok(d.habits.find(h => h.id === 'w3').freq === 'week' && d.habits.find(h => h.id === 'w3').perWeek === 3, 'freq survives reload');
+  await p.click('[data-tab=stats]');
+  ok(/週 · 共 \d+ 次/.test(await p.$eval('#main', e => e.innerText)), 'stats ranking counts weekly habits in weeks');
+  await p.click('[data-tab=settings]');
+  ok((await p.$eval('#main', e => e.innerText)).includes('每週 3 次'), 'settings list shows 每週 3 次');
+  await p.click('[data-act=new][data-kind=good]').catch(async () => { await p.click('[data-act=new]'); });
+  await p.fill('#hname', '游泳'); await p.click('[data-act=freq][data-v=week]');
+  ok(!(await p.$('[data-act=dayt]')) && (await p.$eval('#pwv', e => e.textContent)) === '3', 'weekly mode hides weekday picker, default 3');
+  await p.click('[data-act=pwstep][data-n="-1"]'); await p.click('[data-act=save]');
+  d = await db(p); const sw = d.habits.find(h => h.name === '游泳');
+  ok(sw && sw.freq === 'week' && sw.perWeek === 2, 'new weekly habit saved with 2 per week');
+  await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=w3]');
+  await p.fill('#hname', '閱讀 20 頁');
+  ok(!(await p.isVisible('[data-act=fitlink]')), 'renaming an auto-icon habit away from exercise hides the 運動 link');
+  await p.click('[data-act=save]'); d = await db(p);
+  ok(d.habits.find(h => h.id === 'w3').icon === 'book', 'auto-picked icon follows the new name');
+  await p.click('[data-act=edit][data-id=w3]'); await p.click('#icobtn'); await p.click('[data-act=seticon][data-v=music]');
+  await p.fill('#hname', '跑步'); await p.click('[data-act=save]'); d = await db(p);
+  ok(d.habits.find(h => h.id === 'w3').icon === 'music', 'a hand-picked icon is kept when renaming');
+  await done(p, 'weekly');
+
   console.log('• 更新紀錄');
   p = await page(b);
   await p.click('[data-tab=settings]');
   ok(!!(await p.$('.clink .cldot')), 'dot shown for an unseen version');
   await p.click('[data-act=changelog]');
   const ver = await p.evaluate(() => document.documentElement.innerHTML.match(/APP_VER='([^']+)'/)[1]);
-  ok((await p.$eval('.cl-item.cur .cl-h b', e => e.textContent)) === ver, 'newest changelog entry matches APP_VER (' + ver + ')');
-  ok((await p.$$('.cl-item')).length > 10, 'history listed');
+  ok((await p.content()).match(/var CHANGELOG=\[\s*\['([^']+)'/)[1] === ver, 'newest changelog entry matches APP_VER (' + ver + ')');
+  ok((await p.$eval('.cl-item.cur .cl-v', e => e.textContent)).endsWith('-' + ver.split('-').pop()), 'newest day card shows the current version range');
+  ok((await p.$$eval('.cl-item .cl-h b', x => x.map(e => e.textContent))).filter(t => t.startsWith('10/17')).length <= 1, 'one card per day');
+  ok((await p.$$('.cl-item')).length >= 5, 'history listed by day');
   await p.evaluate(() => { document.getElementById('toast').hidden = true; });
   for (let i = 0; i < 4; i++) await p.click('[data-act=cltap]');
   ok(await p.$eval('#toast', e => e.hidden), 'no easter egg before 5 taps');
