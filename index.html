@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ptsWqpEPvHy59XQxSff8qtSEbyuUDuMiTgKwOklxEgs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-L/9aZp1ZfnEaKDd/hxHTWFUdcdzk8CiCnXSs+iR64Ic='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,6 +114,12 @@ button.hcard{padding-right:16px}
 .plus.bad{background:var(--bad);color:var(--on-bad)}
 .cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
 .cnt.zero{color:var(--faint)}
+.lockbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);font-size:13px;color:var(--muted)}
+.lockbar>span{display:flex;align-items:center;gap:6px;min-width:0}.lockbar svg{flex:0 0 auto}
+.lockbar .ghost{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.lockbar.open{border-color:var(--good);color:var(--good)}
+.page.locked .hcard,.page.locked .moods,.page.locked .restbar{opacity:.55}
+.row-btn.lockn{flex-direction:column;align-items:stretch;gap:10px}.lockn .useg{display:grid;grid-template-columns:repeat(4,1fr)}.lockn .useg button{white-space:nowrap}
 .cnt.of{min-width:44px;font-size:18px}.cnt small{font-size:12px;font-weight:700;color:var(--muted);margin-left:1px}
 .gbar{height:4px;border-radius:2px;background:var(--line);margin-top:6px;max-width:140px;overflow:hidden}.gbar i{display:block;height:100%;background:var(--good);border-radius:2px;transition:width .25s}
 .goalv{font-size:24px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums}
@@ -1068,7 +1074,7 @@ function normalize(d){
     var mn=Math.floor(+l.min);if(isFinite(mn)&&mn>0)o.min=Math.min(mn,1440);
     if(Object.keys(o).length)flogs[k]=o;});
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k))R[k]=d[k];});
@@ -1237,7 +1243,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.17-4';
+var APP_VER='2026.10.17-5';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1247,6 +1253,13 @@ function val(k,id){var l=db.logs[k];return (l&&l.h&&l.h[id])||0;}
 /* ---------- diary ---------- */
 var DPROMPTS=['今天最有感的一件事？','今天想感謝什麼？','有什麼事讓你卡住？','今天學到了什麼？','明天最想做好的一件事？','今天有什麼小小的進步？','如果重來一次，今天想改變什麼？'];
 function dOn(){return !!db.settings.diary;}
+/* past days are locked so a stray tap can't change old records */
+var LOCK_NS=[1,2,3,7];
+function lockN(){return LOCK_NS.indexOf(db.settings.lockN)>=0?db.settings.lockN:1;}
+function dayLocked(k){return !db.settings.lockOff&&diffDays(todayKey(),k)>lockN()&&ui.unlocked!==k;}
+function lockBar(k){if(db.settings.lockOff||diffDays(todayKey(),k)<=lockN())return '';
+  if(ui.unlocked===k)return '<div class="lockbar open"><span>正在編輯這天</span><button class="ghost" data-act="relock">'+I.lock+'鎖回去</button></div>';
+  return '<div class="lockbar"><span>'+I.lock+'已鎖定，避免不小心改到過去的紀錄</span><button class="ghost" data-act="unlockday">編輯這天</button></div>';}
 function dText(k){var l=db.logs[k];return (l&&l.diary&&l.diary.t)||'';}
 function dQ(k){var l=db.logs[k];return (l&&l.diary&&l.diary.q)||'';}
 function dCount(t){return (t||'').replace(/\s/g,'').length;}
@@ -1930,11 +1943,12 @@ function vToday(){
   var done=gs.filter(function(h){return isDone(h,k);}).length;
   var badSum=bads.reduce(function(a,h){return a+val(k,h.id);},0);
   var log=db.logs[k]||{};
-  var s='<div class="page"><header class="datebar">'+
+  var s='<div class="page'+(dayLocked(k)?' locked':'')+'"><header class="datebar">'+
     '<button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天">'+I.left+'</button>'+
     '<div class="datebar-mid"><div class="sub">'+dateSub(k)+'</div><h1 class="h1">'+dateLabel(k)+'</h1></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></header>';
   if(k!==t)s+='<button class="linkbtn" data-act="gotoday">回到今天</button>';
+  s+=lockBar(k);
   var a2b=a2Banner();s+=a2b||bkBanner();
   if(!goods.length&&!bads.length){
     s+='<div class="empty"><div class="empty-t">還沒有習慣</div><p>新增幾個想養成、或想戒掉的習慣。之後每天打開，點幾下就記好了。</p>'+
@@ -2026,6 +2040,13 @@ function vSettings(){
   var arch=db.habits.filter(function(h){return h.archived;}).length;
   var pOn=!!db.settings.pnl;
   var dO=dOn(),dP=!db.settings.dNoPrompt;
+  var lkOn=!db.settings.lockOff;
+  s+='<section class="sec"><h2 class="sec-t">過去的紀錄</h2><div class="list">'+
+    '<div class="row-btn"'+(lkOn?'':' style="border-bottom:0"')+'><span class="row-l"><span>鎖定過去的紀錄</span><span class="row-sub">避免翻舊紀錄時不小心改到，要改再按「編輯這天」</span></span>'+
+    '<button class="switch" role="switch" aria-checked="'+lkOn+'" aria-label="鎖定過去的紀錄" data-act="locktoggle"><span class="knob"></span></button></div>'+
+    (lkOn?'<div class="row-btn subrow lockn" style="border-bottom:0"><span class="row-l"><span>可以直接修改到</span><span class="row-sub">更早的日子要先解鎖</span></span>'+
+    '<span class="useg">'+LOCK_NS.map(function(v){return '<button class="'+(lockN()===v?'on':'')+'" data-act="lockn" data-v="'+v+'" aria-pressed="'+(lockN()===v)+'">'+(v===1?'昨天':v+' 天前')+'</button>';}).join('')+'</span></div>':'')+
+    '</div><p class="small muted">只鎖習慣、心情和休息卡。備註和日記本來就有自己的確認鎖定。</p></section>';
   s+='<section class="sec"><h2 class="sec-t">額外功能</h2><div class="list">'+
     '<div class="row-btn"><span class="row-l"><span>記錄未實現損益</span><span class="row-sub">每天記一次帳面損益，統計頁看走勢</span></span>'+
     '<button class="switch" role="switch" aria-checked="'+pOn+'" aria-label="記錄未實現損益" data-act="pnltoggle"><span class="knob"></span></button></div>'+
@@ -2149,6 +2170,7 @@ function toast(msg,ms,actHtml){var el=$('#toast');el.innerHTML=esc(msg)+(actHtml
 
 /* ---------- render ---------- */
 function render(){
+  if(ui.unlocked&&ui.unlocked!==ui.date)ui.unlocked=null;
   if(ui.view==='today'&&needOnboard()){if(!ui.ob)ui.ob=obNew();ui.view='onboard';}
   if(ui.view==='onboard'&&!ui.ob)ui.view='today';
   if(DEMO){var dbar=$('#demobar');if(dbar)dbar.innerHTML=demoBarHTML();}
@@ -2164,7 +2186,7 @@ function render(){
   if(ui.celAnim){var ce=typeof ui.celAnim==='string'?main.querySelector('[data-id="'+ui.celAnim+'"] .check, [data-act=inc][data-id="'+ui.celAnim+'"]'):null;if(ce)ce.classList.add('pop');ui.celAnim=null;}
   if(ui.top){main.scrollTop=0;ui.top=false;}
 }
-function go(view){ui.view=view;ui.top=true;ui.confirmDel=false;}
+function go(view){ui.view=view;ui.top=true;ui.confirmDel=false;ui.unlocked=null;}
 
 function saveDraft(){
   var d=ui.draft,name=(d.name||'').trim();
@@ -2259,9 +2281,15 @@ function tryImport(text){
 }
 
 /* ---------- events ---------- */
+var LOCKED_ACTS=['toggle','inc','dec','mood','userest','unrest'];
 function act(a,b){
   var t=todayKey(),id=b.dataset.id,n,k,h,l;
+  if(LOCKED_ACTS.indexOf(a)>=0&&ui.view==='today'&&dayLocked(ui.date)){toast('這天已鎖定，按上方「編輯這天」才能修改',2400);return;}
   switch(a){
+    case 'unlockday': ui.unlocked=ui.date;break;
+    case 'relock': ui.unlocked=null;break;
+    case 'locktoggle': db.settings.lockOff=!db.settings.lockOff;save();toast(db.settings.lockOff?'已關閉，過去的紀錄可以直接修改':'已開啟，過去的紀錄會先鎖住');break;
+    case 'lockn': n=+b.dataset.v;if(LOCK_NS.indexOf(n)>=0){db.settings.lockN=n;save();}break;
     case 'tab': go(b.dataset.tab);if((ui.view==='today'||ui.view==='fit')&&ui.follow)ui.date=t;break;
     case 'day': k=addDays(ui.date,+b.dataset.n);if(k>t)return;ui.date=k;ui.follow=k===t;break;
     case 'noteedit': ui.noteEdit=ui.date;render();var ta=document.getElementById('note');if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}return;

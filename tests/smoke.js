@@ -169,6 +169,30 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await p.$eval('.hc-sub', e => e.innerText)).includes('連續 2 天'), 'streak continues');
   await done(p, 'goal');
 
+  console.log('• past days are locked');
+  const lockSeed = st => ({ 'habit-tracker-v1': { v: 1, settings: st || {}, rewards: [], redeemed: [], logs: {}, habits: [
+    { id: 'k1', name: '伸展', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) }] } });
+  p = await page(b, lockSeed());
+  await p.click('[data-act=day][data-n="-1"]');
+  ok(!(await p.$('.lockbar')), 'yesterday is not locked');
+  await p.click('[data-act=toggle][data-id=k1]'); ok((await db(p)).logs[daysAgo(1)].h.k1 === 1, 'yesterday can be checked directly');
+  await p.click('[data-act=day][data-n="-1"]');
+  ok(!!(await p.$('.page.locked .lockbar')), 'two days ago is locked');
+  await p.click('[data-act=toggle][data-id=k1]'); await p.click('[data-act=mood][data-i="3"]');
+  ok(!(await db(p)).logs[daysAgo(2)], 'locked day ignores taps');
+  ok((await p.$eval('#toast', e => e.innerText)).includes('編輯這天'), 'locked tap explains how to unlock');
+  await p.click('[data-act=unlockday]'); await p.click('[data-act=toggle][data-id=k1]');
+  ok((await db(p)).logs[daysAgo(2)].h.k1 === 1 && !!(await p.$('.lockbar.open')), 'unlock lets you edit that day');
+  await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="1"]');
+  ok(!!(await p.$('.page.locked')), 'leaving the day locks it again');
+  await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=lockn][data-v="3"]');
+  await p.click('[data-act=tab][data-tab=today]'); if (await p.$('[data-act=gotoday]')) await p.click('[data-act=gotoday]');
+  await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="-1"]');
+  ok(!(await p.$('.lockbar')), 'lock after 3 days: 2 days ago editable');
+  await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=locktoggle]');
+  ok((await db(p)).settings.lockOff === true && !(await p.$('[data-act=lockn]')), 'lock can be turned off');
+  await done(p, 'lock');
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
