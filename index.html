@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-0963Xb7KUfZHxK6xUM9j2vVRVroSSV3w8hTyc+UIWPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-QX+80HkYVeuK0m/Q0c0fv5sOEIHdatKjbOc+4MJhk6I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -780,6 +780,12 @@ function fitSync(k){
   });
   if(changed){var L=db.logs[k]||(db.logs[k]={});if(fa.length)L.fa=fa;else delete L.fa;tidy(k);}
 }
+/* today card: what today's 運動 adds up to, e.g. 重訓 30 分 ＋ 有氧 20 分 */
+function fitCardLine(h,k,on){var fm=fitMinutes(k),tg=fitTarget(h),l=fLog(k)||{},parts=[];
+  if(fm.s)parts.push('重訓 '+fm.s+' 分');else if(l.s&&l.s.length)parts.push('有重訓');
+  if(fm.c)parts.push('有氧 '+fm.c+' 分');else if(l.c&&l.c.length)parts.push('有氧');
+  if(!parts.length)return on?'':(tg?'目標 '+tg+' 分':'');
+  var t=parts.join(' ＋ ');if(!on&&tg&&fm.tot<tg)t+=' · 還差 '+(tg-fm.tot)+' 分';return t;}
 function fitLinkMsg(h,k){var tg=fitTarget(h),fm=fitMinutes(k),on=val(k,h.id)>0;
   if(!tg)return '「'+esc(h.name)+'」：這天有運動紀錄就自動打勾'+(on?'，已打勾 ✓':'');
   return '「'+esc(h.name)+'」：有氧 '+fm.c+' 分 ＋ 重訓 '+fm.s+' 分 ＝ '+fm.tot+' 分，'+(on?'已打勾 ✓':'還差 '+(tg-fm.tot)+' 分');}
@@ -1247,7 +1253,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.17-6';
+var APP_VER='2026.10.17-7';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1897,6 +1903,7 @@ function goodCard(h,k){
   var v=val(k,h.id),gl=goalOn(h,k),on=v>=gl,st=goodStreak(h,k);
   var sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';
   var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);
+  if(h.method==='check'&&h.fitLink&&fOn()){var fl=fitCardLine(h,k,on);if(fl)sub=fl+(st>0?' · '+sub:(svd?' · 省下 NT$'+fmtN(svd):''));}
   if(h.method==='count'){
     return '<div class="hcard'+(on?' g-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+(gl>1||hUnit(h)!=='次'?fmtN(v)+(gl>1?' / '+fmtN(gl):'')+(hUnit(h)==='次'?' 次':' '+esc(hUnit(h)))+' · ':'')+sub+'</div>'+(gl>1?'<div class="gbar" aria-hidden="true"><i style="width:'+Math.min(100,Math.round(v/gl*100))+'%"></i></div>':'')+'</div></div>'+counter(h.id,v,'good')+'</div>';
   }

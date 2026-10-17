@@ -72,7 +72,17 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=fmin][data-n="5"]'); for (let i = 0; i < 5; i++) await p.click('[data-act=fmin][data-n="5"]');
   d = await db(p); ok(d.logs[T] && d.logs[T].h && d.logs[T].h.g1 === 1, 'linked habit auto-checked at 30 min');
   await p.click('[data-act=fmin][data-n="-5"]'); d = await db(p); ok(!(d.logs[T] && d.logs[T].h && d.logs[T].h.g1), 'auto check removed below target');
+  await p.click('[data-tab=today]');
+  ok((await p.$eval('.hc-sub', e => e.innerText)).includes('重訓 25 分 · 還差 5 分'), 'today card shows 重訓 minutes and what is left');
   await done(p, 'fitness');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true }, rewards: [], redeemed: [], logs: { [T]: { h: { g1: 1 }, fa: ['g1'] } },
+    fit: { ex: [], ctypes: [], logs: { [T]: { c: [{ id: 'x1', type: '跑步', min: 20 }], min: 30 } } },
+    habits: [{ id: 'g1', name: '運動 30 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10), fitLink: true },
+             { id: 'g2', name: '伸展', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10) }] } });
+  const subs = await p.$$eval('.hc-sub', x => x.map(e => e.innerText));
+  ok(subs[0].startsWith('重訓 30 分 ＋ 有氧 20 分 · '), 'linked card shows 重訓 30 分 ＋ 有氧 20 分 (' + subs[0] + ')');
+  ok(!subs[1].includes('重訓'), 'unlinked habits unchanged');
+  await done(p, 'fitness line');
 
   console.log('• backup: reminder, snooze, encrypted round trip');
   p = await page(b, { 'habit-tracker-v1': { v: 1, logs: { [daysAgo(20)]: { note: '舊的' } }, settings: {}, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '運動', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(20) }] } });
