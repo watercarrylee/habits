@@ -82,6 +82,10 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   const subs = await p.$$eval('.hc-sub', x => x.map(e => e.innerText));
   ok(subs[0].startsWith('重訓 30 分 ＋ 有氧 20 分 · '), 'linked card shows 重訓 30 分 ＋ 有氧 20 分 (' + subs[0] + ')');
   ok(!subs[1].includes('重訓'), 'unlinked habits unchanged');
+  await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=g1]'); await p.click('[data-act=fitlink]'); await p.click('[data-act=save]');
+  await p.click('[data-tab=fit]'); ok(!!(await p.$('[data-act=fmin][data-n="5"]')), '重訓時間 shown even with no linked habit');
+  await p.click('[data-act=fmin][data-n="5"]'); ok((await db(p)).fit.logs[T].min === 35, '重訓時間 adjustable without a link');
+  ok(!(await p.$eval('#main', e => e.innerText)).includes('這天沒有運動紀錄'), 'minutes alone count as a record');
   await done(p, 'fitness line');
 
   console.log('• backup: reminder, snooze, encrypted round trip');
@@ -166,7 +170,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     { id: 'w1', name: '喝水', kind: 'good', method: 'count', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10) }] } });
   await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=edit][data-id=w1]');
   for (let i = 0; i < 3; i++) await p.click('[data-act=goalstep][data-n="1"]');
-  ok((await p.$eval('#hgoal', e => e.value)) === '4' && (await p.content()).includes('新目標從今天開始'), 'editor sets goal and explains it starts today');
+  ok((await p.$eval('#hgoal', e => e.value)) === '4' && (await p.$eval('#ghint', e => e.innerText)).includes('新目標從今天開始'), 'editor sets goal and explains it starts today');
   await p.click('[data-act=save]'); d = await db(p);
   ok(JSON.stringify(d.habits[0].goalHist) === JSON.stringify([{ from: T, n: 4 }]), 'goal stored from today');
   await p.click('[data-act=tab][data-tab=today]');
@@ -191,14 +195,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(u.unit === 'ml' && u.step === 500 && d.logs[daysAgo(1)].h.u1 === 1500 && d.logs[daysAgo(2)].h.u1 === 2000, 'past presses converted to ml');
   ok(JSON.stringify(u.goalHist) === JSON.stringify([{ from: T, n: 2000 }]), 'goal 2000 from today');
   await p.click('[data-act=tab][data-tab=rewards]');
-  ok((await p.content()).includes('NT$70'), 'savings unchanged after conversion (7 presses x 10)');
+  ok((await p.$eval('#main', e => e.innerText)).includes('NT$70'), 'savings unchanged after conversion (7 presses x 10)');
   await p.click('[data-act=tab][data-tab=today]');
   await p.click('[data-act=inc][data-id=u1]'); await p.click('[data-act=inc][data-id=u1]');
   ok((await db(p)).logs[T].h.u1 === 1000 && (await p.$eval('.hc-sub', e => e.innerText)).includes('1,000 / 2,000 ml'), 'each tap adds 500 ml, shows 1,000 / 2,000 ml');
   await p.click('[data-act=dec][data-id=u1]'); ok((await db(p)).logs[T].h.u1 === 500, 'minus removes 500 ml');
   await p.click('[data-act=inc][data-id=b1]'); ok((await db(p)).logs[T].h.b1 === 1, 'bad habit +1');
   await p.click('[data-act=tab][data-tab=stats]');
-  ok(/本月共 .* ml · 平均每天/.test(await p.content()), 'stats show monthly total and daily average');
+  ok(/本月共 .* ml · 平均每天/.test(await p.$eval('#main', e => e.innerText)), 'stats show monthly total and daily average');
   await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=edit][data-id=u1]');
   ok(!(await p.$eval('#ghint', e => e.innerText)).includes('換算'), 'no conversion warning when step unchanged');
   await p.click('[data-act=unitchip][data-v=杯]'); await p.click('[data-act=save]'); d = await db(p); u = d.habits.find(h => h.id === 'u1');

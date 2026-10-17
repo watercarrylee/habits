@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-QX+80HkYVeuK0m/Q0c0fv5sOEIHdatKjbOc+4MJhk6I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-HNv1Hqv/CPlTLM7iwGQ57Z/H7jlIFL9IsTg0HqHigRI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -824,13 +824,12 @@ function fitLogHTML(){
     cc.forEach(function(c){s+='<button class="fcard center" data-act="cedit" data-id="'+c.id+'">'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b></span><span class="fmins">'+c.min+' 分鐘</span></button>';});
     s+='</section>';
   }
-  if(!ss.length&&!cc.length){
+  if(!ss.length&&!cc.length&&!(fLog(k)||{}).min){
     s+='<div class="empty" style="align-items:center;text-align:center"><div class="empty-t">這天沒有運動紀錄</div><p>'+(k<t?'補記一下，趨勢圖會比較完整。':'練完記下來，之後就能看到進步。')+'</p></div>';
   }
-  var linked=fitLinked();
-  if(linked.length){
-    var fm=fitMinutes(k);
-    s+='<section class="fmin"><div class="fmin-r"><span class="row-l"><span>重訓練了幾分鐘</span><span class="row-sub">選填 · 連動習慣時和有氧分鐘加總</span></span>'+
+  var linked=fitLinked(),fm=fitMinutes(k);
+  {
+    s+='<section class="fmin"><div class="fmin-r"><span class="row-l"><span>重訓時間</span><span class="row-sub">選填 · '+(linked.length?'會和有氧分鐘加總，用來自動打勾':'記下今天重訓練了多久')+'</span></span>'+
       '<span class="stepper"><button data-act="fmin" data-n="-5" aria-label="減 5 分鐘"'+(fm.s?'':' disabled')+'>−</button><span class="v">'+(fm.s?fm.s+' 分':'—')+'</span><button class="go" data-act="fmin" data-n="5" aria-label="加 5 分鐘">＋</button></span></div>'+
       linked.map(function(h){return '<div class="flink">'+fitLinkMsg(h,k)+'</div>';}).join('')+'</section>';
   }
