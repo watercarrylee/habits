@@ -211,7 +211,10 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!(await p.$('[data-act=amt]')), 'no tap-to-type on the number');
   await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=fittoggle]');
   await p.click('[data-act=edit][data-id=u1]'); ok(!(await p.$('[data-act=fitlink]')), 'counted habits cannot be linked to 運動');
-  await p.click('[data-act=method][data-v=check]'); ok(!!(await p.$('[data-act=fitlink]')), 'check habits can be linked');
+  await p.click('[data-act=method][data-v=check]'); ok(!(await p.isVisible('[data-act=fitlink]')), 'non-exercise habit (喝水) hides the 運動 link');
+  await p.fill('#hname', '晨跑'); ok(await p.isVisible('[data-act=fitlink]'), 'typing an exercise name shows the 運動 link');
+  const order = await p.$$eval('.field .lbl, .field label.lbl, .savebox .lbl', x => x.map(e => e.textContent));
+  ok(order.findIndex(t => t.includes('頻率')) < order.findIndex(t => t.includes('省下')), '頻率 comes before 省下 in the editor');
   await done(p, 'units');
 
   console.log('• past days are locked');
@@ -287,8 +290,10 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!!(await p.$('.clink .cldot')), 'dot shown for an unseen version');
   await p.click('[data-act=changelog]');
   const ver = await p.evaluate(() => document.documentElement.innerHTML.match(/APP_VER='([^']+)'/)[1]);
-  ok((await p.$eval('.cl-item.cur .cl-h b', e => e.textContent)) === ver, 'newest changelog entry matches APP_VER (' + ver + ')');
-  ok((await p.$$('.cl-item')).length > 10, 'history listed');
+  ok((await p.content()).match(/var CHANGELOG=\[\s*\['([^']+)'/)[1] === ver, 'newest changelog entry matches APP_VER (' + ver + ')');
+  ok((await p.$eval('.cl-item.cur .cl-v', e => e.textContent)).endsWith('-' + ver.split('-').pop()), 'newest day card shows the current version range');
+  ok((await p.$$eval('.cl-item .cl-h b', x => x.map(e => e.textContent))).filter(t => t.startsWith('10/17')).length <= 1, 'one card per day');
+  ok((await p.$$('.cl-item')).length >= 5, 'history listed by day');
   await p.evaluate(() => { document.getElementById('toast').hidden = true; });
   for (let i = 0; i < 4; i++) await p.click('[data-act=cltap]');
   ok(await p.$eval('#toast', e => e.hidden), 'no easter egg before 5 taps');

@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-eVARD3/b5NOq2jTFWfmzrzpoj5yjx/NXVn1wXuwKVEY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-pitUt9di0FHq9K0fW/tGJlxJxvm4JYOHe8bbn/qDC7s='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -121,7 +121,7 @@ button.hcard{padding-right:16px}
 .cl{display:flex;flex-direction:column;gap:12px}
 .cl-item{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px}
 .cl-item.cur{border-color:var(--good)}
-.cl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.cl-h b{font-size:15px;font-variant-numeric:tabular-nums}.cl-h span{font-size:12px;color:var(--muted);white-space:nowrap}
+.cl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.cl-h b{font-size:15px;font-variant-numeric:tabular-nums}.cl-h .cl-v{font-variant-numeric:tabular-nums}.cl-h span{font-size:12px;color:var(--muted);white-space:nowrap}
 .cl-item ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.5}
 .cl-foot{display:block;margin:4px auto 0;border:0;background:transparent;font:inherit;font-size:13px;padding:8px 12px;-webkit-tap-highlight-color:transparent}
 .lockbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);font-size:13px;color:var(--muted)}
@@ -774,6 +774,8 @@ function mdw(k){var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日
 
 /* habit link */
 function fitLinked(){return db.habits.filter(function(h){return h.fitLink&&!h.archived&&h.kind==='good'&&h.method==='check';});}
+var SPORT_RE=/運動|健身|重訓|有氧|跑|走路|散步|健走|步|游泳|騎|單車|自行車|瑜珈|瑜伽|伸展|球|拳|爬山|登山|划|跳繩|皮拉提斯|飛輪|舞|攀岩|tabata|hiit|gym/i;
+function fitEligible(d){return !!d.fitLink||d.icon==='fitness'||d.icon==='run'||SPORT_RE.test(d.name||'');}
 function fitTarget(h){var m=String(h.name).match(/(\d+)\s*(分鐘|分|min)/i);return m?+m[1]:0;}
 function fitMinutes(k){var l=fLog(k);if(!l)return {c:0,s:0,tot:0,any:false};var c=(l.c||[]).reduce(function(a,x){return a+x.min;},0),s=l.min||0;
   return {c:c,s:s,tot:c+s,any:!!((l.s&&l.s.length)||(l.c&&l.c.length)||s)};}
@@ -2169,13 +2171,15 @@ var CHANGELOG=[
  [null,'10/13',['習慣紀錄 App 誕生：好習慣打勾、壞習慣計次、心情和備註']]
 ];
 var CLKEY='habit-cl-seen';
-function clSeen(){try{return localStorage.getItem(CLKEY)===APP_VER;}catch(e){return true;}}
-function clMarkSeen(){try{localStorage.setItem(CLKEY,APP_VER);}catch(e){}}
+function clDay(){return APP_VER.split('-')[0];}
+function clSeen(){try{return localStorage.getItem(CLKEY)===clDay();}catch(e){return true;}}
+function clMarkSeen(){try{localStorage.setItem(CLKEY,clDay());}catch(e){}}
 function vChangelog(){
   var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="back" aria-label="返回習慣設定">'+I.left+'</button><h1 class="h1" style="font-size:22px">更新紀錄</h1><span style="width:44px"></span></header><div class="cl">';
-  CHANGELOG.forEach(function(e,i){
-    s+='<section class="cl-item'+(i===0?' cur':'')+'"><div class="cl-h"><b>'+(e[0]||'早期版本')+'</b><span>'+e[1]+(i===0?' · 目前版本':'')+'</span></div><ul>'+
-      e[2].map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></section>';
+  var groups=[];CHANGELOG.forEach(function(e){var g=groups[groups.length-1];if(g&&g.day===e[1])g.items.push(e);else groups.push({day:e[1],items:[e]});});
+  groups.forEach(function(g,i){var vs=g.items.map(function(e){return e[0];}).filter(Boolean),vr=vs.length?(vs.length>1?vs[vs.length-1]+' ～ '+vs[0].replace(/^.*-/,'-'):vs[0]):'';
+    s+='<section class="cl-item'+(i===0?' cur':'')+'"><div class="cl-h"><b>'+g.day+(i===0?' · 最新':'')+'</b><span class="cl-v">'+vr+'</span></div><ul>'+
+      g.items.map(function(e){return e[2].map(function(x){return '<li>'+esc(x)+'</li>';}).join('');}).join('')+'</ul></section>';
   });
   return s+'</div><button class="small muted cl-foot" data-act="cltap">Aaron × Claude</button></div>';
 }
@@ -2219,7 +2223,6 @@ function vEdit(){
       '<div class="stepval"><input id="hgoal" type="text" inputmode="numeric" value="'+gv+'"><span class="uname">'+esc(du)+'</span></div>'+
       '<button class="stepbtn dark" data-act="goalstep" data-n="1" aria-label="增加目標">+</button></div>'+
       '<p class="hint" id="ghint">'+goalHint(d,isNew)+'</p></div>';}
-  s+=saveField(d);
   if(good){var wkd=d.freq==='week',pw=d.perWeek||3;
     s+='<div class="field"><div class="lbl">頻率</div><div class="seg"><button class="'+(!wkd?'on':'')+'" data-act="freq" data-v="day" aria-pressed="'+(!wkd)+'">固定星期幾</button>'+
       '<button class="'+(wkd?'on':'')+'" data-act="freq" data-v="week" aria-pressed="'+wkd+'">每週幾次</button></div>';
@@ -2232,10 +2235,11 @@ function vEdit(){
   }
   if(good&&chk&&fOn()){
     var tg=fitTarget({name:d.name||''});
-    s+='<div class="field"><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用運動紀錄自動打勾</span><span class="row-sub">預設關閉</span></span>'+
+    s+='<div class="field" id="fitlinkf"'+(fitEligible(d)?'':' hidden')+'><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用運動紀錄自動打勾</span><span class="row-sub">預設關閉</span></span>'+
       '<button class="switch" role="switch" aria-checked="'+!!d.fitLink+'" aria-label="用運動紀錄自動打勾" data-act="fitlink"><span class="knob"></span></button></div>'+
       (d.fitLink?'<p class="hint">'+(tg?'目標 '+tg+' 分鐘（從名稱抓到的數字）。當天「有氧分鐘 ＋ 運動頁填的重訓分鐘」達到 '+tg+' 分就自動打勾。':'名稱裡沒有分鐘數，所以當天只要有任何運動紀錄就自動打勾。')+'紀錄刪掉時，只會取消自動打的勾。</p>':'')+'</div>';
   }
+  s+=saveField(d);
   if(!isNew){
     var relR=db.rewards.filter(function(r){return r.habit===d.id;}).length;
     s+='<div class="danger-zone"><button class="row-btn" data-act="archive">封存（保留過去紀錄，不再出現在今天）</button>'+
@@ -2599,7 +2603,7 @@ document.addEventListener('input',function(e){
   var el=e.target;
   if(el.tagName==='SELECT'&&fitSelect(el))return;
   if(el.id==='note'){ui.noteEdit=ui.date;var nf=document.getElementById('note-foot');if(nf)nf.hidden=!el.value.trim();var l=db.logs[ui.date]||(db.logs[ui.date]={});l.note=el.value;tidy(ui.date);save();}
-  else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;
+  else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;var flf=$('#fitlinkf');if(flf)flf.hidden=!fitEligible(ui.draft);
     if(!ui.draft.iconTouched){var g=guessIcon(el.value);if(g!==ui.draft.icon){ui.draft.icon=g;var ib=$('#icobtn');if(ib){ib.innerHTML=g?icoSvg(g,24):I.plus;ib.classList.toggle('empty',!g);ib.setAttribute('aria-label','選擇圖示，目前：'+(ICONS[g]?ICONS[g][0]:'沒有圖示'));}
       Array.prototype.forEach.call(document.querySelectorAll('.icogrid [data-act=seticon]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.v===g));});}}}
   else if(el.id==='pastebox'&&ui.sheet){ui.sheet.paste=el.value;}
