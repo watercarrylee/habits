@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-IcNh+Wnu/qgFSXjHhIuVukEBxzlSpv74Yga+0RXnnns='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-fz1tpSnbjXGNBNpUMN805qWWpSgWYBdPkVHacjAP3rM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2134,7 +2134,7 @@ function vChangelog(){
     s+='<section class="cl-item'+(i===0?' cur':'')+'"><div class="cl-h"><b>'+(e[0]||'早期版本')+'</b><span>'+e[1]+(i===0?' · 目前版本':'')+'</span></div><ul>'+
       e[2].map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></section>';
   });
-  return s+'</div><p class="small muted cl-foot">由 Aaron 和 Claude 一起慢慢做出來的 🌱</p></div>';
+  return s+'</div><p class="small muted cl-foot">Aaron × Claude</p></div>';
 }
 function vArchived(){
   var list=db.habits.filter(function(h){return h.archived;});
