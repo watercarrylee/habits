@@ -282,6 +282,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=pwstep][data-n="-1"]'); await p.click('[data-act=save]');
   d = await db(p); const sw = d.habits.find(h => h.name === '游泳');
   ok(sw && sw.freq === 'week' && sw.perWeek === 2, 'new weekly habit saved with 2 per week');
+  await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=w3]');
+  await p.fill('#hname', '閱讀 20 頁');
+  ok(!(await p.isVisible('[data-act=fitlink]')), 'renaming an auto-icon habit away from exercise hides the 運動 link');
+  await p.click('[data-act=save]'); d = await db(p);
+  ok(d.habits.find(h => h.id === 'w3').icon === 'book', 'auto-picked icon follows the new name');
+  await p.click('[data-act=edit][data-id=w3]'); await p.click('#icobtn'); await p.click('[data-act=seticon][data-v=music]');
+  await p.fill('#hname', '跑步'); await p.click('[data-act=save]'); d = await db(p);
+  ok(d.habits.find(h => h.id === 'w3').icon === 'music', 'a hand-picked icon is kept when renaming');
   await done(p, 'weekly');
 
   console.log('• 更新紀錄');

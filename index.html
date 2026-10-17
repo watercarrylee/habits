@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-pitUt9di0FHq9K0fW/tGJlxJxvm4JYOHe8bbn/qDC7s='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-5caPDPmTQ8drKA59XQjPqB8MwE/vKVZlvPWPWae/ktQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2150,7 +2150,7 @@ function vSettings(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
- ['2026.10.17-10','10/17',['好習慣可以設「每週幾次，哪天都可以」，例如一週運動 3 次','今天頁多了「這週」區塊，顯示本週進度和連續幾週','統計排行用「週」計算這類習慣']],
+ ['2026.10.17-10','10/17',['編輯習慣時，自動選的圖示會跟著名稱更新；頻率移到前面','「用運動紀錄自動打勾」只在運動類的習慣出現','好習慣可以設「每週幾次，哪天都可以」，例如一週運動 3 次','今天頁多了「這週」區塊，顯示本週進度和連續幾週','統計排行用「週」計算這類習慣']],
  ['2026.10.17-9','10/17',['藏了一個小彩蛋']],
  ['2026.10.17-8','10/17',['App 裡多了「更新紀錄」，就是這一頁']],
  ['2026.10.17-7','10/17',['連動運動的習慣，今天頁直接顯示「重訓 30 分 ＋ 有氧 20 分」','運動頁一定會出現「重訓時間」，沒連動習慣也能記']],
@@ -2524,7 +2524,7 @@ function act(a,b){
     case 'pickday': ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
     case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「習慣設定」修改');break;
     case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
-    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:true,save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
+    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
     case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
     case 'iconpick': ui.pickIcon=!ui.pickIcon;break;
     case 'seticon': ui.draft.icon=b.dataset.v;ui.draft.iconTouched=true;ui.pickIcon=false;break;
@@ -2603,7 +2603,7 @@ document.addEventListener('input',function(e){
   var el=e.target;
   if(el.tagName==='SELECT'&&fitSelect(el))return;
   if(el.id==='note'){ui.noteEdit=ui.date;var nf=document.getElementById('note-foot');if(nf)nf.hidden=!el.value.trim();var l=db.logs[ui.date]||(db.logs[ui.date]={});l.note=el.value;tidy(ui.date);save();}
-  else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;var flf=$('#fitlinkf');if(flf)flf.hidden=!fitEligible(ui.draft);
+  else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;var flf=$('#fitlinkf');if(flf)flf.hidden=!fitEligible({fitLink:ui.draft.fitLink,name:el.value,icon:ui.draft.iconTouched?ui.draft.icon:guessIcon(el.value)});
     if(!ui.draft.iconTouched){var g=guessIcon(el.value);if(g!==ui.draft.icon){ui.draft.icon=g;var ib=$('#icobtn');if(ib){ib.innerHTML=g?icoSvg(g,24):I.plus;ib.classList.toggle('empty',!g);ib.setAttribute('aria-label','選擇圖示，目前：'+(ICONS[g]?ICONS[g][0]:'沒有圖示'));}
       Array.prototype.forEach.call(document.querySelectorAll('.icogrid [data-act=seticon]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.v===g));});}}}
   else if(el.id==='pastebox'&&ui.sheet){ui.sheet.paste=el.value;}
