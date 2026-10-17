@@ -238,6 +238,17 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await db(p)).settings.lockOff === true && !(await p.$('[data-act=lockn]')), 'lock can be turned off');
   await done(p, 'lock');
 
+  console.log('• 更新紀錄');
+  p = await page(b);
+  await p.click('[data-tab=settings]');
+  ok(!!(await p.$('.clink .cldot')), 'dot shown for an unseen version');
+  await p.click('[data-act=changelog]');
+  const ver = await p.evaluate(() => document.documentElement.innerHTML.match(/APP_VER='([^']+)'/)[1]);
+  ok((await p.$eval('.cl-item.cur .cl-h b', e => e.textContent)) === ver, 'newest changelog entry matches APP_VER (' + ver + ')');
+  ok((await p.$$('.cl-item')).length > 10, 'history listed');
+  await p.click('[data-act=back]'); ok(!(await p.$('.clink .cldot')), 'dot cleared after viewing');
+  await done(p, 'changelog');
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
