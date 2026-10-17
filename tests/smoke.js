@@ -292,6 +292,23 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(d.habits.find(h => h.id === 'w3').icon === 'music', 'a hand-picked icon is kept when renaming');
   await done(p, 'weekly');
 
+  console.log('• 常見問題');
+  p = await page(b, lockSeed());
+  await p.click('[data-tab=settings]'); await p.click('[data-act=faq]');
+  ok((await p.$$('.faq-cat')).length === 5 && (await p.$$('.faq-cat[open]')).length === 0, 'five categories, all collapsed');
+  await p.click('#faq-count summary'); ok(await p.isVisible('#faq-count .faq-item'), 'tapping a category shows its Q&A');
+  await p.click('[data-act=faqback]'); ok((await p.$eval('#main', e => e.innerText)).includes('常見問題'), 'back returns to settings');
+  await p.click('[data-act=edit][data-id=k1]'); await p.fill('#hname', '伸展 10 分鐘');
+  await p.click('.lbl-q [data-act=faq]');
+  ok(await p.$eval('#faq-habit', e => e.open) && (await p.$$('.faq-cat[open]')).length === 1, '? next to 頻率 opens 習慣與頻率');
+  await p.click('[data-act=faqback]'); ok((await p.$eval('#hname', e => e.value)) === '伸展 10 分鐘', 'back returns to the editor with edits kept');
+  await p.click('[data-act=cancel]').catch(() => {}); await p.click('[data-tab=today]');
+  if (await p.$('[data-act=gotoday]')) await p.click('[data-act=gotoday]');
+  await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="-1"]');
+  await p.click('.lockbar [data-act=faq]'); ok(await p.$eval('#faq-edit', e => e.open), 'lock ? opens 紀錄與編輯');
+  await p.click('[data-act=faqback]'); ok(!!(await p.$('.page.locked')) && (await p.$eval('h1.h1', e => e.textContent)) !== '今天', 'back returns to the same past day');
+  await done(p, 'faq');
+
   console.log('• 更新紀錄');
   p = await page(b);
   await p.click('[data-tab=settings]');
