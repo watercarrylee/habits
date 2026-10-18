@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-OrHakbPSaLBS8ao7WtHhyDjJ4MqhebKxdWUYFALPurk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-LS5chLc5Rg0siLfpuY9De79W4AVHSutucMHRj/SIRIs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -115,7 +115,9 @@ button.hcard{padding-right:16px}
 .cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
 .cnt.zero{color:var(--faint)}
 .chkday{display:flex;flex-direction:column;align-items:center;gap:3px;flex:0 0 auto}.chkday small{font-size:11px;font-weight:700;color:var(--muted);line-height:1}
-.cbig-v input.cbig-in{width:110px;border:0;background:transparent;text-align:center;font-size:48px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums;padding:0;height:auto;outline:none}
+.cbig-t{display:flex;align-items:center;justify-content:center;gap:2px}.cbig-t b{font-size:40px;font-weight:900;color:var(--muted)}
+.cbig-v input.cbig-in.sec{width:72px}
+.cbig-v input.cbig-in{width:96px;border:0;background:transparent;text-align:center;font-size:48px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums;padding:0;height:auto;outline:none}
 .fcx{display:flex;flex-direction:column;gap:10px}.fcx-r{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px}
 .fcx-in{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}.fcx .fcx-in input{width:110px;height:44px;text-align:center;font-size:18px;font-weight:700}
 .fcx-p{text-align:center;font-size:15px;padding-top:2px}.fcx-p b{font-size:20px;font-variant-numeric:tabular-nums;color:var(--good)}
@@ -747,7 +749,9 @@ function cKind(type){var t=String(type||'');
   return db&&db.fit&&(db.fit.cdist||[]).indexOf(t)>=0?'pace':'';}
 function cMin(c){return (c.min||0)+((c.sec||0)>=30?1:0);}
 function cSecs(c){return (c.min||0)*60+(c.sec||0);}
-function mmss(sec){sec=Math.round(sec);return Math.floor(sec/60)+"'"+String(sec%60).padStart(2,'0')+'"';}
+function mmss(sec){sec=Math.round(sec);return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');}
+/* durations: m:ss under an hour, h:mm:ss above */
+function durTxt(sec){sec=Math.round(sec);var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),x=String(sec%60).padStart(2,'0');return h?h+':'+String(m).padStart(2,'0')+':'+x:m+':'+x;}
 var PACE_MIN={pace:1,speed:5,swim:0.1,row:0.5};
 function cPace(c,kind){kind=kind||cKind(c.type);var d=c.dist,t=cSecs(c);if(!kind||!(d>0)||!(t>0))return null;
   if(kind==='speed'){var v=d/(t/3600);return {v:v,txt:(Math.round(v*10)/10)+' km/h',better:'hi'};}
@@ -803,7 +807,7 @@ function bestBefore(id,k){var b=null;exHist(id).forEach(function(h){if(h.k<k&&h.
 function lastBefore(id,k){var ks=Object.keys(db.fit.logs).filter(function(x){return x<k;}).sort().reverse();
   for(var i=0;i<ks.length;i++){var s=db.fit.logs[ks[i]].s||[];for(var j=s.length-1;j>=0;j--)if(s[j].ex===id)return {k:ks[i],sets:s[j].sets};}return null;}
 function lastCardio(type,k){var ks=Object.keys(db.fit.logs).filter(function(x){return x<k;}).sort().reverse();
-  for(var i=0;i<ks.length;i++){var c=db.fit.logs[ks[i]].c||[];for(var j=c.length-1;j>=0;j--)if(c[j].type===type)return {k:ks[i],min:c[j].min};}return null;}
+  for(var i=0;i<ks.length;i++){var c=db.fit.logs[ks[i]].c||[];for(var j=c.length-1;j>=0;j--)if(c[j].type===type)return {k:ks[i],type:type,min:c[j].min,sec:c[j].sec||0,dist:c[j].dist||0};}return null;}
 function relDay(k){var tk=todayKey(),d=parseKey(k);return k===tk?'今天':k===addDays(tk,-1)?'昨天':d.getFullYear()!==parseKey(tk).getFullYear()?d.getFullYear()+' 年':Math.round((parseKey(tk)-d)/864e5)+' 天前';}
 function mdw(k){var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()];}
 
@@ -863,7 +867,7 @@ function fitLogHTML(){
   if(cc.length){
     s+='<section class="sec"><h2 class="sec-t">有氧</h2>';
     cc.forEach(function(c){var kd=cKind(c.type),pc=cPace(c,kd),sub=c.dist>0?distTxt(c.dist,kd)+(pc?' · '+pc.txt:''):'';
-      s+='<button class="fcard center" data-act="cedit" data-id="'+c.id+'">'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b>'+(sub?'<span class="small muted">'+sub+'</span>':'')+'</span><span class="fmins">'+(c.sec?c.min+':'+String(c.sec).padStart(2,'0'):c.min+' 分鐘')+'</span></button>';});
+      s+='<button class="fcard center" data-act="cedit" data-id="'+c.id+'">'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b>'+(sub?'<span class="small muted">'+sub+'</span>':'')+'</span><span class="fmins">'+durTxt(cSecs(c))+'</span></button>';});
     s+='</section>';
   }
   if(!ss.length&&!cc.length&&!(fLog(k)||{}).min){
@@ -1073,12 +1077,12 @@ function convertEx(e,to){
 
 /* cardio */
 function fcDistHTML(c){var kd=cKind(c.type),custom=CARDIO.indexOf(c.type)<0,m=kd==='swim'||kd==='row';
-  var s='<div class="panel fcx"><div class="fcx-r"><label for="fcsec">秒</label><span class="fcx-in"><input id="fcsec" type="text" inputmode="numeric" maxlength="2" placeholder="0" value="'+(c.sec||'')+'"><span>秒（選填）</span></span></div>';
+  var s='<div class="panel fcx">';
   if(kd)s+='<div class="fcx-r"><label for="fcdist">距離</label><span class="fcx-in"><input id="fcdist" type="text" inputmode="decimal" placeholder="選填" value="'+(c.dist>0?(m?Math.round(c.dist*1000):c.dist):'')+'"><span>'+(m?'公尺':'km')+'</span></span></div>'+
     '<div class="fcx-p" id="fcpace">'+fcPaceTxt(c)+'</div>';
   if(custom&&(!kd||(db.fit.cdist||[]).indexOf(c.type)>=0)&&!/游|划|騎|單車|自行車|飛輪|跑|走|散步|登山|爬山|健行/.test(c.type))
     s+='<div class="fcx-r"><span>記錄距離和配速</span><button class="switch" role="switch" aria-checked="'+!!kd+'" aria-label="記錄距離和配速" data-act="fcdisttog"><span class="knob"></span></button></div>';
-  return s+'</div>';}
+  return s==='<div class="panel fcx">'?'':s+'</div>';}
 function fcPaceTxt(c){var kd=cKind(c.type),pc=cPace(c,kd);if(!kd)return '';
   return pc?(kd==='speed'?'時速 ':'配速 ')+'<b>'+pc.txt+'</b>':'<span class="muted">填了距離就會算出'+(kd==='speed'?'時速':'配速')+'</span>';}
 function vFCardio(){
@@ -1087,9 +1091,9 @@ function vFCardio(){
     '<section class="sec"><h2 class="lbl">類型</h2><div class="ctiles">'+types.map(function(x){var on=x===c.type;return '<button class="ctile'+(on?' on':'')+'" data-act="fctype" data-v="'+esc(x)+'" aria-pressed="'+on+'">'+fIco(caIco(x),24)+'<span>'+esc(x)+'</span></button>';}).join('')+
     '<button class="ctile add" data-act="fcadd" aria-expanded="'+!!c.adding+'">'+fIco(ADD_PATH,24)+'<span>自訂</span></button></div>'+
     (c.adding?'<div class="selrow"><label class="sr" for="fcnew">新的有氧類型</label><input id="fcnew" type="text" maxlength="12" placeholder="例如：拳擊有氧" autocomplete="off"><button class="secondary" data-act="fcaddok" style="flex:0 0 auto">加入</button></div>':'')+'</section>'+
-    '<div class="cbig"><div class="small muted">'+(lc?'上次 '+shortMD(lc.k)+'：'+esc(c.type)+' '+lc.min+' 分鐘':'第一次記錄'+esc(c.type))+'</div>'+
-    '<div class="cbig-r"><button data-act="fcmin" data-n="-5" aria-label="減 5 分鐘">−</button><div class="cbig-v"><input id="fcminin" class="cbig-in" type="text" inputmode="numeric" value="'+c.min+'" aria-label="分鐘"><span> 分鐘</span></div><button class="go" data-act="fcmin" data-n="5" aria-label="加 5 分鐘">＋</button></div>'+
-    '<div class="chiprow">'+[15,20,30,45,60].map(function(v){return '<button class="fchip sm'+(v===c.min?' on':'')+'" data-act="fcset" data-v="'+v+'">'+v+' 分</button>';}).join('')+'</div></div>'+
+    '<div class="cbig"><div class="small muted">'+(lc?'上次 '+shortMD(lc.k)+'：'+esc(c.type)+' '+durTxt(cSecs(lc))+(lc.dist>0?' · '+distTxt(lc.dist,cKind(lc.type)):''):'第一次記錄'+esc(c.type))+'</div>'+
+    '<div class="cbig-r"><button data-act="fcmin" data-n="-5" aria-label="減 5 分鐘">−</button><div class="cbig-v"><div class="cbig-t"><input id="fcminin" class="cbig-in" type="text" inputmode="numeric" maxlength="4" value="'+c.min+'" aria-label="分鐘"><b>:</b><input id="fcsec" class="cbig-in sec" type="text" inputmode="numeric" maxlength="2" placeholder="00" value="'+(c.sec?String(c.sec).padStart(2,'0'):'')+'" aria-label="秒"></div><span>分 : 秒</span></div><button class="go" data-act="fcmin" data-n="5" aria-label="加 5 分鐘">＋</button></div>'+
+    '<div class="chiprow">'+[15,20,30,45,60].map(function(v){return '<button class="fchip sm'+(v===c.min&&!c.sec?' on':'')+'" data-act="fcset" data-v="'+v+'">'+v+' 分</button>';}).join('')+'</div></div>'+
     fcDistHTML(c);
   if(c.id)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="fcdel">'+(ui.confirmDel==='fc'?'再按一次，刪除這筆紀錄':'刪除這筆紀錄')+'</button></div>';
   return s+'</div>';
@@ -2610,7 +2614,7 @@ function act(a,b){
       if(CARDIO.indexOf(nm)<0&&db.fit.ctypes.indexOf(nm)<0){db.fit.ctypes.push(nm);save();}ui.fc.type=nm;ui.fc.adding=false;break;
     case 'fcmin': ui.fc.min=Math.min(1440,Math.max(1,ui.fc.min+(+b.dataset.n)));break;
     case 'fcdisttog': var cdl=db.fit.cdist=db.fit.cdist||[],ci=cdl.indexOf(ui.fc.type);if(ci>=0)cdl.splice(ci,1);else cdl.push(ui.fc.type);save();break;
-    case 'fcset': ui.fc.min=+b.dataset.v;break;
+    case 'fcset': ui.fc.min=+b.dataset.v;ui.fc.sec=0;break;
     case 'fccancel': ui.fc=null;go('fit');break;
     case 'fcsave': k=ui.fc.k;l=fLogMk(k);l.c=l.c||[];n={id:ui.fc.id||uid(),type:ui.fc.type,min:ui.fc.min};if(ui.fc.sec>0)n.sec=ui.fc.sec;if(ui.fc.dist>0&&cKind(n.type))n.dist=ui.fc.dist;
       if(ui.fc.id)l.c=l.c.map(function(x){return x.id===n.id?n:x;});else l.c.push(n);
@@ -2734,7 +2738,8 @@ document.addEventListener('input',function(e){
     Array.prototype.forEach.call(document.querySelectorAll('.uname'),function(x){x.textContent=ui.draft.unit;});
     var gh=$('#ghint');if(gh)gh.innerHTML=goalHint(ui.draft,!ui.draft.id);}
   else if((el.id==='fcsec'||el.id==='fcdist'||el.id==='fcminin')&&ui.fc){
-    if(el.id==='fcminin'){var mi=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.min=mi>0?Math.min(1440,mi):1;}
+    if(el.id==='fcminin'){var mi=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.min=mi>0?Math.min(1440,mi):1;Array.prototype.forEach.call(document.querySelectorAll('[data-act=fcset]'),function(x){x.classList.toggle('on',+x.dataset.v===ui.fc.min&&!ui.fc.sec);});}
+    if(el.id==='fcsec'){Array.prototype.forEach.call(document.querySelectorAll('[data-act=fcset]'),function(x){x.classList.toggle('on',false);});}
     else if(el.id==='fcsec'){var se=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.sec=se>0?Math.min(59,se):0;}
     else{var dv=parseFloat(el.value.replace(/[^0-9.]/g,''));var kd2=cKind(ui.fc.type);ui.fc.dist=dv>0?Math.min(1000,kd2==='swim'||kd2==='row'?dv/1000:dv):0;}
     var pe=$('#fcpace');if(pe)pe.innerHTML=fcPaceTxt(ui.fc);}
