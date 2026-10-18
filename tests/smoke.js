@@ -440,6 +440,45 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=cltap]'); ok((await p.$eval('#toast', e => e.innerText)).includes('Aaron 再找 Claude'), 'easter egg after 5 taps');
   await done(p, 'changelog');
 
+  console.log('• 週報');
+  {
+    const mon = n => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7) - 7 * n); return d; };
+    const kk = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const W = mon(1), wk = i => { const d = new Date(W); d.setDate(d.getDate() + i); return kk(d); };
+    const logs = {}; for (let i = 0; i < 7; i++) logs[wk(i)] = { h: { g1: i % 3 ? 1 : 0, b1: i === 2 ? 2 : 0 }, mood: i < 3 ? 1 : 3, pnl: 1000 * i - 500 };
+    const ex = { id: 'e1', name: '深蹲', eq: '槓鈴', part: '腿', mode: 'wr', unit: 'kg' };
+    const flogs = { [wk(-7)]: { s: [{ id: 'a', ex: 'e1', sets: [[60, 5]] }] }, [wk(1)]: { s: [{ id: 'b', ex: 'e1', sets: [[70, 5]] }], min: 40 }, [wk(3)]: { c: [{ id: 'c', type: '跑步機', min: 30, dist: 5 }] } };
+    p = await page(b, { 'habit-tracker-v1': { v: 1, logs, settings: { fit: true, pnl: true }, rewards: [], redeemed: [], fit: { ex: [ex], ctypes: [], logs: flogs },
+      habits: [{ id: 'g1', name: '閱讀', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: wk(-14) }, { id: 'b1', name: '熬夜', kind: 'bad', days: [1, 1, 1, 1, 1, 1, 1], created: wk(-14) }] } });
+    await p.click('[data-tab=stats]'); await p.click('[data-act=report]');
+    ok((await p.$eval('h1.h1', e => e.textContent)) === '我的這一週', 'report button opens 我的這一週');
+    const lbl = () => p.$eval('.month-l', e => e.textContent);
+    const rng = `${W.getMonth() + 1}/${W.getDate()} – `;
+    if (new Date().getDay() === 0) await p.click('[data-act=rweek][data-n="-1"]');
+    ok((await lbl()).startsWith(rng), 'defaults to last full week (' + await lbl() + ')');
+    const img = async () => { await p.waitForFunction(() => { const i = document.getElementById('repimg'); return i && i.complete && i.naturalWidth > 0; }); return p.$eval('#repimg', i => [i.naturalWidth, i.naturalHeight, i.src]); };
+    let [iw, ih, src] = await img();
+    ok(iw === 1080 && ih >= 1920 && src.startsWith('blob:'), 'report image drawn on the phone (' + iw + '×' + ih + ')');
+    await p.fill('#repnote', '這週好累，但還是有喝水'); await p.waitForFunction(s => document.getElementById('repimg').src !== s, src);
+    { const [, hN, sN] = await img(); ok(hN > ih, 'personal note adds a line to the image'); ih = hN; src = sN; }
+    ok(!JSON.stringify(await db(p)).includes('這週好累'), 'personal note is not saved');
+    ok(!!(await p.$('[data-act=ropt][data-v=bad]')) && !!(await p.$('[data-act=ropt][data-v=amt]')), 'bad-habit and amount sub-options shown');
+    ok(await p.$eval('[data-v=bad]', e => e.getAttribute('aria-checked')) === 'false' && await p.$eval('[data-v=amt]', e => e.getAttribute('aria-checked')) === 'false', 'bad habits and amounts are off by default');
+    await p.click('[data-act=ropt][data-v=bad]'); await p.waitForFunction(s => document.getElementById('repimg').src !== s, src);
+    let [, ih2, src2] = await img(); ok(ih2 > ih, 'adding bad habits makes the report longer');
+    ok(JSON.parse(await p.evaluate(() => localStorage.getItem('habit-tracker-v1-rep'))).bad === true, 'choices remembered');
+    await p.click('[data-act=ropt][data-v=pnl]'); ok(!(await p.$('[data-v=amt]')), 'amount option hides when 投資 is off');
+    await p.click('[data-act=rweek][data-n="-1"]'); await p.click('[data-act=rweek][data-n="-1"]');
+    ok(await p.$eval('[data-act=rweek][data-n="-1"]', e => e.disabled), 'cannot go before the first week of use (' + await lbl() + ')');
+    for (let i = 0; i < 3; i++) { const nx = await p.$('[data-act=rweek][data-n="1"]:not([disabled])'); if (nx) await nx.click(); }
+    if (new Date().getDay() !== 0) ok(await p.$eval('[data-act=rweek][data-n="1"]', e => e.disabled), 'cannot go past this week');
+    ok((await lbl()).includes('本週'), 'this week is labelled');
+    for (const k of ['h', 'fit', 'mood']) await p.click('[data-act=ropt][data-v=' + k + ']');
+    ok(await p.$eval('[data-act=rshare]', e => e.disabled), 'share disabled when nothing is chosen');
+    await p.click('[data-act=rback]'); ok((await p.$eval('h1.h1', e => e.textContent)) === '統計', 'back returns to 統計');
+    await done(p, 'report');
+  }
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
