@@ -504,6 +504,21 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   if (new Date().getDate() > 1) ok(await p.$eval('[data-act=month][data-n="-1"]', e => e.disabled), 'cannot go to months before first use');
   await done(p, 'first use');
 
+  console.log('• skins');
+  p = await page(b);
+  await p.click('[data-tab=settings]');
+  ok((await p.$$('[data-act=skin]')).length === 3, 'three skins offered');
+  await p.click('[data-act=skin][data-v=volt]');
+  ok(await p.evaluate(() => document.documentElement.getAttribute('data-skin')) === 'volt' && (await db(p)).settings.skin === 'volt', 'picking 黑白螢光 applies and saves it');
+  await p.reload(); await p.waitForTimeout(200);
+  ok(await p.evaluate(() => document.documentElement.getAttribute('data-skin')) === 'volt', 'skin kept after reopening');
+  ok(await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--good').trim()) === '#111111', 'volt colours in effect');
+  await p.click('[data-tab=settings]'); await p.click('[data-act=skin][data-v=sport]');
+  ok(await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--good').trim()) === '#FC5200', 'sport colours in effect');
+  await p.click('[data-act=skin][data-v=sprout]');
+  ok(!(await p.evaluate(() => document.documentElement.hasAttribute('data-skin'))) && !('skin' in (await db(p)).settings), 'back to 小芽綠 clears the skin');
+  await done(p, 'skins');
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
