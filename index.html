@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-SDk2M1xj5kQ0Bum21ngrVLcVlIovij9eEVldeBNkynY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-8z3fH0ApL2CGHyKOyr1Ln9S74pcEOAZYDg5QHr6Md7Q='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1344,7 +1344,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-11';
+var APP_VER='2026.10.18-12';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2239,6 +2239,7 @@ function vSettings(){
     '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button>'+
     (a2Eligible()?'<button class="row-btn" data-act="a2how"><span>加到主畫面的方法</span><span class="side">'+I.share+'</span></button>':'')+'</div>'+
     '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><button class="clink" data-act="changelog">版本 '+APP_VER+' · 更新紀錄'+(clSeen()?'':'<span class="cldot" aria-label="有新的更新"></span>')+'</button>'+
+    '<button class="small muted cl-foot" data-act="cltap">'+SPROUT+'<span>Aaron × Claude</span><span class="cl-c" aria-hidden="true">C</span></button>'+
     (storageOK?'':'<p class="small bad-t"><strong>目前無法寫入手機儲存空間，新的紀錄不會被保存。</strong>如果開著私密瀏覽，請改用一般模式。</p>')+
     '</section>';
   return s+'</div>';
@@ -2320,7 +2321,7 @@ function vChangelog(){
     s+='<section class="cl-item'+(i===0?' cur':'')+'"><div class="cl-h"><b>'+g.day+(i===0?' · 最新':'')+'</b><span class="cl-v">'+vr+'</span></div><ul>'+
       g.items.map(function(e){return e[2].map(function(x){return '<li>'+esc(x)+'</li>';}).join('');}).join('')+'</ul></section>';
   });
-  return s+'</div><button class="small muted cl-foot" data-act="cltap">'+SPROUT+'<span>Aaron × Claude</span><span class="cl-c" aria-hidden="true">C</span></button></div>';
+  return s+'</div></div>';
 }
 function vArchived(){
   var list=db.habits.filter(function(h){return h.archived;});
