@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-CCdrcPFyASJZAzUG6E7sSTI2/vrIfeZ+illDvcpG+Mk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-auhHOCt+sBSUyhJg+JrdjO25aRNjsvRE5Lqmr1Wumlo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,6 +114,9 @@ button.hcard{padding-right:16px}
 .plus.bad{background:var(--bad);color:var(--on-bad)}
 .cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
 .cnt.zero{color:var(--faint)}
+#updcard{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--surface);border:1.5px solid var(--good-line,var(--line));border-radius:18px;padding:14px 16px;box-shadow:0 8px 28px rgba(0,0,0,.18);max-width:480px;margin:0 auto}
+#updcard .upd-t{font-weight:800;font-size:15px}#updcard ul{margin:6px 0 0;padding-left:18px;font-size:14px;line-height:1.5}#updcard .upd-s{margin:6px 0 10px;font-size:12px;color:var(--muted)}
+#updcard .upd-b{display:flex}#updcard .upd-b button{flex:1;height:42px;font-size:15px}
 .faqq{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-left:6px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--muted);font:700 12px/1 inherit;padding:0;vertical-align:1px;flex:0 0 auto}
 .lbl-q{display:flex;align-items:center}
 .faq{display:flex;flex-direction:column;gap:10px}
@@ -1270,7 +1273,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-2';
+var APP_VER='2026.10.18-3';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2360,6 +2363,7 @@ function render(){
   renderSheet();
   if(ui.celAnim){var ce=typeof ui.celAnim==='string'?main.querySelector('[data-id="'+ui.celAnim+'"] .check, [data-act=inc][data-id="'+ui.celAnim+'"]'):null;if(ce)ce.classList.add('pop');ui.celAnim=null;}
   if(ui.top){main.scrollTop=0;ui.top=false;}
+  if(typeof updMaybe==='function')updMaybe();
 }
 function go(view){ui.view=view;ui.top=true;ui.confirmDel=false;ui.unlocked=null;}
 
@@ -2752,6 +2756,24 @@ document.addEventListener('visibilitychange',function(){
 if('serviceWorker' in navigator&&document.documentElement.classList.contains('own-host')){
   Promise.reject().catch(function(){});
 }
+/* new-version card: version.json is published with each release ({v, notes, notify}).
+   A page left open in the background keeps the old build, so tell the user and let them reload. */
+var updLast=0,updPending=null,EDITING_VIEWS=['edit','redit','diary','flog','fcardio','fex','pnl','onboard'];
+function verNum(v){var m=/^(\d{4})\.(\d\d)\.(\d\d)-(\d+)$/.exec(v||'');return m?+(m[1]+m[2]+m[3])*1000+(+m[4]):0;}
+function updCheck(){var now=Date.now();if(now-updLast<60000)return;updLast=now;
+  fetch('version.json?t='+now,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||typeof j.v!=='string'||verNum(j.v)<=verNum(APP_VER)||j.notify===false)return;
+    updPending=j;updMaybe();}).catch(function(){});}
+/* never interrupt an unsaved edit: wait until the user is back on a normal screen */
+function updMaybe(){if(updPending&&EDITING_VIEWS.indexOf(ui.view)<0&&!ui.sheet)updShow(updPending);}
+function updShow(j){var el=$('#updcard');if(!el){el=document.createElement('div');el.id='updcard';el.setAttribute('role','status');document.body.appendChild(el);}
+  var notes=(Array.isArray(j.notes)?j.notes:[]).slice(0,3).filter(function(x){return typeof x==='string';});
+  el.innerHTML='<div class="upd-t">有新版本 '+esc(j.v)+'</div>'+(notes.length?'<ul>'+notes.map(function(x){return '<li>'+esc(x.slice(0,80))+'</li>';}).join('')+'</ul>':'')+
+    '<p class="upd-s">紀錄都已經存好，更新只要幾秒。</p><div class="upd-b"><button class="primary" data-upd="go">立即更新</button></div>';
+  el.dataset.v=j.v;el.hidden=false;}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-upd]');if(b)location.reload();});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')updCheck();});
+setTimeout(updCheck,1500);
 render();
 if(autoIcons)toast('已幫 '+autoIcons+' 個習慣加上圖示，可在「習慣設定」修改',4000);
 })();
