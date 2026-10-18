@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-x57Qca8MDYfoE66zaMpjsi9bvsFZ/gU3c9O1oziJcLU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Uj6gum6iYuMkuhTBU3ykBZycmBseVJHQt0ET+tKbhP8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2739,8 +2739,7 @@ document.addEventListener('input',function(e){
     var gh=$('#ghint');if(gh)gh.innerHTML=goalHint(ui.draft,!ui.draft.id);}
   else if((el.id==='fcsec'||el.id==='fcdist'||el.id==='fcminin')&&ui.fc){
     if(el.id==='fcminin'){var mi=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.min=mi>0?Math.min(1440,mi):1;Array.prototype.forEach.call(document.querySelectorAll('[data-act=fcset]'),function(x){x.classList.toggle('on',+x.dataset.v===ui.fc.min&&!ui.fc.sec);});}
-    if(el.id==='fcsec'){Array.prototype.forEach.call(document.querySelectorAll('[data-act=fcset]'),function(x){x.classList.toggle('on',false);});}
-    else if(el.id==='fcsec'){var se=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.sec=se>0?Math.min(59,se):0;}
+    else if(el.id==='fcsec'){var se=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.sec=se>0?Math.min(59,se):0;Array.prototype.forEach.call(document.querySelectorAll('[data-act=fcset]'),function(x){x.classList.toggle('on',+x.dataset.v===ui.fc.min&&!ui.fc.sec);});}
     else{var dv=parseFloat(el.value.replace(/[^0-9.]/g,''));var kd2=cKind(ui.fc.type);ui.fc.dist=dv>0?Math.min(1000,kd2==='swim'||kd2==='row'?dv/1000:dv):0;}
     var pe=$('#fcpace');if(pe)pe.innerHTML=fcPaceTxt(ui.fc);}
   else if(el.id==='hsavefrom'&&ui.draft){var tk=todayKey();if(isKey(el.value)){ui.draft.saveFrom=el.value>tk?tk:el.value;render();}}

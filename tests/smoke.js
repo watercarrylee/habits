@@ -354,6 +354,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-tab=fit]'); await p.click('[data-act=fcnew]');
   await p.click('[data-act=fctype][data-v=戶外跑步]');
   await p.fill('#fcminin', '32'); await p.fill('#fcsec', '15'); await p.fill('#fcdist', '5.2');
+  ok(!(await p.$('[data-act=fcset].on')), 'quick-minute chip not highlighted after typing 32:15');
   ok((await p.$eval('#fcpace', e => e.innerText)).includes(`6:12 /km`), 'pace 6:12/km computed live from 32:15 and 5.2 km');
   await p.click('[data-act=fcsave]'); d = await db(p);
   const rc = d.fit.logs[T].c[0];
