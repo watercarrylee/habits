@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-DwZ6UkKINWe/TtdA/JAHPM4CobReF1PpMKzjL1hDCUg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-rTnK6QViGpe0X0IN4PZorDKg56a0NNJi6aJpslhxk38='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -698,7 +698,37 @@ html:root[data-skin=volt]{
 [data-skin=volt] .hcard.g-on .plus{background:var(--on-good);color:var(--good)}
 [data-skin=volt] .hcard.g-on .minus{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
 [data-skin=volt] .hcard.g-on .hico,[data-skin=volt] .hcard.g-on .cunit{color:#fff}
-.skins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+/* ===== 冰島: glacier blue + basalt + volcanic ash; moss, aurora pink, Icelandic roof red as accents ===== */
+html:root[data-skin=ice]{
+  --bg:#E7EBEE; --surface:#F9FBFC; --chip:#DEE4E9; --line:#CDD5DC; --line-soft:#E3E8EC;
+  --fg:#1D2329; --muted:#5B6672; --faint:#9AA5AF;
+  --good:#2D6A89; --good-soft:#DDEBF2; --good-line:#9EC3D6; --on-good:#FFFFFF;
+  --bad:#A9362B; --bad-soft:#F5E3E0; --bad-line:#E2ABA4; --on-bad:#FFFFFF;
+  --ink:#1D2329; --on-ink:#FFFFFF; --h1:#CBE0EA; --h2:#78AFC9;
+  --up:#A9362B; --down:#4E7A46; --moss:#5E7F4E; --aurora:#D97BA6;
+  --shadow:0 1px 2px rgba(29,35,41,.06);}
+@media (prefers-color-scheme:dark){html:root[data-skin=ice]{
+  --bg:#111518; --surface:#1A2025; --chip:#232A30; --line:#2C353C; --line-soft:#232A30;
+  --fg:#E6ECF0; --muted:#97A3AD; --faint:#5E6A74;
+  --good:#7CC3DF; --good-soft:#15303B; --good-line:#2F6378; --on-good:#0E1A20;
+  --bad:#E2695B; --bad-soft:#35191A; --bad-line:#6E2E28; --on-bad:#1A0B09;
+  --ink:#E6ECF0; --on-ink:#111518; --h1:#1B3A47; --h2:#3D7D98;
+  --up:#E2695B; --down:#8DB37E; --moss:#8DB37E; --aurora:#F19AC4;}}
+[data-skin=ice] .h1{font-weight:800;letter-spacing:.06em}
+[data-skin=ice] .hcard,[data-skin=ice] .sum-card,[data-skin=ice] .panel,[data-skin=ice] .list,[data-skin=ice] .tile,[data-skin=ice] .fcard,[data-skin=ice] .empty,[data-skin=ice] .seg,[data-skin=ice] .rbanner,[data-skin=ice] .cl-item{border-radius:12px}
+[data-skin=ice] .hcard{border-color:var(--line-soft);box-shadow:var(--shadow)}
+[data-skin=ice] .hcard.g-on{background:var(--good-soft);border-color:var(--good-line)}
+/* weekly met / streaks: moss; summary card: glacier → aurora, like northern lights over ice */
+[data-skin=ice] .sum-card.good{background:linear-gradient(135deg,var(--good) 0%,#3F7F86 55%,#6C6496 100%);border:0}
+@media (prefers-color-scheme:dark){[data-skin=ice] .sum-card.good{background:linear-gradient(135deg,#2D6A89 0%,#2F6F6A 55%,#7A4F86 100%);color:#fff}[data-skin=ice] .sum-card.good .sum-l{color:rgba(255,255,255,.85)}}
+[data-skin=ice] .sum-card.good.alldone{box-shadow:0 0 0 2px var(--aurora)}
+[data-skin=ice] .rbanner{background:var(--surface);border:1px solid var(--line)}
+[data-skin=ice] .rbanner svg{color:var(--aurora)}
+[data-skin=ice] .sec-t.good-t,[data-skin=ice] .lbl{letter-spacing:.06em}
+[data-skin=ice] .pbar.seg i,[data-skin=ice] .hcard.g-on .pbar i{background:var(--good)}
+[data-skin=ice] .tab.tdot::after{background:var(--aurora)}
+[data-skin=ice] .tabs{border-top:1px solid var(--line-soft)}
+.skins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .skinbtn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 6px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:14px}
 .skinbtn.on{border-color:var(--good);box-shadow:0 0 0 1.5px var(--good) inset;font-weight:700}
 .skinsw{display:flex;gap:4px}.skinsw i{width:16px;height:16px;border-radius:8px;display:block;border:1px solid rgba(0,0,0,.12)}
@@ -1275,7 +1305,7 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k))R[k]=d[k];});
@@ -1294,7 +1324,7 @@ if(!db.redeemed)db.redeemed=[];
 if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};if(!db.fit.cdist)db.fit.cdist=[];
 if(db.settings.fit&&fSeed())save();
 if(!DEMO&&!isKey(db.settings.firstUse)){db.settings.firstUse=todayKey();save();}
-var SKINS=[['sprout','小芽綠',['#2F6B52','#F5F2EC','#B4471C']],['sport','衝刺橘',['#FC5200','#EEEEF1','#1C1C21']],['volt','黑白螢光',['#111111','#D8FF00','#FFFFFF']]];
+var SKINS=[['sprout','小芽綠',['#2F6B52','#F5F2EC','#B4471C']],['sport','衝刺橘',['#FC5200','#EEEEF1','#1C1C21']],['volt','黑白螢光',['#111111','#D8FF00','#FFFFFF']],['ice','冰島',['#2D6A89','#E7EBEE','#D97BA6']]];
 function skinNow(){var v=db.settings.skin;return SKINS.some(function(k){return k[0]===v;})?v:'sprout';}
 function applySkin(){var k=skinNow(),r=document.documentElement;if(k==='sprout')r.removeAttribute('data-skin');else r.setAttribute('data-skin',k);
   try{var bg=getComputedStyle(document.body).backgroundColor;Array.prototype.forEach.call(document.querySelectorAll('meta[name=theme-color]'),function(m){m.setAttribute('content',bg);});}catch(e){}}
@@ -1452,7 +1482,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-19';
+var APP_VER='2026.10.18-20';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */

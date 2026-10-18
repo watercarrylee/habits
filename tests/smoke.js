@@ -507,7 +507,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   console.log('• skins');
   p = await page(b);
   await p.click('[data-tab=settings]');
-  ok((await p.$$('[data-act=skin]')).length === 3, 'three skins offered');
+  ok((await p.$$('[data-act=skin]')).length === 4, 'four skins offered');
+  await p.click('[data-act=skin][data-v=ice]'); ok(await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--good').trim()) === '#2D6A89', '冰島 colours in effect');
   await p.click('[data-act=skin][data-v=volt]');
   ok(await p.evaluate(() => document.documentElement.getAttribute('data-skin')) === 'volt' && (await db(p)).settings.skin === 'volt', 'picking 黑白螢光 applies and saves it');
   await p.reload(); await p.waitForTimeout(200);
