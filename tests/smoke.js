@@ -213,6 +213,13 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!(await p.$eval('#ghint', e => e.innerText)).includes('換算'), 'no conversion warning when step unchanged');
   await p.click('[data-act=unitchip][data-v=杯]'); await p.click('[data-act=save]'); d = await db(p); u = d.habits.find(h => h.id === 'u1');
   ok(u.unit === '杯' && d.logs[daysAgo(1)].h.u1 === 1500 && d.logs[T].h.u1 === 500, 're-saving / renaming unit does not rescale again');
+  await p.click('[data-act=edit][data-id=u1]'); await p.fill('#hstep', '250');
+  ok((await p.$eval('#ghint', e => e.innerText)).includes('以前的紀錄照舊'), 'same unit, smaller tap: hint says old records stay');
+  await p.click('[data-act=save]'); d = await db(p); u = d.habits.find(h => h.id === 'u1');
+  ok(u.step === 250 && d.logs[daysAgo(1)].h.u1 === 1500 && d.logs[daysAgo(2)].h.u1 === 2000 && d.logs[T].h.u1 === 500, 'changing tap size with the same unit keeps old amounts');
+  ok(u.goalHist.every(g => g.n === 2000) && u.stepHist && u.stepHist[0].step === 500, 'goals unchanged, old tap size remembered for savings');
+  await p.click('[data-act=tab][data-tab=rewards]'); ok((await p.$eval('#main', e => e.innerText)).includes('NT$90'), 'past savings still count old 500-ml taps (' + ((await p.$eval('#main', e => e.innerText)).match(/NT\$\d+/) || '') + ')');
+  await p.click('[data-act=tab][data-tab=settings]');
   await p.click('[data-act=tab][data-tab=today]'); await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="-1"]');
   ok(!(await p.$('[data-act=amt]')), 'no tap-to-type on the number');
   await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=fittoggle]');

@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-hShYKsEFMQJiAWbJS4kQCnMuxRJoqz/boocr6CIOBBM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-TTSBBUTKJDNbs0GEGOsLjypve2v9YMVJc/XONmzIRIk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -700,6 +700,7 @@ var RTYPES={
 function isKey(k){return typeof k==='string'&&/^\d{4}-\d\d-\d\d$/.test(k);}
 function clampInt(v,lo,hi,d){v=Math.round(+v);return isFinite(v)&&v>=lo?Math.min(hi,v):d;}
 function normUnit(u){u=typeof u==='string'?u.replace(/[<>&"'\u0000-\u001f]/g,'').trim().slice(0,8):'';return u||'次';}
+function normStep(a){a=(Array.isArray(a)?a:[]).filter(function(e){return e&&isKey(e.from)&&+e.step>=1;}).map(function(e){return {from:e.from,step:clampInt(e.step,1,9999,1)};}).sort(function(x,y){return x.from<y.from?-1:1;});return a.length?a:undefined;}
 function normGoal(a){return (Array.isArray(a)?a:[]).filter(function(e){return e&&isKey(e.from)&&+e.n>=1;}).map(function(e){return {from:e.from,n:clampInt(e.n,1,999999,1)};}).sort(function(x,y){return x.from<y.from?-1:1;});}
 function normHist(a){return (Array.isArray(a)?a:[]).filter(function(e){return e&&isKey(e.from)&&+e.amt>=0;}).map(function(e){return {from:e.from,amt:Math.round(+e.amt)||0};}).sort(function(x,y){return x.from<y.from?-1:1;});}
 function icoSvg(key,size){var x=ICONS[key];if(!x)return '';return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+x[1]+'</svg>';}
@@ -1146,7 +1147,7 @@ function normalize(d){
     return {id:cid(h.id),name:String(h.name).slice(0,40),kind:h.kind==='bad'?'bad':'good',
       method:h.method==='count'?'count':'check',
       days:Array.isArray(h.days)&&h.days.length===7?h.days.map(Boolean):allDays(),
-      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),unit:normUnit(h.unit),step:clampInt(h.step,1,9999,1),freq:h.kind!=='bad'&&h.freq==='week'?'week':'day',perWeek:clampInt(h.perWeek,1,6,3),fitLink:!!h.fitLink};
+      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),stepHist:normStep(h.stepHist),unit:normUnit(h.unit),step:clampInt(h.step,1,9999,1),freq:h.kind!=='bad'&&h.freq==='week'?'week':'day',perWeek:clampInt(h.perWeek,1,6,3),fitLink:!!h.fitLink};
   });
   var logs={};
   Object.keys(d.logs).forEach(function(k){
@@ -1355,7 +1356,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-15';
+var APP_VER='2026.10.18-16';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1537,7 +1538,15 @@ function isAmt(h){return !!h&&h.kind==='good'&&h.method==='count';}
 function hUnit(h){return isAmt(h)?(h.unit||'次'):'次';}
 function hStep(h){return isAmt(h)?(h.step||1):1;}
 function amtTxt(h,v){return fmtN(v)+(hUnit(h)==='次'?' 次':' '+hUnit(h));}
-/* changing "每按一次" rescales past records so one old press still equals one press */
+/* "每按一次" changes. If the unit changes too (e.g. 次 → ml), old records were counting presses, so they are converted
+   (one old press = one new press). If the unit stays (500 ml → 250 ml a tap), old amounts are real amounts and stay as they are;
+   stepHist remembers the old tap size so savings per tap on past days do not change. */
+function stepOn(h,k){var s=hStep(h);(h.stepHist||[]).forEach(function(e){if(e.from<=k)s=e.step;});if(h.stepHist&&h.stepHist.length&&k<h.stepHist[0].from)s=h.stepHist[0].step;return s;}
+function convStep(u0,u1){return (u0||'次')!==(u1||'次');}
+function changeStep(h,s1,u1){var s0=h.step||1;if(s0===s1)return;
+  if(convStep(h.unit,u1)){rescaleStep(h,s0,s1);delete h.stepHist;return;}
+  var t=todayKey(),sh=h.stepHist=h.stepHist||[];if(!sh.length)sh.push({from:GOAL_ALL,step:s0});
+  var last=sh[sh.length-1];if(last.from===t)last.step=s1;else sh.push({from:t,step:s1});}
 function rescaleStep(h,s0,s1){if(s0===s1||!s0||!s1)return;var r=s1/s0;
   Object.keys(db.logs).forEach(function(k){var l=db.logs[k];if(l.h&&l.h[h.id])l.h[h.id]=Math.max(1,Math.min(999999,Math.round(l.h[h.id]*r)));});
   (h.goalHist||[]).forEach(function(e){e.n=Math.max(1,Math.min(999999,Math.round(e.n*r)));});}
@@ -1558,7 +1567,7 @@ function setSave(h,amt,from){
 }
 function savedFor(h,k){
   var a=amtOn(h,k);if(!a)return 0;var v=val(k,h.id);
-  if(h.kind==='good')return h.method==='count'?Math.floor(v/hStep(h))*a:(v>0?a:0);
+  if(h.kind==='good')return h.method==='count'?Math.floor(v/stepOn(h,k))*a:(v>0?a:0);
   return (db.logs[k]&&!(v>0))?a:0;
 }
 function savingsTotals(){
@@ -1808,8 +1817,10 @@ var UNITS=['次','杯','ml','分鐘','頁'];
 function goalHint(d,isNew){var g=d.goal||1,st=d.step||1,u=d.unit||'次',out;
   if(g<=1&&st===1)out='按一次就算完成。想要做到幾次才算，就把目標調高。';
   else out='每天達到 '+fmtN(g)+' '+esc(u)+' 才算完成'+(g>st?'，大約按 '+Math.ceil(g/st)+' 下':'')+'。';
-  if(!isNew&&d.goal0!==undefined&&g!==d.goal0&&(d.step||1)===d.step0)out+='新目標從今天開始，以前的紀錄照舊。';
-  if(!isNew&&d.step0&&st!==d.step0)out+='<b>改了「每按一次」，以前的紀錄會一起換算</b>（以前按 1 下 = 現在的 '+fmtN(st)+' '+esc(u)+'）。';
+  var chg=!isNew&&d.step0&&st!==d.step0,conv=chg&&convStep(d.unit0,u);
+  if(!isNew&&d.goal0!==undefined&&g!==d.goal0&&!conv)out+='新目標從今天開始，以前的紀錄照舊。';
+  if(conv)out+='<b>改了單位和「每按一次」，以前的紀錄會一起換算</b>（以前按 1 下 = 現在的 '+fmtN(st)+' '+esc(u)+'）。';
+  else if(chg)out+='以前的紀錄照舊，之後每按一次加 '+fmtN(st)+' '+esc(u)+'。';
   return out;}
 function saveField(d){
   var good=d.kind==='good';
@@ -2500,7 +2511,7 @@ var FAQ=[
  ['count','計次、目標與單位',[
   ['為什麼不能點數字直接輸入數量？','很容易誤觸。把「每按一次」設成適合的量就好，例如喝水每次 500 ml、念書每次 10 分鐘。'],
   ['改了「每天目標」，以前的紀錄會變嗎？','不會。新目標從改的那天開始算，以前的完成紀錄和連續天數都照舊。'],
-  ['改了「每按一次」，以前的紀錄為什麼會換算？','為了讓「以前按一下」等於「現在按一下」。例如從「次」改成「每次 500 ml」，以前的 4 次會變成 2000 ml，省下的錢也不會變。只改單位名稱（例如「次」改成「杯」）不會換算。'],
+  ['改了「每按一次」，以前的紀錄會變嗎？','單位不變、只改每按一次的量（例如 500 ml 改成 250 ml），以前的紀錄照舊，2000 ml 還是 2000 ml。單位也一起改（例如從「次」改成「每次 500 ml」），以前的 4 次會換算成 2000 ml，讓「以前按一下」等於「現在按一下」，省下的錢也不會變。只改單位名稱（例如「次」改成「杯」）不會換算。'],
   ['超過目標會怎樣？','照實記錄，一樣算完成，不會有額外的懲罰或獎勵。多做的部分會顯示出來，例如 120%。'],
   ['壞習慣為什麼沒有目標和單位？','壞習慣是犯一次就算犯，重點是看次數有沒有變少，所以維持按一下 +1。']]],
  ['fit','運動連動',[
@@ -2703,7 +2714,7 @@ function saveDraft(){
   if(!name){ui.err='請輸入習慣名稱。';render();return;}
   if(d.kind==='good'&&d.freq!=='week'&&!d.days.some(Boolean)){ui.err='請至少選一天。';render();return;}
   var fq=d.kind==='good'&&d.freq==='week'?'week':'day',pwk=Math.max(1,Math.min(6,d.perWeek||3));
-  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'&&fq==='day'?d.days.slice():allDays();h.freq=fq;h.perWeek=pwk;h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1);rescaleStep(h,h.step||1,s1);h.step=s1;h.unit=normUnit(d.unit);setGoal(h,d.goal||1);}}}
+  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'&&fq==='day'?d.days.slice():allDays();h.freq=fq;h.perWeek=pwk;h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1),nu=normUnit(d.unit);changeStep(h,s1,nu);h.step=s1;h.unit=nu;setGoal(h,d.goal||1);}}}
   else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,freq:fq,perWeek:pwk,days:d.kind==='good'&&fq==='day'?d.days.slice():allDays(),created:todayKey(),archived:false,icon:d.icon||'',saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
   fitSync(todayKey());if(ui.date!==todayKey())fitSync(ui.date);
   save();go(ui.back||'settings');render();toast('已儲存');
@@ -2915,7 +2926,7 @@ function act(a,b){
     case 'pickday': ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
     case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「設定」修改');break;
     case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
-    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
+    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,unit0:h.unit||'次',freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
     case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
     case 'iconpick': ui.pickIcon=!ui.pickIcon;break;
     case 'seticon': ui.draft.icon=b.dataset.v;ui.draft.iconTouched=true;ui.pickIcon=false;break;
