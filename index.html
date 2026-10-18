@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-mo7H8Wyu3oKy2JoNpoForpWd/so3wrivqiLeomXUErk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-MLYpTvrBMRPRmEnkQC7hqYoI2kY+n9bMidG23DWhBE0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1356,7 +1356,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-17';
+var APP_VER='2026.10.18-18';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2303,7 +2303,7 @@ function repData(ws){
     return {name:h.name,isNew:fresh&&h.created>=ws,dn:dn,sc:sc,dots:dots,st:goodStreak(h,end)};});
   R.rate=S?Math.round(D/S*100):null;
   R.bad=active('bad').filter(function(h){return h.created<=end;}).map(function(h){var n=0;days.forEach(function(d){if(d<=end)n+=val(d,h.id);});var td=0,cd=0,dots=days.map(function(d){if(d<h.created)return -3;if(d>end)return -1;td++;var c=!val(d,h.id);if(c)cd++;return c?1:0;});return {name:h.name,isNew:fresh&&h.created>=ws,n:n,td:td,cd:cd,dots:dots};});
-  var F={days:0,s:0,c:0,km:0,pr:[],first:[]},seen={};
+  var F={days:0,s:0,c:0,km:0,pr:[],first:[],byDay:days.map(function(d){if(d>end)return null;var fm=fitMinutes(d);return {s:fm.s,c:fm.c};})},seen={};
   days.forEach(function(d){if(d>end)return;var fm=fitMinutes(d),l=fLog(d);if(fm.any)F.days++;F.s+=fm.s;F.c+=fm.c;if(!l)return;
     (l.c||[]).forEach(function(c){var kd=cKind(c.type);if(kd==='pace'&&c.dist>0)F.km+=c.dist;
       if(kd&&c.dist>=PACE_MIN[kd]&&!seen['c'+c.type]){var pc=cPace(c,kd),b=paceBest(c.type,d);
@@ -2372,7 +2372,8 @@ function rDots(x,dots,cx,DX,Y,bad){dots.forEach(function(v,i){var X=cx+DX*i+DX/2
   if(v===1){x.arc(X,Y,15,0,7);x.fillStyle=RC.good;x.fill();}
   else if(v===0&&bad){x.arc(X,Y,15,0,7);x.fillStyle=RC.bad;x.fill();}
   else if(v===0){x.arc(X,Y,13,0,7);x.lineWidth=4;x.strokeStyle=RC.faint;x.stroke();}
-  else if(v===-1||v===-2){x.arc(X,Y,5,0,7);x.fillStyle=RC.faint;x.fill();}});}
+  else if(v===-1||v===-2){x.arc(X,Y,5,0,7);x.fillStyle=RC.faint;x.fill();}
+  else if(v===-3){x.fillStyle=RC.faint;x.fillRect(X-12,Y-2,24,4);}});}
 function repHabits(R,inc){return function(x,y,dr){
   var h=48,DX=52,MX=RX1-24,NX=RX1-64,cx=NX-96-7*DX,list=R.hab.slice(0,8),NW=cx-RX0-16;
   if(dr){rText(x,'習慣',RX0,y+h+44,42,700);
@@ -2398,17 +2399,28 @@ function repHabits(R,inc){return function(x,y,dr){
   var all=list.concat(inc.bad?R.bad.slice(0,6):[]),pre=all.some(function(e){return e.dots.indexOf(-3)>=0;}),off=all.some(function(e){return e.dots.indexOf(-1)>=0||e.dots.indexOf(-2)>=0;});
   if(pre||off){if(dr){var lx=RX0;
       if(off){x.beginPath();x.arc(lx+8,y+h+19,5,0,7);x.fillStyle=RC.faint;x.fill();rText(x,'那天不用做',lx+24,y+h+28,26,400,RC.muted);rFont(x,26,400);lx+=24+x.measureText('那天不用做').width+36;}
-      if(pre)rText(x,'空白：還沒開始這個習慣',lx,y+h+28,26,400,RC.muted);}
+      if(pre){x.fillStyle=RC.faint;x.fillRect(lx,y+h+17,24,4);rText(x,'還沒開始這個習慣',lx+34,y+h+28,26,400,RC.muted);}}
     h+=44;}
   return h+40;};}
 function repFit(R){return function(x,y,dr){
   var F=R.fit,h=48;h+=rTitle(x,y+h,dr,'運動');
   if(!F.days){if(dr)rText(x,'這週沒有運動紀錄',RX0,y+h+30,30,400,RC.muted);return h+52+40;}
-  var tiles=[['運動天數',F.days+' 天'],['重訓',rMin(F.s)],['有氧',rMin(F.c)]];if(F.km>0)tiles.push(['跑步距離',(Math.round(F.km*10)/10)+' km']);
+  var tiles=[['運動天數',F.days+' 天']];if(F.km>0)tiles.push(['跑步距離',(Math.round(F.km*10)/10)+' km']);
   var TW=(RW-24)/2,TH=150;
   tiles.forEach(function(t,i){var X=RX0+(i%2)*(TW+24),Y=y+h+Math.floor(i/2)*(TH+24);
     if(dr){rRound(x,X,Y,TW,TH,28,RC.tile);rText(x,t[0],X+30,Y+52,28,400,RC.muted);rFont(x,48,800);x.fillStyle=RC.fg;x.fillText(rFit(x,t[1],TW-60),X+30,Y+116);}});
-  h+=Math.ceil(tiles.length/2)*(TH+24);
+  h+=Math.ceil(tiles.length/2)*(TH+24)+8;
+  /* stacked bars: 重訓 (dark) + 有氧 (light) minutes per day */
+  var CS='#2F6B52',CC='#8CC9A8',mx=Math.max.apply(null,F.byDay.map(function(v){return v?v.s+v.c:0;})),top=Math.max(30,Math.ceil(mx/30)*30),CH=260,LW=70,BW=RW-LW,SX=BW/7;
+  if(dr){var Y0=y+h+76+CH;
+    [0,top/2,top].forEach(function(g){var gy=Y0-g/top*CH;x.fillStyle=RC.line;x.fillRect(RX0+LW,gy,BW,2);rText(x,Math.round(g)+' 分',RX0+LW-14,gy+9,24,400,RC.muted,'right');});
+    F.byDay.forEach(function(v,i){var X=RX0+LW+SX*i+SX*0.2,W=SX*0.6;rText(x,'一二三四五六日'[i],X+W/2,Y0+40,26,400,RC.muted,'center');if(!v||!(v.s+v.c))return;
+      var hs=v.s/top*CH,hc=v.c/top*CH;
+      if(hc>0){x.fillStyle=CC;x.fillRect(X,Y0-hs-hc,W,hc);}
+      if(hs>0){x.fillStyle=CS;x.fillRect(X,Y0-hs,W,hs);}
+      rText(x,String(Math.round(v.s+v.c)),X+W/2,Y0-hs-hc-12,24,700,RC.fg,'center');});
+    var lx=RX0;[[CS,'重訓 '+rMin(F.s)],[CC,'有氧 '+rMin(F.c)]].forEach(function(q){x.fillStyle=q[0];x.fillRect(lx,y+h+4,24,24);rText(x,q[1],lx+34,y+h+26,28,700,RC.fg);rFont(x,28,700);lx+=34+x.measureText(q[1]).width+40;});}
+  h+=76+CH+64;
   if(F.pr.length||F.first.length){h+=8;if(dr){x.fillStyle=RC.line;x.fillRect(RX0,y+h,RW,2);}h+=24;}
   F.pr.slice(0,5).forEach(function(r){if(dr){rPix(x,TROPHY_PX,ICON_PAL,RX0,y+h+6,4);rFont(x,34,700);x.fillStyle=RC.fg;x.fillText(rFit(x,r.name,RW-330),RX0+66,y+h+42);
       rText(x,r.txt,RX1,y+h+42,32,700,RC.good,'right');}h+=66;});
