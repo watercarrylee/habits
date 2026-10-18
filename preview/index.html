@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-XrBiHWT+KSbvBK+k4iO0329QkgnrNV4sOhLpKdur6dU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-hRS4bO/2KTUVcvtLAtG6Wd9O+ivK3CeijXmGeCCkzLM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -585,6 +585,7 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .radio.on{border:7px solid var(--good)}
 .pickrow{width:100%;display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 16px;border:0;border-bottom:1px solid var(--line-soft);background:none;color:var(--fg);font-size:15px;text-align:left}
 .list .pickrow:last-child{border-bottom:0}
+.pickhead{padding:10px 16px 4px;font-size:12px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line-soft)}
 .pickrow .nm{flex:1 1 auto;min-width:0}
 .stepper{display:flex;align-items:center;gap:12px}
 .stepbtn{flex:0 0 auto;width:44px;height:44px;border-radius:22px;border:1.5px solid var(--line);background:var(--surface);font-size:22px;color:var(--muted);padding:0}
@@ -774,8 +775,20 @@ var RTYPES={
   weekly:{label:'每週次數',ex:'一週做到 5 天',unit:'天',min:1,max:7,step:1,def:5,kind:'good',tl:'一週做到幾天',again:'下週重來',rep:true},
   rate:{label:'本月完成率',ex:'這個月達到 80%',unit:'%',min:10,max:100,step:10,def:80,kind:'good',tl:'完成率至少',again:'下個月重來',rep:true},
   limit:{label:'壞習慣上限',ex:'本月最多犯 3 次',unit:'次',min:0,max:99,step:1,def:3,kind:'bad',tl:'這個月最多犯幾次',again:'下個月重來',rep:true},
-  saved:{label:'省下的錢',ex:'累計存到 NT$3,000',unit:'NT$',min:100,max:9999999,step:100,def:3000,kind:null,tl:'省下的錢累計到',again:'重新累計',rep:false}
+  saved:{label:'省下的錢',ex:'累計存到 NT$3,000',unit:'NT$',min:100,max:9999999,step:100,def:3000,kind:null,tl:'省下的錢累計到',again:'重新累計',rep:false},
+  total:{label:'累計天數',ex:'累計做到 30 天',unit:'天',min:2,max:999,step:1,def:30,kind:'good',tl:'累計做到幾天',again:'重新累計',rep:false},
+  wktotal:{label:'累計達標週數',ex:'累計達標 8 週',unit:'週',min:1,max:104,step:1,def:8,kind:'good',tl:'累計達標幾週',again:'重新累計',rep:false},
+  clean:{label:'連續沒犯',ex:'連續 14 天沒犯',unit:'天',min:2,max:365,step:1,def:14,kind:'bad',tl:'連續幾天沒犯',again:'再挑戰一次',rep:false}
 };
+/* which reward conditions fit a habit (the editor picks the habit first) */
+function rTypesFor(h){if(!h)return ['saved'];if(h.kind==='bad')return ['limit','clean'];if(isWk(h))return ['wktotal','streak'];return ['streak','weekly','rate','total'];}
+function rFix(d){var h=d.habit?byId(d.habit):null,ok=rTypesFor(h);if(ok.indexOf(d.type)<0){var RT=RTYPES[ok[0]];d.type=ok[0];d.target=RT.def;d.repeat=RT.rep;}if(d.type==='saved')d.habit=null;}
+/* 累計天數 / 累計達標週數 / 連續沒犯: replay from the reward's start; each hit is an earned key, the count restarts after it */
+function rReplay(r,h,t){var out=[],n=0,start=maxK(r.created,h.created),d;
+  if(r.type==='total'){for(d=start;d<=t;d=addDays(d,1)){if(isDone(h,d)){n++;if(n>=r.target){out.push(d);n=0;if(!r.repeat)break;}}}}
+  else if(r.type==='clean'){for(d=start;d<t;d=addDays(d,1)){if(val(d,h.id)>0)n=0;else{n++;if(n>=r.target){out.push(d);n=0;if(!r.repeat)break;}}}}
+  else if(r.type==='wktotal'){for(d=weekStartKey(start);d<=t;d=addDays(d,7)){if(wkMet(h,d)){n++;if(n>=r.target){out.push(d);n=0;if(!r.repeat)break;}}}}
+  return {hits:out,n:n};}
 function isKey(k){return typeof k==='string'&&/^\d{4}-\d\d-\d\d$/.test(k);}
 function clampInt(v,lo,hi,d){v=Math.round(+v);return isFinite(v)&&v>=lo?Math.min(hi,v):d;}
 function normUnit(u){u=typeof u==='string'?u.replace(/[<>&"'\u0000-\u001f]/g,'').trim().slice(0,8):'';return u||'次';}
@@ -1439,7 +1452,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-18';
+var APP_VER='2026.10.18-19';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1724,6 +1737,8 @@ function syncRewards(){
     if(r.type==='streak'){
       var st=streakSince(h,t,r.earned.length?r.earned[r.earned.length-1]:null);
       if(st.n>=r.target&&st.last){r.earned.push(st.last);changed=true;}
+    }else if(r.type==='total'||r.type==='clean'||r.type==='wktotal'){
+      rReplay(r,h,t).hits.forEach(function(k){if(r.earned.indexOf(k)<0){r.earned.push(k);changed=true;}});
     }else if(r.type==='weekly'){
       for(var w=weekStartKey(r.created);w<=t;w=addDays(w,7)){
         if(r.earned.indexOf(w)>=0)continue;
@@ -1751,7 +1766,7 @@ function pctOf(a,b){return b>0?Math.max(0,Math.min(100,Math.round(a/b*100))):0;}
 function ruleText(r,h,ml){
   var hn=h?'「'+esc(h.name)+'」':'「（已刪除的習慣）」',t=r.target,mm=ml||'這個月';
   return {streak:hn+'連續做到 '+t+(isWk(h)?' 週':' 天'),weekly:'一週內'+hn+'做到 '+t+' 天',rate:mm+hn+'完成率達到 '+t+'%',
-    limit:mm+hn+'最多犯 '+t+' 次',saved:'省下的錢累計到 NT$'+fmtN(t)}[r.type];
+    limit:mm+hn+'最多犯 '+t+' 次',saved:'省下的錢累計到 NT$'+fmtN(t),total:hn+'累計做到 '+t+' 天',wktotal:hn+'累計達標 '+t+' 週'+(h&&isWk(h)?'（每週 '+(h.perWeek||3)+' 次）':''),clean:hn+'連續 '+t+' 天沒犯'}[r.type];
 }
 function progressOf(r,h,tot){
   var t=todayKey(),me=monthEndKey(t),settle=shortMD(me)+' 結算';
@@ -1759,6 +1774,8 @@ function progressOf(r,h,tot){
   if(!h)return {txt:'',pct:0};
   if(h.archived)return {txt:'暫停中',pct:0,cls:'paused',note:'習慣已封存，恢復後會繼續計算。'};
   if(r.type==='streak'){var n=streakSince(h,t,r.earned.length?r.earned[r.earned.length-1]:null).n;return {txt:n+' / '+r.target+(isWk(h)?' 週':' 天'),pct:pctOf(n,r.target)};}
+  if(r.type==='total'||r.type==='clean'||r.type==='wktotal'){var rp=rReplay(r,h,t),n=!r.repeat&&rp.hits.length?r.target:rp.n,u=r.type==='wktotal'?' 週':' 天';
+    return r.type==='clean'?{txt:'已連續 '+n+' 天沒犯 / '+r.target+' 天',pct:pctOf(n,r.target),note:'從昨天往回算，今天過完才算進去'}:{txt:n+' / '+r.target+u,pct:pctOf(n,r.target)};}
   if(r.type==='weekly'&&r.earned.indexOf(weekStartKey(t))>=0)return {txt:'本週已達成',pct:100,note:r.repeat?'下週重來':''};
   if(r.type==='weekly'){var c=weekCount(h,weekStartKey(t),r.created,t);return {txt:'本週 '+c+' / '+r.target+' 天',pct:pctOf(c,r.target)};}
   var m=t.slice(0,8)+'01';
@@ -1844,25 +1861,22 @@ function rPreview(d){
   if(R.kind&&!h)return '先選一個'+(R.kind==='bad'?'壞':'')+'習慣。';
   var name=(d.name||'').trim()||'這個獎勵';
   return ruleText({type:d.type,target:d.target},h)+'，就可以兌換「'+esc(name)+'」。'+(d.repeat?'兌換後'+R.again+'。':'兌換一次就結束。')+
-    (d.type==='streak'?'已經累積的連續天數會算進去。':d.type==='saved'?'兌換時會從可用的錢扣掉 NT$'+fmtN(d.target)+'。':d.type==='rate'||d.type==='limit'?'每個月底結算。':'')
+    (d.type==='streak'?'已經累積的連續天數會算進去。':d.type==='total'||d.type==='wktotal'?'從今天開始累計，中間斷掉不會歸零。':d.type==='clean'?'從今天開始算。':d.type==='saved'?'兌換時會從可用的錢扣掉 NT$'+fmtN(d.target)+'。':d.type==='rate'||d.type==='limit'?'每個月底結算。':'')
 }
 function vRewardEdit(){
   var d=ui.rd,R=RTYPES[d.type],isNew=!d.id;
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="rcancel">取消</button><h1 class="edit-t">'+(isNew?'新增獎勵':'編輯獎勵')+'</h1><button class="textbtn strong" data-act="rsave">儲存</button></header>'+
     '<div class="field"><label class="lbl" for="rname">想犒賞自己什麼</label><input id="rname" type="text" maxlength="40" placeholder="例如：週末吃一頓好的" value="'+esc(d.name)+'" autocomplete="off"></div>'+
     (ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'')+
-    '<div class="field"><div class="lbl">達成條件</div><div class="rtypes">'+Object.keys(RTYPES).map(function(k){
-      return '<button class="rtype'+(d.type===k?' on':'')+'" data-act="rtype" data-v="'+k+'" aria-pressed="'+(d.type===k)+'"><b>'+RTYPES[k].label+'</b><span>'+RTYPES[k].ex+'</span></button>';
+    '';
+  var goods=active('good'),bads=active('bad'),row=function(h){var on=d.habit===h.id;
+    return '<button class="pickrow" data-act="rhabit" data-id="'+h.id+'" aria-pressed="'+on+'">'+rowIco(h)+'<span class="nm">'+esc(h.name)+(isWk(h)?'<small class="muted"> · 每週 '+(h.perWeek||3)+' 次</small>':'')+'</span><span class="radio'+(on?' on':'')+'"></span></button>';};
+  s+='<div class="field"><div class="lbl">哪個習慣</div><div class="list">'+(goods.length?'<div class="pickhead">好習慣</div>'+goods.map(row).join(''):'')+(bads.length?'<div class="pickhead">壞習慣</div>'+bads.map(row).join(''):'')+
+    '<div class="pickhead">其他</div><button class="pickrow" data-act="rhabit" data-id="" aria-pressed="'+(d.type==='saved')+'"><span class="sico"></span><span class="nm">不綁習慣：省下的錢</span><span class="radio'+(d.type==='saved'?' on':'')+'"></span></button></div></div>';
+  var types=rTypesFor(d.habit?byId(d.habit):null);if(d.type!=='saved'&&types.indexOf(d.type)<0)types=types.concat(d.type);
+  if(types.length>1)s+='<div class="field"><div class="lbl">達成條件</div><div class="rtypes">'+types.map(function(k){
+      return '<button class="rtype'+(d.type===k?' on':'')+'" data-act="rtype" data-v="'+k+'" aria-pressed="'+(d.type===k)+'"><b>'+(k==='streak'&&d.habit&&isWk(byId(d.habit))?'連續週數':RTYPES[k].label)+'</b><span>'+(k==='streak'&&d.habit&&isWk(byId(d.habit))?'連續 4 週達標':RTYPES[k].ex)+'</span></button>';
     }).join('')+'</div></div>';
-  if(R.kind){
-    var list=active(R.kind);
-    s+='<div class="field"><div class="lbl">'+(R.kind==='bad'?'哪個壞習慣':'哪個習慣')+'</div>';
-    s+=list.length?'<div class="list">'+list.map(function(h){
-      var on=d.habit===h.id;
-      return '<button class="pickrow" data-act="rhabit" data-id="'+h.id+'" aria-pressed="'+on+'">'+rowIco(h)+'<span class="nm">'+esc(h.name)+'</span><span class="radio'+(on?' on':'')+'"></span></button>';
-    }).join('')+'</div>':'<p class="hint">還沒有'+(R.kind==='bad'?'壞':'好')+'習慣，先到「設定」新增。</p>';
-    s+='</div>';
-  }
   s+='<div class="field"><label class="lbl" for="rtarget">'+R.tl+'</label><div class="stepper">'+
     '<button class="stepbtn" data-act="rstep" data-n="-1" aria-label="減少">−</button>'+
     '<div class="stepval">'+(R.unit==='NT$'?'<span>NT$</span>':'')+'<input id="rtarget" type="text" inputmode="numeric" value="'+d.target+'">'+(R.unit!=='NT$'?'<span>'+R.unit+'</span>':'')+'</div>'+
@@ -3072,10 +3086,10 @@ function act(a,b){
     case 'unrest': l=db.logs[ui.date];if(l){delete l.rest;tidy(ui.date);save();}toast('已取消，休息卡退回');break;
     case 'savefrom': if(ui.draft&&isKey(b.dataset.v)&&b.dataset.v<=t)ui.draft.saveFrom=b.dataset.v;break;
     case 'savechip': if(ui.draft){ui.draft.save=+b.dataset.v;}break;
-    case 'rnew': ui.rd={id:null,name:'',type:'weekly',habit:(active('good')[0]||{}).id||null,target:RTYPES.weekly.def,repeat:true};ui.err='';go('redit');render();var rn=$('#rname');if(rn)rn.focus();return;
+    case 'rnew': ui.rd={id:null,name:'',type:'weekly',habit:(active('good')[0]||{}).id||null,target:RTYPES.weekly.def,repeat:true};rFix(ui.rd);ui.err='';go('redit');render();var rn=$('#rname');if(rn)rn.focus();return;
     case 'redit': h=rById(id);if(!h)return;ui.rd={id:h.id,name:h.name,type:h.type,habit:h.habit,target:h.target,repeat:h.repeat};ui.err='';go('redit');break;
-    case 'rtype': n=b.dataset.v;if(ui.rd.type!==n){var RT=RTYPES[n];ui.rd.type=n;ui.rd.target=RT.def;ui.rd.repeat=RT.rep;ui.rd.habit=RT.kind?((active(RT.kind)[0]||{}).id||null):null;}ui.err='';break;
-    case 'rhabit': ui.rd.habit=id;ui.err='';break;
+    case 'rtype': n=b.dataset.v;if(ui.rd.type!==n&&RTYPES[n]){var RT=RTYPES[n];ui.rd.type=n;ui.rd.target=RT.def;ui.rd.repeat=RT.rep;rFix(ui.rd);}ui.err='';break;
+    case 'rhabit': ui.rd.habit=id||null;if(!id)ui.rd.type='saved';else if(ui.rd.type==='saved')ui.rd.type='';rFix(ui.rd);ui.err='';break;
     case 'rstep': var RS=RTYPES[ui.rd.type],cur=Math.round(+ui.rd.target)||0,stp=RS.unit==='NT$'?(cur<1000||(cur===1000&&+b.dataset.n<0)?100:500):RS.step;ui.rd.target=Math.max(RS.min,Math.min(RS.max,cur+stp*(+b.dataset.n)));break;
     case 'rrep': ui.rd.repeat=b.dataset.v==='1';break;
     case 'rsave': saveReward();return;
