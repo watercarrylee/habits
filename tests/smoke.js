@@ -451,7 +451,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     p = await page(b, { 'habit-tracker-v1': { v: 1, logs, settings: { fit: true, pnl: true }, rewards: [], redeemed: [], fit: { ex: [ex], ctypes: [], logs: flogs },
       habits: [{ id: 'g1', name: '閱讀', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: wk(-14) }, { id: 'b1', name: '熬夜', kind: 'bad', days: [1, 1, 1, 1, 1, 1, 1], created: wk(-14) }] } });
     await p.click('[data-tab=stats]'); await p.click('[data-act=report]');
-    ok((await p.$eval('h1.h1', e => e.textContent)) === '週報', 'report button opens 週報');
+    ok((await p.$eval('h1.h1', e => e.textContent)) === '我的這一週', 'report button opens 我的這一週');
     const lbl = () => p.$eval('.month-l', e => e.textContent);
     const rng = `${W.getMonth() + 1}/${W.getDate()} – `;
     if (new Date().getDay() === 0) await p.click('[data-act=rweek][data-n="-1"]');
@@ -465,7 +465,10 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     let [, ih2, src2] = await img(); ok(ih2 > ih, 'adding bad habits makes the report longer');
     ok(JSON.parse(await p.evaluate(() => localStorage.getItem('habit-tracker-v1-rep'))).bad === true, 'choices remembered');
     await p.click('[data-act=ropt][data-v=pnl]'); ok(!(await p.$('[data-v=amt]')), 'amount option hides when 投資 is off');
-    await p.click('[data-act=rweek][data-n="1"]'); if (new Date().getDay() !== 0) ok(await p.$eval('[data-act=rweek][data-n="1"]', e => e.disabled), 'cannot go past this week');
+    await p.click('[data-act=rweek][data-n="-1"]'); await p.click('[data-act=rweek][data-n="-1"]');
+    ok(await p.$eval('[data-act=rweek][data-n="-1"]', e => e.disabled), 'cannot go before the first week of use (' + await lbl() + ')');
+    for (let i = 0; i < 3; i++) { const nx = await p.$('[data-act=rweek][data-n="1"]:not([disabled])'); if (nx) await nx.click(); }
+    if (new Date().getDay() !== 0) ok(await p.$eval('[data-act=rweek][data-n="1"]', e => e.disabled), 'cannot go past this week');
     ok((await lbl()).includes('本週'), 'this week is labelled');
     for (const k of ['h', 'fit', 'mood']) await p.click('[data-act=ropt][data-v=' + k + ']');
     ok(await p.$eval('[data-act=rshare]', e => e.disabled), 'share disabled when nothing is chosen');
