@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-n1PSN5FOeKEgs+LBGpmhc+tkwYmZ/RRLo04buSVLdaY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-NnCqhxfVaTSS9OohgXXK6A/vJ0JEE7rMWaCbJoG9NDI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1180,7 +1180,7 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,firstUse:isKey(st.firstUse)?st.firstUse:undefined},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k))R[k]=d[k];});
@@ -1198,6 +1198,7 @@ if(!db.rewards)db.rewards=[];
 if(!db.redeemed)db.redeemed=[];
 if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};if(!db.fit.cdist)db.fit.cdist=[];
 if(db.settings.fit&&fSeed())save();
+if(!DEMO&&!isKey(db.settings.firstUse)){db.settings.firstUse=todayKey();save();}
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
 
@@ -2165,7 +2166,7 @@ function vStats(){
   if(pOn)tabs.push(['pnl',dOn()?'損益':'未實現損益']);
   if(dOn())tabs.push(['diary','日記']);
   var tab=tabs.some(function(x){return x[0]===ui.statTab;})?ui.statTab:'habits';
-  var s='<div class="page"><header class="titlebar"><h1 class="h1">統計</h1><span class="tb-r"><button class="ghost repbtn" data-act="report">'+I.share+'週報</button><button class="iconbtn" data-act="search" aria-label="'+(dOn()?'搜尋備註和日記':'搜尋備註')+'">'+I.search+'</button></span></header>';
+  var s='<div class="page"><header class="titlebar"><h1 class="h1">統計</h1><span class="tb-r"><button class="ghost repbtn" data-act="report">'+I.share+'分享這週</button><button class="iconbtn" data-act="search" aria-label="'+(dOn()?'搜尋備註和日記':'搜尋備註')+'">'+I.search+'</button></span></header>';
   if(tabs.length>1)s+='<div class="seg'+(tabs.length>2?' three':'')+'">'+tabs.map(function(x){return '<button class="'+(tab===x[0]?'on':'')+'" data-act="stab" data-v="'+x[0]+'" aria-pressed="'+(tab===x[0])+'">'+x[1]+'</button>';}).join('')+'</div>';
   s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="month" data-n="-1" aria-label="上個月">'+I.left+'</button>'+
     '<div class="month-l">'+y+' 年 '+(m+1)+' 月</div>'+
@@ -2254,7 +2255,10 @@ function vSettings(){
 }
 /* ---------- 常見問題: design choices users may wonder about ---------- */
 /* ---------- weekly report (週報): built on the phone as a PNG, never uploaded ---------- */
-var REPKEY=KEY+'-rep';
+var REPKEY=KEY+'-rep',REP_NAME='我的這一週';
+/* first day this person used the app: the stored first-open day, or the earliest data if that is older (e.g. after importing a backup) */
+function useStart(){var k=firstUseKey(),f=db.settings.firstUse;Object.keys(db.fit.logs).forEach(function(x){if(x<k)k=x;});return isKey(f)&&f<k?f:k;}
+function repMinWs(){return weekStartKey(useStart());}
 var SPROUT_PX=["..........KKKKK...",".........KLLLLLK..","........KLLLLLlK..","....KKKKdLLLllK...","...KlLLKdKlllK....","....KKKKdKKKK.....",".......KdK........","......KKKKKK......","....KKGGLLGGKK....","...KGGLLGGGGGgK...","...KGGGGGGGGGgK...","..KGGGGGGGGGGggK..","..KGRRGGGGGGRRgK..","..KGGGGKGGKGgggK..","..KGGGGGKKGGgggK..","..KKKKKKKKKKKKKK..","..KOOOOOOOOOOOoK..","...KOOOOOOOOooK...","....KKKKKKKKKK...."];
 var SPROUT_PAL={G:'#5fc45c',K:'#16261b',L:'#9be28b',O:'#c8693d',R:'#f2958c',d:'#3b8a3c',g:'#45a548',l:'#72cc66',o:'#9c4b28'};
 function repOpts(){var o={};try{o=JSON.parse(localStorage.getItem(REPKEY)||'{}')||{};}catch(e){}
@@ -2263,10 +2267,15 @@ function repSetOpt(k){var o=repOpts();if(!(k in o))return;o[k]=!o[k];try{localSt
 function repInc(o){var p=!!db.settings.pnl;return {h:o.h,bad:o.h&&o.bad,fit:o.fit&&fOn(),pnl:o.pnl&&p,amt:o.pnl&&p&&o.amt,mood:o.mood};}
 function repAny(inc){return inc.h||inc.fit||inc.pnl||inc.mood;}
 /* on Sunday the current week is the one worth sharing; otherwise last full week */
-function repDefWs(t){var cw=weekStartKey(t);return parseKey(t).getDay()===0?cw:addDays(cw,-7);}
+function repDefWs(t){var cw=weekStartKey(t),w=parseKey(t).getDay()===0?cw:addDays(cw,-7);return w<repMinWs()?repMinWs():w;}
 function repRange(ws){var d0=parseKey(ws),d1=parseKey(addDays(ws,6));return (d0.getMonth()+1)+'/'+d0.getDate()+' – '+(d1.getMonth()+1)+'/'+d1.getDate();}
 function paceBest(type,k){var b=null;Object.keys(db.fit.logs).forEach(function(x){if(x>=k)return;(db.fit.logs[x].c||[]).forEach(function(c){
   if(c.type!==type)return;var kd=cKind(c.type);if(!kd||!(c.dist>=PACE_MIN[kd]))return;var pc=cPace(c,kd);if(pc&&(b===null||(pc.better==='hi'?pc.v>b:pc.v<b)))b=pc.v;});});return b;}
+function repRate(ws){var we=addDays(ws,6),t=todayKey(),end=we<t?we:t,S=0,D=0;
+  active('good').forEach(function(h){if(isWk(h))return;for(var d=ws;d<=end;d=addDays(d,1)){if(d<h.created||!scheduled(h,d))continue;S++;if(isDone(h,d))D++;}});
+  return S?Math.round(D/S*100):null;}
+function bestSet(e,sets){var b=sets[0];sets.forEach(function(x){if(isBW(e)?x[1]>b[1]:e1rm(x[0],x[1])>e1rm(b[0],b[1]))b=x;});
+  return isBW(e)?b[1]+' '+mUnit(e):fmtW(b[0],exU(e))+' × '+b[1];}
 function repData(ws){
   var we=addDays(ws,6),t=todayKey(),end=we<t?we:t,days=[],i;for(i=0;i<7;i++)days.push(addDays(ws,i));
   var R={ws:ws,we:we,end:end,days:days,partial:end<we},S=0,D=0;
@@ -2277,14 +2286,16 @@ function repData(ws){
     return {name:h.name,dn:dn,sc:sc,dots:dots};});
   R.rate=S?Math.round(D/S*100):null;
   R.bad=active('bad').filter(function(h){return h.created<=end;}).map(function(h){var n=0;days.forEach(function(d){if(d<=end)n+=val(d,h.id);});return {name:h.name,n:n};});
-  var F={days:0,s:0,c:0,km:0,pr:[]},seen={};
+  var F={days:0,s:0,c:0,km:0,pr:[],first:[]},seen={};
   days.forEach(function(d){if(d>end)return;var fm=fitMinutes(d),l=fLog(d);if(fm.any)F.days++;F.s+=fm.s;F.c+=fm.c;if(!l)return;
     (l.c||[]).forEach(function(c){var kd=cKind(c.type);if(kd==='pace'&&c.dist>0)F.km+=c.dist;
       if(kd&&c.dist>=PACE_MIN[kd]&&!seen['c'+c.type]){var pc=cPace(c,kd),b=paceBest(c.type,d);
-        if(pc&&b!==null&&(pc.better==='hi'?pc.v>b:pc.v<b)){seen['c'+c.type]=1;F.pr.push(c.type+(kd==='speed'?'最快時速':'最快配速'));}}});
-    (l.s||[]).forEach(function(en){var e=exById(en.ex);if(!e||seen['s'+en.ex])return;var m=setMetric(e,en.sets),b=bestBefore(en.ex,d);
-      if(b!==null&&m>b){seen['s'+en.ex]=1;F.pr.push(e.name);}});});
+        if(pc&&b!==null&&(pc.better==='hi'?pc.v>b:pc.v<b)){seen['c'+c.type]=1;F.pr.push({name:c.type+(kd==='speed'?' 最快時速':' 最快配速'),txt:pc.txt});}}});
+    (l.s||[]).forEach(function(en){var e=exById(en.ex);if(!e||seen['s'+en.ex]||!en.sets.length)return;var m=setMetric(e,en.sets),b=bestBefore(en.ex,d);
+      if(b===null&&!exHist(en.ex).some(function(x){return x.k<d;})){seen['s'+en.ex]=1;F.first.push(e.name);}
+      else if(b!==null&&m>b){seen['s'+en.ex]=1;F.pr.push({name:e.name,txt:bestSet(e,en.sets)});}});});
   R.fit=F;
+  R.wkN=Math.round(diffDays(ws,repMinWs())/7)+1;R.prevRate=ws>repMinWs()?repRate(addDays(ws,-7)):null;
   var pk=prevPnlKey(ws),pts=[];days.forEach(function(d,j){if(d<=end&&hasP(d))pts.push({i:j,v:pnlAt(d)});});
   var base=pk?pnlAt(pk):null;
   R.pnl={pts:pts,base:base,last:pts.length?pts[pts.length-1].v:null,chg:pts.length?pts[pts.length-1].v-(base!==null?base:pts[0].v):0};
@@ -2305,6 +2316,18 @@ function moodMsg(m,ws){if(!m.n)return '';var a=m.avg,g=a<1.5?0:a<2.5?1:a<3.4?2:3
   if(g===0)s+='如果一直覺得不好受，找信任的人聊聊也很好。';
   return s;}
 
+var WK_MILE={2:'第二週，慢慢找到自己的節奏了。',4:'第 4 週，一起走過一個月了！',8:'第 8 週，兩個月了，你真的很穩定。',13:'第 13 週，持續三個月，很不簡單！',26:'第 26 週，半年了！習慣已經是生活的一部分。',52:'第 52 週，整整一年，謝謝你一直記錄自己。'};
+function repHL(R,inc){var out=[];
+  out.push(R.wkN<=1?'這是你使用習慣紀錄的第一週，一切都是好的開始！':WK_MILE[R.wkN]||'這是你使用習慣紀錄的第 '+R.wkN+' 週。');
+  if(inc.h&&R.rate===100&&R.hab.some(function(e){return !e.wk;}))out.push('好習慣全部達成，完美的一週！');
+  else if(inc.h&&R.rate!==null&&R.prevRate!==null&&R.rate-R.prevRate>=5)out.push('完成率比上週提升了 '+(R.rate-R.prevRate)+'%，進步看得見！');
+  if(inc.fit&&R.fit.pr.length)out.push('這週刷新了 '+R.fit.pr.length+' 項運動紀錄！');
+  else if(inc.fit&&R.fit.first.length)out.push('這週第一次嘗試了 '+R.fit.first.length+' 個新動作。');
+  return out.slice(0,2);}
+var TROPHY_PX=["..KKKKKKKK..","KKKYYhYYyKKK","KYKYhYYYyKyK","KYKYYYYYyKyK",".KKYYYYYyKK.","..KYYYYYyK..","...KYYYyK...","....KYyK....","....KYyK....","...KKYyKK...","..KYYYYyyK..","..KKKKKKKK.."];
+var SPARK_PX=[".....K.....","....KLK....","....KLK....","...KLLLK...",".KKLLLLLKK.","KLLLLhLLLLK",".KKLLLLLKK.","...KLLLK...","....KLK....","....KLK....",".....K....."];
+var ICON_PAL={K:'#16261b',Y:'#ffd447',y:'#e9a92f',h:'#fff6c8',L:'#9be28b'};
+function rPix(x,px,pal,X,Y,s){px.forEach(function(row,r){for(var c=0;c<row.length;c++){var p=pal[row[c]];if(p){x.fillStyle=p;x.fillRect(X+c*s,Y+r*s,s,s);}}});}
 var RC={bg:'#F5F2EC',card:'#FFFFFF',fg:'#1C1B19',muted:'#6B655C',faint:'#CFC8BC',line:'#E2DBCF',tile:'#F5F2EC',good:'#2F6B52',good2:'#7FB297',goodSoft:'#E3EFE8',bad:'#B4471C',badLine:'#E9BFA9',up:'#C8283A',down:'#1F7A4A'};
 var RF='-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
 var RX0=104,RX1=976,RW=872;
@@ -2315,7 +2338,7 @@ function rFit(x,s,w){s=String(s);if(x.measureText(s).width<=w)return s;while(s.l
 function rWrap(x,s,w){var out=[],cur='',NOHEAD='，。、！？；：）」』…';for(var i=0;i<s.length;i++){var c=s[i];
   if(cur&&x.measureText(cur+c).width>w&&NOHEAD.indexOf(c)<0){out.push(cur);cur=c;}else cur+=c;}if(cur)out.push(cur);return out;}
 function rMin(m){m=Math.round(m);if(m<60)return m+' 分';return Math.floor(m/60)+' 小時'+(m%60?' '+m%60+' 分':'');}
-function rSprout(x,X,Y,s){SPROUT_PX.forEach(function(row,r){for(var c=0;c<row.length;c++){var p=SPROUT_PAL[row[c]];if(p){x.fillStyle=p;x.fillRect(X+c*s,Y+r*s,s,s);}}});}
+function rSprout(x,X,Y,s){rPix(x,SPROUT_PX,SPROUT_PAL,X,Y,s);}
 function rTitle(x,y,dr,t,right,rcol){if(dr){rText(x,t,RX0,y+44,42,700);if(right)rText(x,right,RX1,y+42,32,700,rcol||RC.muted,'right');}return 76;}
 function repHabits(R,inc){return function(x,y,dr){
   var h=48,DX=56,RWID=150,cx=RX1-RWID-7*DX,list=R.hab.slice(0,8);
@@ -2349,10 +2372,13 @@ function repFit(R){return function(x,y,dr){
   tiles.forEach(function(t,i){var X=RX0+(i%2)*(TW+24),Y=y+h+Math.floor(i/2)*(TH+24);
     if(dr){rRound(x,X,Y,TW,TH,28,RC.tile);rText(x,t[0],X+30,Y+52,28,400,RC.muted);rFont(x,48,800);x.fillStyle=RC.fg;x.fillText(rFit(x,t[1],TW-60),X+30,Y+116);}});
   h+=Math.ceil(tiles.length/2)*(TH+24);
-  if(F.pr.length){rFont(x,32,400);var lines=rWrap(x,F.pr.join('、'),RW-150);
-    if(dr){rRound(x,RX0,y+h+6,124,50,25,RC.good);rText(x,'新紀錄',RX0+62,y+h+42,28,700,'#FFFFFF','center');
-      lines.forEach(function(s,i){rText(x,s,RX0+146,y+h+42+i*48,32,400,RC.fg);});}
-    h+=lines.length*48+22;}
+  if(F.pr.length||F.first.length){h+=8;if(dr){x.fillStyle=RC.line;x.fillRect(RX0,y+h,RW,2);}h+=24;}
+  F.pr.slice(0,5).forEach(function(r){if(dr){rPix(x,TROPHY_PX,ICON_PAL,RX0,y+h+6,4);rFont(x,34,700);x.fillStyle=RC.fg;x.fillText(rFit(x,r.name,RW-330),RX0+66,y+h+42);
+      rText(x,r.txt,RX1,y+h+42,32,700,RC.good,'right');}h+=66;});
+  if(F.pr.length>5){if(dr)rText(x,'還有 '+(F.pr.length-5)+' 項新紀錄',RX0+66,y+h+30,28,400,RC.muted);h+=46;}
+  if(F.first.length){rFont(x,32,400);var lines=rWrap(x,'第一次：'+F.first.join('、'),RW-66);
+    if(dr){rPix(x,SPARK_PX,ICON_PAL,RX0+2,y+h+6,4);lines.forEach(function(s2,i){rText(x,s2,RX0+66,y+h+40+i*48,32,400,RC.fg);});}
+    h+=lines.length*48+18;}
   return h+40;};}
 function repPnl(R,inc){return function(x,y,dr){
   var P=R.pnl,h=48,c=P.chg,col=c>0?RC.up:c<0?RC.down:RC.muted;
@@ -2376,25 +2402,33 @@ function repPnl(R,inc){return function(x,y,dr){
 function repMood(R){return function(x,y,dr){
   var M=R.mood,h=48;h+=rTitle(x,y+h,dr,'心情',M.n?'記錄 '+M.n+' 天':'');
   if(!M.n){if(dr)rText(x,'這週沒有記錄心情',RX0,y+h+30,30,400,RC.muted);return h+52+40;}
-  var cols=[RC.bad,RC.badLine,RC.faint,RC.good2,RC.good],BX=RX0+130,BW=RW-130-110;
-  for(var i=4;i>=0;i--){if(dr){rText(x,MOODS[i],RX0,y+h+40,32,400);rRound(x,BX,y+h+16,BW,30,15,RC.tile);
-      if(M.c[i])rRound(x,BX,y+h+16,Math.max(30,BW*M.c[i]/7),30,15,cols[i]);
-      rText(x,M.c[i]+' 天',RX1,y+h+40,30,M.c[i]?700:400,M.c[i]?RC.fg:RC.muted,'right');}
-    h+=58;}
+  var cols=['#B4471C','#E9A98A','#DCD5C9','#9CCBB2','#2F6B52'],DX=RW/7,r=44;
+  R.days.forEach(function(d,i){var l=db.logs[d],m=d<=R.end&&l&&typeof l.mood==='number'?l.mood:null,X=RX0+DX*i+DX/2,Y=y+h+r+44;
+    if(!dr)return;rText(x,'一二三四五六日'[i],X,y+h+26,26,400,RC.muted,'center');
+    if(m===null){x.setLineDash([8,8]);x.lineWidth=3;x.strokeStyle=RC.faint;x.beginPath();x.arc(X,Y,r-2,0,7);x.stroke();x.setLineDash([]);return;}
+    x.beginPath();x.arc(X,Y,r,0,7);x.fillStyle=cols[m];x.fill();
+    var ink=m===0||m===4?'#FFFFFF':'#1C1B19';x.fillStyle=ink;x.strokeStyle=ink;
+    [-14,14].forEach(function(ex){x.beginPath();x.arc(X+ex,Y-9,5.5,0,7);x.fill();});
+    x.lineWidth=5;x.lineCap='round';x.beginPath();var c=(m-2)*7;x.moveTo(X-16,Y+12-c/2);x.quadraticCurveTo(X,Y+12+c*1.5,X+16,Y+12-c/2);x.stroke();
+    rText(x,MOODS[m],X,Y+r+40,26,m===4||m===0?700:400,RC.muted,'center');});
+  h+=44+2*r+56;
   h+=16;rFont(x,34,400);var lines=rWrap(x,moodMsg(M,R.ws),RW-72),BH=lines.length*54+52;
   if(dr){rRound(x,RX0,y+h,RW,BH,28,RC.goodSoft);lines.forEach(function(s,i){rText(x,s,RX0+36,y+h+62+i*54,34,400,RC.fg);});}
   h+=BH;
   return h+40;};}
 function repCanvas(R,inc){
   var secs=[];if(inc.h)secs.push(repHabits(R,inc));if(inc.fit)secs.push(repFit(R));if(inc.pnl)secs.push(repPnl(R,inc));if(inc.mood)secs.push(repMood(R));
+  var hl=repHL(R,inc);secs.unshift(function(x,y,dr){var h=40;rFont(x,34,700);var ls=[];hl.forEach(function(t,i){rFont(x,i?32:34,i?400:700);ls=ls.concat(rWrap(x,t,RW-120).map(function(s2){return [s2,i];}));});
+    if(dr){rSprout(x,RX0,y+(Math.max(ls.length*50+80,150)-95)/2,5);ls.forEach(function(q,i){rText(x,q[0],RX0+120,y+h+42+i*50,q[1]?32:34,q[1]?400:700,q[1]?RC.muted:RC.good);});}
+    return Math.max(ls.length*50+80,150);});
   var cv=document.createElement('canvas'),x=cv.getContext('2d'),HEAD=300,FOOT=220,GAP=36;
   cv.width=1080;cv.height=10;var hs=secs.map(function(f){return f(x,0,false);});
   var tot=HEAD+hs.reduce(function(a,b){return a+b+GAP;},0)+FOOT;cv.height=Math.max(1920,tot);
   x=cv.getContext('2d');x.fillStyle=RC.bg;x.fillRect(0,0,cv.width,cv.height);
-  rText(x,'週報',RX0-48,180,96,800);
+  rText(x,REP_NAME,RX0-48,180,88,800);
   var y0=parseKey(R.ws).getFullYear();rText(x,y0+' · '+repRange(R.ws)+(R.partial?'（進行中）':''),RX0-48,248,38,400,RC.muted);
-  var y=HEAD;secs.forEach(function(f,i){rRound(x,56,y,968,hs[i],40,RC.card);f(x,y,true);y+=hs[i]+GAP;});
-  if(!secs.length)rText(x,'沒有選擇任何內容',540,HEAD+80,34,400,RC.muted,'center');
+  var y=HEAD;secs.forEach(function(f,i){rRound(x,56,y,968,hs[i],40,i?RC.card:RC.goodSoft);f(x,y,true);y+=hs[i]+GAP;});
+  if(secs.length<2)rText(x,'沒有選擇任何內容',540,HEAD+80,34,400,RC.muted,'center');
   var fy=cv.height-FOOT+50,s=5;rFont(x,34,700);var tw=x.measureText('習慣紀錄').width,gw=18*s+20+tw,gx=(1080-gw)/2;
   rSprout(x,gx,fy,s);rText(x,'習慣紀錄',gx+18*s+20,fy+62,34,700,RC.muted);
   return cv;}
@@ -2403,7 +2437,7 @@ function repDraw(){var seq=ui.repSeq=(ui.repSeq||0)+1,inc=repInc(repOpts());
   ui.repH=cv.height;
   cv.toBlob(function(bl){if(seq!==ui.repSeq||!bl)return;ui.repBlob=bl;if(ui.repUrl)try{URL.revokeObjectURL(ui.repUrl);}catch(e){}
     ui.repUrl=URL.createObjectURL(bl);var im=$('#repimg');if(im){im.src=ui.repUrl;im.parentNode.classList.remove('busy');}},'image/png');}
-function repShare(){var bl=ui.repBlob;if(!bl)return;var fn='週報-'+ui.repWs+'.png',f=null;
+function repShare(){var bl=ui.repBlob;if(!bl)return;var fn=REP_NAME+'-'+ui.repWs+'.png',f=null;
   try{f=new File([bl],fn,{type:'image/png'});}catch(e){}
   if(f&&navigator.canShare&&navigator.share){var can=false;try{can=navigator.canShare({files:[f]});}catch(e){}
     if(can){navigator.share({files:[f]}).catch(function(){});return;}}
@@ -2411,10 +2445,10 @@ function repShare(){var bl=ui.repBlob;if(!bl)return;var fn='週報-'+ui.repWs+'.
 function repRow(k,label,sub,on,indent){return '<div class="row-btn'+(indent?' rep-sub':'')+'"><span class="row-l"><span>'+label+'</span>'+(sub?'<span class="row-sub">'+sub+'</span>':'')+'</span>'+
   '<button class="switch" role="switch" aria-checked="'+on+'" aria-label="'+label+'" data-act="ropt" data-v="'+k+'"><span class="knob"></span></button></div>';}
 function vReport(){
-  var t=todayKey(),cw=weekStartKey(t);if(!ui.repWs||ui.repWs>cw)ui.repWs=repDefWs(t);
+  var t=todayKey(),cw=weekStartKey(t);if(!ui.repWs||ui.repWs>cw||ui.repWs<repMinWs())ui.repWs=repDefWs(t);
   var ws=ui.repWs,o=repOpts(),inc=repInc(o),any=repAny(inc);
-  var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="rback" aria-label="返回統計">'+I.left+'</button><h1 class="h1" style="font-size:22px">週報</h1><span style="width:44px"></span></header>';
-  s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="rweek" data-n="-1" aria-label="上一週">'+I.left+'</button>'+
+  var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="rback" aria-label="返回統計">'+I.left+'</button><h1 class="h1" style="font-size:22px">'+REP_NAME+'</h1><span style="width:44px"></span></header>';
+  s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="rweek" data-n="-1" aria-label="上一週"'+(ws<=repMinWs()?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="month-l">'+repRange(ws)+(ws===cw?'（本週）':'')+'</div>'+
     '<button class="iconbtn" data-act="rweek" data-n="1" aria-label="下一週"'+(ws>=cw?' disabled':'')+'>'+I.right+'</button></div>';
   s+='<section class="sec"><h2 class="sec-t">包含哪些內容</h2><div class="list">'+
@@ -2423,8 +2457,8 @@ function vReport(){
     (fOn()?repRow('fit','運動','運動天數、時間、距離和新紀錄',o.fit):'')+
     (db.settings.pnl?repRow('pnl','投資','這週未實現損益的走勢',o.pnl)+(o.pnl?repRow('amt','顯示金額','關閉時只顯示漲跌，不顯示數字',o.amt,true):''):'')+
     repRow('mood','心情','每種心情各幾天，加上一段給你的話',o.mood)+'</div></section>';
-  s+='<div class="rep-prev busy"><img id="repimg" alt="週報預覽"'+(ui.repUrl?' src="'+ui.repUrl+'"':'')+'></div>';
-  s+='<button class="primary rep-share" data-act="rshare"'+(any?'':' disabled')+'>'+I.share+' 分享週報</button>'+
+  s+='<div class="rep-prev busy"><img id="repimg" alt="'+REP_NAME+'預覽"'+(ui.repUrl?' src="'+ui.repUrl+'"':'')+'></div>';
+  s+='<button class="primary rep-share" data-act="rshare"'+(any?'':' disabled')+'>'+I.share+' 分享</button>'+
     '<p class="small muted" style="text-align:center">圖片在手機上產生，不會上傳。也可以長按圖片儲存。</p>';
   return s+'</div>';
 }
@@ -2894,7 +2928,7 @@ function act(a,b){
     case 'sback': go('stats');break;
     case 'report': go('report');ui.repWs=repDefWs(t);break;
     case 'rback': go('stats');break;
-    case 'rweek': k=addDays(ui.repWs,7*(+b.dataset.n));if(k>weekStartKey(t))return;ui.repWs=k;break;
+    case 'rweek': k=addDays(ui.repWs,7*(+b.dataset.n));if(k>weekStartKey(t)||k<repMinWs())return;ui.repWs=k;break;
     case 'ropt': repSetOpt(b.dataset.v);break;
     case 'rshare': repShare();return;
     case 'userest': if(ui.date>=t||diffDays(t,ui.date)>7||restUsed(ui.date)>=REST_PER_MONTH)return;l=db.logs[ui.date]||(db.logs[ui.date]={});l.rest=true;save();toast('已用休息卡');break;
