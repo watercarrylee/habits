@@ -432,6 +432,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await p.$$eval('.cl-item .cl-h b', x => x.map(e => e.textContent))).filter(t => t.startsWith('10/17')).length <= 1, 'one card per day');
   ok((await p.$$('.cl-item')).length >= 5, 'history listed by day');
   await p.evaluate(() => { document.getElementById('toast').hidden = true; });
+  ok(!!(await p.$('.cl-foot svg.cl-av')) && !!(await p.$('.cl-foot .cl-c')), 'changelog footer shows sprout and C avatars');
   for (let i = 0; i < 4; i++) await p.click('[data-act=cltap]');
   ok(await p.$eval('#toast', e => e.hidden), 'no easter egg before 5 taps');
   await p.click('[data-act=cltap]'); ok((await p.$eval('#toast', e => e.innerText)).includes('Aaron 再找 Claude'), 'easter egg after 5 taps');

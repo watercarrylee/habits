@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-pyl7iqutejDey7oj49NwjhHSWMCaef4WQlm+7hlBn4o='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-SDk2M1xj5kQ0Bum21ngrVLcVlIovij9eEVldeBNkynY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -149,7 +149,9 @@ button.hcard{padding-right:16px}
 .cl-item.cur{border-color:var(--good)}
 .cl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.cl-h b{font-size:15px;font-variant-numeric:tabular-nums}.cl-h .cl-v{font-variant-numeric:tabular-nums}.cl-h span{font-size:12px;color:var(--muted);white-space:nowrap}
 .cl-item ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.5}
-.cl-foot{display:block;margin:4px auto 0;border:0;background:transparent;font:inherit;font-size:13px;padding:8px 12px;-webkit-tap-highlight-color:transparent}
+.cl-foot{display:flex;align-items:center;gap:8px;margin:4px auto 0;border:0;background:transparent;font:inherit;font-size:13px;padding:8px 12px;-webkit-tap-highlight-color:transparent}
+.cl-av{display:block;border-radius:50%;flex:0 0 auto}
+.cl-c{width:28px;height:28px;border-radius:50%;background:#d97757;color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .lockbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);font-size:13px;color:var(--muted)}
 .lockbar>span{display:flex;align-items:center;gap:6px;min-width:0}.lockbar svg{flex:0 0 auto}
 .lockbar .ghost{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
@@ -1342,7 +1344,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-10';
+var APP_VER='2026.10.18-11';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2310,6 +2312,7 @@ var CLKEY='habit-cl-seen';
 function clDay(){return CHANGELOG[0][0]||CHANGELOG[0][1];}
 function clSeen(){try{return localStorage.getItem(CLKEY)===clDay();}catch(e){return true;}}
 function clMarkSeen(){try{localStorage.setItem(CLKEY,clDay());}catch(e){}}
+var SPROUT='<svg class="cl-av" width="28" height="28" aria-hidden="true" viewBox="-3.0 -2.0 24 24" shape-rendering="crispEdges"><rect x="-50" y="-50" width="200" height="200" fill="#fbf1dc"/><path fill="#16261b" d="M10 0h5v1h-5zM9 1h1v1h-1zM15 1h1v1h-1zM8 2h1v1h-1zM15 2h1v1h-1zM4 3h4v1h-4zM14 3h1v1h-1zM3 4h1v1h-1zM7 4h1v1h-1zM9 4h1v1h-1zM13 4h1v1h-1zM4 5h4v1h-4zM9 5h4v1h-4zM7 6h1v1h-1zM9 6h1v1h-1zM6 7h6v1h-6zM4 8h2v1h-2zM12 8h2v1h-2zM3 9h1v1h-1zM14 9h1v1h-1zM3 10h1v1h-1zM14 10h1v1h-1zM2 11h1v1h-1zM15 11h1v1h-1zM2 12h1v1h-1zM15 12h1v1h-1zM2 13h1v1h-1zM7 13h1v1h-1zM10 13h1v1h-1zM15 13h1v1h-1zM2 14h1v1h-1zM8 14h2v1h-2zM15 14h1v1h-1zM2 15h14v1h-14zM2 16h1v1h-1zM15 16h1v1h-1zM3 17h1v1h-1zM14 17h1v1h-1zM4 18h10v1h-10z"/><path fill="#9be28b" d="M10 1h5v1h-5zM9 2h5v1h-5zM9 3h3v1h-3zM5 4h2v1h-2zM8 8h2v1h-2zM6 9h2v1h-2z"/><path fill="#72cc66" d="M14 2h1v1h-1zM12 3h2v1h-2zM4 4h1v1h-1zM10 4h3v1h-3z"/><path fill="#3b8a3c" d="M8 3h1v1h-1zM8 4h1v1h-1zM8 5h1v1h-1zM8 6h1v1h-1z"/><path fill="#5fc45c" d="M6 8h2v1h-2zM10 8h2v1h-2zM4 9h2v1h-2zM8 9h5v1h-5zM4 10h9v1h-9zM3 11h10v1h-10zM3 12h1v1h-1zM6 12h6v1h-6zM3 13h4v1h-4zM8 13h2v1h-2zM11 13h1v1h-1zM3 14h5v1h-5zM10 14h2v1h-2z"/><path fill="#45a548" d="M13 9h1v1h-1zM13 10h1v1h-1zM13 11h2v1h-2zM14 12h1v1h-1zM12 13h3v1h-3zM12 14h3v1h-3z"/><path fill="#f2958c" d="M4 12h2v1h-2zM12 12h2v1h-2z"/><path fill="#c8693d" d="M3 16h11v1h-11zM4 17h8v1h-8z"/><path fill="#9c4b28" d="M14 16h1v1h-1zM12 17h2v1h-2z"/></svg>';
 function vChangelog(){
   var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="back" aria-label="返回設定">'+I.left+'</button><h1 class="h1" style="font-size:22px">更新紀錄</h1><span style="width:44px"></span></header><div class="cl">';
   var groups=[];CHANGELOG.forEach(function(e){var g=groups[groups.length-1];if(g&&g.day===e[1])g.items.push(e);else groups.push({day:e[1],items:[e]});});
@@ -2317,7 +2320,7 @@ function vChangelog(){
     s+='<section class="cl-item'+(i===0?' cur':'')+'"><div class="cl-h"><b>'+g.day+(i===0?' · 最新':'')+'</b><span class="cl-v">'+vr+'</span></div><ul>'+
       g.items.map(function(e){return e[2].map(function(x){return '<li>'+esc(x)+'</li>';}).join('');}).join('')+'</ul></section>';
   });
-  return s+'</div><button class="small muted cl-foot" data-act="cltap">Aaron × Claude</button></div>';
+  return s+'</div><button class="small muted cl-foot" data-act="cltap">'+SPROUT+'<span>Aaron × Claude</span><span class="cl-c" aria-hidden="true">C</span></button></div>';
 }
 function vArchived(){
   var list=db.habits.filter(function(h){return h.archived;});
