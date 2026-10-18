@@ -373,11 +373,19 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   const pt = await p.$eval('#main', e => e.innerText);
   ok(pt.includes('配速') && pt.includes(`6:00 /km`) && pt.includes('本週距離'), 'progress shows best pace and weekly distance (' + pt.match(/最快配速[^\n]*\n[^\n]*/) + ')');
   ok(!!(await p.$('.chart')), 'pace trend chart drawn');
+  ok(pt.includes('只算 2 km 以上'), 'note: only runs of 2 km or more count');
   await p.click('[data-tab=today]'); await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-tab=fit]');
   await p.click('[data-act=ftab][data-v=log]'); ok((await p.$eval('.dnav-c', e => e.innerText)).includes('昨天'), '運動 tab keeps the day you were viewing');
   await p.click('[data-tab=today]');
   ok((await p.$eval('h1.h1', e => e.textContent)) === '今天', '今天 tab always returns to today');
   await done(p, 'pace');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true }, rewards: [], redeemed: [], logs: {}, fit: { ex: [], ctypes: [], logs: {} }, habits: [
+    { id: 'g1', name: '運動 30 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10), fitLink: true }] } });
+  await p.click('[data-tab=fit]'); await p.click('[data-act=fcnew]'); await p.fill('#fcminin', '29'); await p.fill('#fcsec', '45'); await p.click('[data-act=fcsave]');
+  d = await db(p); ok(!(d.logs[T] && d.logs[T].h && d.logs[T].h.g1), '29:45 does not meet a 30-minute target (no rounding)');
+  await p.click('[data-act=cedit]'); await p.fill('#fcminin', '30'); await p.fill('#fcsec', ''); await p.click('[data-act=fcsave]');
+  d = await db(p); ok(d.logs[T] && d.logs[T].h && d.logs[T].h.g1 === 1, '30:00 meets it');
+  await done(p, 'pace exact');
 
   console.log('• 更新紀錄');
   p = await page(b);
