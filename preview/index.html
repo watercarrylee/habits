@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-IIX0BNMcngQZNdKUIHB5VMtsXgY7uzg853atnxo/aew='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-DFJYMqh5rK7Cm92dmEYxl3ZbHE7rfGGkvEYUjp1Qeh4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,6 +114,7 @@ button.hcard{padding-right:16px}
 .plus.bad{background:var(--bad);color:var(--on-bad)}
 .cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
 .cnt.zero{color:var(--faint)}
+.tab{position:relative}.tab.tdot::after{content:'';position:absolute;top:6px;left:calc(50% + 9px);width:8px;height:8px;border-radius:4px;background:var(--bad);box-shadow:0 0 0 2px var(--surface)}
 .chkday{display:flex;flex-direction:column;align-items:center;gap:3px;flex:0 0 auto}.chkday small{font-size:11px;font-weight:700;color:var(--muted);line-height:1}
 .cbig-t{display:flex;align-items:center;justify-content:center;gap:2px}.cbig-t b{font-size:40px;font-weight:900;color:var(--muted)}
 .cbig-v input.cbig-in.sec{width:72px}
@@ -632,7 +633,7 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
     </button>
     <button class="tab" data-act="tab" data-tab="settings">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
-      習慣設定
+      設定
     </button>
   </nav>
 </div>
@@ -1315,7 +1316,7 @@ function vOnboard(){
       OB_SIZES.map(function(z){var on=o.size===z[0];return '<button class="obopt'+(on?' on':'')+'" data-act="obsize" data-v="'+z[0]+'" aria-pressed="'+on+'"><b>'+z[1]+' · '+z[0]+' 個</b><span>'+z[2]+'</span></button>';}).join('')+'</div>';
   }else if(st===2){
     var F=[['pnl','記錄投資損益','每天記一次帳面損益，看走勢'],['diary','寫日記','有引導題，寫得比備註長'],['fit','記錄運動','重訓、有氧，看進步趨勢圖']];
-    s+='<div><h1 class="ob-t">要不要打開這些功能？</h1><p class="ob-s">都可以之後在「習慣設定」再開或關。</p></div><div class="list">'+
+    s+='<div><h1 class="ob-t">要不要打開這些功能？</h1><p class="ob-s">都可以之後在「設定」再開或關。</p></div><div class="list">'+
       F.map(function(f){var on=!!o.feats[f[0]];return '<div class="row-btn"><span class="row-l"><span>'+f[1]+'</span><span class="row-sub">'+f[2]+'</span></span><button class="switch" role="switch" aria-checked="'+on+'" aria-label="'+f[1]+'" data-act="obfeat" data-v="'+f[0]+'"><span class="knob"></span></button></div>';}).join('')+'</div>';
   }else{
     var n=o.picks.filter(function(p){return p.on;}).length;
@@ -1323,7 +1324,7 @@ function vOnboard(){
       o.picks.map(function(p,i){var meta=(p.kind==='good'?'好習慣':'壞習慣')+' · '+(p.method==='count'?'計次':'打勾')+(p.save?' · 每次省 NT$'+p.save:'')+(p.fitLink&&o.feats.fit?' · 連動運動紀錄':'');
         return '<div class="obpick'+(p.on?'':' off')+'"><button class="obchk'+(p.on?' on':'')+'" data-act="obpick" data-i="'+i+'" aria-pressed="'+p.on+'" aria-label="選取 '+esc(p.name)+'">'+(p.on?I.check:'')+'</button>'+
           '<span class="obico">'+icoSvg(guessIcon(p.name),20)+'</span><span class="obname"><input class="obin" data-i="'+i+'" value="'+esc(p.name)+'" maxlength="40" aria-label="習慣名稱"><small class="'+(p.kind==='bad'?'bad-t':'')+'">'+meta+'</small></span></div>';}).join('')+'</div>'+
-      '<div class="obtips"><b>兩個小提醒</b><span>· 加到主畫面：Safari 的分享按鈕 →「加入主畫面」，用起來像 App。</span><span>· 記得備份：紀錄只存在這支手機上，在「習慣設定 → 匯出備份」。</span></div>';
+      '<div class="obtips"><b>兩個小提醒</b><span>· 加到主畫面：Safari 的分享按鈕 →「加入主畫面」，用起來像 App。</span><span>· 記得備份：紀錄只存在這支手機上，在「設定 → 匯出備份」。</span></div>';
   }
   var canNext=st===0?o.areas.length>0:st===3?o.picks.some(function(p){return p.on&&p.name.trim();}):true;
   s+='<div class="obfoot">'+(st>0?'<button class="secondary" data-act="obback">上一步</button>':'<span></span>')+
@@ -1341,7 +1342,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-8';
+var APP_VER='2026.10.18-9';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1663,6 +1664,13 @@ function progressOf(r,h,tot){
   return {txt:over?'已超過 '+(res.slips-r.target)+' 次':'剩 '+(r.target-res.slips)+' 次額度',pct:r.target?pctOf(res.slips,r.target):(res.slips?100:0),cls:over?'over':'',
     note:'目前犯了 '+res.slips+' 次 · '+(over?(r.repeat?'這個月沒達成，下個月重來':'這次沒達成'):settle)};
 }
+/* small dots on the bottom tabs: a reward ready to redeem; backup due or a new 更新紀錄 */
+function bkDue(){if(DEMO||!db.habits.length)return false;var o=bkGet(),t=todayKey();if(o.snooze&&o.snooze>t)return false;
+  var lim=isIOS()&&!isStandalone()?7:14,age=o.at?daysSince(o.at):daysSince(firstUseKey());return age>=lim;}
+function tabBadges(){var rw=false;try{syncRewards();var tot=savingsTotals();rw=db.rewards.some(function(r){return pending(r,tot)>0;});}catch(e){}
+  var st=bkDue()||!clSeen();
+  var a=document.querySelector('.tab[data-tab=rewards]'),b=document.querySelector('.tab[data-tab=settings]');
+  if(a)a.classList.toggle('tdot',rw);if(b)b.classList.toggle('tdot',st);}
 function rewardBanner(){
   syncRewards();var tot=savingsTotals();
   var ready=db.rewards.filter(function(r){return pending(r,tot)>0;});
@@ -1689,7 +1697,7 @@ function vRewards(){
     if(tot.spent)s+='<p class="small muted">已用在獎勵 NT$'+fmtN(tot.spent)+'。</p>';
     s+='</section>';
   }else{
-    s+='<div class="hintcard"><span>幫習慣設定「省下的錢」，例如沒買咖啡省 NT$80，這裡會開始累計，也能當成獎勵條件。</span><button class="linkish" data-act="tab" data-tab="settings">到習慣設定</button></div>';
+    s+='<div class="hintcard"><span>幫習慣設定「省下的錢」，例如沒買咖啡省 NT$80，這裡會開始累計，也能當成獎勵條件。</span><button class="linkish" data-act="tab" data-tab="settings">到設定</button></div>';
   }
   var ready=[],prog=[];
   db.rewards.forEach(function(r){
@@ -1747,7 +1755,7 @@ function vRewardEdit(){
     s+=list.length?'<div class="list">'+list.map(function(h){
       var on=d.habit===h.id;
       return '<button class="pickrow" data-act="rhabit" data-id="'+h.id+'" aria-pressed="'+on+'">'+rowIco(h)+'<span class="nm">'+esc(h.name)+'</span><span class="radio'+(on?' on':'')+'"></span></button>';
-    }).join('')+'</div>':'<p class="hint">還沒有'+(R.kind==='bad'?'壞':'好')+'習慣，先到「習慣設定」新增。</p>';
+    }).join('')+'</div>':'<p class="hint">還沒有'+(R.kind==='bad'?'壞':'好')+'習慣，先到「設定」新增。</p>';
     s+='</div>';
   }
   s+='<div class="field"><label class="lbl" for="rtarget">'+R.tl+'</label><div class="stepper">'+
@@ -2076,9 +2084,9 @@ function a2Banner(){
   if(!a2Eligible())return '';var o=a2Get();if(o.never||(o.until&&Date.now()<o.until))return '';
   var has=db.habits.length||Object.keys(db.logs).length;
   return '<section class="a2" aria-label="加到主畫面"><div class="a2-t">加到主畫面，用起來就像 App</div><ol>'+
-    (has?'<li>先到「習慣設定」按<b>匯出備份</b>，把目前的紀錄帶過去</li>':'')+
+    (has?'<li>先到「設定」按<b>匯出備份</b>，把目前的紀錄帶過去</li>':'')+
     '<li>點瀏覽器的分享按鈕 '+I.share+'（Safari 在下方工具列，或「⋯」選單裡），選<b>加入主畫面</b></li>'+
-    '<li>從主畫面打開'+(has?'，到「習慣設定」按<b>從備份還原</b>':'就完成了')+'</li></ol>'+
+    '<li>從主畫面打開'+(has?'，到「設定」按<b>從備份還原</b>':'就完成了')+'</li></ol>'+
     (has?'<p class="small muted">主畫面的 App 和這個瀏覽器分頁的資料是分開存的，所以要用備份搬過去。</p>':'')+
     '<div class="a2-f"><label class="a2never"><input type="checkbox" id="a2never">不再提示</label><button class="ghost" data-act="a2close">知道了</button></div></section>';
 }
@@ -2155,7 +2163,7 @@ function vStats(){
   if(tab==='pnl')return s+pnlStats(y,m)+'</div>';
   if(tab==='diary')return s+diaryStats(y,m)+'</div>';
   if(!goods.length&&!bads.length){
-    return s+'<div class="empty"><div class="empty-t">還沒有資料</div><p>先到「習慣設定」新增習慣，記錄幾天後這裡就會出現月曆和趨勢。</p><button class="primary" data-act="new">新增習慣</button></div></div>';
+    return s+'<div class="empty"><div class="empty-t">還沒有資料</div><p>先到「設定」新增習慣，記錄幾天後這裡就會出現月曆和趨勢。</p><button class="primary" data-act="new">新增習慣</button></div></div>';
   }
   var S=0,D=0,B=0,cells=[];
   for(var b=0;b<first.getDay();b++)cells.push('<span class="cell blank"></span>');
@@ -2189,7 +2197,7 @@ function meta(h){
   return m+' · '+(n===7?'每天':'每週'+WD.filter(function(_,i){return h.days[i];}).join(''));
 }
 function vSettings(){
-  var s='<div class="page"><header class="titlebar"><h1 class="h1">習慣設定</h1><button class="addbtn" data-act="new" aria-label="新增習慣">'+I.plus+'</button></header>';
+  var s='<div class="page"><header class="titlebar"><h1 class="h1">設定</h1><button class="addbtn" data-act="new" aria-label="新增習慣">'+I.plus+'</button></header>';
   ['good','bad'].forEach(function(kind){
     var list=active(kind),nm=kind==='good'?'好習慣':'壞習慣';
     s+='<section class="sec"><div class="sec-row"><h2 class="sec-t '+kind+'-t">'+nm+'</h2>'+(list.length>1?'<span class="small muted">按住左邊拖曳排序</span>':'')+'</div>';
@@ -2256,14 +2264,14 @@ var FAQ=[
   ['啞鈴的重量要填一顆還是兩顆？','填一顆。例如兩手各拿 10 kg，就填 10。所以啞鈴的動作旁邊會標示「單手」。'],
   ['器材要選「器械」還是「槓鈴」？','有座椅、軌道或轉軸固定，用插銷選重量片的機器，都選「器械」，例如推胸機、二頭彎舉機。槓鈴是可以自己拿起來、兩邊掛槓片的長槓。']]],
  ['edit','紀錄與編輯',[
-  ['為什麼過去的紀錄會被鎖住？為什麼昨天沒鎖？','避免翻舊紀錄時不小心改到。昨天不鎖，是因為「昨天忘了打勾，今天補」最常見。要改更早的日子，按「編輯這天」就好；也可以在「習慣設定 → 過去的紀錄」調整天數或關掉。'],
+  ['為什麼過去的紀錄會被鎖住？為什麼昨天沒鎖？','避免翻舊紀錄時不小心改到。昨天不鎖，是因為「昨天忘了打勾，今天補」最常見。要改更早的日子，按「編輯這天」就好；也可以在「設定 → 過去的紀錄」調整天數或關掉。'],
   ['想改習慣的頻率，需要刪掉重建嗎？','不用，也不建議。刪除會把這個習慣所有的打勾紀錄一起刪掉。直接編輯原本的習慣，紀錄都會保留。'],
   ['改了習慣名稱，圖示為什麼有時會跟著變、有時不會？','系統自動選的圖示，會跟著名稱更新；你手動挑過的圖示，會保留你的選擇。'],
   ['「全部完成」的慶祝，為什麼一天只出現一次？補記過去的日子為什麼沒有？','慶祝是給「今天」的。一直重複出現，或補記時跳出來，就失去意義了。']]],
  ['data','資料與更新',[
-  ['我的資料存在哪裡？','只存在這支手機的這個瀏覽器裡，不會上傳到任何地方。換手機、刪掉主畫面上的 App，或清除 Safari 網站資料之前，請先到「習慣設定 → 匯出備份」。'],
+  ['我的資料存在哪裡？','只存在這支手機的這個瀏覽器裡，不會上傳到任何地方。換手機、刪掉主畫面上的 App，或清除 Safari 網站資料之前，請先到「設定 → 匯出備份」。'],
   ['備份為什麼建議設密碼？','就算備份檔不小心外流，沒有密碼也打不開。但密碼忘記就無法還原，請記好。'],
-  ['為什麼更新後要把 App 關掉再開？多久更新一次？','App 要重新開啟才會抓到新版，有時要關掉重開兩次。新功能一天最多更新一次，影響使用的問題會盡快修正。每次改了什麼，可以看「習慣設定 → 更新紀錄」。']]]
+  ['為什麼更新後要把 App 關掉再開？多久更新一次？','App 要重新開啟才會抓到新版，有時要關掉重開兩次。新功能一天最多更新一次，影響使用的問題會盡快修正。每次改了什麼，可以看「設定 → 更新紀錄」。']]]
 ];
 function faqLink(cat){return '<button class="faqq" data-act="faq" data-v="'+cat+'" aria-label="相關的常見問題">?</button>';}
 function vFaq(){
@@ -2277,7 +2285,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
- ['2026.10.18-1','10/18',['新增「常見問題」（習慣設定 → 說明），部分設定旁也有「?」可以直接看','有目標的習慣卡片統一成「名稱 / 75% · 連續 5 天 / 進度條」，畫面更整齊','每週幾次的習慣用分格進度條顯示']],
+ ['2026.10.18-1','10/18',['新增「常見問題」（設定 → 說明），部分設定旁也有「?」可以直接看','有目標的習慣卡片統一成「名稱 / 75% · 連續 5 天 / 進度條」，畫面更整齊','每週幾次的習慣用分格進度條顯示']],
  ['2026.10.17-10','10/17',['編輯習慣時，自動選的圖示會跟著名稱更新；頻率移到前面','「用運動紀錄自動打勾」只在運動類的習慣出現','好習慣可以設「每週幾次，哪天都可以」，例如一週運動 3 次','今天頁多了「這週」區塊，顯示本週進度和連續幾週','統計排行用「週」計算這類習慣']],
  ['2026.10.17-9','10/17',['藏了一個小彩蛋']],
  ['2026.10.17-8','10/17',['App 裡多了「更新紀錄」，就是這一頁']],
@@ -2303,7 +2311,7 @@ function clDay(){return CHANGELOG[0][0]||CHANGELOG[0][1];}
 function clSeen(){try{return localStorage.getItem(CLKEY)===clDay();}catch(e){return true;}}
 function clMarkSeen(){try{localStorage.setItem(CLKEY,clDay());}catch(e){}}
 function vChangelog(){
-  var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="back" aria-label="返回習慣設定">'+I.left+'</button><h1 class="h1" style="font-size:22px">更新紀錄</h1><span style="width:44px"></span></header><div class="cl">';
+  var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="back" aria-label="返回設定">'+I.left+'</button><h1 class="h1" style="font-size:22px">更新紀錄</h1><span style="width:44px"></span></header><div class="cl">';
   var groups=[];CHANGELOG.forEach(function(e){var g=groups[groups.length-1];if(g&&g.day===e[1])g.items.push(e);else groups.push({day:e[1],items:[e]});});
   groups.forEach(function(g,i){var vs=g.items.map(function(e){return e[0];}).filter(Boolean),vr=vs.length?(vs.length>1?vs[vs.length-1]+' ～ '+vs[0].replace(/^.*-/,'-'):vs[0]):'';
     s+='<section class="cl-item'+(i===0?' cur':'')+'"><div class="cl-h"><b>'+g.day+(i===0?' · 最新':'')+'</b><span class="cl-v">'+vr+'</span></div><ul>'+
@@ -2313,7 +2321,7 @@ function vChangelog(){
 }
 function vArchived(){
   var list=db.habits.filter(function(h){return h.archived;});
-  var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="back" aria-label="返回習慣設定">'+I.left+'</button><h1 class="h1" style="font-size:22px">已封存的習慣</h1><span style="width:44px"></span></header>';
+  var s='<div class="page"><header class="datebar"><button class="iconbtn" data-act="back" aria-label="返回設定">'+I.left+'</button><h1 class="h1" style="font-size:22px">已封存的習慣</h1><span style="width:44px"></span></header>';
   if(!list.length)return s+'<p class="small muted">沒有封存的習慣。在編輯畫面按「封存」，習慣就會收到這裡，過去的紀錄都會保留。</p></div>';
   s+='<div class="list">'+list.map(function(h){
     var conf=ui.confirmDel===h.id;
@@ -2432,6 +2440,7 @@ function render(){
   $('#tabs').hidden=(v==='faq'&&ui.faqBack&&ui.faqBack.view==='edit')||v==='edit'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
   var tabv=v==='archived'||v==='changelog'||v==='faq'?'settings':v==='search'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
+  tabBadges();
   renderSheet();
   if(ui.celAnim){var ce=typeof ui.celAnim==='string'?main.querySelector('[data-id="'+ui.celAnim+'"] .check, [data-act=inc][data-id="'+ui.celAnim+'"]'):null;if(ce)ce.classList.add('pop');ui.celAnim=null;}
   if(ui.top){main.scrollTop=0;ui.top=false;}
@@ -2654,7 +2663,7 @@ function act(a,b){
     case 'mood': n=+b.dataset.i;l=db.logs[ui.date]||(db.logs[ui.date]={});l.mood=l.mood===n?null:n;tidy(ui.date);save();break;
     case 'month': n=ui.month[1]+(+b.dataset.n);ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
     case 'pickday': ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
-    case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「習慣設定」修改');break;
+    case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「設定」修改');break;
     case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
     case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
     case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
@@ -2855,7 +2864,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')updCheck();});
 setTimeout(updCheck,1500);
 render();
-if(autoIcons)toast('已幫 '+autoIcons+' 個習慣加上圖示，可在「習慣設定」修改',4000);
+if(autoIcons)toast('已幫 '+autoIcons+' 個習慣加上圖示，可在「設定」修改',4000);
 })();
 </script>
 

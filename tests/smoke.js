@@ -402,6 +402,18 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(lc.name === '坐姿腿彎舉機' && lc.en === 'Seated Leg Curl' && d.fit.logs[daysAgo(3)].s[0].ex === 'p42', 'existing 腿彎舉機 renamed, records kept');
   await done(p, 'rename');
 
+  console.log('• tab badges + 設定 label');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: {}, logs: { [daysAgo(1)]: { h: { r1: 1 } }, [daysAgo(2)]: { h: { r1: 1 } } }, redeemed: [],
+    rewards: [{ id: 'rw', name: '吃大餐', type: 'streak', habit: 'r1', target: 2, repeat: true, created: daysAgo(5), earned: [], done: false }],
+    habits: [{ id: 'r1', name: '伸展', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5) }] } });
+  ok((await p.$eval('.tab[data-tab=settings]', e => e.innerText.trim())) === '設定', 'tab is named 設定');
+  ok(await p.$eval('.tab[data-tab=rewards]', e => e.classList.contains('tdot')), 'reward ready: dot on 獎勵');
+  ok(await p.$eval('.tab[data-tab=settings]', e => e.classList.contains('tdot')), 'unseen changelog / backup due: dot on 設定');
+  await p.evaluate(() => { localStorage.setItem('habit-tracker-v1-backup', JSON.stringify({ at: new Date().toISOString() })); });
+  await p.click('[data-tab=settings]'); await p.click('[data-act=changelog]'); await p.click('[data-act=back]');
+  ok(!(await p.$eval('.tab[data-tab=settings]', e => e.classList.contains('tdot'))), 'dot on 設定 clears after viewing 更新紀錄 (backed up)');
+  await done(p, 'badges');
+
   console.log('• 更新紀錄');
   p = await page(b);
   await p.click('[data-tab=settings]');
