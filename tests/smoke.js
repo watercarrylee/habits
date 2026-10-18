@@ -347,6 +347,36 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'upd editing');
   }
 
+  console.log('• cardio pace + 今天 tab');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true }, rewards: [], redeemed: [], logs: {}, habits: [], fit: { ex: [], ctypes: ['拳擊有氧', '健走課'], cdist: [], logs: {
+    [daysAgo(9)]: { c: [{ id: 'r1', type: '戶外跑步', min: 30, dist: 5 }] }, [daysAgo(2)]: { c: [{ id: 'r2', type: '戶外跑步', min: 31, sec: 15, dist: 5.2 }] } } } } });
+  await p.click('[data-tab=fit]'); await p.click('[data-act=fcnew]');
+  await p.click('[data-act=fctype][data-v=戶外跑步]');
+  await p.fill('#fcminin', '32'); await p.fill('#fcsec', '15'); await p.fill('#fcdist', '5.2');
+  ok((await p.$eval('#fcpace', e => e.innerText)).includes(`6'12" /km`), 'pace 6\'12"/km computed live from 32:15 and 5.2 km');
+  await p.click('[data-act=fcsave]'); d = await db(p);
+  const rc = d.fit.logs[T].c[0];
+  ok(rc.min === 32 && rc.sec === 15 && rc.dist === 5.2, 'saved minutes, seconds and distance');
+  ok((await p.$eval('#main', e => e.innerText)).includes(`5.2 km · 6'12" /km`) && (await p.$eval('#main', e => e.innerText)).includes('32:15'), 'day card shows distance, pace and time');
+  await p.click('[data-act=fcnew]'); await p.click('[data-act=fctype][data-v=游泳]');
+  ok((await p.$eval('.fcx', e => e.innerText)).includes('公尺'), 'swimming distance in meters');
+  await p.fill('#fcminin', '30'); await p.fill('#fcsec', ''); await p.fill('#fcdist', '1500');
+  ok((await p.$eval('#fcpace', e => e.innerText)).includes(`2'00" /100m`), 'swim pace per 100 m');
+  await p.click('[data-act=fctype][data-v=飛輪]'); await p.fill('#fcminin', '60'); await p.fill('#fcdist', '25');
+  ok((await p.$eval('#fcpace', e => e.innerText)).includes('25 km/h'), 'bike shows km/h');
+  await p.click('[data-act=fctype][data-v=拳擊有氧]'); ok(!(await p.$('#fcdist')) && !!(await p.$('[data-act=fcdisttog]')), 'non-distance custom type: no distance, has toggle');
+  await p.click('[data-act=fctype][data-v=健走課]'); ok(!!(await p.$('#fcdist')), 'custom 健走 detected as distance type');
+  await p.click('[data-act=fccancel]');
+  await p.click('[data-act=ftab][data-v=prog]');
+  const pt = await p.$eval('#main', e => e.innerText);
+  ok(pt.includes('配速') && pt.includes(`6'00" /km`) && pt.includes('本週距離'), 'progress shows best pace and weekly distance (' + pt.match(/最快配速[^\n]*\n[^\n]*/) + ')');
+  ok(!!(await p.$('.chart')), 'pace trend chart drawn');
+  await p.click('[data-tab=today]'); await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-tab=fit]');
+  await p.click('[data-act=ftab][data-v=log]'); ok((await p.$eval('.dnav-c', e => e.innerText)).includes('昨天'), '運動 tab keeps the day you were viewing');
+  await p.click('[data-tab=today]');
+  ok((await p.$eval('h1.h1', e => e.textContent)) === '今天', '今天 tab always returns to today');
+  await done(p, 'pace');
+
   console.log('• 更新紀錄');
   p = await page(b);
   await p.click('[data-tab=settings]');

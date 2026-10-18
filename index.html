@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-BzuMv89FqHZc0dPwaOV4FMyWyyVOhWkXCFTiH0RjhyA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-VGq3jZCVsnW/xs9MCcv1K9YlBuS3l87bUKyWtACckPQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,6 +114,12 @@ button.hcard{padding-right:16px}
 .plus.bad{background:var(--bad);color:var(--on-bad)}
 .cnt{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
 .cnt.zero{color:var(--faint)}
+.cbig-v input.cbig-in{width:110px;border:0;background:transparent;text-align:center;font-size:48px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums;padding:0;height:auto;outline:none}
+.fcx{display:flex;flex-direction:column;gap:10px}.fcx-r{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px}
+.fcx-in{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}.fcx .fcx-in input{width:110px;height:44px;text-align:center;font-size:18px;font-weight:700}
+.fcx-p{text-align:center;font-size:15px;padding-top:2px}.fcx-p b{font-size:20px;font-variant-numeric:tabular-nums;color:var(--good)}
+.ptiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}.ptiles>div{display:flex;flex-direction:column;gap:2px}.ptiles b{font-size:20px;font-variant-numeric:tabular-nums}
+.mini-sel{height:32px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font-size:14px;padding:0 8px;color:var(--fg)}
 #updcard{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--surface);border:1.5px solid var(--good-line,var(--line));border-radius:18px;padding:14px 16px;box-shadow:0 8px 28px rgba(0,0,0,.18);max-width:480px;margin:0 auto}
 #updcard .upd-t{font-weight:800;font-size:15px}#updcard ul{margin:6px 0 0;padding-left:18px;font-size:14px;line-height:1.5}#updcard .upd-s{margin:6px 0 10px;font-size:12px;color:var(--muted)}
 #updcard .upd-b{display:flex}#updcard .upd-b button{flex:1;height:42px;font-size:15px}
@@ -733,6 +739,19 @@ var EQ_LIST=['器械','滑輪','槓鈴','啞鈴','壺鈴','史密斯機','徒手
 var EQ_ALIAS={'固定式器械':'器械','繩索':'滑輪'};
 var PARTS=['胸','背','肩','二頭','三頭','腿','臀','核心','小腿','全身'];
 var CARDIO=['跑步機','飛輪','划船機','橢圓機','爬梯機','戶外跑步','游泳','跳繩'];
+/* distance & pace: pace = min/km, speed = km/h (bikes), swim = per 100 m, row = per 500 m */
+function cKind(type){var t=String(type||'');
+  if(/游/.test(t))return 'swim';if(/划/.test(t))return 'row';if(/騎|單車|自行車|飛輪/.test(t))return 'speed';
+  if(/跑|走|散步|登山|爬山|健行/.test(t))return 'pace';
+  return db&&db.fit&&(db.fit.cdist||[]).indexOf(t)>=0?'pace':'';}
+function cMin(c){return (c.min||0)+((c.sec||0)>=30?1:0);}
+function cSecs(c){return (c.min||0)*60+(c.sec||0);}
+function mmss(sec){sec=Math.round(sec);return Math.floor(sec/60)+"'"+String(sec%60).padStart(2,'0')+'"';}
+var PACE_MIN={pace:1,speed:5,swim:0.1,row:0.5};
+function cPace(c,kind){kind=kind||cKind(c.type);var d=c.dist,t=cSecs(c);if(!kind||!(d>0)||!(t>0))return null;
+  if(kind==='speed'){var v=d/(t/3600);return {v:v,txt:(Math.round(v*10)/10)+' km/h',better:'hi'};}
+  var per=kind==='swim'?d*10:kind==='row'?d*2:d,sp=t/per;return {v:sp,txt:mmss(sp)+(kind==='swim'?' /100m':kind==='row'?' /500m':' /km'),better:'lo'};}
+function distTxt(d,kind){return kind==='swim'||kind==='row'?fmtN(Math.round(d*1000))+' m':(Math.round(d*100)/100)+' km';}
 var EQI={'槓鈴':'M2 12h20M5 8.5v7M8 6.5v11M16 6.5v11M19 8.5v7','啞鈴':'M7.5 12h9M5.5 7v10M3 9.5v5M18.5 7v10M21 9.5v5','壺鈴':'M9 9.2V7.5a3 3 0 0 1 6 0v1.7M7 14.5a5 5 0 1 0 10 0a5 5 0 1 0-10 0','器械':'M5 21V3h9v4M11 7h6v5h-6zM11 14.5h6M3 21h18','滑輪':'M9.5 4.5a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M12 7v10M7.5 17h9M8.5 17v3.5M15.5 17v3.5','史密斯機':'M5 3v18M19 3v18M3 10h18M7.5 7.5v5M16.5 7.5v5','徒手':'M10 3.8a2 2 0 1 0 4 0a2 2 0 1 0-4 0M12 6.5v8M5.5 10l6.5-2.5 6.5 2.5M8.5 21.5l3.5-7 3.5 7','彈力帶':'M5 9c0-7 14-7 14 0v6c0 7-14 7-14 0zM8.5 9c0-3 7-3 7 0v6c0 3-7 3-7 0z'};
 var CAI={'跑步機':'M3 18h14l3.5-3M6 18v2.5M16 18v2.5M14 15V6l4-2','飛輪':'M3.5 17a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0M7 17l5-8h5M12 9l-1-3H8M17 9v8.5M15 17.5h4','划船機':'M3 18h18M6 18v-3h4.5M17 18V8M15 8h4M10.5 15l6.5-4.5','橢圓機':'M5 17c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3zM8.5 16l2.5-10M15.5 16L13 6M9.5 6h5','爬梯機':'M4 20h4v-4h4v-4h4V8h4V4','戶外跑步':'M13 4.5a2 2 0 1 0 4 0a2 2 0 1 0-4 0M7 21l3.5-6 3 2.5V21M5 11.5l4-3 4.5 1 2 3 3.5 1M10.5 15l2-6','游泳':'M14 7a2 2 0 1 0 4 0a2 2 0 1 0-4 0M3 15.5c2 1.5 4 1.5 6 0s4-1.5 6 0 4 1.5 6 0M3 19.5c2 1.5 4 1.5 6 0s4-1.5 6 0 4 1.5 6 0M6 12.5l5-3 3 3','跳繩':'M5 3v7M19 3v7M5 10c0 13 14 13 14 0'};
 var CA_OTHER='M3 12h4l2-5 4 10 2-5h6',ADD_PATH='M12 5v14M5 12h14';
@@ -792,7 +811,7 @@ function fitLinked(){return db.habits.filter(function(h){return h.fitLink&&!h.ar
 var SPORT_RE=/運動|健身|重訓|有氧|跑|走路|散步|健走|步|游泳|騎|單車|自行車|瑜珈|瑜伽|伸展|球|拳|爬山|登山|划|跳繩|皮拉提斯|飛輪|舞|攀岩|tabata|hiit|gym/i;
 function fitEligible(d){return !!d.fitLink||d.icon==='fitness'||d.icon==='run'||SPORT_RE.test(d.name||'');}
 function fitTarget(h){var m=String(h.name).match(/(\d+)\s*(分鐘|分|min)/i);return m?+m[1]:0;}
-function fitMinutes(k){var l=fLog(k);if(!l)return {c:0,s:0,tot:0,any:false};var c=(l.c||[]).reduce(function(a,x){return a+x.min;},0),s=l.min||0;
+function fitMinutes(k){var l=fLog(k);if(!l)return {c:0,s:0,tot:0,any:false};var c=(l.c||[]).reduce(function(a,x){return a+cMin(x);},0),s=l.min||0;
   return {c:c,s:s,tot:c+s,any:!!((l.s&&l.s.length)||(l.c&&l.c.length)||s)};}
 function unAuto(k,id){var l=db.logs[k];if(l&&l.fa){var i=l.fa.indexOf(id);if(i>=0)l.fa.splice(i,1);if(!l.fa.length)delete l.fa;}}
 function fitSync(k){
@@ -842,7 +861,8 @@ function fitLogHTML(){
   });
   if(cc.length){
     s+='<section class="sec"><h2 class="sec-t">有氧</h2>';
-    cc.forEach(function(c){s+='<button class="fcard center" data-act="cedit" data-id="'+c.id+'">'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b></span><span class="fmins">'+c.min+' 分鐘</span></button>';});
+    cc.forEach(function(c){var kd=cKind(c.type),pc=cPace(c,kd),sub=c.dist>0?distTxt(c.dist,kd)+(pc?' · '+pc.txt:''):'';
+      s+='<button class="fcard center" data-act="cedit" data-id="'+c.id+'">'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b>'+(sub?'<span class="small muted">'+sub+'</span>':'')+'</span><span class="fmins">'+(c.sec?c.min+':'+String(c.sec).padStart(2,'0'):c.min+' 分鐘')+'</span></button>';});
     s+='</section>';
   }
   if(!ss.length&&!cc.length&&!(fLog(k)||{}).min){
@@ -882,7 +902,7 @@ function fitProgHTML(){
     s+='<section class="sec"><h2 class="sec-t">最近幾次</h2><div class="list">'+H.slice(-5).reverse().map(function(h,i){
       return '<div class="frow"><span class="row-l"><span>'+shortMD(h.k)+' 週'+WD[parseKey(h.k).getDay()]+'</span><span class="row-sub">'+esc(setsCompact(e,h.sets))+'</span></span><b class="'+(i===0?'good-t':'')+'">'+(h.m?(bw?(sec?'最久 ':'最多 '):'1RM ')+fmtW(h.m,unitTxt):'—')+'</b></div>';}).join('')+'</div></section>';
   }
-  s+=fitPartsHTML()+fitCardioHTML();
+  s+=fitPartsHTML()+fitCardioHTML()+fitPaceHTML();
   return s;
 }
 var QICON='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5v.4M12 17h.01"/></svg>';
@@ -919,10 +939,35 @@ function fitPartsHTML(){
     PARTS.map(function(p){var c=cnt[p]||0,st=stale.some(function(x){return x[0]===p;});return '<div class="prow"><span>'+p+'</span><span class="fbar"><i class="'+(st?'low':'')+'" style="width:'+(c/mx*100)+'%"></i></span><span class="'+(st?'bad-t':'')+'" style="text-align:right">'+c+'</span></div>';}).join('')+
     (stale.length?'<p class="small bad-t">'+stale.slice(0,2).map(function(x){return x[0]+'已經 '+x[1]+' 天沒練了';}).join('，')+'</p>':'')+'</div></section>';
 }
+function paceChart(pts,better){var W=318,Ht=150,top=12,L=40,lo=Infinity,hi=-Infinity;
+  pts.forEach(function(p){lo=Math.min(lo,p.v);hi=Math.max(hi,p.v);});var pad=(hi-lo)*0.15||hi*0.05||1;lo-=pad;hi+=pad;
+  var good=function(v){return better==='hi'?(v-lo)/(hi-lo):(hi-v)/(hi-lo);};
+  var X=function(i){return L+(W-L-8)*(pts.length>1?i/(pts.length-1):0.5);},Y=function(v){return top+(Ht-top)*(1-good(v));};
+  var line='',dots='';pts.forEach(function(p,i){var x=X(i).toFixed(1),y=Y(p.v).toFixed(1);line+=(i?'L':'M')+x+' '+y;dots+='M'+(x-2.5)+' '+y+'a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0';});
+  var fmt=function(v){return better==='hi'?(Math.round(v*10)/10)+'':mmss(v);},topV=better==='hi'?hi:lo,botV=better==='hi'?lo:hi;
+  return '<svg class="chart" viewBox="0 0 '+W+' '+(Ht+4)+'" role="img" aria-label="配速趨勢"><path d="M'+L+' '+top+'H'+W+'M'+L+' '+Ht+'H'+W+'" stroke="var(--line-soft)" fill="none"/>'+
+    '<path d="'+line+'" stroke="var(--good)" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/><path d="'+dots+'" fill="var(--good)"/>'+
+    '<text x="0" y="'+(top+4)+'" font-size="10" fill="var(--muted)">'+fmt(topV)+'</text><text x="0" y="'+Ht+'" font-size="10" fill="var(--muted)">'+fmt(botV)+'</text></svg>'+
+    '<div class="chart-x"><span>'+shortMD(pts[0].k)+'</span><span>'+(better==='hi'?'越上面越快':'越上面越快')+'</span><span>'+shortMD(pts[pts.length-1].k)+'</span></div>';}
+function fitPaceHTML(){
+  var by={},t=todayKey(),ws=weekStartKey(t);
+  Object.keys(db.fit.logs).sort().forEach(function(k){(db.fit.logs[k].c||[]).forEach(function(c){var kd=cKind(c.type);if(!kd||!(c.dist>0))return;
+    var g=by[c.type]||(by[c.type]={kind:kd,pts:[],last:k,wk:0,pwk:0});g.last=k;
+    if(k>=ws)g.wk+=c.dist;else if(k>=addDays(ws,-7))g.pwk+=c.dist;
+    var pc=cPace(c,kd);if(pc&&c.dist>=PACE_MIN[kd])g.pts.push({k:k,v:pc.v,txt:pc.txt});});});
+  var types=Object.keys(by).sort(function(a,b){return by[a].last<by[b].last?1:-1;});if(!types.length)return '';
+  var cur=by[ui.fpace]?ui.fpace:types[0],g=by[cur],best=null;ui.fpace=cur;
+  g.pts.forEach(function(p){if(!best||(g.kind==='speed'?p.v>best.v:p.v<best.v))best=p;});
+  var s='<section class="sec"><div class="sec-row"><h2 class="sec-t">'+(g.kind==='speed'?'時速':'配速')+'</h2>'+
+    (types.length>1?'<label class="sr" for="fpace">選有氧項目</label><select id="fpace" class="mini-sel">'+types.map(function(x){return '<option'+(x===cur?' selected':'')+'>'+esc(x)+'</option>';}).join('')+'</select>':'<span class="small muted">'+esc(cur)+'</span>')+'</div><div class="panel">';
+  s+='<div class="ptiles"><div><span class="small muted">'+(g.kind==='speed'?'最快時速':'最快配速')+'</span><b>'+(best?best.txt:'—')+'</b>'+(best?'<span class="small muted">'+shortMD(best.k)+'</span>':'')+'</div>'+
+    '<div><span class="small muted">本週距離</span><b>'+distTxt(g.wk,g.kind)+'</b><span class="small muted">上週 '+distTxt(g.pwk,g.kind)+'</span></div></div>';
+  s+=g.pts.length>=2?paceChart(g.pts.slice(-20),g.kind==='speed'?'hi':'lo'):'<p class="small muted">再記一次'+(g.kind==='swim'?' 100 公尺':g.kind==='row'?' 500 公尺':g.kind==='speed'?' 5 km':' 1 km')+'以上的紀錄，就會畫出趨勢圖。</p>';
+  return s+'<p class="small muted">最快'+(g.kind==='speed'?'時速':'配速')+'只算'+(g.kind==='swim'?' 100 公尺':g.kind==='row'?' 500 公尺':g.kind==='speed'?' 5 km':' 1 km')+'以上的紀錄。</p></div></section>';}
 function fitCardioHTML(){
   var any=Object.keys(db.fit.logs).some(function(k){return (db.fit.logs[k].c||[]).length;});if(!any)return '';
   var t=todayKey(),ws=weekStartKey(t),weeks=[];
-  for(var i=7;i>=0;i--){var a=addDays(ws,-7*i),b=addDays(a,6),m=0;Object.keys(db.fit.logs).forEach(function(k){if(k>=a&&k<=b)(db.fit.logs[k].c||[]).forEach(function(c){m+=c.min;});});weeks.push([a,m]);}
+  for(var i=7;i>=0;i--){var a=addDays(ws,-7*i),b=addDays(a,6),m=0;Object.keys(db.fit.logs).forEach(function(k){if(k>=a&&k<=b)(db.fit.logs[k].c||[]).forEach(function(c){m+=cMin(c);});});weeks.push([a,m]);}
   var mx=Math.max.apply(null,weeks.map(function(w){return w[1];}).concat([30]));
   return '<section class="sec"><div class="sec-row"><h2 class="sec-t">有氧（每週分鐘）</h2><span class="small muted">本週 '+weeks[7][1]+' 分</span></div><div class="panel">'+
     '<div class="wkbars">'+weeks.map(function(w,i){return '<div class="wk"><span>'+(w[1]||'')+'</span><i class="'+(i===7?'cur':'')+'" style="height:'+Math.max(2,w[1]/mx*80)+'px"></i></div>';}).join('')+'</div>'+
@@ -1026,6 +1071,15 @@ function convertEx(e,to){
 }
 
 /* cardio */
+function fcDistHTML(c){var kd=cKind(c.type),custom=CARDIO.indexOf(c.type)<0,m=kd==='swim'||kd==='row';
+  var s='<div class="panel fcx"><div class="fcx-r"><label for="fcsec">秒</label><span class="fcx-in"><input id="fcsec" type="text" inputmode="numeric" maxlength="2" placeholder="0" value="'+(c.sec||'')+'"><span>秒（選填）</span></span></div>';
+  if(kd)s+='<div class="fcx-r"><label for="fcdist">距離</label><span class="fcx-in"><input id="fcdist" type="text" inputmode="decimal" placeholder="選填" value="'+(c.dist>0?(m?Math.round(c.dist*1000):c.dist):'')+'"><span>'+(m?'公尺':'km')+'</span></span></div>'+
+    '<div class="fcx-p" id="fcpace">'+fcPaceTxt(c)+'</div>';
+  if(custom&&(!kd||(db.fit.cdist||[]).indexOf(c.type)>=0)&&!/游|划|騎|單車|自行車|飛輪|跑|走|散步|登山|爬山|健行/.test(c.type))
+    s+='<div class="fcx-r"><span>記錄距離和配速</span><button class="switch" role="switch" aria-checked="'+!!kd+'" aria-label="記錄距離和配速" data-act="fcdisttog"><span class="knob"></span></button></div>';
+  return s+'</div>';}
+function fcPaceTxt(c){var kd=cKind(c.type),pc=cPace(c,kd);if(!kd)return '';
+  return pc?(kd==='speed'?'時速 ':'配速 ')+'<b>'+pc.txt+'</b>':'<span class="muted">填了距離就會算出'+(kd==='speed'?'時速':'配速')+'</span>';}
 function vFCardio(){
   var c=ui.fc,types=CARDIO.concat(db.fit.ctypes),lc=lastCardio(c.type,c.k);
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="fccancel">取消</button><h1 class="edit-t">記錄有氧<span class="dw-sub">'+mdw(c.k)+'</span></h1><button class="textbtn strong" data-act="fcsave">儲存</button></header>'+
@@ -1033,9 +1087,9 @@ function vFCardio(){
     '<button class="ctile add" data-act="fcadd" aria-expanded="'+!!c.adding+'">'+fIco(ADD_PATH,24)+'<span>自訂</span></button></div>'+
     (c.adding?'<div class="selrow"><label class="sr" for="fcnew">新的有氧類型</label><input id="fcnew" type="text" maxlength="12" placeholder="例如：拳擊有氧" autocomplete="off"><button class="secondary" data-act="fcaddok" style="flex:0 0 auto">加入</button></div>':'')+'</section>'+
     '<div class="cbig"><div class="small muted">'+(lc?'上次 '+shortMD(lc.k)+'：'+esc(c.type)+' '+lc.min+' 分鐘':'第一次記錄'+esc(c.type))+'</div>'+
-    '<div class="cbig-r"><button data-act="fcmin" data-n="-5" aria-label="減 5 分鐘">−</button><div class="cbig-v"><b>'+c.min+'</b><span> 分鐘</span></div><button class="go" data-act="fcmin" data-n="5" aria-label="加 5 分鐘">＋</button></div>'+
+    '<div class="cbig-r"><button data-act="fcmin" data-n="-5" aria-label="減 5 分鐘">−</button><div class="cbig-v"><input id="fcminin" class="cbig-in" type="text" inputmode="numeric" value="'+c.min+'" aria-label="分鐘"><span> 分鐘</span></div><button class="go" data-act="fcmin" data-n="5" aria-label="加 5 分鐘">＋</button></div>'+
     '<div class="chiprow">'+[15,20,30,45,60].map(function(v){return '<button class="fchip sm'+(v===c.min?' on':'')+'" data-act="fcset" data-v="'+v+'">'+v+' 分</button>';}).join('')+'</div></div>'+
-    '<p class="small muted" style="text-align:center">有氧只記類型和分鐘 · 進步頁看每週總分鐘數</p>';
+    fcDistHTML(c);
   if(c.id)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="fcdel">'+(ui.confirmDel==='fc'?'再按一次，刪除這筆紀錄':'刪除這筆紀錄')+'</button></div>';
   return s+'</div>';
 }
@@ -1100,11 +1154,12 @@ function normalize(d){
     if(Array.isArray(l.s)){o.s=l.s.filter(function(en){return en&&cid(en.id)&&seen[cid(en.ex)]&&Array.isArray(en.sets);}).slice(0,100).map(function(en){
       return {id:cid(en.id),ex:cid(en.ex),sets:en.sets.filter(Array.isArray).slice(0,50).map(function(x){var w=+x[0],r=Math.floor(+x[1]);return [isFinite(w)?Math.min(Math.max(w,0),2000):0,isFinite(r)?Math.min(Math.max(r,0),999):0];})};
     }).filter(function(en){return en.sets.length;});if(!o.s.length)delete o.s;}
-    if(Array.isArray(l.c)){o.c=l.c.filter(function(c){return c&&cid(c.id)&&typeof c.type==='string'&&c.type.trim();}).slice(0,50).map(function(c){var m=Math.floor(+c.min);return {id:cid(c.id),type:c.type.trim().slice(0,12),min:isFinite(m)?Math.min(Math.max(m,1),1440):30};});if(!o.c.length)delete o.c;}
+    if(Array.isArray(l.c)){o.c=l.c.filter(function(c){return c&&cid(c.id)&&typeof c.type==='string'&&c.type.trim();}).slice(0,50).map(function(c){var m=Math.floor(+c.min),o={id:cid(c.id),type:c.type.trim().slice(0,12),min:isFinite(m)?Math.min(Math.max(m,0),1440):30},sc=Math.floor(+c.sec),di=+c.dist;if(isFinite(sc)&&sc>0)o.sec=Math.min(sc,59);if(isFinite(di)&&di>0)o.dist=Math.round(Math.min(di,1000)*1000)/1000;if(!o.min&&!o.sec)o.min=1;return o;});if(!o.c.length)delete o.c;}
     var mn=Math.floor(+l.min);if(isFinite(mn)&&mn>0)o.min=Math.min(mn,1440);
     if(Object.keys(o).length)flogs[k]=o;});
+  var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k))R[k]=d[k];});
@@ -1120,7 +1175,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
 if(!db.settings)db.settings={};
 if(!db.rewards)db.rewards=[];
 if(!db.redeemed)db.redeemed=[];
-if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};
+if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};if(!db.fit.cdist)db.fit.cdist=[];
 if(db.settings.fit&&fSeed())save();
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
@@ -1173,7 +1228,10 @@ function demoFill(days){
           if(rnd()<0.3)sets[p[3]-1]=[w+2.5,Math.max(1,p[2]-2)];
           return {id:'s'+(n++),ex:e.id,sets:sets};}).filter(Boolean);
         fl.min=45+Math.floor(rnd()*4)*5;}
-      if(!fl.c&&(dow===2||dow===6)&&k!==t&&rnd()<0.8)fl.c=[{id:'c'+(n++),type:dow===2?'跑步機':(rnd()<0.5?'飛輪':'拳擊有氧'),min:20+Math.floor(rnd()*5)*5}];
+      if(!fl.c&&(dow===2||dow===6)&&k!==t&&rnd()<0.8){var ctp=dow===2?'跑步機':(rnd()<0.5?'飛輪':'拳擊有氧'),cmn=20+Math.floor(rnd()*5)*5,cen={id:'c'+(n++),type:ctp,min:cmn};
+        if(ctp==='跑步機'){var pace=(400-50*prog+rnd()*30);cen.sec=Math.floor(rnd()*60);cen.dist=Math.round((cmn*60+cen.sec)/pace*100)/100;}
+        else if(ctp==='飛輪')cen.dist=Math.round(cmn/60*(22+6*prog+rnd()*3)*10)/10;
+        fl.c=[cen];}
       if(Object.keys(fl).length)db.fit.logs[k]=fl;
     }
     for(k=start;k<=t;k=addDays(k,1))fitSync(k);
@@ -1273,7 +1331,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-3';
+var APP_VER='2026.10.18-4';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2470,7 +2528,7 @@ function act(a,b){
     case 'relock': ui.unlocked=null;break;
     case 'locktoggle': db.settings.lockOff=!db.settings.lockOff;save();toast(db.settings.lockOff?'已關閉，過去的紀錄可以直接修改':'已開啟，過去的紀錄會先鎖住');break;
     case 'lockn': n=+b.dataset.v;if(LOCK_NS.indexOf(n)>=0){db.settings.lockN=n;save();}break;
-    case 'tab': go(b.dataset.tab);if((ui.view==='today'||ui.view==='fit')&&ui.follow)ui.date=t;break;
+    case 'tab': go(b.dataset.tab);if(ui.view==='today'){ui.date=t;ui.follow=true;}else if(ui.view==='fit'&&ui.follow)ui.date=t;break;
     case 'day': k=addDays(ui.date,+b.dataset.n);if(k>t)return;ui.date=k;ui.follow=k===t;break;
     case 'noteedit': ui.noteEdit=ui.date;render();var ta=document.getElementById('note');if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}return;
     case 'notedone': var nl=db.logs[ui.date];if(nl&&nl.note){nl.note=nl.note.replace(/\s+$/,'');tidy(ui.date);save();}ui.noteEdit=null;render();if(nl&&nl.note)toast('備註已確認');return;
@@ -2543,16 +2601,17 @@ function act(a,b){
       toast(isPr?'新紀錄！'+h.name+' '+fmtW(mm,mUnit(h)):'已儲存',isPr?3000:1800);return;
     case 'fldel': if(ui.confirmDel!=='fl'){ui.confirmDel='fl';break;}l=fLog(ui.fl.k);if(l&&l.s)l.s=l.s.filter(function(x){return x.id!==ui.fl.id;});k=ui.fl.k;fTidy(k);fitSync(k);save();ui.fl=null;ui.confirmDel=false;go('fit');toast('已刪除這筆紀錄');break;
     case 'fcnew': n=null;Object.keys(db.fit.logs).sort().reverse().some(function(x){var c=db.fit.logs[x].c||[];if(c.length){n=c[c.length-1];return true;}return false;});
-      ui.fc={id:null,type:n?n.type:'跑步機',min:n?n.min:30,k:ui.date,adding:false};ui.confirmDel=false;go('fcardio');break;
-    case 'cedit': l=fLog(ui.date);n=l&&(l.c||[]).filter(function(x){return x.id===id;})[0];if(!n)return;ui.fc={id:n.id,type:n.type,min:n.min,k:ui.date,adding:false};ui.confirmDel=false;go('fcardio');break;
+      ui.fc={id:null,type:n?n.type:'跑步機',min:n?n.min:30,sec:0,dist:0,k:ui.date,adding:false};ui.confirmDel=false;go('fcardio');break;
+    case 'cedit': l=fLog(ui.date);n=l&&(l.c||[]).filter(function(x){return x.id===id;})[0];if(!n)return;ui.fc={id:n.id,type:n.type,min:n.min,sec:n.sec||0,dist:n.dist||0,k:ui.date,adding:false};ui.confirmDel=false;go('fcardio');break;
     case 'fctype': ui.fc.type=b.dataset.v;break;
     case 'fcadd': ui.fc.adding=!ui.fc.adding;render();var fcn=$('#fcnew');if(fcn)fcn.focus();return;
     case 'fcaddok': var nm=(($('#fcnew')||{}).value||'').trim().slice(0,12);if(!nm){toast('請輸入類型名稱');return;}
       if(CARDIO.indexOf(nm)<0&&db.fit.ctypes.indexOf(nm)<0){db.fit.ctypes.push(nm);save();}ui.fc.type=nm;ui.fc.adding=false;break;
     case 'fcmin': ui.fc.min=Math.min(1440,Math.max(1,ui.fc.min+(+b.dataset.n)));break;
+    case 'fcdisttog': var cdl=db.fit.cdist=db.fit.cdist||[],ci=cdl.indexOf(ui.fc.type);if(ci>=0)cdl.splice(ci,1);else cdl.push(ui.fc.type);save();break;
     case 'fcset': ui.fc.min=+b.dataset.v;break;
     case 'fccancel': ui.fc=null;go('fit');break;
-    case 'fcsave': k=ui.fc.k;l=fLogMk(k);l.c=l.c||[];n={id:ui.fc.id||uid(),type:ui.fc.type,min:ui.fc.min};
+    case 'fcsave': k=ui.fc.k;l=fLogMk(k);l.c=l.c||[];n={id:ui.fc.id||uid(),type:ui.fc.type,min:ui.fc.min};if(ui.fc.sec>0)n.sec=ui.fc.sec;if(ui.fc.dist>0&&cKind(n.type))n.dist=ui.fc.dist;
       if(ui.fc.id)l.c=l.c.map(function(x){return x.id===n.id?n:x;});else l.c.push(n);
       fTidy(k);fitSync(k);save();ui.fc=null;ui.date=k;go('fit');ui.fitTab='log';toast('已儲存');break;
     case 'fcdel': if(ui.confirmDel!=='fc'){ui.confirmDel='fc';break;}k=ui.fc.k;l=fLog(k);if(l&&l.c)l.c=l.c.filter(function(x){return x.id!==ui.fc.id;});fTidy(k);fitSync(k);save();ui.fc=null;ui.confirmDel=false;go('fit');toast('已刪除這筆紀錄');break;
@@ -2673,6 +2732,11 @@ document.addEventListener('input',function(e){
     else{var nv=parseInt(el.value.replace(/[^0-9]/g,''),10);if(el.id==='hstep')ui.draft.step=nv>0?Math.min(9999,nv):1;else ui.draft.goal=nv>0?Math.min(999999,nv):1;}
     Array.prototype.forEach.call(document.querySelectorAll('.uname'),function(x){x.textContent=ui.draft.unit;});
     var gh=$('#ghint');if(gh)gh.innerHTML=goalHint(ui.draft,!ui.draft.id);}
+  else if((el.id==='fcsec'||el.id==='fcdist'||el.id==='fcminin')&&ui.fc){
+    if(el.id==='fcminin'){var mi=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.min=mi>0?Math.min(1440,mi):1;}
+    else if(el.id==='fcsec'){var se=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.sec=se>0?Math.min(59,se):0;}
+    else{var dv=parseFloat(el.value.replace(/[^0-9.]/g,''));var kd2=cKind(ui.fc.type);ui.fc.dist=dv>0?Math.min(1000,kd2==='swim'||kd2==='row'?dv/1000:dv):0;}
+    var pe=$('#fcpace');if(pe)pe.innerHTML=fcPaceTxt(ui.fc);}
   else if(el.id==='hsavefrom'&&ui.draft){var tk=todayKey();if(isKey(el.value)){ui.draft.saveFrom=el.value>tk?tk:el.value;render();}}
   else if(el.id==='hsave'&&ui.draft){ui.draft.save=parseInt(el.value.replace(/[^0-9]/g,''),10)||0;Array.prototype.forEach.call(document.querySelectorAll('[data-act=savechip]'),function(c){c.classList.toggle('on',+c.dataset.v===ui.draft.save);});}
   else if(el.id==='diary'){var dl=db.logs[ui.date]||(db.logs[ui.date]={});dl.diary=dl.diary||{};dl.diary.t=el.value;ui.dEdit=ui.date;tidy(ui.date);save();
@@ -2693,7 +2757,7 @@ function fitSelect(el){
   if(el.id==='fxpart'&&ui.fx){ui.fx.part=el.value;return true;}
   return false;
 }
-document.addEventListener('change',function(e){fitSelect(e.target);});
+document.addEventListener('change',function(e){if(e.target.id==='fpace'){ui.fpace=e.target.value;render();return;}fitSelect(e.target);});
 document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&e.target.id==='fcnew'){e.preventDefault();act('fcaddok',{dataset:{}});return;}
   if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('fnum')){e.preventDefault();e.target.blur();return;}
