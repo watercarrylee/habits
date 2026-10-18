@@ -63,6 +63,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-tab=settings]'); await p.click('[data-act=fittoggle]');
   d = await db(p); ok(d.fit.ex.length >= 52, 'presets seeded (' + d.fit.ex.length + ')');
   ok(d.fit.ex.some(e => e.id === 'p53' && e.name === '啞鈴夾胸') && d.fit.ex.some(e => e.id === 'p54' && e.eq === '器械' && e.part === '二頭'), 'new presets 啞鈴夾胸 and 二頭彎舉機');
+  ok(d.fit.ex.length >= 66 && d.fit.ex.some(e => e.id === 'p66' && e.name === '滑輪木樁砍') && d.fit.ex.some(e => e.id === 'p42' && e.name === '坐姿腿彎舉機'), 'Spirit machines added; 腿彎舉機 renamed');
   await p.click('[data-tab=fit]'); await p.click('[data-act=fpick]'); await p.click('[data-act=fpart][data-v="背"]');
   ok((await p.$$eval('.fgrp', x => x.map(e => e.textContent))).some(t => t.includes('器械')), 'picker grouped by equipment');
   await p.click('[data-act=fpickex][data-id=p25]');
@@ -387,6 +388,13 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=cedit]'); await p.fill('#fcminin', '30'); await p.fill('#fcsec', ''); await p.click('[data-act=fcsave]');
   d = await db(p); ok(d.logs[T] && d.logs[T].h && d.logs[T].h.g1 === 1, '30:00 meets it');
   await done(p, 'pace exact');
+
+  console.log('• preset rename keeps history');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true }, rewards: [], redeemed: [], logs: {}, habits: [],
+    fit: { ex: [{ id: 'p42', name: '腿彎舉機', eq: '器械', part: '腿', en: 'Leg Curl', mode: 'wr', unit: 'kg' }], ctypes: [], logs: { [daysAgo(3)]: { s: [{ id: 'x1', ex: 'p42', sets: [[30, 10]] }] } } } } });
+  d = await db(p); const lc = d.fit.ex.find(e => e.id === 'p42');
+  ok(lc.name === '坐姿腿彎舉機' && lc.en === 'Seated Leg Curl' && d.fit.logs[daysAgo(3)].s[0].ex === 'p42', 'existing 腿彎舉機 renamed, records kept');
+  await done(p, 'rename');
 
   console.log('• 更新紀錄');
   p = await page(b);
