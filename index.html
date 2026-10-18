@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-5Q70jRedE9kdgu1lWmxG9Z1cPLnQtH4gnx2mBcguHos='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-0ICTTAkWnQrP4ese1CfLDO34a6hgnMyHb3tLn2NJSPY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -762,6 +762,8 @@ var EQI={'槓鈴':'M2 12h20M5 8.5v7M8 6.5v11M16 6.5v11M19 8.5v7','啞鈴':'M7.5 
 var CAI={'跑步機':'M3 18h14l3.5-3M6 18v2.5M16 18v2.5M14 15V6l4-2','飛輪':'M3.5 17a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0M7 17l5-8h5M12 9l-1-3H8M17 9v8.5M15 17.5h4','划船機':'M3 18h18M6 18v-3h4.5M17 18V8M15 8h4M10.5 15l6.5-4.5','橢圓機':'M5 17c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3zM8.5 16l2.5-10M15.5 16L13 6M9.5 6h5','爬梯機':'M4 20h4v-4h4v-4h4V8h4V4','戶外跑步':'M13 4.5a2 2 0 1 0 4 0a2 2 0 1 0-4 0M7 21l3.5-6 3 2.5V21M5 11.5l4-3 4.5 1 2 3 3.5 1M10.5 15l2-6','游泳':'M14 7a2 2 0 1 0 4 0a2 2 0 1 0-4 0M3 15.5c2 1.5 4 1.5 6 0s4-1.5 6 0 4 1.5 6 0M3 19.5c2 1.5 4 1.5 6 0s4-1.5 6 0 4 1.5 6 0M6 12.5l5-3 3 3','跳繩':'M5 3v7M19 3v7M5 10c0 13 14 13 14 0'};
 var CA_OTHER='M3 12h4l2-5 4 10 2-5h6',ADD_PATH='M12 5v14M5 12h14';
 var PRESETS=[["槓鈴臥推", "槓鈴", "胸", "", ""], ["啞鈴臥推", "啞鈴", "胸", "", ""], ["上斜啞鈴臥推", "啞鈴", "胸", "", ""], ["蝴蝶機夾胸", "器械", "胸", "Pec Fly", ""], ["伏地挺身", "徒手", "胸", "", ""], ["滑輪下拉", "滑輪", "背", "Lat Pulldown", ""], ["滑輪坐姿划船", "滑輪", "背", "Seated Cable Row", ""], ["槓鈴划船", "槓鈴", "背", "", ""], ["引體向上", "徒手", "背", "", ""], ["硬舉", "槓鈴", "背", "", ""], ["啞鈴肩推", "啞鈴", "肩", "", ""], ["側平舉", "啞鈴", "肩", "", ""], ["臉拉", "滑輪", "肩", "Face Pull", ""], ["啞鈴彎舉", "啞鈴", "二頭", "", ""], ["槓鈴彎舉", "槓鈴", "二頭", "", ""], ["滑輪三頭下壓", "滑輪", "三頭", "Triceps Pushdown", ""], ["雙槓撐體", "徒手", "三頭", "", ""], ["槓鈴深蹲", "槓鈴", "腿", "", ""], ["腿推機", "器械", "腿", "Leg Press", ""], ["腿伸屈機", "器械", "腿", "Leg Extension", ""], ["羅馬尼亞硬舉", "槓鈴", "臀", "", ""], ["臀推", "槓鈴", "臀", "", ""], ["棒式", "徒手", "核心", "", "s"], ["懸垂舉腿", "徒手", "核心", "", ""], ["反向蝴蝶機", "器械", "背", "Rear Delt", ""], ["坐姿推胸機", "器械", "胸", "Chest Press", ""], ["上斜槓鈴臥推", "槓鈴", "胸", "", ""], ["滑輪夾胸", "滑輪", "胸", "Cable Fly", ""], ["單臂啞鈴划船", "啞鈴", "背", "", ""], ["坐姿划船機", "器械", "背", "Seated Row", ""], ["坐姿划船機（單邊）", "器械", "背", "Seated Row · 單邊", ""], ["輔助引體向上機", "器械", "背", "Assisted Pull-up", ""], ["背部伸展", "徒手", "背", "Back Extension", ""], ["肩推機", "器械", "肩", "Shoulder Press", ""], ["槓鈴肩推", "槓鈴", "肩", "", ""], ["滑輪側平舉", "滑輪", "肩", "Cable Lateral Raise", ""], ["聳肩", "啞鈴", "肩", "", ""], ["錘式彎舉", "啞鈴", "二頭", "", ""], ["滑輪彎舉", "滑輪", "二頭", "Cable Curl", ""], ["過頭三頭伸展", "啞鈴", "三頭", "", ""], ["窄握臥推", "槓鈴", "三頭", "", ""], ["坐姿腿彎舉機", "器械", "腿", "Seated Leg Curl", ""], ["保加利亞分腿蹲", "啞鈴", "腿", "", ""], ["高腳杯深蹲", "壺鈴", "腿", "", ""], ["史密斯深蹲", "史密斯機", "腿", "", ""], ["髖外展機", "器械", "臀", "Hip Abduction", ""], ["髖內收機", "器械", "臀", "Hip Adduction", ""], ["捲腹", "徒手", "核心", "", ""], ["健腹輪", "徒手", "核心", "", ""], ["滑輪捲腹", "滑輪", "核心", "Cable Crunch", ""], ["站姿提踵機", "器械", "小腿", "Standing Calf Raise", ""], ["壺鈴擺盪", "壺鈴", "全身", "", ""], ["啞鈴夾胸", "啞鈴", "胸", "Dumbbell Fly", ""], ["二頭彎舉機", "器械", "二頭", "Biceps Curl Machine", ""], ["三頭伸展機", "器械", "三頭", "Triceps Extension", ""], ["側平舉機", "器械", "肩", "Lateral Raise Machine", ""], ["輔助雙槓撐體機", "器械", "三頭", "Assisted Dip", ""], ["俯臥腿彎舉機", "器械", "腿", "Prone Leg Curl", ""], ["臀部後踢機", "器械", "臀", "Glute Kickback Machine", ""], ["多向髖部訓練機", "器械", "臀", "Multi-Hip", ""], ["背伸展機", "器械", "背", "Back Extension Machine", ""], ["腹部捲腹機", "器械", "核心", "Abdominal Crunch", ""], ["轉體機", "器械", "核心", "Torso Rotation", ""], ["滑輪後踢", "滑輪", "臀", "Cable Kickback", ""], ["滑輪過頭三頭伸展", "滑輪", "三頭", "Overhead Cable Extension", ""], ["滑輪木樁砍", "滑輪", "核心", "Cable Woodchop", ""]];
+/* presets that people also look for under another equipment group (shown in both; one exercise, one history) */
+var ALSO_EQ={p6:'器械'};
 var PRESET_OLD={p7:'坐姿划船',p16:'繩索下壓',p20:'腿伸屈',p42:'腿彎舉機'};
 // presets are matched by position (p1, p2, ...): only ever append to this list
 var FRANGES=[['1 個月',30],['3 個月',91],['6 個月',182],['全部',0]];
@@ -820,6 +822,7 @@ function fitTarget(h){var m=String(h.name).match(/(\d+)\s*(分鐘|分|min)/i);re
 function fitMinutes(k){var l=fLog(k);if(!l)return {c:0,s:0,tot:0,any:false};var c=(l.c||[]).reduce(function(a,x){return a+cMin(x);},0),s=l.min||0;
   return {c:c,s:s,tot:c+s,any:!!((l.s&&l.s.length)||(l.c&&l.c.length)||s)};}
 function unAuto(k,id){var l=db.logs[k];if(l&&l.fa){var i=l.fa.indexOf(id);if(i>=0)l.fa.splice(i,1);if(!l.fa.length)delete l.fa;}}
+function fitOk(h,k){var fm=fitMinutes(k),tg=fitTarget(h);return tg?fm.tot>=tg:fm.any;}
 function fitSync(k){
   if(!fOn())return;
   var fm=fitMinutes(k),fa=((db.logs[k]||{}).fa||[]).slice(),changed=false;
@@ -1017,7 +1020,7 @@ function fpList(){
         return fpItem(x.e,{icon:true,sub:x.e.en||x.e.eq,side:shortMD(x.lb.k)+' · '+setsShort(x.e,[ls])+(isBW(x.e)?' '+mUnit(x.e):'')});}).join('')+'</div></section>';
     }
     var hide=!!db.settings.fitHideUnused,items=act.filter(function(e){return e.part===p&&(!hide||!/^p\d+$/.test(e.id)||exUsed(e.id));}),groups=0;
-    EQ_LIST.forEach(function(eq){var its=items.filter(function(e){return e.eq===eq;});if(!its.length)return;groups++;
+    EQ_LIST.forEach(function(eq){var its=items.filter(function(e){return e.eq===eq||ALSO_EQ[e.id]===eq;});if(!its.length)return;groups++;
       s+='<section class="sec"><h2 class="fgrp">'+fIco(EQI[eq],16)+eq+'<span>· '+its.length+'</span></h2><div class="list">'+its.map(function(e){return fpItem(e);}).join('')+'</div></section>';});
     if(!groups)s+='<p class="small muted">'+(hide?'這個部位還沒練過任何動作。關掉上面的開關，或用搜尋找。':'這個部位還沒有動作，可以自己新增一個。')+'</p>';
   }
@@ -1338,7 +1341,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-6';
+var APP_VER='2026.10.18-7';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2643,7 +2646,9 @@ function act(a,b){
       ui.ob.step++;ui.top=true;break;
     case 'bksnooze': n=bkGet();n.snooze=addDays(t,3);bkSet(n);toast('3 天後再提醒你');break;
     case 'gotoday': ui.date=t;ui.follow=true;break;
-    case 'toggle': unAuto(ui.date,id);h=byId(id);var wb=isWk(h)&&wkMet(h,weekStartKey(ui.date));n=val(ui.date,id)>0;setVal(ui.date,id,n?0:1);if(!n&&h&&h.kind==='good'){if(isWk(h)){if(!wb&&wkMet(h,weekStartKey(ui.date))){ui.celAnim=id;toast('「'+h.name+'」本週達成 ✓',2400);}}else celebrate(id);}break;
+    case 'toggle': h=byId(id);
+      if(h&&h.fitLink&&h.method==='check'&&fOn()&&val(ui.date,id)>0&&fitOk(h,ui.date)){toast('這天的運動紀錄已達標，自動打勾。要取消請到「運動」頁修改紀錄。',3200);return;}
+      unAuto(ui.date,id);var wb=isWk(h)&&wkMet(h,weekStartKey(ui.date));n=val(ui.date,id)>0;setVal(ui.date,id,n?0:1);if(!n&&h&&h.kind==='good'){if(isWk(h)){if(!wb&&wkMet(h,weekStartKey(ui.date))){ui.celAnim=id;toast('「'+h.name+'」本週達成 ✓',2400);}}else celebrate(id);}break;
     case 'inc': unAuto(ui.date,id);h=byId(id);n=h&&h.kind==='good'&&!isDone(h,ui.date);var wb2=isWk(h)&&wkMet(h,weekStartKey(ui.date));setVal(ui.date,id,Math.min(999999,val(ui.date,id)+hStep(h)));if(n&&isDone(h,ui.date)){if(isWk(h)){if(!wb2&&wkMet(h,weekStartKey(ui.date))){ui.celAnim=id;toast('「'+h.name+'」本週達成 ✓',2400);}}else celebrate(id);}break;
     case 'dec': unAuto(ui.date,id);h=byId(id);setVal(ui.date,id,Math.max(0,val(ui.date,id)-hStep(h)));break;
     case 'mood': n=+b.dataset.i;l=db.logs[ui.date]||(db.logs[ui.date]={});l.mood=l.mood===n?null:n;tidy(ui.date);save();break;

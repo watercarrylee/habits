@@ -66,6 +66,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(d.fit.ex.length >= 66 && d.fit.ex.some(e => e.id === 'p66' && e.name === '滑輪木樁砍') && d.fit.ex.some(e => e.id === 'p42' && e.name === '坐姿腿彎舉機'), 'Spirit machines added; 腿彎舉機 renamed');
   await p.click('[data-tab=fit]'); await p.click('[data-act=fpick]'); await p.click('[data-act=fpart][data-v="背"]');
   ok((await p.$$eval('.fgrp', x => x.map(e => e.textContent))).some(t => t.includes('器械')), 'picker grouped by equipment');
+  ok(await p.$$eval('section', xs => xs.some(x => (x.querySelector('.fgrp') || {}).textContent && x.querySelector('.fgrp').textContent.includes('器械') && x.innerText.includes('滑輪下拉'))), '滑輪下拉 also listed under 器械');
   await p.click('[data-act=fpickex][data-id=p25]');
   ok(!!(await p.$('.sameset')), 'new entry opens in same-sets mode');
   await p.click('[data-act=flcnt][data-d="1"]'); await p.click('[data-act=flsave]');
@@ -73,6 +74,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await p.$eval('h2.sec-t', e => e.textContent)) === '重訓 · 背', 'day grouped by body part');
   await p.click('[data-act=fmin][data-n="5"]'); for (let i = 0; i < 5; i++) await p.click('[data-act=fmin][data-n="5"]');
   d = await db(p); ok(d.logs[T] && d.logs[T].h && d.logs[T].h.g1 === 1, 'linked habit auto-checked at 30 min');
+  await p.click('[data-tab=today]'); await p.click('[data-act=toggle][data-id=g1]');
+  d = await db(p); ok(d.logs[T].h.g1 === 1 && (await p.$eval('#toast', e => e.innerText)).includes('自動打勾'), 'a check backed by a 運動 record cannot be undone by tapping');
+  await p.click('[data-tab=fit]'); await p.click('[data-act=ftab][data-v=log]').catch(() => {});
   await p.click('[data-act=fmin][data-n="-5"]'); d = await db(p); ok(!(d.logs[T] && d.logs[T].h && d.logs[T].h.g1), 'auto check removed below target');
   await p.click('[data-tab=today]');
   ok((await p.$eval('.hc-sub', e => e.innerText)).startsWith('83%') && !!(await p.$('.pbar')), 'linked card shows 83% (25 of 30 min) and a bar');
