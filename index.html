@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-TTSBBUTKJDNbs0GEGOsLjypve2v9YMVJc/XONmzIRIk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-mo7H8Wyu3oKy2JoNpoForpWd/so3wrivqiLeomXUErk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -864,7 +864,7 @@ function vFit(){
 }
 function fitLogHTML(){
   var k=ui.date,t=todayKey(),l=fLog(k)||{},s='';
-  s+='<div class="dnav"><button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天">'+I.left+'</button>'+
+  s+='<div class="dnav"><button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天"'+(ui.date<=useStart()?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="dnav-c"><b>'+mdw(k)+'</b><span>'+relDay(k)+'</span></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></div>';
   var ss=(l.s||[]).filter(function(en){return exById(en.ex);}),cc=l.c||[];
@@ -1356,7 +1356,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-16';
+var APP_VER='2026.10.18-17';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2139,7 +2139,7 @@ function vToday(){
   var badSum=bads.reduce(function(a,h){return a+val(k,h.id);},0);
   var log=db.logs[k]||{};
   var s='<div class="page'+(dayLocked(k)?' locked':'')+'"><header class="datebar">'+
-    '<button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天">'+I.left+'</button>'+
+    '<button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天"'+(ui.date<=useStart()?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="datebar-mid"><div class="sub">'+dateSub(k)+'</div><h1 class="h1">'+dateLabel(k)+'</h1></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></header>';
   if(k!==t)s+='<button class="linkbtn" data-act="gotoday">回到今天</button>';
@@ -2173,7 +2173,7 @@ function vToday(){
 }
 
 function vStats(){
-  var t=todayKey(),now=new Date();
+  var t=todayKey(),now=new Date(),us=useStart();
   if(!ui.month)ui.month=[now.getFullYear(),now.getMonth()];
   var y=ui.month[0],m=ui.month[1];
   var first=new Date(y,m,1),lastDay=new Date(y,m+1,0).getDate();
@@ -2185,7 +2185,7 @@ function vStats(){
   var tab=tabs.some(function(x){return x[0]===ui.statTab;})?ui.statTab:'habits';
   var s='<div class="page"><header class="titlebar"><h1 class="h1">統計</h1><span class="tb-r"><button class="ghost repbtn" data-act="report">'+I.share+'分享這週</button><button class="iconbtn" data-act="search" aria-label="'+(dOn()?'搜尋備註和日記':'搜尋備註')+'">'+I.search+'</button></span></header>';
   if(tabs.length>1)s+='<div class="seg'+(tabs.length>2?' three':'')+'">'+tabs.map(function(x){return '<button class="'+(tab===x[0]?'on':'')+'" data-act="stab" data-v="'+x[0]+'" aria-pressed="'+(tab===x[0])+'">'+x[1]+'</button>';}).join('')+'</div>';
-  s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="month" data-n="-1" aria-label="上個月">'+I.left+'</button>'+
+  s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="month" data-n="-1" aria-label="上個月"'+(keyOf(first)<=us?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="month-l">'+y+' 年 '+(m+1)+' 月</div>'+
     '<button class="iconbtn" data-act="month" data-n="1" aria-label="下個月"'+(isCur||first>now?' disabled':'')+'>'+I.right+'</button></div>';
   if(tab==='pnl')return s+pnlStats(y,m)+'</div>';
@@ -2197,7 +2197,7 @@ function vStats(){
   for(var b=0;b<first.getDay();b++)cells.push('<span class="cell blank"></span>');
   for(var d=1;d<=lastDay;d++){
     var k=keyOf(new Date(y,m,d));
-    if(k>t){cells.push('<span class="cell future">'+d+'</span>');continue;}
+    if(k>t||k<us){cells.push('<span class="cell future">'+d+'</span>');continue;}
     var sc=0,dn=0;
     goods.forEach(function(h){if(k>=h.created&&scheduled(h,k)){sc++;if(isDone(h,k))dn++;}});
     var wx=goods.filter(function(h){return isWk(h)&&k>=h.created&&isDone(h,k);}).length;
@@ -2813,7 +2813,7 @@ function act(a,b){
     case 'locktoggle': db.settings.lockOff=!db.settings.lockOff;save();toast(db.settings.lockOff?'已關閉，過去的紀錄可以直接修改':'已開啟，過去的紀錄會先鎖住');break;
     case 'lockn': n=+b.dataset.v;if(LOCK_NS.indexOf(n)>=0){db.settings.lockN=n;save();}break;
     case 'tab': go(b.dataset.tab);if(ui.view==='today'){ui.date=t;ui.follow=true;}else if(ui.view==='fit'&&ui.follow)ui.date=t;break;
-    case 'day': k=addDays(ui.date,+b.dataset.n);if(k>t)return;ui.date=k;ui.follow=k===t;break;
+    case 'day': k=addDays(ui.date,+b.dataset.n);if(k>t||k<useStart())return;ui.date=k;ui.follow=k===t;break;
     case 'noteedit': ui.noteEdit=ui.date;render();var ta=document.getElementById('note');if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}return;
     case 'notedone': var nl=db.logs[ui.date];if(nl&&nl.note){nl.note=nl.note.replace(/\s+$/,'');tidy(ui.date);save();}ui.noteEdit=null;render();if(nl&&nl.note)toast('備註已確認');return;
     case 'dtoggle': db.settings.diary=!db.settings.diary;if(!db.settings.diary&&ui.statTab==='diary')ui.statTab='habits';save();toast(db.settings.diary?'已開啟日記':'已關閉，日記仍保留');break;
@@ -2922,8 +2922,8 @@ function act(a,b){
     case 'inc': unAuto(ui.date,id);h=byId(id);n=h&&h.kind==='good'&&!isDone(h,ui.date);var wb2=isWk(h)&&wkMet(h,weekStartKey(ui.date));setVal(ui.date,id,Math.min(999999,val(ui.date,id)+hStep(h)));if(n&&isDone(h,ui.date)){if(isWk(h)){if(!wb2&&wkMet(h,weekStartKey(ui.date))){ui.celAnim=id;toast('「'+h.name+'」本週達成 ✓',2400);}}else celebrate(id);}break;
     case 'dec': unAuto(ui.date,id);h=byId(id);setVal(ui.date,id,Math.max(0,val(ui.date,id)-hStep(h)));break;
     case 'mood': n=+b.dataset.i;l=db.logs[ui.date]||(db.logs[ui.date]={});l.mood=l.mood===n?null:n;tidy(ui.date);save();break;
-    case 'month': n=ui.month[1]+(+b.dataset.n);ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
-    case 'pickday': ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
+    case 'month': n=ui.month[1]+(+b.dataset.n);if(+b.dataset.n<0&&keyOf(new Date(ui.month[0],ui.month[1],1))<=useStart())return;ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
+    case 'pickday': if(b.dataset.k<useStart())return;ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
     case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「設定」修改');break;
     case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
     case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,unit0:h.unit||'次',freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;

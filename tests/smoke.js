@@ -494,6 +494,16 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await p.$eval('.sum-card.good .sum-v', e => e.innerText.replace(/\s/g, ''))) === '0/1', 'day count leaves out habits not started yet');
   await done(p, 'pre-created');
 
+  console.log('• nothing before first use');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, logs: { [daysAgo(1)]: { h: { g1: 1 } } }, settings: { firstUse: daysAgo(1) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(1) }] } });
+  await p.click('[data-act=day][data-n="-1"]');
+  ok(await p.$eval('[data-act=day][data-n="-1"]', e => e.disabled), 'cannot go back before the first day of use');
+  await p.click('[data-tab=stats]');
+  const before = new Date(); before.setDate(before.getDate() - 2);
+  if (before.getMonth() === new Date().getMonth()) ok(!(await p.$('[data-act=pickday][data-k="' + daysAgo(2) + '"]')), 'calendar days before first use are not clickable');
+  if (new Date().getDate() > 1) ok(await p.$eval('[data-act=month][data-n="-1"]', e => e.disabled), 'cannot go to months before first use');
+  await done(p, 'first use');
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
