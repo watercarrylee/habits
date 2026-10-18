@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-xjre72HWr/KAmXiOvUg5VkbDmJMpPY4Yu13cpqSKn9s='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Rns7Ti0ay4UXTTFcedqgmOI2gXtF2B/M/akb1EmSc74='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -747,12 +747,13 @@ function cKind(type){var t=String(type||'');
   if(/游/.test(t))return 'swim';if(/划/.test(t))return 'row';if(/騎|單車|自行車|飛輪/.test(t))return 'speed';
   if(/跑|走|散步|登山|爬山|健行/.test(t))return 'pace';
   return db&&db.fit&&(db.fit.cdist||[]).indexOf(t)>=0?'pace':'';}
-function cMin(c){return (c.min||0)+((c.sec||0)>=30?1:0);}
+/* exact minutes (no rounding): 29:45 is 29.75 and does not meet a 30-minute target */
+function cMin(c){return (c.min||0)+(c.sec||0)/60;}
 function cSecs(c){return (c.min||0)*60+(c.sec||0);}
 function mmss(sec){sec=Math.round(sec);return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');}
 /* durations: m:ss under an hour, h:mm:ss above */
 function durTxt(sec){sec=Math.round(sec);var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),x=String(sec%60).padStart(2,'0');return h?h+':'+String(m).padStart(2,'0')+':'+x:m+':'+x;}
-var PACE_MIN={pace:1,speed:5,swim:0.1,row:0.5};
+var PACE_MIN={pace:2,speed:5,swim:0.1,row:0.5};
 function cPace(c,kind){kind=kind||cKind(c.type);var d=c.dist,t=cSecs(c);if(!kind||!(d>0)||!(t>0))return null;
   if(kind==='speed'){var v=d/(t/3600);return {v:v,txt:(Math.round(v*10)/10)+' km/h',better:'hi'};}
   var per=kind==='swim'?d*10:kind==='row'?d*2:d,sp=t/per;return {v:sp,txt:mmss(sp)+(kind==='swim'?' /100m':kind==='row'?' /500m':' /km'),better:'lo'};}
@@ -833,7 +834,8 @@ function fitSync(k){
 }
 function fitLinkMsg(h,k){var tg=fitTarget(h),fm=fitMinutes(k),on=val(k,h.id)>0;
   if(!tg)return '「'+esc(h.name)+'」：這天有運動紀錄就自動打勾'+(on?'，已打勾 ✓':'');
-  return '「'+esc(h.name)+'」：有氧 '+fm.c+' 分 ＋ 重訓 '+fm.s+' 分 ＝ '+fm.tot+' 分，'+(on?'已打勾 ✓':'還差 '+(tg-fm.tot)+' 分');}
+  return '「'+esc(h.name)+'」：有氧 '+minTxt(fm.c)+' ＋ 重訓 '+fm.s+' 分 ＝ '+minTxt(fm.tot)+'，'+(on?'已打勾 ✓':'還差 '+minTxt(tg-fm.tot));}
+function minTxt(m){var sec=Math.round(m*60);return sec%60?durTxt(sec):Math.round(sec/60)+' 分';}
 
 /* tab: log */
 function vFit(){
@@ -967,15 +969,15 @@ function fitPaceHTML(){
     (types.length>1?'<label class="sr" for="fpace">選有氧項目</label><select id="fpace" class="mini-sel">'+types.map(function(x){return '<option'+(x===cur?' selected':'')+'>'+esc(x)+'</option>';}).join('')+'</select>':'<span class="small muted">'+esc(cur)+'</span>')+'</div><div class="panel">';
   s+='<div class="ptiles"><div><span class="small muted">'+(g.kind==='speed'?'最快時速':'最快配速')+'</span><b>'+(best?best.txt:'—')+'</b>'+(best?'<span class="small muted">'+shortMD(best.k)+'</span>':'')+'</div>'+
     '<div><span class="small muted">本週距離</span><b>'+distTxt(g.wk,g.kind)+'</b><span class="small muted">上週 '+distTxt(g.pwk,g.kind)+'</span></div></div>';
-  s+=g.pts.length>=2?paceChart(g.pts.slice(-20),g.kind==='speed'?'hi':'lo'):'<p class="small muted">再記一次'+(g.kind==='swim'?' 100 公尺':g.kind==='row'?' 500 公尺':g.kind==='speed'?' 5 km':' 1 km')+'以上的紀錄，就會畫出趨勢圖。</p>';
-  return s+'<p class="small muted">最快'+(g.kind==='speed'?'時速':'配速')+'只算'+(g.kind==='swim'?' 100 公尺':g.kind==='row'?' 500 公尺':g.kind==='speed'?' 5 km':' 1 km')+'以上的紀錄。</p></div></section>';}
+  s+=g.pts.length>=2?paceChart(g.pts.slice(-20),g.kind==='speed'?'hi':'lo'):'<p class="small muted">再記一次 '+distTxt(PACE_MIN[g.kind],g.kind)+' 以上的紀錄，就會畫出趨勢圖。</p>';
+  return s+'<p class="small muted">最快'+(g.kind==='speed'?'時速':'配速')+'和趨勢圖只算 '+distTxt(PACE_MIN[g.kind],g.kind)+' 以上的紀錄，避免短距離衝刺讓紀錄失真。</p></div></section>';}
 function fitCardioHTML(){
   var any=Object.keys(db.fit.logs).some(function(k){return (db.fit.logs[k].c||[]).length;});if(!any)return '';
   var t=todayKey(),ws=weekStartKey(t),weeks=[];
   for(var i=7;i>=0;i--){var a=addDays(ws,-7*i),b=addDays(a,6),m=0;Object.keys(db.fit.logs).forEach(function(k){if(k>=a&&k<=b)(db.fit.logs[k].c||[]).forEach(function(c){m+=cMin(c);});});weeks.push([a,m]);}
   var mx=Math.max.apply(null,weeks.map(function(w){return w[1];}).concat([30]));
-  return '<section class="sec"><div class="sec-row"><h2 class="sec-t">有氧（每週分鐘）</h2><span class="small muted">本週 '+weeks[7][1]+' 分</span></div><div class="panel">'+
-    '<div class="wkbars">'+weeks.map(function(w,i){return '<div class="wk"><span>'+(w[1]||'')+'</span><i class="'+(i===7?'cur':'')+'" style="height:'+Math.max(2,w[1]/mx*80)+'px"></i></div>';}).join('')+'</div>'+
+  return '<section class="sec"><div class="sec-row"><h2 class="sec-t">有氧（每週分鐘）</h2><span class="small muted">本週 '+Math.floor(weeks[7][1])+' 分</span></div><div class="panel">'+
+    '<div class="wkbars">'+weeks.map(function(w,i){return '<div class="wk"><span>'+(Math.floor(w[1])||'')+'</span><i class="'+(i===7?'cur':'')+'" style="height:'+Math.max(2,w[1]/mx*80)+'px"></i></div>';}).join('')+'</div>'+
     '<div class="wkl">'+weeks.map(function(w){return '<span>'+shortMD(w[0])+'</span>';}).join('')+'</div></div></section>';
 }
 
