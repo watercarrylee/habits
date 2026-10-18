@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-s3IBsIofykUCCAf+wm0JTC3jf20li09GBZg3+7HCK1w='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-hShYKsEFMQJiAWbJS4kQCnMuxRJoqz/boocr6CIOBBM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -567,6 +567,7 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .rep-prev img:not([src]){display:none}
 .rep-share{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
 .rep-share:disabled{opacity:.4}
+.hcard.pre{opacity:.5}
 .rbanner{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;border:0;background:var(--good-soft);color:var(--fg);font-size:14px;text-align:left}
 .rbanner span{flex:1 1 auto;min-width:0}
 .rbanner svg{flex:0 0 auto;color:var(--good)}
@@ -1354,7 +1355,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-14';
+var APP_VER='2026.10.18-15';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2053,20 +2054,24 @@ function goodCard(h,k){
   var v=val(k,h.id),on=isDone(h,k),st=goodStreak(h,k),pg=cardProg(h,k),sub,bar='';
   /* weekly habits: the card turns green once the week is met; the check still means "today" */
   var cardOn=on||!!(pg&&pg.seg&&pg.cur>=pg.goal);
-  if(pg){sub=progLine(pg,st);bar=progBar(pg);}
+  var pre=k<h.created&&!v;
+  if(pre)sub='這天還沒開始這個習慣';
+  else if(pg){sub=progLine(pg,st);bar=progBar(pg);}
   else{sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);}
+  if(pre)cardOn=false;
   var txt='<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(cardOn?' good-t':'')+'">'+sub+'</div>'+bar+'</div>';
-  if(h.method==='count')return '<div class="hcard'+(cardOn?' g-on':'')+'" data-id="'+h.id+'"><div class="hc-lead">'+cardIco(h)+txt+'</div>'+counter(h.id,v,'good',hUnit(h))+'</div>';
-  return '<button class="hcard'+(cardOn?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+txt+'</div>'+(isWk(h)?'<span class="chkday"><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span><small>今天</small></span>':'<span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span>')+'</button>';
+  if(h.method==='count')return '<div class="hcard'+(cardOn?' g-on':'')+(pre?' pre':'')+'" data-id="'+h.id+'"><div class="hc-lead">'+cardIco(h)+txt+'</div>'+counter(h.id,v,'good',hUnit(h))+'</div>';
+  return '<button class="hcard'+(cardOn?' g-on':'')+(pre?' pre':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+txt+'</div>'+(isWk(h)?'<span class="chkday"><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span><small>今天</small></span>':'<span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span>')+'</button>';
 }
 function badCard(h,k){
   var v=val(k,h.id),on=v>0;
-  var sub=on?(h.method==='count'?'今天犯了 '+v+' 次':'今天有犯'):'已 '+cleanDays(h,k)+' 天沒犯';
-  var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);
+  var pre=k<h.created&&!on,pc=pre?' pre':'';
+  var sub=pre?'這天還沒開始這個習慣':on?(h.method==='count'?'今天犯了 '+v+' 次':'今天有犯'):'已 '+cleanDays(h,k)+' 天沒犯';
+  var svd=pre?0:savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);
   if(h.method==='check'){
-    return '<button class="hcard'+(on?' b-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div></div><span class="check bad'+(on?' on':'')+'" aria-hidden="true">'+(on?I.x:'')+'</span></button>';
+    return '<button class="hcard'+(on?' b-on':'')+pc+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div></div><span class="check bad'+(on?' on':'')+'" aria-hidden="true">'+(on?I.x:'')+'</span></button>';
   }
-  return '<div class="hcard'+(on?' b-on':'')+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div></div>'+counter(h.id,v,'bad')+'</div>';
+  return '<div class="hcard'+(on?' b-on':'')+pc+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div></div>'+counter(h.id,v,'bad')+'</div>';
 }
 
 /* ---------- add to home screen hint ---------- */
@@ -2119,7 +2124,7 @@ function vToday(){
   var k=ui.date,t=todayKey();
   var wks=active('good').filter(isWk),goods=active('good').filter(function(h){return !isWk(h);}),bads=active('bad');
   var gs=goods.filter(function(h){return scheduled(h,k);}),rest=goods.filter(function(h){return !scheduled(h,k);});
-  var done=gs.filter(function(h){return isDone(h,k);}).length;
+  var done=gs.filter(function(h){return isDone(h,k);}).length,live=gs.filter(function(h){return k>=h.created||isDone(h,k);}).length;
   var badSum=bads.reduce(function(a,h){return a+val(k,h.id);},0);
   var log=db.logs[k]||{};
   var s='<div class="page'+(dayLocked(k)?' locked':'')+'"><header class="datebar">'+
@@ -2136,8 +2141,8 @@ function vToday(){
   }
   s+=rewardBanner();
   var pOn=!!db.settings.pnl;
-  var ad=gs.length>0&&done===gs.length;
-  s+='<div class="sum'+(pOn?' three':'')+'"><div class="sum-card good'+(ad?' alldone':'')+(ad&&ui.celAnim?' glow':'')+'"><div class="sum-l">'+(ad?(k===t?'今天全部完成':'全部完成'):'好習慣')+'</div><div class="sum-v">'+done+'<small> / '+gs.length+'</small></div></div>'+
+  var ad=live>0&&done===live;
+  s+='<div class="sum'+(pOn?' three':'')+'"><div class="sum-card good'+(ad?' alldone':'')+(ad&&ui.celAnim?' glow':'')+'"><div class="sum-l">'+(ad?(k===t?'今天全部完成':'全部完成'):'好習慣')+'</div><div class="sum-v">'+done+'<small> / '+live+'</small></div></div>'+
      '<div class="sum-card"><div class="sum-l muted">壞習慣</div><div class="sum-v bad-t">'+badSum+'<small class="muted"> 次</small></div></div>'+(pOn?pnlTile(k):'')+'</div>';
   if(goods.length){
     s+='<section class="sec"><h2 class="sec-t good-t">好習慣</h2>';
@@ -2279,14 +2284,14 @@ function bestSet(e,sets){var b=sets[0];sets.forEach(function(x){if(isBW(e)?x[1]>
   return isBW(e)?b[1]+' '+mUnit(e):fmtW(b[0],exU(e))+' × '+b[1];}
 function repData(ws){
   var we=addDays(ws,6),t=todayKey(),end=we<t?we:t,days=[],i;for(i=0;i<7;i++)days.push(addDays(ws,i));
-  var R={ws:ws,we:we,end:end,days:days,partial:end<we},S=0,D=0;
+  var R={ws:ws,we:we,end:end,days:days,partial:end<we},S=0,D=0,fresh=ws>repMinWs();
   R.hab=active('good').filter(function(h){return h.created<=end;}).map(function(h){
-    var wk=isWk(h),dots=days.map(function(d){if(d>end||d<h.created)return -1;if(wk)return isDone(h,d)?1:-2;return !scheduled(h,d)?-1:isDone(h,d)?1:0;});
-    if(wk){var c=wkCount(h,ws,end),g=h.perWeek||3;return {name:h.name,isNew:h.created>=ws,wk:true,n:c,goal:g,met:c>=g,dots:dots,st:wkStreak(h,end).n};}
+    var wk=isWk(h),dots=days.map(function(d){if(d<h.created)return -3;if(d>end)return -1;if(wk)return isDone(h,d)?1:-2;return !scheduled(h,d)?-1:isDone(h,d)?1:0;});
+    if(wk){var c=wkCount(h,ws,end),g=h.perWeek||3;return {name:h.name,isNew:fresh&&h.created>=ws,wk:true,n:c,goal:g,met:c>=g,dots:dots,st:wkStreak(h,end).n};}
     var sc=0,dn=0;dots.forEach(function(x){if(x>=0){sc++;if(x)dn++;}});S+=sc;D+=dn;
-    return {name:h.name,isNew:h.created>=ws,dn:dn,sc:sc,dots:dots,st:goodStreak(h,end)};});
+    return {name:h.name,isNew:fresh&&h.created>=ws,dn:dn,sc:sc,dots:dots,st:goodStreak(h,end)};});
   R.rate=S?Math.round(D/S*100):null;
-  R.bad=active('bad').filter(function(h){return h.created<=end;}).map(function(h){var n=0;days.forEach(function(d){if(d<=end)n+=val(d,h.id);});var td=0,cd=0,dots=days.map(function(d){if(d>end||d<h.created)return -1;td++;var c=!val(d,h.id);if(c)cd++;return c?1:0;});return {name:h.name,isNew:h.created>=ws,n:n,td:td,cd:cd,dots:dots};});
+  R.bad=active('bad').filter(function(h){return h.created<=end;}).map(function(h){var n=0;days.forEach(function(d){if(d<=end)n+=val(d,h.id);});var td=0,cd=0,dots=days.map(function(d){if(d<h.created)return -3;if(d>end)return -1;td++;var c=!val(d,h.id);if(c)cd++;return c?1:0;});return {name:h.name,isNew:fresh&&h.created>=ws,n:n,td:td,cd:cd,dots:dots};});
   var F={days:0,s:0,c:0,km:0,pr:[],first:[]},seen={};
   days.forEach(function(d){if(d>end)return;var fm=fitMinutes(d),l=fLog(d);if(fm.any)F.days++;F.s+=fm.s;F.c+=fm.c;if(!l)return;
     (l.c||[]).forEach(function(c){var kd=cKind(c.type);if(kd==='pace'&&c.dist>0)F.km+=c.dist;
@@ -2356,7 +2361,7 @@ function rDots(x,dots,cx,DX,Y,bad){dots.forEach(function(v,i){var X=cx+DX*i+DX/2
   if(v===1){x.arc(X,Y,15,0,7);x.fillStyle=RC.good;x.fill();}
   else if(v===0&&bad){x.arc(X,Y,15,0,7);x.fillStyle=RC.bad;x.fill();}
   else if(v===0){x.arc(X,Y,13,0,7);x.lineWidth=4;x.strokeStyle=RC.faint;x.stroke();}
-  else{x.arc(X,Y,5,0,7);x.fillStyle=RC.faint;x.fill();}});}
+  else if(v===-1||v===-2){x.arc(X,Y,5,0,7);x.fillStyle=RC.faint;x.fill();}});}
 function repHabits(R,inc){return function(x,y,dr){
   var h=48,DX=52,MX=RX1-24,NX=RX1-64,cx=NX-96-7*DX,list=R.hab.slice(0,8),NW=cx-RX0-16;
   if(dr){rText(x,'習慣',RX0,y+h+44,42,700);
@@ -2379,6 +2384,11 @@ function repHabits(R,inc){return function(x,y,dr){
         rText(x,e.cd+'/'+e.td,NX,y+h+44,32,ok?700:400,ok?RC.fg:RC.muted,'right');rMark(x,ok,MX,y+h+44);}
       h+=64;});
     if(dr)rText(x,'壞習慣算的是「沒有做」的天數',RX0,y+h+28,26,400,RC.muted);h+=44;}
+  var all=list.concat(inc.bad?R.bad.slice(0,6):[]),pre=all.some(function(e){return e.dots.indexOf(-3)>=0;}),off=all.some(function(e){return e.dots.indexOf(-1)>=0||e.dots.indexOf(-2)>=0;});
+  if(pre||off){if(dr){var lx=RX0;
+      if(off){x.beginPath();x.arc(lx+8,y+h+19,5,0,7);x.fillStyle=RC.faint;x.fill();rText(x,'那天不用做',lx+24,y+h+28,26,400,RC.muted);rFont(x,26,400);lx+=24+x.measureText('那天不用做').width+36;}
+      if(pre)rText(x,'空白：還沒開始這個習慣',lx,y+h+28,26,400,RC.muted);}
+    h+=44;}
   return h+40;};}
 function repFit(R){return function(x,y,dr){
   var F=R.fit,h=48;h+=rTitle(x,y+h,dr,'運動');
