@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-1O1oB2rvaOII+9OepDXYIuYE+p2G0Ksypa5rUpRfnTU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-riopHa3A9sFn8ng0U/SG4Ix/5SlyaD8Z63OMaNHNTGA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1270,7 +1270,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-1';
+var APP_VER='2026.10.18-2';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1953,18 +1953,20 @@ function cardProg(h,k){
   if(h.method==='check'&&h.fitLink&&fOn()){var tg=fitTarget(h);if(tg){var on=isDone(h,k);return {cur:on?tg:Math.min(fitMinutes(k).tot,tg-1),goal:tg,unit:'天'};}}
   return null;}
 function progLine(pg,st){var done=pg.cur>=pg.goal,pct=Math.round(pg.cur/pg.goal*100);if(!done&&pct>99)pct=99;
-  var a=pg.warn?'<span class="warn-t">'+pg.warn+'</span>':done?'✓ '+(pct>100&&!pg.seg?pct+'%':'達成'):pct+'%';
+  var a=pg.warn?'<span class="warn-t">'+pg.warn+'</span>':done?'✓ '+(pg.seg?'本週達成':pct>100?pct+'%':'達成'):pct+'%';
   return a+(st>0?' · 連續 '+st+' '+pg.unit:'');}
 function progBar(pg){
   if(pg.seg){var x='';for(var i=0;i<pg.seg;i++)x+='<i'+(i<pg.cur?' class="on"':'')+'></i>';return '<div class="pbar seg" aria-hidden="true">'+x+'</div>';}
   return '<div class="pbar" aria-hidden="true"><i style="width:'+Math.min(100,Math.round(pg.cur/pg.goal*100))+'%"></i></div>';}
 function goodCard(h,k){
   var v=val(k,h.id),on=isDone(h,k),st=goodStreak(h,k),pg=cardProg(h,k),sub,bar='';
+  /* weekly habits: the card turns green once the week is met; the check still means "today" */
+  var cardOn=on||!!(pg&&pg.seg&&pg.cur>=pg.goal);
   if(pg){sub=progLine(pg,st);bar=progBar(pg);}
   else{sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);}
-  var txt='<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(on?' good-t':'')+'">'+sub+'</div>'+bar+'</div>';
-  if(h.method==='count')return '<div class="hcard'+(on?' g-on':'')+'" data-id="'+h.id+'"><div class="hc-lead">'+cardIco(h)+txt+'</div>'+counter(h.id,v,'good',hUnit(h))+'</div>';
-  return '<button class="hcard'+(on?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+txt+'</div><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span></button>';
+  var txt='<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(cardOn?' good-t':'')+'">'+sub+'</div>'+bar+'</div>';
+  if(h.method==='count')return '<div class="hcard'+(cardOn?' g-on':'')+'" data-id="'+h.id+'"><div class="hc-lead">'+cardIco(h)+txt+'</div>'+counter(h.id,v,'good',hUnit(h))+'</div>';
+  return '<button class="hcard'+(cardOn?' g-on':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+txt+'</div><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span></button>';
 }
 function badCard(h,k){
   var v=val(k,h.id),on=v>0;
@@ -2222,7 +2224,7 @@ var CHANGELOG=[
  [null,'10/13',['習慣紀錄 App 誕生：好習慣打勾、壞習慣計次、心情和備註']]
 ];
 var CLKEY='habit-cl-seen';
-function clDay(){return APP_VER.split('-')[0];}
+function clDay(){return CHANGELOG[0][0]||CHANGELOG[0][1];}
 function clSeen(){try{return localStorage.getItem(CLKEY)===clDay();}catch(e){return true;}}
 function clMarkSeen(){try{localStorage.setItem(CLKEY,clDay());}catch(e){}}
 function vChangelog(){

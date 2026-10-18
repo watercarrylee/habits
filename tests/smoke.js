@@ -266,7 +266,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=toggle][data-id=w1]');
   ok((await p.$eval('#toast', e => e.innerText)).includes('本週達成'), 'weekly goal reached toast');
   wsub = await p.$eval('[data-id=w1] .hc-sub', e => e.innerText);
-  ok(wsub.startsWith('✓ 達成') && wsub.includes('連續 2 週'), 'met week shows ✓ 達成 and counts (' + wsub + ')');
+  ok(wsub.startsWith('✓ 本週達成') && wsub.includes('連續 2 週'), 'met week shows ✓ 本週達成 and counts (' + wsub + ')');
   ok(!(await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'weekly taps do not complete the day');
   await p.click('[data-act=toggle][data-id=c1]');
   ok(await p.$eval('.sum-card', e => e.classList.contains('alldone')), 'daily all-done not blocked by unmet weekly habit');
@@ -290,6 +290,12 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=edit][data-id=w3]'); await p.click('#icobtn'); await p.click('[data-act=seticon][data-v=music]');
   await p.fill('#hname', '跑步'); await p.click('[data-act=save]'); d = await db(p);
   ok(d.habits.find(h => h.id === 'w3').icon === 'music', 'a hand-picked icon is kept when renaming');
+  if (wk(0, 0) < T) {
+    p.csp = []; await p.context().close();
+    p = await page(b, { 'habit-tracker-v1': { v: 1, settings: {}, rewards: [], redeemed: [], logs: { [wk(0, 0)]: { h: { m1: 1 } } }, habits: [
+      { id: 'm1', name: '打電話回家', kind: 'good', method: 'check', freq: 'week', perWeek: 1, days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) }] } });
+    ok(await p.$eval('[data-id=m1]', e => e.classList.contains('g-on')) && !(await p.$('[data-id=m1] .check.on')), 'week met: card green, today check stays empty');
+  }
   await done(p, 'weekly');
 
   console.log('• 常見問題');
@@ -315,8 +321,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!!(await p.$('.clink .cldot')), 'dot shown for an unseen version');
   await p.click('[data-act=changelog]');
   const ver = await p.evaluate(() => document.documentElement.innerHTML.match(/APP_VER='([^']+)'/)[1]);
-  ok((await p.content()).match(/var CHANGELOG=\[\s*\['([^']+)'/)[1] === ver, 'newest changelog entry matches APP_VER (' + ver + ')');
-  ok((await p.$eval('.cl-item.cur .cl-v', e => e.textContent)).endsWith('-' + ver.split('-').pop()), 'newest day card shows the current version range');
+  // 更新紀錄 is written the day after: every release day before today's must have an entry, and nothing newer than APP_VER
+  const html = await p.content();
+  const clVers = [...html.match(/var CHANGELOG=\[[\s\S]*?\n\];/)[0].matchAll(/\['(\d{4}\.\d\d\.\d\d)-(\d+)'/g)].map(m => [m[1], +m[2]]);
+  const vnum = v => { const [d, n] = v.split('-'); return d.replace(/\./g, '') * 1000 + +n; };
+  ok(vnum(clVers[0][0] + '-' + clVers[0][1]) <= vnum(ver), 'newest changelog entry is not newer than APP_VER (' + ver + ')');
+  const relDays = [...new Set([...require('fs').readFileSync(__dirname + '/../VERSIONS.md', 'utf8').matchAll(/^\| (\d{4}\.\d\d\.\d\d)-\d+ /gm)].map(m => m[1]))];
+  const missing = relDays.filter(d => d < ver.split('-')[0] && !clVers.some(c => c[0] === d));
+  ok(!missing.length, 'every past release day has a 更新紀錄 entry' + (missing.length ? ' (missing ' + missing.join(', ') + ')' : ''));
   ok((await p.$$eval('.cl-item .cl-h b', x => x.map(e => e.textContent))).filter(t => t.startsWith('10/17')).length <= 1, 'one card per day');
   ok((await p.$$('.cl-item')).length >= 5, 'history listed by day');
   await p.evaluate(() => { document.getElementById('toast').hidden = true; });
