@@ -459,6 +459,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const img = async () => { await p.waitForFunction(() => { const i = document.getElementById('repimg'); return i && i.complete && i.naturalWidth > 0; }); return p.$eval('#repimg', i => [i.naturalWidth, i.naturalHeight, i.src]); };
     let [iw, ih, src] = await img();
     ok(iw === 1080 && ih >= 1920 && src.startsWith('blob:'), 'report image drawn on the phone (' + iw + '×' + ih + ')');
+    await p.fill('#repnote', '這週好累，但還是有喝水'); await p.waitForFunction(s => document.getElementById('repimg').src !== s, src);
+    { const [, hN, sN] = await img(); ok(hN > ih, 'personal note adds a line to the image'); ih = hN; src = sN; }
+    ok(!JSON.stringify(await db(p)).includes('這週好累'), 'personal note is not saved');
     ok(!!(await p.$('[data-act=ropt][data-v=bad]')) && !!(await p.$('[data-act=ropt][data-v=amt]')), 'bad-habit and amount sub-options shown');
     ok(await p.$eval('[data-v=bad]', e => e.getAttribute('aria-checked')) === 'false' && await p.$eval('[data-v=amt]', e => e.getAttribute('aria-checked')) === 'false', 'bad habits and amounts are off by default');
     await p.click('[data-act=ropt][data-v=bad]'); await p.waitForFunction(s => document.getElementById('repimg').src !== s, src);
