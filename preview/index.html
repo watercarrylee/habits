@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-TZJo7Z0yLsDhZrTy3WRE/RVN2+hc7d86LxWf4+nzDE8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-qVlrS+mslX38NnOCatfO/RkjHYR3fzM5qB9l3ExgYdY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -561,6 +561,7 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .tb-r{display:flex;align-items:center;gap:6px}
 .repbtn{display:inline-flex;align-items:center;gap:6px;color:var(--good);border-color:var(--good-line);font-weight:700}
 .rep-sub{padding-left:32px}
+.page input.rep-note{width:100%;box-sizing:border-box;margin:8px 0 4px;height:48px;padding:0 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:16px;color:var(--fg)}
 .rep-prev{margin:16px 0 12px;min-height:200px;border-radius:18px;background:var(--chip)}
 .rep-prev img{display:block;width:100%;border-radius:18px;border:1.5px solid var(--line)}
 .rep-prev img:not([src]){display:none}
@@ -2281,9 +2282,9 @@ function repData(ws){
   var R={ws:ws,we:we,end:end,days:days,partial:end<we},S=0,D=0;
   R.hab=active('good').filter(function(h){return h.created<=end;}).map(function(h){
     var wk=isWk(h),dots=days.map(function(d){if(d>end||d<h.created)return -1;if(wk)return isDone(h,d)?1:-2;return !scheduled(h,d)?-1:isDone(h,d)?1:0;});
-    if(wk){var c=wkCount(h,ws,end),g=h.perWeek||3;return {name:h.name,isNew:h.created>=ws,wk:true,n:c,goal:g,met:c>=g,dots:dots};}
+    if(wk){var c=wkCount(h,ws,end),g=h.perWeek||3;return {name:h.name,isNew:h.created>=ws,wk:true,n:c,goal:g,met:c>=g,dots:dots,st:wkStreak(h,end).n};}
     var sc=0,dn=0;dots.forEach(function(x){if(x>=0){sc++;if(x)dn++;}});S+=sc;D+=dn;
-    return {name:h.name,isNew:h.created>=ws,dn:dn,sc:sc,dots:dots};});
+    return {name:h.name,isNew:h.created>=ws,dn:dn,sc:sc,dots:dots,st:goodStreak(h,end)};});
   R.rate=S?Math.round(D/S*100):null;
   R.bad=active('bad').filter(function(h){return h.created<=end;}).map(function(h){var n=0;days.forEach(function(d){if(d<=end)n+=val(d,h.id);});return {name:h.name,isNew:h.created>=ws,n:n};});
   var F={days:0,s:0,c:0,km:0,pr:[],first:[]},seen={};
@@ -2322,13 +2323,16 @@ function repHL(R,inc){var out=[];
   var nw=(inc.h?R.hab.concat(inc.bad?R.bad:[]):[]).filter(function(e){return e.isNew;});
   if(R.wkN>1&&nw.length)out.push('這週新增了 '+nw.length+' 個習慣：'+nw.map(function(e){return e.name;}).join('、'));
   if(inc.h&&R.rate===100&&R.hab.some(function(e){return !e.wk;}))out.push('好習慣全部達成，完美的一週！');
+  var top=inc.h?R.hab.filter(function(e){return !e.wk&&e.st>=7;}).sort(function(a,b){return b.st-a.st;})[0]:null;
+  if(top)out.push(top.name+' 已經連續 '+top.st+' 天了！');
   else if(inc.h&&R.rate!==null&&R.prevRate!==null&&R.rate-R.prevRate>=5)out.push('完成率比上週提升了 '+(R.rate-R.prevRate)+'%，進步看得見！');
   if(inc.fit&&R.fit.pr.length)out.push('這週刷新了 '+R.fit.pr.length+' 項運動紀錄！');
   else if(inc.fit&&R.fit.first.length)out.push('這週第一次嘗試了 '+R.fit.first.length+' 個新動作。');
   return out.slice(0,3);}
 var TROPHY_PX=["..KKKKKKKK..","KKKYYhYYyKKK","KYKYhYYYyKyK","KYKYYYYYyKyK",".KKYYYYYyKK.","..KYYYYYyK..","...KYYYyK...","....KYyK....","....KYyK....","...KKYyKK...","..KYYYYyyK..","..KKKKKKKK.."];
 var SPARK_PX=[".....K.....","....KLK....","....KLK....","...KLLLK...",".KKLLLLLKK.","KLLLLhLLLLK",".KKLLLLLKK.","...KLLLK...","....KLK....","....KLK....",".....K....."];
-var ICON_PAL={K:'#16261b',Y:'#ffd447',y:'#e9a92f',h:'#fff6c8',L:'#9be28b'};
+var FLAME_PX=["...K...","..KRK..","..KRRK.",".KRROK.","KRROORK","KROYYOK","KROYYOK",".KOYYK.","..KKKK."];
+var ICON_PAL={K:'#16261b',Y:'#ffd447',y:'#e9a92f',h:'#fff6c8',L:'#9be28b',R:'#e2574c',O:'#f59a3c'};
 function rPix(x,px,pal,X,Y,s){px.forEach(function(row,r){for(var c=0;c<row.length;c++){var p=pal[row[c]];if(p){x.fillStyle=p;x.fillRect(X+c*s,Y+r*s,s,s);}}});}
 var RC={bg:'#F5F2EC',card:'#FFFFFF',fg:'#1C1B19',muted:'#6B655C',faint:'#CFC8BC',line:'#E2DBCF',tile:'#F5F2EC',good:'#2F6B52',good2:'#7FB297',goodSoft:'#E3EFE8',bad:'#B4471C',badLine:'#E9BFA9',up:'#C8283A',down:'#1F7A4A'};
 var RF='-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
@@ -2345,21 +2349,22 @@ function rName(x,e,X,Y,maxw){rFont(x,34,400);x.fillStyle=RC.fg;var pill=e.isNew?
   if(pill){var w=x.measureText(n).width;rRound(x,X+w+12,Y-32,48,40,12,RC.goodSoft);rText(x,'新',X+w+36,Y-3,26,700,RC.good,'center');}}
 function rTitle(x,y,dr,t,right,rcol){if(dr){rText(x,t,RX0,y+44,42,700);if(right)rText(x,right,RX1,y+42,32,700,rcol||RC.muted,'right');}return 76;}
 function repHabits(R,inc){return function(x,y,dr){
-  var h=48,DX=56,RWID=150,cx=RX1-RWID-7*DX,list=R.hab.slice(0,8);
+  var h=48,DX=50,RWID=230,cx=RX1-RWID-7*DX,list=R.hab.slice(0,8);
   if(dr){rText(x,'習慣',RX0,y+h+44,42,700);
     if(R.rate!==null){rFont(x,56,800);var pw=x.measureText(R.rate+'%').width;rText(x,R.rate+'%',RX1,y+h+48,56,800,RC.good,'right');rText(x,'完成率',RX1-pw-14,y+h+44,30,400,RC.muted,'right');}}
   h+=84;
   if(list.length){
-    if(dr)'一二三四五六日'.split('').forEach(function(w,i){rText(x,w,cx+DX*i+DX/2,y+h+26,26,400,RC.muted,'center');});
+    if(dr){'一二三四五六日'.split('').forEach(function(w,i){rText(x,w,cx+DX*i+DX/2,y+h+26,26,400,RC.muted,'center');});rText(x,'連續',RX1,y+h+26,24,400,RC.muted,'right');}
     h+=50;
     list.forEach(function(e){
       if(dr){rName(x,e,RX0,y+h+44,cx-RX0-16);
         e.dots.forEach(function(v,i){var X=cx+DX*i+DX/2,Y=y+h+32;x.beginPath();
-          if(v===1){x.arc(X,Y,16,0,7);x.fillStyle=RC.good;x.fill();}
-          else if(v===0){x.arc(X,Y,14,0,7);x.lineWidth=4;x.strokeStyle=RC.faint;x.stroke();}
+          if(v===1){x.arc(X,Y,15,0,7);x.fillStyle=RC.good;x.fill();}
+          else if(v===0){x.arc(X,Y,13,0,7);x.lineWidth=4;x.strokeStyle=RC.faint;x.stroke();}
           else{x.arc(X,Y,5,0,7);x.fillStyle=RC.faint;x.fill();}});
         var full=e.wk?e.met:(e.sc>0&&e.dn===e.sc),txt=e.wk?e.n+'/'+e.goal+' 次':e.dn+'/'+e.sc;
-        rText(x,txt+(full?' ✓':''),RX1,y+h+44,32,full?700:400,full?RC.good:RC.muted,'right');}
+        rText(x,txt+(full?' ✓':''),RX1-100,y+h+44,30,full?700:400,full?RC.good:RC.muted,'right');
+        if(e.st>=2){rPix(x,FLAME_PX,ICON_PAL,RX1-84,y+h+14,3);rText(x,e.st+(e.wk?'週':''),RX1,y+h+44,28,700,'#C2502F','right');}}
       h+=64;});
     if(R.hab.length>list.length){if(dr)rText(x,'還有 '+(R.hab.length-list.length)+' 個習慣沒列出',RX0,y+h+30,28,400,RC.muted);h+=48;}
   }else{if(dr)rText(x,'這週沒有進行中的好習慣',RX0,y+h+30,30,400,RC.muted);h+=52;}
@@ -2425,19 +2430,20 @@ function repCanvas(R,inc){
   var hl=repHL(R,inc);secs.unshift(function(x,y,dr){var h=40;rFont(x,34,700);var ls=[];hl.forEach(function(t,i){rFont(x,i?32:34,i?400:700);ls=ls.concat(rWrap(x,t,RW-120).map(function(s2){return [s2,i];}));});
     if(dr){rSprout(x,RX0,y+(Math.max(ls.length*50+80,150)-95)/2,5);ls.forEach(function(q,i){rText(x,q[0],RX0+120,y+h+42+i*50,q[1]?32:34,q[1]?400:700,q[1]?RC.muted:RC.good);});}
     return Math.max(ls.length*50+80,150);});
-  var cv=document.createElement('canvas'),x=cv.getContext('2d'),HEAD=300,FOOT=220,GAP=36;
-  cv.width=1080;cv.height=10;var hs=secs.map(function(f){return f(x,0,false);});
+  var cv=document.createElement('canvas'),x=cv.getContext('2d'),HEAD=300,FOOT=220,GAP=36,note=String(R.note||'').replace(/\s+/g,' ').trim(),nl=[];
+  cv.width=1080;cv.height=10;if(note){rFont(x,40,700);nl=rWrap(x,'「'+note+'」',RW+40);HEAD+=nl.length*58+10;}var hs=secs.map(function(f){return f(x,0,false);});
   var tot=HEAD+hs.reduce(function(a,b){return a+b+GAP;},0)+FOOT;cv.height=Math.max(1920,tot);
   x=cv.getContext('2d');x.fillStyle=RC.bg;x.fillRect(0,0,cv.width,cv.height);
   rText(x,REP_NAME,RX0-48,180,88,800);
   var y0=parseKey(R.ws).getFullYear();rText(x,y0+' · '+repRange(R.ws)+(R.partial?'（進行中）':''),RX0-48,248,38,400,RC.muted);
+  nl.forEach(function(q,i){rText(x,q,RX0-48,320+i*58,40,700,RC.fg);});
   var y=HEAD;secs.forEach(function(f,i){rRound(x,56,y,968,hs[i],40,i?RC.card:RC.goodSoft);f(x,y,true);y+=hs[i]+GAP;});
   if(secs.length<2)rText(x,'沒有選擇任何內容',540,HEAD+80,34,400,RC.muted,'center');
   var fy=cv.height-FOOT+50,s=5;rFont(x,34,700);var tw=x.measureText('習慣紀錄').width,gw=18*s+20+tw,gx=(1080-gw)/2;
   rSprout(x,gx,fy,s);rText(x,'習慣紀錄',gx+18*s+20,fy+62,34,700,RC.muted);
   return cv;}
 function repDraw(){var seq=ui.repSeq=(ui.repSeq||0)+1,inc=repInc(repOpts());
-  var cv;try{cv=repCanvas(repData(ui.repWs),inc);}catch(e){return;}
+  var cv,R;try{R=repData(ui.repWs);R.note=ui.repNote||'';cv=repCanvas(R,inc);}catch(e){return;}
   ui.repH=cv.height;
   cv.toBlob(function(bl){if(seq!==ui.repSeq||!bl)return;ui.repBlob=bl;if(ui.repUrl)try{URL.revokeObjectURL(ui.repUrl);}catch(e){}
     ui.repUrl=URL.createObjectURL(bl);var im=$('#repimg');if(im){im.src=ui.repUrl;im.parentNode.classList.remove('busy');}},'image/png');}
@@ -2455,6 +2461,7 @@ function vReport(){
   s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="rweek" data-n="-1" aria-label="上一週"'+(ws<=repMinWs()?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="month-l">'+repRange(ws)+(ws===cw?'（本週）':'')+'</div>'+
     '<button class="iconbtn" data-act="rweek" data-n="1" aria-label="下一週"'+(ws>=cw?' disabled':'')+'>'+I.right+'</button></div>';
+  s+='<section class="sec"><label class="sec-t" for="repnote">想說的一句話</label><input id="repnote" type="text" class="rep-note" maxlength="40" placeholder="例如：這週好累，但還是有喝水（選填）" value="'+esc(ui.repNote||'')+'" autocomplete="off" enterkeyhint="done"><p class="small muted">只會出現在圖片上，不會存起來。</p></section>';
   s+='<section class="sec"><h2 class="sec-t">包含哪些內容</h2><div class="list">'+
     repRow('h','習慣','完成率和每天的打勾',o.h)+
     (o.h&&active('bad').length?repRow('bad','包含壞習慣','預設不放',o.bad,true):'')+
@@ -2981,6 +2988,7 @@ document.addEventListener('input',function(e){
     if(!ui.draft.iconTouched){var g=guessIcon(el.value);if(g!==ui.draft.icon){ui.draft.icon=g;var ib=$('#icobtn');if(ib){ib.innerHTML=g?icoSvg(g,24):I.plus;ib.classList.toggle('empty',!g);ib.setAttribute('aria-label','選擇圖示，目前：'+(ICONS[g]?ICONS[g][0]:'沒有圖示'));}
       Array.prototype.forEach.call(document.querySelectorAll('.icogrid [data-act=seticon]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.v===g));});}}}
   else if(el.id==='pastebox'&&ui.sheet){ui.sheet.paste=el.value;}
+  else if(el.id==='repnote'){ui.repNote=el.value.slice(0,40);clearTimeout(ui.repT);ui.repT=setTimeout(repDraw,400);}
   else if(el.id==='rname'&&ui.rd){ui.rd.name=el.value;var rp=$('#rpreview');if(rp)rp.innerHTML=rPreview(ui.rd);}
   else if(el.id==='rtarget'&&ui.rd){ui.rd.target=parseInt(el.value.replace(/[^0-9]/g,''),10)||0;var rp2=$('#rpreview');if(rp2)rp2.innerHTML=rPreview(ui.rd);}
   else if((el.id==='hunit'||el.id==='hstep'||el.id==='hgoal')&&ui.draft){
