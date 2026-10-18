@@ -519,6 +519,38 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!(await p.evaluate(() => document.documentElement.hasAttribute('data-skin'))) && !('skin' in (await db(p)).settings), 'back to 小芽綠 clears the skin');
   await done(p, 'skins');
 
+  console.log('• rewards: habit first');
+  {
+    const lg = {}; for (let i = 1; i <= 20; i++) lg[daysAgo(i)] = { h: { d1: 1, w1: 1, b1: i === 3 ? 1 : 0 } };
+    p = await page(b, { 'habit-tracker-v1': { v: 1, logs: lg, settings: {}, rewards: [], redeemed: [], habits: [
+      { id: 'd1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) },
+      { id: 'w1', name: '運動', kind: 'good', method: 'check', freq: 'week', perWeek: 3, days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) },
+      { id: 'b1', name: '宵夜', kind: 'bad', method: 'count', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) }] } });
+    await p.click('[data-tab=rewards]'); await p.click('[data-act=rnew]');
+    const types = async () => p.$$eval('[data-act=rtype]', x => x.map(e => e.dataset.v).join(','));
+    ok(await types() === 'streak,weekly,rate,total', 'daily habit offers 連續/每週/完成率/累計 (' + await types() + ')');
+    await p.click('[data-act=rhabit][data-id=w1]'); ok(await types() === 'wktotal,streak', 'weekly habit offers 累計週數 and 連續週數');
+    ok(await p.$eval('[data-act=rtype].on', e => e.dataset.v) === 'wktotal', 'weekly habit defaults to 累計達標週數');
+    await p.click('[data-act=rhabit][data-id=b1]'); ok(await types() === 'limit,clean', 'bad habit offers 上限 and 連續沒犯');
+    await p.click('[data-act=rhabit][data-id=""]'); ok(!(await p.$('[data-act=rtype]')) && (await p.$eval('#rpreview', e => e.innerText)).includes('省下的錢'), 'no habit → savings reward');
+    await p.click('[data-act=rhabit][data-id=d1]'); await p.click('[data-act=rtype][data-v=total]');
+    await p.fill('#rname', '買新書'); await p.fill('#rtarget', '10'); await p.click('[data-act=rsave]');
+    let d2 = await db(p); const rt = d2.rewards.find(r => r.type === 'total');
+    ok(rt && rt.habit === 'd1' && rt.target === 10, 'total-days reward saved');
+    // past days only count from the reward's start, so backdate it to check counting
+    await p.evaluate(() => { const k = 'habit-tracker-v1', o = JSON.parse(localStorage.getItem(k)); o.rewards.forEach(r => { r.created = o.habits[0].created; }); localStorage.setItem(k, JSON.stringify(o)); });
+    await p.reload(); await p.click('[data-tab=rewards]');
+    d2 = await db(p); ok(d2.rewards[0].earned.length === 1, '累計 10 天 earned after 20 done days');
+    await p.click('[data-act=rnew]'); await p.click('[data-act=rhabit][data-id=w1]'); await p.fill('#rname', '按摩'); await p.fill('#rtarget', '2'); await p.click('[data-act=rsave]');
+    await p.click('[data-act=rnew]'); await p.click('[data-act=rhabit][data-id=b1]'); await p.click('[data-act=rtype][data-v=clean]'); await p.fill('#rname', '甜點'); await p.fill('#rtarget', '5'); await p.click('[data-act=rsave]');
+    await p.evaluate(() => { const k = 'habit-tracker-v1', o = JSON.parse(localStorage.getItem(k)); o.rewards.forEach(r => { r.created = o.habits[0].created; }); localStorage.setItem(k, JSON.stringify(o)); });
+    await p.reload(); await p.click('[data-tab=rewards]'); d2 = await db(p);
+    const wk = d2.rewards.find(r => r.type === 'wktotal'), cl = d2.rewards.find(r => r.type === 'clean');
+    ok(wk && wk.earned.length === 1, '累計達標 2 週 earned');
+    ok(cl && cl.earned.length === 1, '連續 5 天沒犯 earned (slip 3 days ago resets, earlier run counts)');
+    await done(p, 'rewards habit first');
+  }
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
