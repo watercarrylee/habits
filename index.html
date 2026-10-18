@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-qG8RWOsfDIbrdWXwfn13y4jiCRGimq1jvJGUPZO4RBk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-pyl7iqutejDey7oj49NwjhHSWMCaef4WQlm+7hlBn4o='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -617,7 +617,7 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
   <nav class="tabs" id="tabs" aria-label="主選單">
     <button class="tab" data-act="tab" data-tab="today">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M8.5 13l2.5 2.5 4.5-5"></path></svg>
-      今天
+      習慣
     </button>
     <button class="tab" data-act="tab" data-tab="fit" id="fitTab" hidden>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4.5a2 2 0 1 0 4 0a2 2 0 1 0-4 0M7 21l3.5-6 3 2.5V21M5 11.5l4-3 4.5 1 2 3 3.5 1M10.5 15l2-6"></path></svg>
@@ -1342,7 +1342,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-9';
+var APP_VER='2026.10.18-10';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1382,7 +1382,7 @@ function dNextKey(k){var t=todayKey();if(k>=t)return null;var ks=Object.keys(db.
 function dGo(k){var l=db.logs[ui.date];if(l&&l.diary&&!(l.diary.t||'').trim()){delete l.diary;tidy(ui.date);save();}ui.date=k;ui.follow=k===todayKey();ui.dEdit=dText(k)?null:k;ui.dSkip=null;ui.top=true;}
 function vDiary(){
   var k=ui.date,t=dText(k),q=dQ(k),l=db.logs[k]||{},ed=!t||ui.dEdit===k,n=dCount(t);
-  var s='<div class="dw"><div class="page" style="padding-bottom:0"><header class="editbar"><button class="textbtn" data-act="dback">'+(ui.dBack==='stats'?'統計':ui.dBack==='search'?'搜尋':'今天')+'</button>'+
+  var s='<div class="dw"><div class="page" style="padding-bottom:0"><header class="editbar"><button class="textbtn" data-act="dback">'+(ui.dBack==='stats'?'統計':ui.dBack==='search'?'搜尋':'習慣')+'</button>'+
     '<h1 class="edit-t">日記</h1>'+
     (ed?'<button class="textbtn strong" id="ddone" data-act="ddone">完成</button>':'<button class="textbtn" style="color:var(--fg);font-weight:700" data-act="dedit">編輯</button>')+
     '</header></div><div class="dw-body">';
@@ -1932,7 +1932,7 @@ function searchResults(){
     if(l.note)items.push({k:k,d:false,t:l.note});
     if(dI&&l.diary&&l.diary.t)items.push({k:k,d:true,t:(l.diary.q?l.diary.q+'\n':'')+l.diary.t});});
   var what=dI?'備註或日記':'備註';
-  if(!items.length)return '<p class="small muted res-count">還沒有任何'+what+'。'+(dI?'':'在「今天」最下面可以寫備註。')+'</p>';
+  if(!items.length)return '<p class="small muted res-count">還沒有任何'+what+'。'+(dI?'':'在「習慣」頁最下面可以寫備註。')+'</p>';
   var hits=items.filter(function(x){var n=x.t.toLowerCase();return terms.every(function(t){return n.indexOf(t)>=0;});});
   var head=raw?(hits.length?'找到 '+hits.length+' 筆':'找不到「'+esc(raw)+'」'):'全部'+what+' · '+items.length+' 筆';
   var s='<p class="small muted res-count">'+head+'</p>';
@@ -2221,7 +2221,7 @@ function vSettings(){
   s+='<section class="sec"><h2 class="sec-t">額外功能</h2><div class="list">'+
     '<div class="row-btn"><span class="row-l"><span>記錄未實現損益</span><span class="row-sub">每天記一次帳面損益，統計頁看走勢</span></span>'+
     '<button class="switch" role="switch" aria-checked="'+pOn+'" aria-label="記錄未實現損益" data-act="pnltoggle"><span class="knob"></span></button></div>'+
-    '<div class="row-btn"><span class="row-l"><span>日記</span><span class="row-sub">今天頁多一張日記卡，統計頁多一個日記分頁</span></span>'+
+    '<div class="row-btn"><span class="row-l"><span>日記</span><span class="row-sub">習慣頁多一張日記卡，統計頁多一個日記分頁</span></span>'+
     '<button class="switch" role="switch" aria-checked="'+dO+'" aria-label="日記" data-act="dtoggle"><span class="knob"></span></button></div>'+
     (dO?'<div class="row-btn subrow"><span class="row-l"><span>引導題</span><span class="row-sub">還沒寫的時候給一個小問題</span></span>'+
     '<button class="switch" role="switch" aria-checked="'+dP+'" aria-label="引導題" data-act="dptoggle"><span class="knob"></span></button></div>':'')+
@@ -2245,7 +2245,7 @@ function vSettings(){
 var FAQ=[
  ['habit','習慣與頻率',[
   ['為什麼沒有「每月」或「每季」的頻率？','習慣靠頻繁重複才養得成。一個月或一季才做一次的事（例如洗牙、繳費），比較適合放在行事曆或提醒事項。所以最長的週期是「每週幾次」。'],
-  ['「每週幾次」的習慣，為什麼不算進今天的「好習慣 x / y」？','因為它本來就不用每天做。算進去的話，沒做的日子永遠不算「全部完成」，等於變相要你每天做。所以它獨立放在今天頁的「這週」區塊。'],
+  ['「每週幾次」的習慣，為什麼不算進今天的「好習慣 x / y」？','因為它本來就不用每天做。算進去的話，沒做的日子永遠不算「全部完成」，等於變相要你每天做。所以它獨立放在習慣頁的「這週」區塊。'],
   ['每週習慣剛建立的第一週沒達成，為什麼不算中斷？','例如週四才建立「每週 3 次」，剩下的天數本來就不太夠，算中斷不公平。從下一週開始才正式計算。'],
   ['「每週幾次」算的是次數，還是總時數？','次數。例如「一週 3 次、每次 30 分鐘」，比「一週累積 90 分鐘」更像規律的習慣。只運動 20 分鐘的那天，不算一次。'],
   ['休息卡為什麼不能用在每週習慣？','休息卡是用來補「某一天」的。每週習慣本來就能自己挑哪天做，不需要補。']]],
@@ -2364,7 +2364,7 @@ function vEdit(){
       '<button class="'+(wkd?'on':'')+'" data-act="freq" data-v="week" aria-pressed="'+wkd+'">每週幾次</button></div>';
     if(wkd){s+='<div class="stepper" style="margin-top:10px"><button class="stepbtn" data-act="pwstep" data-n="-1" aria-label="減少"'+(pw<=1?' disabled':'')+'>−</button>'+
       '<div class="stepval"><b class="goalv" id="pwv">'+pw+'</b><span>次 / 週</span></div><button class="stepbtn dark" data-act="pwstep" data-n="1" aria-label="增加"'+(pw>=6?' disabled':'')+'>+</button></div>'+
-      '<p class="hint">哪天做都可以，一週（週一到週日）做到 '+pw+' 次就算達成，會放在今天頁的「這週」。連續紀錄以「週」計算；剛建立的第一週沒達成不算中斷。</p></div>';}
+      '<p class="hint">哪天做都可以，一週（週一到週日）做到 '+pw+' 次就算達成，會放在習慣頁的「這週」。連續紀錄以「週」計算；剛建立的第一週沒達成不算中斷。</p></div>';}
     else s+='<div class="days" style="margin-top:10px">'+WD.map(function(w,i){
       return '<button class="day'+(d.days[i]?' on':'')+'" data-act="dayt" data-i="'+i+'" aria-pressed="'+d.days[i]+'" aria-label="星期'+w+'">'+w+'</button>';
     }).join('')+'</div><p class="hint">'+(n===7?'每天都要做。':n?'每週 '+n+' 天，其他天不會中斷連續天數。':'請至少選一天。')+'</p></div>';

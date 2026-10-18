@@ -386,6 +386,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=ftab][data-v=log]'); ok((await p.$eval('.dnav-c', e => e.innerText)).includes('昨天'), '運動 tab keeps the day you were viewing');
   await p.click('[data-tab=today]');
   ok((await p.$eval('h1.h1', e => e.textContent)) === '今天', '今天 tab always returns to today');
+  ok((await p.$eval('.tab[data-tab=today]', e => e.innerText.trim())) === '習慣', 'first tab is labelled 習慣');
   await done(p, 'pace');
   p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true }, rewards: [], redeemed: [], logs: {}, fit: { ex: [], ctypes: [], logs: {} }, habits: [
     { id: 'g1', name: '運動 30 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10), fitLink: true }] } });
