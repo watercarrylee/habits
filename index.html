@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-MLYpTvrBMRPRmEnkQC7hqYoI2kY+n9bMidG23DWhBE0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-AxAnMP0qXzYSonxCIBv7BVZDQPcRkj8NCE8SCACtPrM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -622,6 +622,85 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .rk-sep{padding:10px 16px 4px;font-size:12px;color:var(--faint);border-top:1px solid var(--line-soft)}
 .rk.fresh .rk-name{color:var(--muted)}
 .rk.fresh .rk-val{color:var(--faint)}
+/* ---------- skins (設定 → 外觀); colours only, data is untouched ---------- */
+/* 「衝刺橘」theme: bold orange accent, cool grey feed, tight corners, heavy numbers */
+html:root[data-skin=sport]{
+  --bg:#EEEEF1; --surface:#FFFFFF; --chip:#E6E6EA; --line:#DCDCE2; --line-soft:#ECECF0;
+  --fg:#1C1C21; --muted:#6A6A75; --faint:#A4A4AE;
+  --good:#FC5200; --good-soft:#FFEEE5; --good-line:#FFB48E; --on-good:#FFFFFF;
+  --bad:#3A3A42; --bad-soft:#E8E8ED; --bad-line:#B7B7C1; --on-bad:#FFFFFF;
+  --ink:#1C1C21; --on-ink:#FFFFFF; --h1:#FFD5C0; --h2:#FF955E;
+  --shadow:0 1px 2px rgba(0,0,0,.08);
+}
+@media (prefers-color-scheme:dark){html:root[data-skin=sport]{
+  --bg:#0F0F11; --surface:#1B1B1F; --chip:#26262B; --line:#303036; --line-soft:#26262B;
+  --fg:#F2F2F4; --muted:#A2A2AC; --faint:#6E6E78;
+  --good:#FF6A1F; --good-soft:#3A1E10; --good-line:#7A3816; --on-good:#FFFFFF;
+  --bad:#C9C9D2; --bad-soft:#2A2A30; --bad-line:#55555E; --on-bad:#111;
+  --ink:#F2F2F4; --on-ink:#111; --h1:#4A2614; --h2:#A9461A;}}
+[data-skin=sport] .sum-card,[data-skin=sport] .hcard,[data-skin=sport] .panel,[data-skin=sport] .list,[data-skin=sport] .tile,
+[data-skin=sport] .cl-item,[data-skin=sport] .faq-cat,[data-skin=sport] .empty,[data-skin=sport] .dcard,[data-skin=sport] .fcard,
+[data-skin=sport] .fsum,[data-skin=sport] .barcard,[data-skin=sport] .bk,[data-skin=sport] .lockbar,[data-skin=sport] .note-view,
+[data-skin=sport] textarea,[data-skin=sport] input[type=text],[data-skin=sport] input[type=search],[data-skin=sport] .seg,
+[data-skin=sport] .rbanner,[data-skin=sport] .ctile,[data-skin=sport] .cbig,[data-skin=sport] .setrow,[data-skin=sport] .fmin,
+[data-skin=sport] .list-empty,[data-skin=sport] .a2,[data-skin=sport] #updcard{border-radius:8px}
+[data-skin=sport] .primary,[data-skin=sport] .secondary,[data-skin=sport] .ghost,[data-skin=sport] .mood,[data-skin=sport] .fchip,
+[data-skin=sport] .addbtn,[data-skin=sport] .minibtn,[data-skin=sport] .typebtn,[data-skin=sport] .pbtn{border-radius:6px}
+[data-skin=sport] .minus,[data-skin=sport] .plus{border-radius:8px}
+[data-skin=sport] .seg button{border-radius:6px}
+[data-skin=sport] .h1{font-weight:900;letter-spacing:-.5px}
+[data-skin=sport] .sum-v,[data-skin=sport] .tile-v,[data-skin=sport] .cnt,[data-skin=sport] .ptiles b,[data-skin=sport] .fsum b{font-weight:900;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+[data-skin=sport] .sum-l,[data-skin=sport] .tile-l{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+[data-skin=sport] .sec-t,[data-skin=sport] .lbl{font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--muted)}
+[data-skin=sport] .hcard{border-width:0 0 0 4px;border-left-color:transparent;box-shadow:var(--shadow)}
+[data-skin=sport] .hcard.g-on{border-left-color:var(--good);background:var(--surface)}
+[data-skin=sport] .hcard.b-on{border-left-color:var(--bad);background:var(--surface)}
+[data-skin=sport] .hcard .check{border-radius:50%}
+[data-skin=sport] .sum-card.good{background:var(--good);border-color:var(--good)}
+[data-skin=sport] .tabs{border-top:1px solid var(--line)}
+[data-skin=sport] .tab.on{color:var(--good)}
+[data-skin=sport] .sum-card.good .sum-l{color:rgba(255,255,255,.88)}
+[data-skin=sport] .tab.tdot::after{background:#E5383B}
+/* ===== 黑白螢光 (Nike-inspired): black & white, volt accent, flat, pills ===== */
+html:root[data-skin=volt]{
+  --bg:#FFFFFF; --surface:#FFFFFF; --chip:#F5F5F5; --line:#E5E5E5; --line-soft:#F0F0F0;
+  --fg:#111111; --muted:#757575; --faint:#B5B5B5;
+  --good:#111111; --good-soft:#F5F5F5; --good-line:#111111; --on-good:#D8FF00;
+  --bad:#D9271E; --bad-soft:#FDEDEC; --bad-line:#F2B8B3; --on-bad:#FFFFFF;
+  --ink:#111111; --on-ink:#FFFFFF; --h1:#EEFFA0; --h2:#C9EE1E; --shadow:none;}
+@media (prefers-color-scheme:dark){html:root[data-skin=volt]{
+  --bg:#000000; --surface:#111111; --chip:#1C1C1C; --line:#2A2A2A; --line-soft:#1C1C1C;
+  --fg:#FFFFFF; --muted:#9A9A9A; --faint:#5A5A5A;
+  --good:#D8FF00; --good-soft:#1C1C1C; --good-line:#D8FF00; --on-good:#111111;
+  --bad:#FF4A3D; --bad-soft:#2A1210; --bad-line:#6A221C; --ink:#FFFFFF; --on-ink:#111; --h1:#3A4500; --h2:#8FA800;}}
+[data-skin=volt] .h1{font-size:34px;letter-spacing:-.04em}
+[data-skin=volt] .hcard,[data-skin=volt] .sum-card,[data-skin=volt] .panel,[data-skin=volt] .list,[data-skin=volt] .tile,[data-skin=volt] .fcard,[data-skin=volt] .empty,[data-skin=volt] .seg{border:0;border-radius:4px;background:var(--chip)}
+[data-skin=volt] .hcard.g-on{background:var(--good);color:var(--on-ink)}
+[data-skin=volt] .hcard.g-on .hc-sub{color:var(--on-good)!important}
+[data-skin=volt] .hcard.g-on .check.on{background:var(--on-good);color:var(--good);border-color:var(--on-good)}
+[data-skin=volt] .sum-card.good{background:var(--good);color:var(--on-ink)}
+[data-skin=volt] .sum-card.good .sum-v{color:var(--on-good)}
+[data-skin=volt] .sum-v,[data-skin=volt] .tile-v,[data-skin=volt] .cnt{font-weight:900;letter-spacing:-.04em}
+[data-skin=volt] .sec-t,[data-skin=volt] .lbl{color:var(--fg);font-weight:900;letter-spacing:-.02em}
+[data-skin=volt] .tab.on{color:var(--fg)}
+[data-skin=volt] .tabs{border-top:0}
+[data-skin=volt] .rbanner{border-radius:999px;background:var(--fg);color:var(--on-ink)}
+[data-skin=volt] .rbanner svg{color:#D8FF00}
+[data-skin=volt] .pbar{height:6px;border-radius:0}
+
+[data-skin=volt] .hcard.g-on{background:var(--good);color:var(--on-ink)}
+[data-skin=volt] .hcard.g-on .hc-sub{color:var(--on-good)!important}
+[data-skin=volt] .hcard.g-on .check.on{background:var(--on-good);color:var(--good);border-color:var(--on-good)}
+[data-skin=volt] .hcard.g-on .cnt{color:var(--on-good)}
+[data-skin=volt] .hcard.g-on .pbar{background:rgba(255,255,255,.22)}
+[data-skin=volt] .hcard.g-on .pbar i{background:var(--on-good)}
+[data-skin=volt] .hcard.g-on .plus{background:var(--on-good);color:var(--good)}
+[data-skin=volt] .hcard.g-on .minus{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+[data-skin=volt] .hcard.g-on .hico,[data-skin=volt] .hcard.g-on .cunit{color:#fff}
+.skins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.skinbtn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 6px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:14px}
+.skinbtn.on{border-color:var(--good);box-shadow:0 0 0 1.5px var(--good) inset;font-weight:700}
+.skinsw{display:flex;gap:4px}.skinsw i{width:16px;height:16px;border-radius:8px;display:block;border:1px solid rgba(0,0,0,.12)}
 </style>
 
 <div class="app">
@@ -1183,7 +1262,7 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,firstUse:isKey(st.firstUse)?st.firstUse:undefined},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined},rewards:rewards,redeemed:redeemed,fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k))R[k]=d[k];});
@@ -1202,6 +1281,10 @@ if(!db.redeemed)db.redeemed=[];
 if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};if(!db.fit.cdist)db.fit.cdist=[];
 if(db.settings.fit&&fSeed())save();
 if(!DEMO&&!isKey(db.settings.firstUse)){db.settings.firstUse=todayKey();save();}
+var SKINS=[['sprout','小芽綠',['#2F6B52','#F5F2EC','#B4471C']],['sport','衝刺橘',['#FC5200','#EEEEF1','#1C1C21']],['volt','黑白螢光',['#111111','#D8FF00','#FFFFFF']]];
+function skinNow(){var v=db.settings.skin;return SKINS.some(function(k){return k[0]===v;})?v:'sprout';}
+function applySkin(){var k=skinNow(),r=document.documentElement;if(k==='sprout')r.removeAttribute('data-skin');else r.setAttribute('data-skin',k);
+  try{var bg=getComputedStyle(document.body).backgroundColor;Array.prototype.forEach.call(document.querySelectorAll('meta[name=theme-color]'),function(m){m.setAttribute('content',bg);});}catch(e){}}
 var autoIcons=0;
 if(!db.settings.iconAuto){db.habits.forEach(function(h){if(!h.icon){h.icon=guessIcon(h.name);autoIcons++;}});db.settings.iconAuto=true;save();}
 
@@ -2240,6 +2323,7 @@ function vSettings(){
   var pOn=!!db.settings.pnl;
   var dO=dOn(),dP=!db.settings.dNoPrompt;
   var lkOn=!db.settings.lockOff;
+  s+='<section class="sec"><h2 class="sec-t">外觀</h2><div class="skins">'+SKINS.map(function(k){var on=skinNow()===k[0];return '<button class="skinbtn'+(on?' on':'')+'" data-act="skin" data-v="'+k[0]+'" aria-pressed="'+on+'"><span class="skinsw">'+k[2].map(function(c){return '<i style="background:'+c+'"></i>';}).join('')+'</span>'+k[1]+'</button>';}).join('')+'</div><p class="small muted">只改顏色和樣式，紀錄不受影響。深色、淺色會跟著手機設定。</p></section>';
   s+='<section class="sec"><h2 class="sec-t">過去的紀錄</h2><div class="list">'+
     '<div class="row-btn"'+(lkOn?'':' style="border-bottom:0"')+'><span class="row-l"><span>鎖定過去的紀錄</span><span class="row-sub">避免翻舊紀錄時不小心改到，要改再按「編輯這天」</span></span>'+
     '<button class="switch" role="switch" aria-checked="'+lkOn+'" aria-label="鎖定過去的紀錄" data-act="locktoggle"><span class="knob"></span></button></div>'+
@@ -2700,6 +2784,7 @@ function toast(msg,ms,actHtml){var el=$('#toast');el.innerHTML=esc(msg)+(actHtml
 
 /* ---------- render ---------- */
 function render(){
+  if(render.skin!==skinNow()){render.skin=skinNow();applySkin();}
   if(ui.unlocked&&ui.unlocked!==ui.date)ui.unlocked=null;
   if(ui.view==='today'&&needOnboard()){if(!ui.ob)ui.ob=obNew();ui.view='onboard';}
   if(ui.view==='onboard'&&!ui.ob)ui.view='today';
@@ -2822,6 +2907,7 @@ function act(a,b){
   switch(a){
     case 'unlockday': ui.unlocked=ui.date;break;
     case 'relock': ui.unlocked=null;break;
+    case 'skin': db.settings.skin=b.dataset.v==='sprout'?undefined:b.dataset.v;if(!db.settings.skin)delete db.settings.skin;save();applySkin();break;
     case 'locktoggle': db.settings.lockOff=!db.settings.lockOff;save();toast(db.settings.lockOff?'已關閉，過去的紀錄可以直接修改':'已開啟，過去的紀錄會先鎖住');break;
     case 'lockn': n=+b.dataset.v;if(LOCK_NS.indexOf(n)>=0){db.settings.lockN=n;save();}break;
     case 'tab': go(b.dataset.tab);if(ui.view==='today'){ui.date=t;ui.follow=true;}else if(ui.view==='fit'&&ui.follow)ui.date=t;break;
