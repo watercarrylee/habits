@@ -274,6 +274,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await p.$eval('#toast', e => e.innerText)).includes('本週達成'), 'weekly goal reached toast');
   wsub = await p.$eval('[data-id=w1] .hc-sub', e => e.innerText);
   ok(wsub.startsWith('✓ 本週達成') && wsub.includes('連續 2 週'), 'met week shows ✓ 本週達成 and counts (' + wsub + ')');
+  ok(!/本週達成 \d+ 次/.test(wsub), 'exactly at the goal: no extra count');
   ok(!(await p.$eval('.sum-card', e => e.classList.contains('alldone'))), 'weekly taps do not complete the day');
   await p.click('[data-act=toggle][data-id=c1]');
   ok(await p.$eval('.sum-card', e => e.classList.contains('alldone')), 'daily all-done not blocked by unmet weekly habit');
@@ -302,6 +303,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     p = await page(b, { 'habit-tracker-v1': { v: 1, settings: {}, rewards: [], redeemed: [], logs: { [wk(0, 0)]: { h: { m1: 1 } } }, habits: [
       { id: 'm1', name: '打電話回家', kind: 'good', method: 'check', freq: 'week', perWeek: 1, days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) }] } });
     ok(await p.$eval('[data-id=m1]', e => e.classList.contains('g-on')) && !(await p.$('[data-id=m1] .check.on')), 'week met: card green, today check stays empty');
+    await p.click('[data-act=toggle][data-id=m1]'); ok((await p.$eval('[data-id=m1] .hc-sub', e => e.innerText)).startsWith('✓ 本週達成 2 次'), 'over the goal shows the real count');
   }
   await done(p, 'weekly');
 

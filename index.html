@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-0ICTTAkWnQrP4ese1CfLDO34a6hgnMyHb3tLn2NJSPY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-3/+kPDO7qDsNxi+qcX5EsVp+tYoSlj+i1FVrRAgN/xk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1341,7 +1341,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-7';
+var APP_VER='2026.10.18-8';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2024,7 +2024,7 @@ function cardProg(h,k){
   if(h.method==='check'&&h.fitLink&&fOn()){var tg=fitTarget(h);if(tg){var on=isDone(h,k);return {cur:on?tg:Math.min(fitMinutes(k).tot,tg-1),goal:tg,unit:'天'};}}
   return null;}
 function progLine(pg,st){var done=pg.cur>=pg.goal,pct=Math.round(pg.cur/pg.goal*100);if(!done&&pct>99)pct=99;
-  var a=pg.warn?'<span class="warn-t">'+pg.warn+'</span>':done?'✓ '+(pg.seg?'本週達成':pct>100?pct+'%':'達成'):pct+'%';
+  var a=pg.warn?'<span class="warn-t">'+pg.warn+'</span>':done?'✓ '+(pg.seg?'本週達成'+(pg.cur>pg.goal?' '+pg.cur+' 次':''):pct>100?pct+'%':'達成'):pct+'%';
   return a+(st>0?' · 連續 '+st+' '+pg.unit:'');}
 function progBar(pg){
   if(pg.seg){var x='';for(var i=0;i<pg.seg;i++)x+='<i'+(i<pg.cur?' class="on"':'')+'></i>';return '<div class="pbar seg" aria-hidden="true">'+x+'</div>';}
