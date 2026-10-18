@@ -62,6 +62,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   p = await page(b, { 'habit-tracker-v1': { v: 1, logs: {}, settings: {}, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '運動 30 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10), fitLink: true }] } });
   await p.click('[data-tab=settings]'); await p.click('[data-act=fittoggle]');
   d = await db(p); ok(d.fit.ex.length >= 52, 'presets seeded (' + d.fit.ex.length + ')');
+  ok(d.fit.ex.some(e => e.id === 'p53' && e.name === '啞鈴夾胸') && d.fit.ex.some(e => e.id === 'p54' && e.eq === '器械' && e.part === '二頭'), 'new presets 啞鈴夾胸 and 二頭彎舉機');
   await p.click('[data-tab=fit]'); await p.click('[data-act=fpick]'); await p.click('[data-act=fpart][data-v="背"]');
   ok((await p.$$eval('.fgrp', x => x.map(e => e.textContent))).some(t => t.includes('器械')), 'picker grouped by equipment');
   await p.click('[data-act=fpickex][data-id=p25]');
@@ -302,7 +303,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   console.log('• 常見問題');
   p = await page(b, lockSeed());
   await p.click('[data-tab=settings]'); await p.click('[data-act=faq]');
-  ok((await p.$$('.faq-cat')).length === 5 && (await p.$$('.faq-cat[open]')).length === 0, 'five categories, all collapsed');
+  ok((await p.$$('.faq-cat')).length === 6 && (await p.$$('.faq-cat[open]')).length === 0, 'six categories, all collapsed');
   await p.click('#faq-count summary'); ok(await p.isVisible('#faq-count .faq-item'), 'tapping a category shows its Q&A');
   await p.click('[data-act=faqback]'); ok((await p.$eval('#main', e => e.innerText)).includes('常見問題'), 'back returns to settings');
   await p.click('[data-act=edit][data-id=k1]'); await p.fill('#hname', '伸展 10 分鐘');
