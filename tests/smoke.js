@@ -259,6 +259,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   let wsub = await p.$eval('[data-id=w3] .hc-sub', e => e.innerText);
   ok(/^(0%|還差|這週差)/.test(wsub) && wsub.includes('連續 2 週'), 'shows 0% (or a late-week warning) and 連續 2 週 (' + wsub + ')');
   ok((await p.$$('[data-id=w3] .pbar.seg i')).length === 3, 'bar split into 3 segments');
+  ok((await p.$eval('[data-id=w3] .chkday small', e => e.textContent)) === '今天' && !(await p.$('[data-id=c1] .chkday')), 'weekly check is labelled 今天; daily habits unchanged');
   await p.click('[data-act=toggle][data-id=w3]');
   wsub = await p.$eval('[data-id=w3] .hc-sub', e => e.innerText);
   ok(wsub.includes('連續 2 週') && (await p.$$('[data-id=w3] .pbar.seg i.on')).length === 1, 'tap today: 1 / 3, current week does not break streak');
