@@ -315,6 +315,38 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=faqback]'); ok(!!(await p.$('.page.locked')) && (await p.$eval('h1.h1', e => e.textContent)) !== '今天', 'back returns to the same past day');
   await done(p, 'faq');
 
+  console.log('• new-version card');
+  const ver0 = require('fs').readFileSync(__dirname + '/../index.html', 'utf8').match(/var APP_VER='([^']+)'/)[1];
+  ok(JSON.parse(require('fs').readFileSync(__dirname + '/../version.json', 'utf8')).v === ver0, 'version.json matches APP_VER');
+  const vj = async (body, seed) => {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const q = await ctx.newPage(); q.errs = []; q.csp = [];
+    q.on('pageerror', e => q.errs.push(e.message)); q.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) q.csp.push(m.text()); });
+    await q.addInitScript(sd => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); for (const k in sd) localStorage.setItem(k, JSON.stringify(sd[k])); } }, seed || lockSeed());
+    await q.route('**/version.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify(body) }));
+    await q.goto(BASE); await q.waitForTimeout(2000); return q; };
+  p = await vj({ v: ver0, notify: true, notes: ['x'] }); ok(!(await p.isVisible('#updcard')), 'same version: no card'); await done(p, 'upd same');
+  p = await vj({ v: '2099.01.01-1', notify: false, notes: ['x'] }); ok(!(await p.isVisible('#updcard')), 'quiet update: no card'); await done(p, 'upd quiet');
+  p = await vj({ v: '2099.01.01-1', notify: true, notes: ['卡片變好看了', '<img src=x onerror=alert(1)>'] });
+  const ut = await p.$eval('#updcard', e => e.innerText);
+  ok(await p.isVisible('#updcard') && ut.includes('卡片變好看了') && ut.includes('2099.01.01-1'), 'new version: card with notes');
+  ok(!(await p.$('#updcard img')) && (await p.$$('#updcard button')).length === 1, 'notes are text only; a single 立即更新 button');
+  let reloaded = false; p.on('framenavigated', () => { reloaded = true; });
+  await p.click('[data-upd=go]'); await p.waitForTimeout(500); ok(reloaded, '立即更新 reloads the app');
+  await done(p, 'upd card');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    p = await ctx.newPage(); p.errs = []; p.csp = []; p.on('pageerror', e => p.errs.push(e.message));
+    await p.addInitScript(sd => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); for (const k in sd) localStorage.setItem(k, JSON.stringify(sd[k])); } }, lockSeed());
+    await p.route('**/version.json*', async r => { await new Promise(res => setTimeout(res, 2500)); r.fulfill({ contentType: 'application/json', body: JSON.stringify({ v: '2099.01.01-1', notify: true, notes: ['x'] }) }); });
+    await p.goto(BASE); await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=k1]');
+    await p.waitForTimeout(4500);
+    ok(!(await p.isVisible('#updcard')), 'no update card while editing a habit');
+    await p.click('[data-act=back],[data-act=cancel]');
+    ok(await p.isVisible('#updcard'), 'card appears after leaving the editor');
+    await done(p, 'upd editing');
+  }
+
   console.log('• 更新紀錄');
   p = await page(b);
   await p.click('[data-tab=settings]');
