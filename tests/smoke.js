@@ -552,6 +552,52 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'rewards habit first');
   }
 
+  console.log('• 持股 from closing prices');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    let pxCalls = 0;
+    await hp.route('**/prices.json*', r => { pxCalls++; r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: T, t: 'x', p: { '2330': [1000, 10, '台積電'], '0050': [190, -1, '元大台灣50'] } }) }); });
+    await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); } },
+      { v: 1, logs: {}, settings: { pnl: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5) }],
+        hold: [{ id: 'h1', code: '2330', shares: 1500, cost: 900 }, { id: 'bad', code: '23<b>', shares: 1, cost: 1 }] });
+    await hp.goto(BASE); await hp.waitForSelector('.hsug');
+    const sug = await hp.$eval('.hsug', e => e.innerText);
+    ok(sug.includes('+150,000') && sug.includes('15,000') && sug.includes('確認記錄'), 'today shows P&L from closing prices, waiting for confirm (' + sug.replace(/\n/g, ' ') + ')');
+    ok(!(await db(hp)).logs[T], 'nothing saved before confirming');
+    ok((await db(hp)).hold.length === 1, 'invalid holding dropped by normalize');
+    await hp.click('[data-act=holdrec]');
+    ok((await db(hp)).logs[T].pnl === 150000, 'confirm saves the computed unrealized P&L');
+    ok((await hp.$eval('.hsug', e => e.innerText)).includes('已依'), 'card shows it was recorded from closing prices');
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    const hl = await hp.$eval('#main', e => e.innerText);
+    ok(hl.includes('台積電') && hl.includes('1 張 500 股') && hl.includes('市值 NT$1,500,000') && hl.includes('今天收盤'), 'stats lists holdings with lots and market value');
+    await hp.click('[data-act=holdedit]'); await hp.click('[data-act=holdadd]');
+    await hp.fill('[data-hi="1"][data-hf=code]', '0050'); await hp.fill('[data-hi="1"][data-hf=shares]', '37'); await hp.fill('[data-hi="1"][data-hf=cost]', '180.5');
+    await hp.click('[data-act=holdsave]');
+    let hd = (await db(hp)).hold; ok(hd.length === 2 && hd[1].code === '0050' && hd[1].shares === 37 && hd[1].cost === 180.5 && hd[1].name === '元大台灣50', 'add an odd-lot holding with name from prices');
+    await hp.click('[data-act=holdedit]'); await hp.fill('[data-hi="0"][data-hf=code]', '12'); await hp.click('[data-act=holdsave]');
+    ok((await hp.$eval('.err', e => e.innerText)).includes('4–6 碼'), 'bad stock code is rejected');
+    await hp.click('[data-act=holdcancel]');
+    await hp.click('[data-act=holdedit]'); await hp.click('[data-act=hpopen]');
+    await hp.fill('#hptext', '股票代號, 持有股數, 平均成本\n2330, 2,000, 612.5\n元大台灣50 1537 142.2 ?\n9999, 10, 1\n0050, 100, 150\nabc');
+    await hp.click('[data-act=hpcheck]');
+    const pv = await hp.$eval('.hp-list', e => e.innerText);
+    ok(pv.includes('台積電') && pv.includes('2 張') && pv.includes('AI 標記不確定') && pv.includes('沒有這個代號的收盤價') && pv.includes('重複') && pv.includes('看不懂這一行'), 'paste preview flags unsure, unknown, duplicate and bad lines');
+    ok((await hp.$eval('.hpaste', e => e.innerText)).includes('4 檔可以匯入'), 'preview counts importable rows');
+    await hp.click('[data-act=hpapply][data-v=replace]'); await hp.click('[data-act=holdsave]');
+    hd = (await db(hp)).hold;
+    ok(hd.length === 3 && hd.find(x => x.code === '2330').shares === 2000 && hd.find(x => x.code === '0050').shares === 100 && hd.some(x => x.code === '9999'), 'replace imports the checked rows (last duplicate wins)');
+    await hp.click('[data-act=holdedit]'); await hp.click('[data-act=hpopen]'); await hp.fill('#hptext', '2454, 300, 1180'); await hp.click('[data-act=hpcheck]');
+    await hp.click('[data-act=hpapply][data-v=merge]'); await hp.click('[data-act=holdsave]');
+    ok((await db(hp)).hold.length === 4, 'merge keeps existing holdings and adds new ones');
+    await hp.click('[data-tab=today]');
+    ok((await hp.$eval('.hsug', e => e.innerText)).includes('9999'), 'card warns when a holding has no closing price');
+    ok(pxCalls >= 1, 'prices fetched from the same site');
+    await done(hp, 'holdings');
+  }
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
