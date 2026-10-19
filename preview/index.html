@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-KUTEX6tzVxHca+cfdkr6gyHNdl2+plezE8guqRFiy+g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-nltEInTXiq+hzQYNBRQ9Mle1zqMJlCp7meuIOHDNNEQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -494,6 +494,11 @@ button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
 .pnl-v.sm{font-size:24px}
 .pnl-v.faint{color:var(--faint);font-size:22px}
 .pnl-v.prompt{color:var(--muted);font-size:16px;font-weight:700}
+.hpaste{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;margin:8px 0 14px;display:flex;flex-direction:column;gap:10px}
+.hp-steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px}.hp-copy,.hp-open{width:100%}.hp-open{margin:4px 0 12px}
+.page .hpaste textarea{width:100%;box-sizing:border-box;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);font:15px/1.5 var(--mono);padding:10px}
+.hp-prompt textarea{margin-top:6px;font-size:12px!important}.hp-list .hrow{align-items:flex-start}.hp-bad{background:var(--bad-soft)}.warn-t{color:#B7791F}
+.hp-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hsug{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:var(--good-soft);border:1.5px solid var(--good-line)}
 .hsug b{font-size:20px;font-variant-numeric:tabular-nums}.hsug-l{font-size:12px;color:var(--muted)}.hsug-d{display:block;font-size:12px;color:var(--muted)}.hsug-d b{font-size:12px}
 .hsug-b{min-height:40px;padding:0 16px;flex:0 0 auto}.hsug.ok,.hsug.warn{display:block;font-size:13px;color:var(--muted)}.hsug.warn{background:var(--bad-soft);border-color:var(--bad-line)}
@@ -2024,7 +2029,8 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
 function vHold(){var d=ui.hd;
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="holdcancel">取消</button><h1 class="edit-t">編輯持股</h1><button class="textbtn strong" data-act="holdsave">儲存</button></header>'+
     (ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'')+
-    '<p class="small muted">股數請填「股」，1 張 = 1000 股，零股照實際股數填。平均成本可以在券商 App 的庫存頁看到。</p>';
+    '<p class="small muted">股數請填「股」，1 張 = 1000 股，零股照實際股數填。平均成本可以在券商 App 的庫存頁看到。</p>'+
+    (ui.hp?holdPasteHTML():'<button class="secondary hp-open" data-act="hpopen">從截圖匯入（用 AI 辨識後貼上）</button>');
   d.forEach(function(x,i){var p=pxOf(x.code);
     s+='<div class="hedit"><div class="hedit-h"><b>'+esc((p&&p.name)||x.name||'持股 '+(i+1))+'</b><button class="iconbtn" data-act="holddel" data-i="'+i+'" aria-label="刪除這筆">'+I.x+'</button></div>'+
       '<div class="hedit-f"><label>代號<input type="text" inputmode="text" autocapitalize="characters" maxlength="6" data-hi="'+i+'" data-hf="code" value="'+esc(x.code)+'" placeholder="2330"></label>'+
@@ -2032,6 +2038,42 @@ function vHold(){var d=ui.hd;
       '<label>平均成本<input type="text" inputmode="decimal" data-hi="'+i+'" data-hf="cost" value="'+esc(x.cost)+'" placeholder="580.5"></label></div></div>';});
   s+='<button class="secondary" style="width:100%" data-act="holdadd">＋ 新增一檔</button>';
   return s+'</div>';}
+/* 貼上匯入: any outside AI reads the broker screenshot with this prompt; the app only parses and checks the text */
+var HOLD_PROMPT='請看我附上的券商庫存截圖（可能有好幾張），把每一檔持股整理成下面的格式，每檔一行，不要表頭、不要其他說明：\n股票代號, 持有股數, 平均成本\n\n規則：\n1. 股票代號是 4–6 碼，例如 2330、0050、00679B。截圖只有名稱時，填你確定的代號；不確定就直接填股票名稱。\n2. 持有股數用「股」：1 張 = 1000 股，零股照實際股數。不要加千分位逗號。\n3. 平均成本是每股的平均買進價格（成本均價），不是總成本。只寫數字，不要加 $ 或「元」。\n4. 好幾張截圖裡重複出現的股票只列一次。\n5. 看不清楚的數字，在那一行最後加上「?」。\n\n範例：\n2330, 2000, 612.5\n0050, 1537, 142.2';
+function pxByName(n){if(!PX)return '';n=n.replace(/\s/g,'');for(var c in PX.p){if(String(PX.p[c][2]||'').replace(/\s/g,'')===n)return c;}return '';}
+function holdParse(text){var rows=[],seen={};
+  String(text||'').split(/\r?\n/).forEach(function(line,ln){var raw=line.trim();if(!raw)return;
+    var unsure=/[?？]\s*$/.test(raw),t=raw.replace(/[?？]\s*$/,'').replace(/^[-*•\d]+[.)、]\s+/,'').trim();
+    var m=/^([0-9A-Za-z]{4,6}|[^\s,，\t|;0-9][^,，\t|;]*?)\s*[,，\t|;\s]\s*(.+)$/.exec(t);
+    if(!m){if(/代號|股數|成本|code/i.test(t))return;rows.push({line:ln+1,raw:raw,err:'看不懂這一行'});return;}
+    var head=m[1].trim(),rest=m[2],sp=function(x){return x.split(/[\s,，\t|;]+/).filter(Boolean);},a=sp(rest);
+    if(a.length!==2)a=sp(rest.replace(/(\d),(?=\d{3}(?!\d))/g,'$1'));
+    if(/代號|股數|成本|code/i.test(head))return;
+    var code=/^[0-9A-Za-z]{4,6}$/.test(head)?head.toUpperCase():pxByName(head),r={line:ln+1,raw:raw,unsure:unsure,name:head};
+    if(!code){r.err='找不到「'+head+'」的代號';rows.push(r);return;}
+    if(a.length!==2){r.code=code;r.err='需要剛好兩個數字：股數、平均成本';rows.push(r);return;}
+    var sh=a[0],mul=/張$/.test(sh)?1000:1;sh=Math.round(parseFloat(sh.replace(/[張股]$/,''))*mul);var c=parseFloat(a[1].replace(/[元$]/g,''));
+    r.code=code;r.shares=sh;r.cost=c;
+    if(!(sh>0))r.err='股數要大於 0';else if(!(c>0))r.err='平均成本要大於 0';
+    if(!r.err&&seen[code]){seen[code].dup=true;r.dup=true;}
+    if(!r.err)seen[code]=r;rows.push(r);});
+  return rows;}
+function holdPasteHTML(){var hp=ui.hp,s='<section class="hpaste"><div class="sec-row"><h2 class="sec-t">貼上匯入</h2><button class="ghost" data-act="hpclose">收起</button></div>'+
+  '<ol class="small muted hp-steps"><li>按「複製提示詞」，連同券商庫存截圖一起丟給任何 AI（Claude、ChatGPT…）。</li><li>把 AI 回覆的文字貼到下面。</li><li>核對預覽，再按「合併更新」或「全部取代」。</li></ol>'+
+  '<button class="secondary hp-copy" data-act="hpcopy">複製提示詞</button><details class="hp-prompt"><summary class="small muted">看提示詞內容</summary><textarea id="hprompt" readonly rows="9">'+esc(HOLD_PROMPT)+'</textarea></details>'+
+  '<label class="sr" for="hptext">貼上 AI 的回覆</label><textarea id="hptext" rows="6" placeholder="2330, 2000, 612.5&#10;0050, 1537, 142.2">'+esc(hp.text||'')+'</textarea>'+
+  '<button class="primary" style="width:100%" data-act="hpcheck">預覽</button>';
+  if(hp.rows){var ok=hp.rows.filter(function(r){return !r.err;}),h=hid();
+    s+='<div class="list hp-list">'+hp.rows.map(function(r){var p=r.code&&pxOf(r.code),warn=r.err||[!p&&PX?'沒有這個代號的收盤價，請確認代號':'',r.dup?'重複，會用最後一行':'',r.unsure?'AI 標記不確定，請核對':''].filter(Boolean).join(' · ');
+      return '<div class="hrow'+(r.err?' hp-bad':'')+'"><div class="hrow-l"><b>'+esc(r.code||r.name||'第 '+r.line+' 行')+(p?' '+esc(p.name):'')+'</b><span class="small muted">'+(r.err?esc(r.raw):lots(r.shares)+' · 均價 '+r1(r.cost))+'</span>'+(warn?'<span class="small '+(r.err?'bad-t':'warn-t')+'">'+esc(warn)+'</span>':'')+'</div>'+
+        (!r.err&&p?'<div class="hrow-r"><span class="small muted">未實現</span><b class="'+(h?'':pcls(r.shares*(p.close-r.cost)))+'">'+(h?MASK:sgn(Math.round(r.shares*(p.close-r.cost))))+'</b></div>':'')+'</div>';}).join('')+'</div>';
+    s+='<p class="small muted">'+ok.length+' 檔可以匯入'+(hp.rows.length>ok.length?'，'+(hp.rows.length-ok.length)+' 行有問題會略過':'')+'。'+(PX?'未實現損益用 '+shortMD(PX.d)+' 收盤價算，可以跟券商畫面對一下。':'')+'</p>';
+    if(ok.length)s+='<div class="hp-acts"><button class="secondary" data-act="hpapply" data-v="merge">合併更新</button><button class="primary" data-act="hpapply" data-v="replace">全部取代</button></div><p class="small muted">合併：已有的代號更新股數和均價，新的加進去。取代：清單只留這次貼上的。匯入後還要按右上角「儲存」。</p>';}
+  return s+'</section>';}
+function holdApply(mode){var last={};ui.hp.rows.forEach(function(r){if(!r.err)last[r.code]=r;});
+  var add=Object.keys(last).map(function(c){var r=last[c];return {code:c,name:'',shares:String(r.shares),cost:String(r.cost)};});
+  if(mode==='replace')ui.hd=add;else add.forEach(function(x){var cur=ui.hd.filter(function(y){return String(y.code).toUpperCase()===x.code;})[0];if(cur){cur.shares=x.shares;cur.cost=x.cost;}else ui.hd.push(x);});
+  ui.hd=ui.hd.filter(function(x){return x.code||x.shares||x.cost;});ui.hp=null;toast('已帶入 '+add.length+' 檔，確認後按「儲存」');}
 function holdSave(){var out=[],bad='';
   ui.hd.forEach(function(x){var code=String(x.code||'').trim().toUpperCase(),sh=Math.floor(+String(x.shares).replace(/,/g,'')),c=+String(x.cost).replace(/,/g,'');
     if(!code&&!x.shares&&!x.cost)return;
@@ -3162,7 +3204,12 @@ function act(a,b){
       break;
     case 'psign': ui.pe.neg=b.dataset.v==='1';break;
     case 'plast': k=prevPnlKey(ui.date);if(k){ui.pe={digits:String(Math.abs(pnlAt(k))),neg:pnlAt(k)<0};}break;
-    case 'holdedit': ui.hd=db.hold.map(function(x){return {id:x.id,code:x.code,name:x.name,shares:String(x.shares),cost:String(x.cost)};});if(!ui.hd.length)ui.hd.push({code:'',shares:'',cost:''});ui.err='';go('hold');break;
+    case 'holdedit': ui.hp=null;ui.hd=db.hold.map(function(x){return {id:x.id,code:x.code,name:x.name,shares:String(x.shares),cost:String(x.cost)};});if(!ui.hd.length)ui.hd.push({code:'',shares:'',cost:''});ui.err='';go('hold');break;
+    case 'hpopen': ui.hp={text:''};break;
+    case 'hpclose': ui.hp=null;break;
+    case 'hpcopy': try{navigator.clipboard.writeText(HOLD_PROMPT).then(function(){toast('提示詞已複製');},function(){var d=$('.hp-prompt');if(d)d.open=true;var ta=$('#hprompt');if(ta){ta.focus();ta.select();}toast('請長按選取提示詞後拷貝');});}catch(e){}return;
+    case 'hpcheck': ui.hp.rows=holdParse(ui.hp.text);if(!ui.hp.rows.length)toast('還沒有貼上內容');break;
+    case 'hpapply': holdApply(b.dataset.v);break;
     case 'holdadd': ui.hd.push({code:'',shares:'',cost:''});break;
     case 'holddel': ui.hd.splice(+b.dataset.i,1);break;
     case 'holdcancel': ui.err='';go('stats');break;
@@ -3226,6 +3273,7 @@ document.addEventListener('input',function(e){
     if(!ui.draft.iconTouched){var g=guessIcon(el.value);if(g!==ui.draft.icon){ui.draft.icon=g;var ib=$('#icobtn');if(ib){ib.innerHTML=g?icoSvg(g,24):I.plus;ib.classList.toggle('empty',!g);ib.setAttribute('aria-label','選擇圖示，目前：'+(ICONS[g]?ICONS[g][0]:'沒有圖示'));}
       Array.prototype.forEach.call(document.querySelectorAll('.icogrid [data-act=seticon]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.v===g));});}}}
   else if(el.id==='pastebox'&&ui.sheet){ui.sheet.paste=el.value;}
+  else if(el.id==='hptext'&&ui.hp){ui.hp.text=el.value;}
   else if(el.dataset&&el.dataset.hf&&ui.hd&&ui.hd[+el.dataset.hi]){ui.hd[+el.dataset.hi][el.dataset.hf]=el.dataset.hf==='code'?el.value.toUpperCase():el.value;}
   else if(el.id==='repnote'){ui.repNote=el.value.slice(0,40);clearTimeout(ui.repT);ui.repT=setTimeout(repDraw,400);}
   else if(el.id==='rname'&&ui.rd){ui.rd.name=el.value;var rp=$('#rpreview');if(rp)rp.innerHTML=rPreview(ui.rd);}
