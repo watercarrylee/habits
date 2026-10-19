@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-FhgHRIlc6GwswKWqDP1Kk+CpmIPd/CiVL9I2t1Y/d0A='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-pJUiWQ5QzkqGkO0deDzMw9cQun+JhueQlNafxZAUJVo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1519,7 +1519,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.19-9';
+var APP_VER='2026.10.19-10';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2108,7 +2108,8 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
   s+='<div class="list">';
   list.forEach(function(o){var x=o.x,r=o.r,p=pxOf(x.code),big,cls='';
     if(r){big=mode==='day'?r.day:mode==='mv'?r.v:r.un;cls=mode==='mv'?'':pcls(big);big=mode==='mv'?fmtN(Math.round(big)):sgn(Math.round(big));}
-    var px=r?'<span class="'+(h?'muted':pcls(r.p.ch))+'">'+r.p.close+' '+(r.p.ch>0?'▲':r.p.ch<0?'▼':'')+(r.p.close-r.p.ch>0?pctS(r.p.ch/(r.p.close-r.p.ch)).replace(/^[+−]/,''):'')+'</span>':'';
+    var cst=x.shares*x.cost,px=!r?'':mode==='un'?'<span class="muted">'+r.p.close+' · </span><span class="'+(h?'muted':pcls(r.un))+'">'+(h?'••%':cst>0?pctS(r.un/cst):'')+'</span>':
+      '<span class="'+(h?'muted':pcls(r.p.ch))+'">'+r.p.close+' '+(r.p.ch>0?'▲':r.p.ch<0?'▼':'')+(r.p.close-r.p.ch>0?pctS(r.p.ch/(r.p.close-r.p.ch)).replace(/^[+−]/,''):'')+'</span>';
     s+='<div class="hrow"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+esc(x.code)+' · '+lots(x.shares)+' · 成本 '+r1(x.cost)+(r&&c.mv?' · 佔 '+pct1(r.v/c.mv):'')+'</span>'+'</div>'+
       (r?'<div class="hrow-r"><b class="'+(h?'':cls)+'">'+(h?MASK:big)+'</b>'+'<span class="small">'+px+'</span>'+'</div>':'<div class="hrow-r small muted">'+(PX?'找不到價格':'等待收盤價')+'</div>')+'</div>';});
   s+='</div>';
@@ -2503,7 +2504,7 @@ function vStats(){
   var isCur=y===now.getFullYear()&&m===now.getMonth();
   var goods=active('good'),bads=active('bad');
   var pOn=!!db.settings.pnl,tabs=[['habits','習慣']];
-  if(pOn)tabs.push(['pnl',dOn()?'損益':'未實現損益']);
+  if(pOn)tabs.push(['pnl','投資']);
   if(dOn())tabs.push(['diary','日記']);
   var tab=tabs.some(function(x){return x[0]===ui.statTab;})?ui.statTab:'habits';
   var s='<div class="page"><header class="titlebar"><h1 class="h1">統計</h1><span class="tb-r"><button class="ghost repbtn" data-act="report">'+I.share+'分享這週</button><button class="iconbtn" data-act="search" aria-label="'+(dOn()?'搜尋備註和日記':'搜尋備註')+'">'+I.search+'</button></span></header>';
