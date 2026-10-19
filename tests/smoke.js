@@ -580,8 +580,20 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.click('[data-act=holdedit]'); await hp.fill('[data-hi="0"][data-hf=code]', '12'); await hp.click('[data-act=holdsave]');
     ok((await hp.$eval('.err', e => e.innerText)).includes('4–6 碼'), 'bad stock code is rejected');
     await hp.click('[data-act=holdcancel]');
+    await hp.click('[data-act=holdedit]'); await hp.click('[data-act=hpopen]');
+    await hp.fill('#hptext', '股票代號, 持有股數, 平均成本\n2330, 2,000, 612.5\n元大台灣50 1537 142.2 ?\n9999, 10, 1\n0050, 100, 150\nabc');
+    await hp.click('[data-act=hpcheck]');
+    const pv = await hp.$eval('.hp-list', e => e.innerText);
+    ok(pv.includes('台積電') && pv.includes('2 張') && pv.includes('AI 標記不確定') && pv.includes('沒有這個代號的收盤價') && pv.includes('重複') && pv.includes('看不懂這一行'), 'paste preview flags unsure, unknown, duplicate and bad lines');
+    ok((await hp.$eval('.hpaste', e => e.innerText)).includes('4 檔可以匯入'), 'preview counts importable rows');
+    await hp.click('[data-act=hpapply][data-v=replace]'); await hp.click('[data-act=holdsave]');
+    hd = (await db(hp)).hold;
+    ok(hd.length === 3 && hd.find(x => x.code === '2330').shares === 2000 && hd.find(x => x.code === '0050').shares === 100 && hd.some(x => x.code === '9999'), 'replace imports the checked rows (last duplicate wins)');
+    await hp.click('[data-act=holdedit]'); await hp.click('[data-act=hpopen]'); await hp.fill('#hptext', '2454, 300, 1180'); await hp.click('[data-act=hpcheck]');
+    await hp.click('[data-act=hpapply][data-v=merge]'); await hp.click('[data-act=holdsave]');
+    ok((await db(hp)).hold.length === 4, 'merge keeps existing holdings and adds new ones');
     await hp.click('[data-tab=today]');
-    ok((await hp.$eval('.hsug', e => e.innerText)).includes('改用這個'), 'after holdings change, card offers the new number');
+    ok((await hp.$eval('.hsug', e => e.innerText)).includes('9999'), 'card warns when a holding has no closing price');
     ok(pxCalls >= 1, 'prices fetched from the same site');
     await done(hp, 'holdings');
   }
