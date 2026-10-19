@@ -1,0 +1,43 @@
+name: probe sources
+# temporary: saves trimmed samples of the official closing-quote pages to the probe branch so they can be inspected
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          mkdir s && cd s
+          D=$(TZ=Asia/Taipei date +%Y%m%d); Y=$(TZ=Asia/Taipei date +%Y); R=$((Y-1911)); MD=$(TZ=Asia/Taipei date +%m/%d)
+          UA='Mozilla/5.0 (habits-prices)'
+          curl -sS -m 60 -A "$UA" "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=$D&type=ALLBUT0999&response=json" -o twse.json || echo fail > twse.err
+          curl -sS -m 60 -A "$UA" "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQ?date=$Y/$MD&response=json" -o tpex_new.json || echo fail > tpex_new.err
+          curl -sS -m 60 -A "$UA" "https://www.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?l=zh-tw&d=$R/$MD&o=json" -o tpex_old.json || echo fail > tpex_old.err
+          ls -la
+          python3 - <<'PY'
+          import json,glob
+          for f in glob.glob('*.json'):
+              raw=open(f,'rb').read()
+              try:
+                  j=json.loads(raw.decode('utf-8-sig'))
+              except Exception as e:
+                  open(f+'.head','w').write(repr(raw[:3000])); continue
+              def trim(o,d=0):
+                  if isinstance(o,list): return [trim(x,d+1) for x in o[:6]]+(['...%d'%len(o)] if len(o)>6 else [])
+                  if isinstance(o,dict): return {k:trim(v,d+1) for k,v in o.items()}
+                  return o
+              json.dump(trim(j),open(f+'.trim','w'),ensure_ascii=False,indent=1)
+              # also keep rows for a few known codes
+              hits=[]
+              def walk(o):
+                  if isinstance(o,list):
+                      if o and isinstance(o[0],str) and o[0].strip() in ('2330','0050','6488','00679B','3037'): hits.append(o)
+                      for x in o: walk(x)
+                  elif isinstance(o,dict):
+                      for v in o.values(): walk(v)
+              walk(j); json.dump(hits,open(f+'.hits','w'),ensure_ascii=False,indent=1)
+          PY
+          rm -f *.json
+          git init -q -b probe && git add -A && git -c user.name=probe -c user.email=p@x commit -qm probe
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" probe
