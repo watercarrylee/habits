@@ -6,7 +6,7 @@ purpose: the app keeps each person's holdings on their own phone, so nothing her
 
 prices.json: {"d": "YYYY-MM-DD" trading date, "t": fetched-at (UTC ISO), "p": {code: [close, change, name]}}
 """
-import json, re, sys, datetime, pathlib, urllib.request
+import json, re, sys, time, datetime, pathlib, urllib.request
 
 TWSE = 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL'
 TPEX = 'https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes'
@@ -50,10 +50,16 @@ def parse(rows):
             dates.append(d)
     return out, (max(dates) if dates else None)
 
-def get(url):
-    req = urllib.request.Request(url, headers={'Accept': 'application/json', 'User-Agent': 'habits-prices/1.0'})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.loads(r.read().decode('utf-8-sig'))
+def get(url, tries=4):
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(url, headers={'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0 (habits-prices)'})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                return json.loads(r.read().decode('utf-8-sig'))
+        except Exception:
+            if i == tries - 1:
+                raise
+            time.sleep(15 * (i + 1))
 
 def main():
     p, dates, errs = {}, [], []
@@ -63,10 +69,11 @@ def main():
             p.update(got)
             if d:
                 dates.append(d)
-        except Exception as e:  # keep the other market if one fails
+        except Exception as e:
             errs.append(url + ': ' + str(e))
-    if len(p) < 100:
-        sys.exit('too few prices, keeping the old file. ' + ' | '.join(errs))
+    # a half-updated file would show some holdings as "price not found", so keep the old one and let the next run retry
+    if errs or len(p) < 100:
+        sys.exit('keeping the old file: ' + (' | '.join(errs) or 'too few prices'))
     tw_today = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).date().isoformat()
     d = max(dates) if dates else tw_today
     out = {'d': d, 't': datetime.datetime.utcnow().replace(microsecond=0).isoformat() + 'Z', 'p': dict(sorted(p.items()))}
