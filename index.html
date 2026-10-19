@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-hNgM9T0G7zCnMrSnkykRwiSFzMs/7tq83x/zf2VeWX4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-9YqW0VCWqU5ge1RwPe9TzU4+MJACSAPI3MY0570XWy4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -501,7 +501,7 @@ button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
 .hp-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hsug{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:var(--good-soft);border:1.5px solid var(--good-line)}
 .hsug b{font-size:20px;font-variant-numeric:tabular-nums}.hsug-l{font-size:12px;color:var(--muted)}.hsug-d{display:block;font-size:12px;color:var(--muted)}.hsug-d b{font-size:12px}
-.hsug-b{min-height:40px;padding:0 16px;flex:0 0 auto}.hsug.ok,.hsug.warn{display:block;font-size:13px;color:var(--muted)}.hsug.warn{background:var(--bad-soft);border-color:var(--bad-line)}
+.hsug-b{min-height:40px;padding:0 16px;flex:0 0 auto}.hsug.ok,.hsug.warn,.hsug.note{display:block;font-size:13px;color:var(--muted)}.hsug.warn{background:var(--bad-soft);border-color:var(--bad-line)}
 .pgrip{width:32px;height:28px;margin-right:-8px}.tb-r .pgrip{margin-left:2px}.sec-row{align-items:center}
 .hsort{margin:10px 0}.hsort button{height:34px;font-size:14px}
 .pblk.dragging{opacity:.6}.pblk.dragging .panel,.pblk.dragging .list{outline:2px dashed var(--good-line)}
@@ -1301,7 +1301,7 @@ function normalize(d){
     if(l.h&&typeof l.h==='object'){o.h={};Object.keys(l.h).forEach(function(id){var v=Math.min(999999,Math.floor(+l.h[id])),c=cid(id);if(v>0&&c)o.h[c]=v;});if(!Object.keys(o.h).length)delete o.h;}
     if(typeof l.mood==='number'&&l.mood>=0&&l.mood<=4)o.mood=l.mood;
     if(typeof l.note==='string'&&l.note)o.note=l.note;
-    if(typeof l.pnl==='number'&&isFinite(l.pnl))o.pnl=Math.round(l.pnl);
+    if(typeof l.pnl==='number'&&isFinite(l.pnl)){o.pnl=Math.round(l.pnl);if(l.pa===true)o.pa=true;else if(l.pm===true)o.pm=true;}
     if(l.rest===true)o.rest=true;
     if(Array.isArray(l.fa)){var fa=l.fa.map(cid).filter(Boolean);if(fa.length)o.fa=fa;}
     if(l.diary&&typeof l.diary.t==='string'&&l.diary.t){o.diary={t:l.diary.t};if(typeof l.diary.q==='string'&&l.diary.q)o.diary.q=l.diary.q.slice(0,80);}
@@ -1329,7 +1329,7 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k))R[k]=d[k];});
@@ -1513,7 +1513,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.19-4';
+var APP_VER='2026.10.19-5';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2016,7 +2016,36 @@ var PX=null,pxAt=0;
 function pxLoad(){var now=Date.now();if(now-pxAt<60000||!db.hold.length)return;pxAt=now;
   fetch('prices.json?t='+now,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
     if(!j||!isKey(j.d)||!j.p||typeof j.p!=='object')return;var old=PX&&PX.d;PX={d:j.d,p:j.p};
-    if(old!==PX.d&&/^(today|stats|hold)$/.test(ui.view)&&!ui.sheet)render();}).catch(function(){});}
+    if(old!==PX.d&&/^(today|stats|hold)$/.test(ui.view)&&!ui.sheet)render();holdAuto();}).catch(function(){});}
+/* 自動優先: closes beat typed numbers. From the day holdings were last changed (settings.holdSince), every trading day
+   with closes gets its P&L computed and saved, unless the day was edited by hand after its closes were out (pm).
+   prices-30.json (last 30 trading days) is only downloaded when days may be missing. */
+var PXH=null,pxhAt=0;
+function holdSince(){var v=db.settings.holdSince;if(isKey(v))return v;v=todayKey();if(db.hold.length&&!DEMO){db.settings.holdSince=v;save();}return v;}
+function pnlFrom(closeOf){var mv=0,cost=0,miss=[];db.hold.forEach(function(h){var c=closeOf(h.code);if(!(c>0)){miss.push(h.code);return;}mv+=h.shares*c;cost+=h.shares*h.cost;});
+  return {un:Math.round(mv-cost),miss:miss};}
+function histClose(i){return function(code){var r=PXH&&PXH.c[code];return r?+r[i]:0;};}
+function autoDays(){var out={},hs=holdSince(),t=todayKey();
+  if(PXH)PXH.d.forEach(function(d,i){if(d>=hs&&d<=t)out[d]=histClose(i);});
+  if(PX&&PX.d>=hs&&PX.d<=t)out[PX.d]=function(code){var p=pxOf(code);return p?p.close:0;};
+  return out;}
+function autoVal(k){var f=autoDays()[k];return f?pnlFrom(f):null;}
+function holdAuto(){if(!db.settings.pnl||!db.hold.length||!PX||ui.sheet)return;
+  var days=autoDays(),filled=[],changed=false;
+  Object.keys(days).sort().forEach(function(k){var l=db.logs[k];if(l&&l.pm)return;var r=pnlFrom(days[k]);if(r.miss.length)return;
+    if(l&&l.pa&&l.pnl===r.un)return;
+    if(!l||typeof l.pnl!=='number'||!l.pa)filled.push(k);
+    l=db.logs[k]||(db.logs[k]={});l.pnl=r.un;l.pa=true;delete l.pm;changed=true;});
+  if(changed){save();if(/^(today|stats)$/.test(ui.view))render();
+    var past=filled.filter(function(k){return k<PX.d;});
+    if(past.length)toast('已依收盤價補上 '+(past.length>1?shortMD(past[0])+'–'+shortMD(past[past.length-1])+' 共 '+past.length+' 天':shortMD(past[0])));
+    else if(filled.length)toast('已依 '+shortMD(filled[0])+' 收盤價記錄損益');}
+  // fetch the 30-day history only if a trading day between holdSince and the latest close may be missing
+  var hs=holdSince(),last=null;Object.keys(db.logs).forEach(function(k){if(k>=hs&&k<PX.d&&db.logs[k].pa&&(!last||k>last))last=k;});
+  var from=last?addDays(last,1):hs,gap=false;for(var k=from;k<PX.d;k=addDays(k,1)){var wd=parseKey(k).getDay();if(wd>0&&wd<6&&!(db.logs[k]&&db.logs[k].pm)){gap=true;break;}}
+  if(gap&&!PXH&&Date.now()-pxhAt>600000){pxhAt=Date.now();
+    fetch('prices-30.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+      if(!j||!Array.isArray(j.d)||!j.c||typeof j.c!=='object'||!j.d.every(isKey))return;PXH={d:j.d,c:j.c};holdAuto();}).catch(function(){});}}
 function pxOf(code){var x=PX&&PX.p[code];return Array.isArray(x)&&+x[0]>0?{close:+x[0],ch:+x[1]||0,name:String(x[2]||'')}:null;}
 function holdCalc(){if(!PX||!db.hold.length)return null;var r={d:PX.d,mv:0,cost:0,day:0,rows:[],miss:[]};
   db.hold.forEach(function(h){var p=pxOf(h.code);if(!p){r.miss.push(h);return;}var v=h.shares*p.close,c=h.shares*h.cost;
@@ -2042,14 +2071,16 @@ function pieHTML(){var c=holdCalc();if(!c||!c.rows.length||c.mv<=0)return '';var
 function pnlTab(y,m){var ord=(db.settings.pnlOrder||PBLK.join(',')).split(','),b={trend:'<section class="sec"><div class="sec-row"><h2 class="sec-t">損益走勢</h2>'+pGrip('trend')+'</div>'+pnlStats(y,m)+'</section>',pie:pieHTML(),hold:holdHTML()};
   return ord.map(function(k){return b[k]?'<div class="pblk'+(ui.pDrag===k?' dragging':'')+'" data-pblk="'+k+'">'+b[k]+'</div>':'';}).join('');}
 /* on the 今天 card: suggest the number from closing prices; saving needs a tap (先確認再存) */
-function holdSuggest(k){var c=holdCalc();if(!c||c.d!==k)return '';var h=hid(),has=hasP(k);
-  if(c.miss.length)return '<div class="hsug warn">找不到 '+c.miss.map(function(x){return esc(x.code);}).join('、')+' 的收盤價，請檢查代號。</div>';
-  if(has&&pnlAt(k)===c.un)return '<div class="hsug ok">✓ 已依 '+shortMD(c.d)+' 收盤價記錄</div>';
-  return '<div class="hsug"><div><div class="hsug-l">依 '+shortMD(c.d)+' 收盤價計算</div><b class="'+(h?'':pcls(c.un))+'">'+(h?MASK:sgn(c.un))+'</b>'+
-    '<span class="hsug-d">今日 <b class="'+(h?'':pcls(c.day))+'">'+(h?'••••':chg(c.day))+'</b></span></div>'+
-    '<button class="primary hsug-b" data-act="holdrec">'+(has?'改用這個':'確認記錄')+'</button></div>';}
+function holdSuggest(k){if(!db.hold.length||k<holdSince())return '';var h=hid(),l=db.logs[k],c=holdCalc();
+  var r=autoVal(k);
+  if(!r){return k===todayKey()&&(!PX||PX.d<k)&&parseKey(k).getDay()%6?'<div class="hsug note">收盤後（約下午 3 點）會依收盤價自動記錄。</div>':'';}
+  if(r.miss.length)return '<div class="hsug warn">找不到 '+r.miss.map(esc).join('、')+' 的收盤價，這天沒有自動記錄，請檢查代號。</div>';
+  if(l&&l.pm)return '<div class="hsug"><div><div class="hsug-l">這天是手動輸入 · 依收盤價算是</div><b class="'+(h?'':pcls(r.un))+'">'+(h?MASK:sgn(r.un))+'</b></div>'+
+    '<button class="secondary hsug-b" data-act="pauto" data-k="'+k+'">改回自動</button></div>';
+  if(l&&l.pa&&l.pnl===r.un)return '<div class="hsug ok">✓ 已依 '+shortMD(k)+' 收盤價自動記錄'+(c&&c.d===k?' · 今日 <b class="'+(h?'':pcls(c.day))+'">'+(h?'••••':chg(c.day))+'</b>':'')+'</div>';
+  return '';}
 function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class="sec-row"><h2 class="sec-t">我的持股</h2><span class="tb-r"><button class="ghost" data-act="holdedit">'+(db.hold.length?'編輯持股':'新增持股')+'</button>'+pGrip('hold')+'</span></div>';
-  if(!db.hold.length)return s+'<p class="small muted">輸入持股的代號、股數和平均成本，每天收盤後 App 會用收盤價幫你算好未實現損益，按一下確認就記錄。持股只存在這支手機。</p></section>';
+  if(!db.hold.length)return s+'<p class="small muted">輸入持股的代號、股數和平均成本，每天收盤後 App 會用收盤價自動算好並記錄未實現損益。持股只存在這支手機。</p></section>';
   var srt=hSort(),mode=srt.replace('-',''),rev=srt.slice(-1)==='-';
   var list=db.hold.map(function(x){return {x:x,r:c&&c.rows.filter(function(q){return q.h.id===x.id;})[0]};});
   if(c){var f=function(o){return o.r?(mode==='day'?o.r.day:mode==='mv'?o.r.v:o.r.un):null;};
@@ -2066,8 +2097,8 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
   s+='</div>';
   if(c){var isT=c.d===todayKey(),dl=isT?'今天':shortMD(c.d);
     s+='<p class="small muted">'+(isT?'今天收盤':'最新收盤是 '+dl)+' · 市值 '+(h?MASK:'NT$'+fmtN(c.mv))+' · 未實現 '+(h?MASK:sgn(c.un))+' · '+(isT?'今日':dl+' ')+'漲跌 '+(h?'••••':chg(c.day))+'</p>'+
-      (isT?'':'<p class="small muted">上面的價格和漲跌都是 '+dl+' 的收盤資料。交易日下午 2:40 後會更新成當天的收盤價。</p>');}
-  else s+='<p class="small muted">收盤價每天下午更新，交易日 14:40 之後打開 App 就會算好。</p>';
+      (isT?'':'<p class="small muted">上面的價格和漲跌都是 '+dl+' 的收盤資料。交易日收盤後（約下午 3 點）會更新成當天的收盤價。</p>');}
+  else s+='<p class="small muted">收盤價每天下午更新，交易日約下午 3 點後打開 App 就會自動記錄。</p>';
   return s+'</section>';}
 function vHold(){var d=ui.hd;
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="holdcancel">取消</button><h1 class="edit-t">編輯持股</h1><button class="textbtn strong" data-act="holdsave">儲存</button></header>'+
@@ -2124,7 +2155,8 @@ function holdSave(){var out=[],bad='';
     else if(!(sh>0))bad=bad||code+' 的股數要大於 0。';else if(!(c>0))bad=bad||code+' 的平均成本要大於 0。';
     else{var p=pxOf(code);out.push({id:x.id||uid(),code:code,name:(p&&p.name)||x.name||'',shares:sh,cost:c});}});
   if(bad){ui.err=bad;render();return;}
-  db.hold=normHold(out);save();ui.err='';pxAt=0;pxLoad();go('stats');ui.statTab='pnl';render();toast('持股已儲存');}
+  var nh=normHold(out),sig=function(a){return JSON.stringify(a.map(function(x){return [x.code,x.shares,x.cost];}));};
+  if(sig(nh)!==sig(db.hold))db.settings.holdSince=todayKey();db.hold=nh;save();ui.err='';pxAt=0;pxLoad();go('stats');ui.statTab='pnl';render();toast('持股已儲存');}
 function pnlTile(k){
   var h=hid(),pk=prevPnlKey(k),txt='—',cls='';
   if(hasP(k)&&pk){var d=pnlAt(k)-pnlAt(pk);txt=h?'••••':cchg(d);cls=h?'':pcls(d);}
@@ -2136,7 +2168,7 @@ function pnlSection(k){
     '<button class="eyebtn" data-act="hideamt">'+(h?I.eye+'顯示金額':I.eyeOff+'隱藏金額')+'</button></div><button class="pnl-card" data-act="pnlopen">';
   if(has){
     var v=pnlAt(k),mc=monthChange(d0.getFullYear(),d0.getMonth(),k),meta=[];
-    s+='<div class="pnl-top"><div><div class="pnl-l">收盤後帳面 · '+shortMD(k)+'</div><div class="pnl-v '+(h?'':pcls(v))+'">'+(h?MASK:sgn(v))+'</div></div><span class="pnl-chip">修改</span></div>';
+    s+='<div class="pnl-top"><div><div class="pnl-l">收盤後帳面 · '+shortMD(k)+'</div><div class="pnl-v '+(h?'':pcls(v))+'">'+(h?MASK:sgn(v))+'</div></div><span class="pnl-chip">'+(db.logs[k].pa?'手動修改':'修改')+'</span></div>';
     if(pk)meta.push('較上次（'+shortMD(pk)+'） <b class="'+(h?'':pcls(v-pnlAt(pk)))+'">'+(h?'••••':chg(v-pnlAt(pk)))+'</b>');
     if(mc&&mc.show)meta.push('本月 <b class="'+(h?'':pcls(mc.change))+'">'+(h?'••••':chg(mc.change))+'</b>');
     if(meta.length)s+='<div class="pnl-meta">'+meta.map(function(x){return '<span>'+x+'</span>';}).join('')+'</div>';
@@ -2157,6 +2189,8 @@ function vPnl(){
     '<div class="pe-num '+pcls(n)+'" aria-live="polite">'+sgn(n)+'</div>';
   if(pk){var dd=n-pnlAt(pk);s+='<div class="pe-hint">上次 '+shortMD(pk)+'：'+sgn(pnlAt(pk))+'　變動 <b class="'+pcls(dd)+'">'+chg(dd)+'</b></div>';}
   else s+='<div class="pe-hint">第一筆紀錄。之後會自動算出和上次相比的變動。</div>';
+  var lk=db.logs[k];
+  if(lk&&lk.pa)s+='<div class="pe-hint">這天已依收盤價自動記錄。手動改了之後，這天就不會再被自動覆蓋。</div>';
   var acts=[];
   if(pk)acts.push('<button class="ghost" data-act="plast">沿用上次的數字</button>');
   if(hasP(k))acts.push('<button class="ghost bad-t" data-act="pclear">刪除這天的紀錄</button>');
@@ -3262,9 +3296,12 @@ function act(a,b){
     case 'holddel': ui.hd.splice(+b.dataset.i,1);break;
     case 'holdcancel': ui.err='';go('stats');break;
     case 'holdsave': holdSave();return;
+    case 'pauto': l=db.logs[b.dataset.k];if(l){delete l.pm;delete l.pa;}holdAuto();break;
     case 'holdrec': var hc=holdCalc();if(!hc||hc.d!==ui.date||hc.miss.length)return;l=db.logs[ui.date]||(db.logs[ui.date]={});l.pnl=hc.un;save();toast('已記錄 '+(hid()?'':sgn(hc.un)));break;
-    case 'psave': l=db.logs[ui.date]||(db.logs[ui.date]={});l.pnl=(parseInt(ui.pe.digits||'0',10)*(ui.pe.neg?-1:1))||0;save();ui.pnlSel=ui.date;go(ui.peBack||'today');toast(storageOK?'已記錄':'無法儲存');break;
-    case 'pclear': l=db.logs[ui.date];if(l){delete l.pnl;tidy(ui.date);save();}go(ui.peBack||'today');toast('已刪除這天的損益紀錄');break;
+    case 'psave': l=db.logs[ui.date]||(db.logs[ui.date]={});var nv=(parseInt(ui.pe.digits||'0',10)*(ui.pe.neg?-1:1))||0;
+      if(l.pa&&l.pnl===nv){go(ui.peBack||'today');break;}
+      l.pnl=nv;delete l.pa;if(db.hold.length&&ui.date>=holdSince()&&autoVal(ui.date))l.pm=true;else delete l.pm;save();ui.pnlSel=ui.date;go(ui.peBack||'today');toast(storageOK?'已記錄':'無法儲存');break;
+    case 'pclear': l=db.logs[ui.date];if(l){delete l.pnl;delete l.pa;delete l.pm;tidy(ui.date);save();}go(ui.peBack||'today');toast('已刪除這天的損益紀錄');break;
     case 'pcancel': go(ui.peBack||'today');break;
     case 'pnlpt': ui.pnlSel=b.dataset.k;break;
     case 'stab': ui.statTab=b.dataset.v;break;
