@@ -572,7 +572,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok((await hp.$eval('.hsug', e => e.innerText)).includes('已依'), 'card shows it was recorded from closing prices');
     await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
     const hl = await hp.$eval('#main', e => e.innerText);
-    ok(hl.includes('台積電') && hl.includes('1 張 500 股') && hl.includes('市值 NT$1,500,000') && hl.includes('今天收盤'), 'stats lists holdings with lots and market value');
+    ok(hl.includes('台積電') && hl.includes('1,500 股') && !hl.includes('張') && hl.includes('市值 NT$1,500,000') && hl.includes('今天收盤'), 'stats lists holdings in shares and market value');
     await hp.click('[data-act=holdedit]'); await hp.click('[data-act=holdadd]');
     await hp.fill('[data-hi="1"][data-hf=code]', '0050'); await hp.fill('[data-hi="1"][data-hf=shares]', '37'); await hp.fill('[data-hi="1"][data-hf=cost]', '180.5');
     await hp.click('[data-act=holdsave]');
@@ -584,7 +584,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.fill('#hptext', '股票代號, 持有股數, 平均成本\n2330, 2,000, 612.5\n元大台灣50 1537 142.2 ?\n9999, 10, 1\n0050, 100, 150\nabc');
     await hp.click('[data-act=hpcheck]');
     const pv = await hp.$eval('.hp-list', e => e.innerText);
-    ok(pv.includes('台積電') && pv.includes('2 張') && pv.includes('AI 標記不確定') && pv.includes('沒有這個代號的收盤價') && pv.includes('重複') && pv.includes('看不懂這一行'), 'paste preview flags unsure, unknown, duplicate and bad lines');
+    ok(pv.includes('台積電') && pv.includes('2,000 股') && pv.includes('AI 標記不確定') && pv.includes('沒有這個代號的收盤價') && pv.includes('重複') && pv.includes('看不懂這一行'), 'paste preview flags unsure, unknown, duplicate and bad lines');
     ok((await hp.$eval('.hpaste', e => e.innerText)).includes('4 檔可以匯入'), 'preview counts importable rows');
     await hp.click('[data-act=hpapply][data-v=replace]'); await hp.click('[data-act=holdsave]');
     hd = (await db(hp)).hold;
@@ -592,6 +592,18 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.click('[data-act=holdedit]'); await hp.click('[data-act=hpopen]'); await hp.fill('#hptext', '2454, 300, 1180'); await hp.click('[data-act=hpcheck]');
     await hp.click('[data-act=hpapply][data-v=merge]'); await hp.click('[data-act=holdsave]');
     ok((await db(hp)).hold.length === 4, 'merge keeps existing holdings and adds new ones');
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    const pie = await hp.$eval('[data-pblk=pie]', e => e.innerText);
+    ok(pie.includes('持股佔比') && pie.includes('99.1%') && pie.includes('0.9%') && pie.includes('2,019,000') && pie.includes('未列入'), 'donut shows share by market value, total, and skips holdings without price (' + pie.replace(/\n/g, ' ') + ')');
+    ok((await hp.$eval('[data-pblk=hold]', e => e.innerText)).includes('佔 99.1%'), 'holding rows show their share');
+    const order = () => hp.$$eval('[data-pblk]', a => a.map(e => e.dataset.pblk).join(','));
+    ok((await order()) === 'trend,pie,hold', 'default block order');
+    const g = await (await hp.$('[data-pdrag=pie]')).boundingBox(), tr = await (await hp.$('[data-pblk=trend]')).boundingBox();
+    await hp.mouse.move(g.x + g.width / 2, g.y + g.height / 2); await hp.mouse.down();
+    await hp.mouse.move(g.x + g.width / 2, tr.y + 10, { steps: 8 }); await hp.mouse.up();
+    ok((await order()) === 'pie,trend,hold' && (await db(hp)).settings.pnlOrder === 'pie,trend,hold', 'drag moves 持股佔比 to the top and saves the order');
+    await hp.reload(); await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    ok((await order()) === 'pie,trend,hold', 'block order kept after reload');
     await hp.click('[data-tab=today]');
     ok((await hp.$eval('.hsug', e => e.innerText)).includes('9999'), 'card warns when a holding has no closing price');
     ok(pxCalls >= 1, 'prices fetched from the same site');
