@@ -4,6 +4,7 @@ const BASE = process.env.BASE || 'http://localhost:8799/index.html';
 let pass = 0, fail = 0;
 const ok = (cond, msg) => { if (cond) { pass++; } else { fail++; console.log('  ✗ ' + msg); } };
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const isKeyLike = v => /^\d{4}-\d\d-\d\d$/.test(v || '');
 const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 
 async function page(b, seed, url) {
@@ -562,14 +563,20 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); } },
       { v: 1, logs: {}, settings: { pnl: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5) }],
         hold: [{ id: 'h1', code: '2330', shares: 1500, cost: 900 }, { id: 'bad', code: '23<b>', shares: 1, cost: 1 }] });
-    await hp.goto(BASE); await hp.waitForSelector('.hsug');
-    const sug = await hp.$eval('.hsug', e => e.innerText);
-    ok(sug.includes('+150,000') && sug.includes('15,000') && sug.includes('確認記錄'), 'today shows P&L from closing prices, waiting for confirm (' + sug.replace(/\n/g, ' ') + ')');
-    ok(!(await db(hp)).logs[T], 'nothing saved before confirming');
+    await hp.goto(BASE); await hp.waitForSelector('.hsug.ok');
+    let lg = (await db(hp)).logs[T];
+    ok(lg && lg.pnl === 150000 && lg.pa === true, 'closing-price P&L saved automatically (自動優先)');
+    ok((await hp.$eval('.hsug', e => e.innerText)).includes('自動記錄'), 'card says it was recorded from closing prices');
     ok((await db(hp)).hold.length === 1, 'invalid holding dropped by normalize');
-    await hp.click('[data-act=holdrec]');
-    ok((await db(hp)).logs[T].pnl === 150000, 'confirm saves the computed unrealized P&L');
-    ok((await hp.$eval('.hsug', e => e.innerText)).includes('已依'), 'card shows it was recorded from closing prices');
+    ok(isKeyLike((await db(hp)).settings.holdSince), 'holdSince set for existing holdings');
+    await hp.click('[data-act=pnlopen]');
+    ok((await hp.$eval('#main', e => e.innerText)).includes('不會再被自動覆蓋'), 'keypad warns that a manual edit locks the day');
+    await hp.keyboard.press('Backspace'); await hp.click('[data-act=psave]');
+    lg = (await db(hp)).logs[T]; ok(lg.pnl === 15000 && lg.pm === true && !lg.pa, 'manual edit after closes locks the day');
+    await hp.reload(); await hp.waitForSelector('[data-act=pauto]');
+    ok((await db(hp)).logs[T].pnl === 15000, 'locked day is not overwritten on the next open');
+    await hp.click('[data-act=pauto]'); await hp.waitForSelector('.hsug.ok');
+    lg = (await db(hp)).logs[T]; ok(lg.pnl === 150000 && lg.pa && !lg.pm, '改回自動 restores the computed value');
     await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
     const hl = await hp.$eval('#main', e => e.innerText);
     ok(hl.includes('台積電') && hl.includes('1,500 股') && !hl.includes('張') && hl.includes('市值 NT$1,500,000') && hl.includes('今天收盤'), 'stats lists holdings in shares and market value');
@@ -619,6 +626,28 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok((await hp.$eval('.hsug', e => e.innerText)).includes('9999'), 'card warns when a holding has no closing price');
     ok(pxCalls >= 1, 'prices fetched from the same site');
     await done(hp, 'holdings');
+  }
+
+  console.log('• 持股 back-fill from 30-day closes');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    const D = [6, 5, 4, 3, 2, 1].map(daysAgo); let histCalls = 0;
+    await hp.route('**/prices.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: T, t: 'x', p: { '2330': [1100, 10, '台積電'] } }) }));
+    await hp.route('**/prices-30.json*', r => { histCalls++; r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: D, c: { '2330': [1000, 1010, null, 1030, 1040, 1050] } }) }); });
+    await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); } },
+      { v: 1, settings: { pnl: true, holdSince: D[1] }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }],
+        logs: { [D[0]]: { pnl: 7 }, [D[3]]: { pnl: 8 }, [D[4]]: { pnl: 9, pm: true } }, hold: [{ id: 'h1', code: '2330', shares: 1000, cost: 1000 }] });
+    await hp.goto(BASE); await hp.waitForFunction(() => /補上/.test(document.body.innerText), null, { timeout: 5000 }).catch(() => {});
+    const L = (await db(hp)).logs;
+    ok(L[T] && L[T].pnl === 100000 && L[T].pa, 'latest close recorded');
+    ok(L[D[1]].pnl === 10000 && L[D[5]].pnl === 50000 && L[D[3]].pnl === 30000, 'missed days filled from the 30-day closes, overriding unlocked manual values');
+    ok(L[D[0]].pnl === 7, 'days before the last holdings change are never recomputed');
+    ok(!L[D[2]], 'day without a close for a holding is left empty');
+    ok(L[D[4]].pnl === 9 && L[D[4]].pm, 'hand-locked day kept');
+    ok(histCalls === 1, 'history downloaded once, only because days were missing');
+    await done(hp, 'holdings back-fill');
   }
 
   console.log('• security headers in page');
