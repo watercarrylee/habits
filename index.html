@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-9Q13XpEwSvpLOCAIZ8fvV6+39EBaHvqSpyCcrOJhHwA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-FhgHRIlc6GwswKWqDP1Kk+CpmIPd/CiVL9I2t1Y/d0A='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1371,7 +1371,7 @@ function demoFill(days){
     ['今天學到了什麼？','原來深蹲時膝蓋往外推，腰就不會那麼痠。'],['','連假第一天，睡到自然醒，下午去書店待了三小時，買了兩本書。'],
     ['明天最想做好的一件事？','把提案大綱寫完，晚上去練背。'],['有什麼事讓你卡住？','報告的數字一直對不起來，明天早上頭腦清楚再看一次。']];
   db.habits.forEach(function(h){if(h.created>start)h.created=start;(h.saveHist||[]).forEach(function(e){if(e.from>start)e.from=start;});});
-  var pnl=120000,di=0;
+  var pnl=300000,di=0;
   for(k=start;k<t;k=addDays(k,1)){
     var prog=1-(parseKey(t)-parseKey(k))/864e5/days,l=db.logs[k]||{};l.h=l.h||{};dow=parseKey(k).getDay();
     db.habits.forEach(function(h){
@@ -1422,9 +1422,12 @@ function demoFill(days){
   syncRewards();
   db=normalize(db)||db;save();
 }
+/* sample holdings: costs near recent prices so the auto-recorded P&L stays close to the sample history */
+function demoHold(){return [{id:'s1',code:'2330',name:'台積電',shares:2000,cost:2310},{id:'s2',code:'0050',name:'元大台灣50',shares:1537,cost:101.5},{id:'s3',code:'2454',name:'聯發科',shares:300,cost:3980},{id:'s4',code:'2317',name:'鴻海',shares:3000,cost:221},{id:'s5',code:'00878',name:'國泰永續高股息',shares:5000,cost:33.2}];}
+function demoCb(){var c=Math.round(db.hold.reduce(function(a,h){return a+h.shares*h.cost;},0));Object.keys(db.logs).forEach(function(k){var l=db.logs[k];if(typeof l.pnl==='number'&&!l.cb)l.cb=c;});}
 function demoBuild(){
   var t=todayKey();
-  db={v:1,habits:[],logs:{},settings:{pnl:true,diary:true,fit:true,fitUnit:'kg',iconAuto:true,onboarded:true},rewards:[],redeemed:[],hold:[{id:'s1',code:'2330',name:'台積電',shares:2000,cost:612.5},{id:'s2',code:'0050',name:'元大台灣50',shares:1537,cost:42.2},{id:'s3',code:'2454',name:'聯發科',shares:300,cost:1180}],fit:{ex:[],logs:{},ctypes:['拳擊有氧']}};
+  db={v:1,habits:[],logs:{},settings:{pnl:true,diary:true,fit:true,fitUnit:'kg',iconAuto:true,onboarded:true},rewards:[],redeemed:[],hold:demoHold(),fit:{ex:[],logs:{},ctypes:['拳擊有氧']}};
   var H=function(id,name,kind,method,days,amt){db.habits.push({id:id,name:name,kind:kind,method:method,days:days||allDays(),created:t,archived:false,icon:guessIcon(name),saveHist:amt?[{from:t,amt:amt}]:[],fitLink:id==='d1'});};
   H('d1','運動 30 分鐘','good','check');db.habits[db.habits.length-1].freq='week';db.habits[db.habits.length-1].perWeek=3;H('d2','11:30 前睡覺','good','check');H('d3','喝水','good','count');(function(w){w.unit='ml';w.step=500;w.goalHist=[{from:GOAL_ALL,n:2000}];})(db.habits[db.habits.length-1]);H('d4','沒有買咖啡','good','check',null,80);
   H('d5','閱讀 20 頁','good','check',[false,true,true,true,true,true,false]);H('d6','吃宵夜','bad','count',null,150);H('d7','睡前滑手機','bad','check');H('d8','喝含糖飲料','bad','count',null,60);
@@ -1433,7 +1436,7 @@ function demoBuild(){
   var R=function(id,name,type,habit,target,repeat){db.rewards.push({id:id,name:name,type:type,habit:habit,target:target,repeat:repeat,created:start,earned:[],done:false});};
   R('r1','買新跑鞋','streak','d2',7,false);R('r2','週末看電影','weekly','d5',4,true);R('r3','去按摩','rate','d2',70,true);R('r4','吃一頓大餐','limit','d6',4,true);R('r5','買降噪耳機','saved',null,8000,false);
   db.redeemed.push({id:'x1',rid:'r2',name:'週末看電影',date:addDays(t,-20),amount:350});
-  demoFill(120);
+  demoFill(120);demoCb();
 }
 function demoFilled(){return Object.keys(db.logs).some(function(k){return k<addDays(todayKey(),-7);});}
 function demoBarHTML(){
@@ -1453,6 +1456,7 @@ if(PREVIEW&&!DEMO){var pvBar=document.createElement('div');pvBar.className='demo
 if(DEMO){
   document.title=DEMO_NEW?'習慣（新手示範）':'習慣（示範）';
   if(!DEMO_NEW&&!db.habits.length)demoBuild();
+  if(!DEMO_NEW&&!db.hold.length){db.hold=demoHold();demoCb();save();} // demo data made before 我的持股 existed
   var demoBar=document.createElement('div');demoBar.className='demobar';demoBar.id='demobar';
   document.querySelector('.app').insertBefore(demoBar,$('#main'));
 }
@@ -1515,7 +1519,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.19-8';
+var APP_VER='2026.10.19-9';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
