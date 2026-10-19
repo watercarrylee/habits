@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-4PgZG1E3BQ3dz5EOTiWcXOUoq214Pf8oK5NRC5lMFnQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-NLSiRJpyDjxVsSBsm12nOqkhkMvgxXq9tJKKukqaZhs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -508,6 +508,7 @@ button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
 .pie-wrap{display:flex;flex-direction:row;align-items:center;gap:16px;padding:14px 16px}.pie{width:132px;height:132px;flex:0 0 132px}
 .pie-lg{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.pie-li{display:flex;align-items:center;gap:8px;font-size:13px}
 .pie-li i{width:10px;height:10px;border-radius:3px;flex:0 0 10px}.pie-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pie-li b{font-variant-numeric:tabular-nums;font-weight:600}
+.hrow-r .small{white-space:nowrap}
 .pct{font-size:.5em;font-weight:600;margin-left:6px;vertical-align:middle}
 .hrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-soft)}.hrow:last-child{border-bottom:0}
 .hrow-l,.hrow-r{display:flex;flex-direction:column;gap:2px;min-width:0}.hrow-r{align-items:flex-end;font-variant-numeric:tabular-nums}
@@ -1514,7 +1515,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.19-6';
+var APP_VER='2026.10.19-7';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2102,7 +2103,7 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
   s+='<div class="list">';
   list.forEach(function(o){var x=o.x,r=o.r,p=pxOf(x.code),big,cls='';
     if(r){big=mode==='day'?r.day:mode==='mv'?r.v:r.un;cls=mode==='mv'?'':pcls(big);big=mode==='mv'?fmtN(Math.round(big)):sgn(Math.round(big));}
-    var px=r?'<span class="'+(h?'muted':pcls(r.p.ch))+'">'+r.p.close+(r.p.ch?' '+(r.p.ch>0?'▲':'▼')+Math.abs(r.p.ch):'')+'</span>':'';
+    var px=r?'<span class="'+(h?'muted':pcls(r.p.ch))+'">'+r.p.close+' '+(r.p.ch>0?'▲':r.p.ch<0?'▼':'')+(r.p.close-r.p.ch>0?pctS(r.p.ch/(r.p.close-r.p.ch)).replace(/^[+−]/,''):'')+'</span>':'';
     s+='<div class="hrow"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+esc(x.code)+' · '+lots(x.shares)+' · 成本 '+r1(x.cost)+(r&&c.mv?' · 佔 '+pct1(r.v/c.mv):'')+'</span>'+'</div>'+
       (r?'<div class="hrow-r"><b class="'+(h?'':cls)+'">'+(h?MASK:big)+'</b>'+'<span class="small">'+px+'</span>'+'</div>':'<div class="hrow-r small muted">'+(PX?'找不到價格':'等待收盤價')+'</div>')+'</div>';});
   s+='</div>';
