@@ -603,6 +603,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const pie = await hp.$eval('[data-pblk=pie]', e => e.innerText);
     ok(pie.includes('持股佔比') && pie.includes('99.1%') && pie.includes('0.9%') && pie.includes('2,019,000') && pie.includes('未列入'), 'donut shows share by market value, total, and skips holdings without price (' + pie.replace(/\n/g, ' ') + ')');
     ok((await hp.$eval('[data-pblk=hold]', e => e.innerText)).includes('佔 99.1%'), 'holding rows show their share');
+    ok((await hp.$eval('[data-pblk=hold]', e => e.innerText)).includes('1000 ▲1.01%'), 'price line shows the day change in %');
     const names = () => hp.$$eval('[data-pblk=hold] .hrow b:first-child', a => a.map(e => e.innerText).join(','));
     ok((await hp.$eval('.hsort', e => e.innerText)).includes('今日') && (await names()).startsWith('台積電'), 'sort switch shown, default sorts by unrealized P&L');
     await hp.click('[data-act=hsort][data-v=mv]');
