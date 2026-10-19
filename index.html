@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-FwIq1rFAq557EEkHoakimqZd4yO+5NEz5fPvf4xzYb4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-fBJAJILtbP9RR98JbNoZYZ762iMdnEVpnqjV9ERlmQg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1512,7 +1512,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.19-2';
+var APP_VER='2026.10.19-3';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2025,7 +2025,7 @@ function lots(n){return fmtN(n)+' 股';}
 function pct1(f){var v=Math.round(f*1000)/10;return (v<0.1&&f>0?'<0.1':v.toFixed(1))+'%';}
 function pGrip(k){return '<span class="handle pgrip" data-pdrag="'+k+'" role="img" aria-label="按住拖曳調整順序">'+I.grip+'</span>';}
 /* 持股佔比 donut: by market value, top 6 + 其他, shades of the current skin's --good */
-var PIE_COL=['var(--good)','color-mix(in srgb,var(--good) 50%,var(--surface))','color-mix(in srgb,var(--good) 45%,var(--fg))','color-mix(in srgb,var(--good) 22%,var(--surface))','color-mix(in srgb,var(--good) 75%,var(--fg))','color-mix(in srgb,var(--good) 75%,var(--surface))'];
+var PIE_COL=['var(--good)','color-mix(in srgb,var(--good) 45%,var(--surface))','color-mix(in srgb,var(--good) 15%,var(--fg))','color-mix(in srgb,var(--good) 18%,var(--surface))','color-mix(in srgb,var(--good) 60%,var(--fg))','color-mix(in srgb,var(--good) 70%,var(--surface))'];
 function pieHTML(){var c=holdCalc();if(!c||!c.rows.length||c.mv<=0)return '';var h=hid();
   var rows=c.rows.slice().sort(function(a,b){return b.v-a.v;}),sl=rows.slice(0,6).map(function(r,i){var p=r.p;return {n:r.h.name||(p&&p.name)||r.h.code,v:r.v,col:PIE_COL[i]};});
   if(rows.length>6){var o=0;rows.slice(6).forEach(function(r){o+=r.v;});sl.push({n:'其他 '+(rows.length-6)+' 檔',v:o,col:'var(--faint)'});}
