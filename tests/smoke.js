@@ -673,6 +673,21 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'P&L % fallback');
   }
 
+  console.log('• demo gets sample holdings even when its data predates 我的持股');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    await hp.route('**/prices.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: daysAgo(1), t: 'x', p: { '2330': [2420, 0, '台積電'] } }) }));
+    await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-demo', JSON.stringify(s)); } },
+      { v: 1, settings: { pnl: true, onboarded: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }],
+        logs: { [daysAgo(2)]: { pnl: 1000 } } });
+    await hp.goto(BASE.replace('index.html', 'index.html?demo')); await hp.waitForSelector('#demobar');
+    const d = await hp.evaluate(() => JSON.parse(localStorage.getItem('habit-tracker-demo')));
+    ok(d.hold.length === 5 && d.logs[daysAgo(2)].cb > 0, 'old demo data gets sample holdings and cost basis');
+    await done(hp, 'demo holdings');
+  }
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
