@@ -490,9 +490,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   console.log('• habits before they started');
   p = await page(b, { 'habit-tracker-v1': { v: 1, logs: {}, settings: {}, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(2) }, { id: 'g2', name: '咖啡', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: T }] } });
   await p.click('[data-act=day][data-n="-1"]');
-  ok(await p.$eval('[data-id=g2]', e => e.classList.contains('pre') && e.innerText.includes('還沒開始')), 'habit shows as not started on days before it was created');
-  ok(!(await p.$eval('[data-id=g1]', e => e.classList.contains('pre'))), 'older habit shows normally');
   ok((await p.$eval('.sum-card.good .sum-v', e => e.innerText.replace(/\s/g, ''))) === '0/1', 'day count leaves out habits not started yet');
+  ok(!(await p.$('[data-id=g2]')) && (await p.$eval('.pre-more', e => e.innerText)).includes('還有 1 個習慣這天還沒開始'), 'habits not started yet are folded into one line');
+  await p.click('[data-act=preshow]');
+  ok(await p.$eval('[data-id=g2]', e => e.classList.contains('pre') && e.innerText.includes('還沒開始')), 'opening the line shows the faded card for back-filling');
+  await p.click('[data-id=g2]');
+  ok(await p.$eval('[data-id=g2]', e => !e.classList.contains('pre')) && (await p.$eval('.sum-card.good .sum-v', e => e.innerText.replace(/\s/g, ''))) === '1/2', 'back-filled habit shows as a normal card and counts');
+  ok(!(await p.$eval('[data-id=g1]', e => e.classList.contains('pre'))), 'older habit shows normally');
+
   await done(p, 'pre-created');
 
   console.log('• nothing before first use');

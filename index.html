@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-pJUiWQ5QzkqGkO0deDzMw9cQun+JhueQlNafxZAUJVo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-oNFLJy9MEGco4boACIoNeQ7XQHxOLxcMwlPFfA/yWQU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -80,6 +80,7 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .datebar-mid{display:flex;flex-direction:column;align-items:center;gap:2px}
 .iconbtn{flex:0 0 auto;width:44px;height:44px;border:0;border-radius:22px;background:var(--chip);color:var(--fg);display:flex;align-items:center;justify-content:center;padding:0}
 .iconbtn:disabled{opacity:.35;cursor:default}
+.pre-sec .pre-more{margin-top:0;align-self:flex-start;color:var(--muted);font-weight:600}
 .linkbtn{align-self:center;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;margin-top:-14px}
 
 .sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -1519,7 +1520,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.19-10';
+var APP_VER='2026.10.20-1';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -2479,16 +2480,24 @@ function vToday(){
   var ad=live>0&&done===live;
   s+='<div class="sum'+(pOn?' three':'')+'"><div class="sum-card good'+(ad?' alldone':'')+(ad&&ui.celAnim?' glow':'')+'"><div class="sum-l">'+(ad?(k===t?'今天全部完成':'全部完成'):'好習慣')+'</div><div class="sum-v">'+done+'<small> / '+live+'</small></div></div>'+
      '<div class="sum-card"><div class="sum-l muted">壞習慣</div><div class="sum-v bad-t">'+badSum+'<small class="muted"> 次</small></div></div>'+(pOn?pnlTile(k):'')+'</div>';
+  function notPre(h){return !(k<h.created&&!val(k,h.id));}
+  var gsv=gs.filter(notPre);
   if(goods.length){
     s+='<section class="sec"><h2 class="sec-t good-t">好習慣</h2>';
-    if(!gs.length)s+='<p class="small muted">這天沒有排定的好習慣。</p>';
-    gs.forEach(function(h){s+=goodCard(h,k);});
+    if(!gsv.length)s+='<p class="small muted">'+(gs.length?'這天還沒開始任何好習慣。':'這天沒有排定的好習慣。')+'</p>';
+    gsv.forEach(function(h){s+=goodCard(h,k);});
     if(rest.length)s+='<p class="small muted">這天休息：'+rest.map(function(h){return esc(h.name);}).join('、')+'</p>';
     s+='</section>'+restUI(k);
   }
-  var wkv=wks.filter(function(h){return wkEnd(weekStartKey(k))>=h.created;});
+  var wkv=wks.filter(function(h){return wkEnd(weekStartKey(k))>=h.created;}).filter(notPre),bsv=bads.filter(notPre);
   if(wkv.length){s+='<section class="sec"><h2 class="sec-t good-t">這週</h2>';wkv.forEach(function(h){s+=goodCard(h,k);});s+='</section>';}
-  if(bads.length){s+='<section class="sec"><h2 class="sec-t bad-t">壞習慣</h2>';bads.forEach(function(h){s+=badCard(h,k);});s+='</section>';}
+  if(bsv.length){s+='<section class="sec"><h2 class="sec-t bad-t">壞習慣</h2>';bsv.forEach(function(h){s+=badCard(h,k);});s+='</section>';}
+  /* habits added after this day: folded into one line; open it to back-fill (tapping a card still records) */
+  var pres=gs.concat(wks.filter(function(h){return wkEnd(weekStartKey(k))>=h.created;}),bads).filter(function(h){return !notPre(h);});
+  if(pres.length){var po=ui.preOpen===k;
+    s+='<section class="sec pre-sec"><button class="linkbtn pre-more" data-act="preshow" aria-expanded="'+po+'">'+(po?'收起還沒開始的習慣':'還有 '+pres.length+' 個習慣這天還沒開始 ›')+'</button>';
+    if(po)pres.forEach(function(h){s+=h.kind==='bad'?badCard(h,k):goodCard(h,k);});
+    s+='</section>';}
   if(pOn)s+=pnlSection(k);
   s+='<section class="sec"><h2 class="sec-t">心情</h2><div class="moods">'+
     MOODS.map(function(m,i){var on=log.mood===i;return '<button class="mood'+(on?' on':'')+'" data-act="mood" data-i="'+i+'" aria-pressed="'+on+'">'+m+'</button>';}).join('')+
@@ -2881,6 +2890,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.19-10','10/19',['新功能「我的持股」：輸入代號、股數和均價，收盤後 App 會依收盤價自動算好未實現損益並記錄','可以把券商截圖丟給 AI 辨識，再貼回 App 一次匯入持股','漏記的日子會依收盤價自動補上；手動改過的日子會保留，想恢復可以按「改回自動」','新增持股佔比圓餅圖，每檔顯示佔比；持股列表可以切換「今日／損益／市值」排序並顯示 %','未實現損益加上報酬率 %，「比前一筆」改成「今日損益」並顯示漲跌幅 %','統計的「損益」分頁改名「投資」，裡面的區塊可以按住拖曳調整順序','股數一律用「股」顯示']],
  ['2026.10.18-20','10/18',['新功能「我的這一週」：在統計頁按「分享這週」，產生這週的圖片分享給朋友，可以選習慣、運動、投資、心情，也能加一句自己的話','新功能「外觀」：到設定可以換成衝刺橘、黑白螢光或冰島','新增獎勵改成先選習慣；每週習慣可以設「累計達標幾週」，壞習慣可以設「連續幾天沒犯」，也多了「累計天數」','有氧可以記距離和秒數，自動算配速；進步頁多了最快配速和每週距離','有新版本時會跳出更新小卡，按一下就更新','每週習慣達標後整張卡片變綠，超過目標會顯示實際次數','新增 14 個健身房常見的內建動作','「今天」分頁改名「習慣」、「習慣設定」改名「設定」；有獎勵可兌換或該備份時，分頁會出現小紅點','回看過去時，還沒開始的習慣會淡化；開始使用以前的日子不能再往前翻','修正：只改「每按一次」的量時，以前的紀錄不會再被換算']],
  ['2026.10.18-1','10/18',['新增「常見問題」（設定 → 說明），部分設定旁也有「?」可以直接看','有目標的習慣卡片統一成「名稱 / 75% · 連續 5 天 / 進度條」，畫面更整齊','每週幾次的習慣用分格進度條顯示']],
  ['2026.10.17-10','10/17',['編輯習慣時，自動選的圖示會跟著名稱更新；頻率移到前面','「用運動紀錄自動打勾」只在運動類的習慣出現','好習慣可以設「每週幾次，哪天都可以」，例如一週運動 3 次','今天頁多了「這週」區塊，顯示本週進度和連續幾週','統計排行用「週」計算這類習慣']],
@@ -3281,6 +3291,7 @@ function act(a,b){
     case 'unitchip': ui.draft.unit=b.dataset.v;break;
     case 'dayt': n=+b.dataset.i;ui.draft.days[n]=!ui.draft.days[n];ui.err='';break;
     case 'freq': ui.draft.freq=b.dataset.v==='week'?'week':'day';ui.err='';break;
+    case 'preshow': ui.preOpen=ui.preOpen===ui.date?null:ui.date;break;
     case 'pwstep': ui.draft.perWeek=Math.max(1,Math.min(6,(ui.draft.perWeek||3)+(+b.dataset.n)));break;
     case 'cancel': go(ui.back||'settings');break;
     case 'save': saveDraft();return;
