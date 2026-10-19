@@ -11,9 +11,10 @@ jobs:
           mkdir s && cd s
           D=$(TZ=Asia/Taipei date +%Y%m%d); Y=$(TZ=Asia/Taipei date +%Y); R=$((Y-1911)); MD=$(TZ=Asia/Taipei date +%m/%d)
           UA='Mozilla/5.0 (habits-prices)'
-          curl -sS -m 60 -A "$UA" "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=$D&type=ALLBUT0999&response=json" -o twse.json || echo fail > twse.err
-          curl -sS -m 60 -A "$UA" "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQ?date=$Y/$MD&response=json" -o tpex_new.json || echo fail > tpex_new.err
-          curl -sS -m 60 -A "$UA" "https://www.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?l=zh-tw&d=$R/$MD&o=json" -o tpex_old.json || echo fail > tpex_old.err
+          for n in "old_ew|https://www.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?l=zh-tw&d=$R/$MD&se=EW&o=json" "old_al|https://www.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?l=zh-tw&d=$R/$MD&se=AL&o=json" "new_otc_ew|https://www.tpex.org.tw/www/zh-tw/afterTrading/otc?date=$Y/$MD&type=EW&response=json" "new_otc|https://www.tpex.org.tw/www/zh-tw/afterTrading/otc?date=$Y/$MD&response=json" "new_dq|https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQ?date=$Y/$MD&id=&response=json"; do
+            k=${n%%|*}; u=${n#*|}
+            curl -sS -m 180 -A "$UA" -w "$k %{http_code} %{size_download} %{time_total}\n" "$u" -o $k.json >> stats.txt 2>&1 || echo "$k curl-fail" >> stats.txt
+          done
           ls -la
           python3 - <<'PY'
           import json,glob
@@ -39,5 +40,6 @@ jobs:
               walk(j); json.dump(hits,open(f+'.hits','w'),ensure_ascii=False,indent=1)
           PY
           rm -f *.json
+          cat stats.txt
           git init -q -b probe && git add -A && git -c user.name=probe -c user.email=p@x commit -qm probe
           git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" probe
