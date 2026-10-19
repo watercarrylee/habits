@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch today's closing prices for every TWSE (上市) and TPEx (上櫃) stock/ETF and write prices.json.
+"""Fetch today's closing prices for every TWSE (上市) and TPEx (上櫃) stock/ETF and write prices.json (official sites first, open-data APIs as fallback).
 
 Runs from .github/workflows/prices.yml after the market closes. It downloads the WHOLE market on
 purpose: the app keeps each person's holdings on their own phone, so nothing here may reveal them.
@@ -11,6 +11,10 @@ The app only downloads it to fill in days it missed.
 """
 import json, re, sys, time, datetime, pathlib, urllib.request
 
+# Main sources: the official sites' 每日收盤行情 data (the same data their web pages show). They have the day's
+# closes soon after the market closes. The open-data APIs below are the fallback; they are often hours late.
+TWSE_WEB = 'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date={ymd}&type=ALLBUT0999&response=json'
+TPEX_WEB = 'https://www.tpex.org.tw/www/zh-tw/afterTrading/otc?date={y}/{m}/{d}&type=EW&response=json'
 TWSE = 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL'
 TPEX = 'https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes'
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -53,6 +57,40 @@ def parse(rows):
             dates.append(d)
     return out, (max(dates) if dates else None)
 
+def parse_web(j):
+    """Official-site JSON: {"date": "20261019", "tables": [{"fields": [...], "data": [[...]]}]} (TWSE MI_INDEX / TPEx otc).
+    TWSE gives the sign in an HTML field 漲跌(+/-) and the size in 漲跌價差; TPEx gives a signed 漲跌 (or text like 除息)."""
+    out = {}
+    if not isinstance(j, dict):
+        return out, None
+    d = roc_date(j.get('date'))
+    for t in j.get('tables') or []:
+        f = [str(x).strip() for x in t.get('fields') or []]
+        ci = next((f.index(k) for k in ('證券代號', '代號') if k in f), None)
+        pi = next((f.index(k) for k in ('收盤價', '收盤') if k in f), None)
+        if ci is None or pi is None:
+            continue
+        ni = next((f.index(k) for k in ('證券名稱', '名稱') if k in f), None)
+        si = f.index('漲跌(+/-)') if '漲跌(+/-)' in f else None
+        gi = f.index('漲跌價差') if '漲跌價差' in f else (f.index('漲跌') if '漲跌' in f else None)
+        for r in t.get('data') or []:
+            if len(r) <= max(ci, pi):
+                continue
+            code = str(r[ci]).strip()
+            close = num(r[pi])
+            if not KEEP.match(code) or close is None or close <= 0:
+                continue
+            chg = num(r[gi]) if gi is not None else None
+            if si is not None:
+                sign = re.sub(r'<[^>]*>', '', str(r[si])).strip()
+                if 'X' in sign or chg is None:
+                    chg = None
+                elif '-' in sign:
+                    chg = -abs(chg)
+            name = str(r[ni]).strip()[:20] if ni is not None else ''
+            out[code] = [round(close, 4), round(chg, 4) if chg is not None else None, name]
+    return out, (d if out else None)
+
 def get(url, tries=4):
     for i in range(tries):
         try:
@@ -91,16 +129,37 @@ def save_history(d, p):
     if new != hist:
         path.write_text(json.dumps(new, ensure_ascii=False, separators=(',', ':')))
 
+def fetch_market(web, api, now):
+    """Closes for one market: the official site first, the open-data API if the site fails or has nothing yet."""
+    errs = []
+    try:
+        got, d = parse_web(get(web.format(ymd=now.strftime('%Y%m%d'), y=now.year, m='%02d' % now.month, d='%02d' % now.day), tries=2))
+        if got:
+            return got, d, errs
+        errs.append('site: no data yet')
+    except Exception as e:
+        errs.append('site: ' + str(e))
+    try:
+        got, d = parse(get(api))
+        return got, d, errs
+    except Exception as e:
+        errs.append('api: ' + str(e))
+        return {}, None, errs
+
 def main():
     p, dates, errs = {}, [], []
-    for url in (TWSE, TPEX):
-        try:
-            got, d = parse(get(url))
-            p.update(got)
-            if d:
-                dates.append(d)
-        except Exception as e:
-            errs.append(url + ': ' + str(e))
+    now = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).date()
+    for name, web, api in (('TWSE', TWSE_WEB, TWSE), ('TPEx', TPEX_WEB, TPEX)):
+        got, d, e = fetch_market(web, api, now)
+        print(name, d, len(got), '; '.join(e))
+        if not got:
+            errs.append(name + ': ' + ' | '.join(e))
+            continue
+        p.update(got)
+        dates.append(d)
+    # both markets must be on the same day, or holdings in one market would get a stale price
+    if not errs and len(set(dates)) > 1:
+        errs.append('markets on different days: ' + ', '.join(str(x) for x in dates))
     # a half-updated file would show some holdings as "price not found", so keep the old one and let the next run retry
     if errs or len(p) < 100:
         sys.exit('keeping the old file: ' + (' | '.join(errs) or 'too few prices'))

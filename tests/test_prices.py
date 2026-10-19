@@ -11,6 +11,12 @@ assert da == db == '2026-10-19'
 assert fp.roc_date('20261019') == '2026-10-19'
 w, _ = fp.parse([{'Code': '030012', 'ClosingPrice': '1.2', 'Change': '0'}, {'Code': '2881A', 'ClosingPrice': '60', 'Change': '0'}])
 assert '030012' not in w and '2881A' in w, w
+wa, wd = fp.parse_web(json.loads((F / 'twse_web.json').read_text()))
+assert wd == '2026-10-19' and wa['0050'] == [108.15, -0.85, '元大台灣50'] and wa['2330'] == [2420.0, 0.0, '台積電'] and wa['3037'][1] == 30.0, wa
+assert wa['2881'] == [88.5, None, '富邦金'] and '1101' not in wa and '030012' not in wa and len(wa) == 4, wa
+wb, wbd = fp.parse_web(json.loads((F / 'tpex_web.json').read_text()))
+assert wbd == '2026-10-19' and wb['6488'] == [882.0, -20.0, '環球晶'] and wb['00679B'][1] == 0.1 and wb['00694B'] == [42.25, None, '富邦美債1-3'], wb
+assert fp.parse_web({'stat': '很抱歉，沒有符合條件的資料!'}) == ({}, None)
 h = fp.add_history({}, '2026-10-16', {'2330': [1000, 5, 'x'], '0050': [190, 1, 'y']})
 h = fp.add_history(h, '2026-10-19', {'2330': [1010, 10, 'x'], '6488': [450, 0, 'z']})
 assert h == {'d': ['2026-10-16', '2026-10-19'], 'c': {'0050': [190, None], '2330': [1000, 1010], '6488': [None, 450]}}, h
