@@ -492,10 +492,15 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=day][data-n="-1"]');
   ok((await p.$eval('.sum-card.good .sum-v', e => e.innerText.replace(/\s/g, ''))) === '0/1', 'day count leaves out habits not started yet');
   ok(!(await p.$('[data-id=g2]')) && (await p.$eval('.pre-more', e => e.innerText)).includes('還有 1 個習慣這天還沒開始'), 'habits not started yet are folded into one line');
-  await p.click('[data-act=preshow]');
-  ok(await p.$eval('[data-id=g2]', e => e.classList.contains('pre') && e.innerText.includes('還沒開始')), 'opening the line shows the faded card for back-filling');
-  await p.click('[data-id=g2]');
-  ok(await p.$eval('[data-id=g2]', e => !e.classList.contains('pre')) && (await p.$eval('.sum-card.good .sum-v', e => e.innerText.replace(/\s/g, ''))) === '1/2', 'back-filled habit shows as a normal card and counts');
+  ok((await p.$eval('.pre-more', e => e.innerText)).includes('開始日期') && !(await p.$('[data-act=preshow]')), 'no back-filling on days before the start; the line points to the start date');
+  await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=g2]');
+  ok((await p.$eval('#hstart', e => e.value)) === daysAgo(0), 'editor shows the start date');
+  await p.fill('#hstart', daysAgo(1)); await p.click('[data-act=save]');
+  ok((await db(p)).habits.find(h => h.id === 'g2').created === daysAgo(1), 'start date can be moved earlier');
+  await p.click('[data-tab=today]'); await p.click('[data-act=day][data-n="-1"]');
+  ok(!(await p.$('.pre-more')) && (await p.$eval('[data-id=g2]', e => !e.classList.contains('pre'))), 'after moving the start date the day can be filled in');
+  await p.click('[data-id=g2]'); await p.click('[data-id=g2]');
+  ok((await db(p)).habits.find(h => h.id === 'g2').created === daysAgo(1), 'checking and unchecking never moves the start date');
   ok(!(await p.$eval('[data-id=g1]', e => e.classList.contains('pre'))), 'older habit shows normally');
 
   await done(p, 'pre-created');
@@ -692,6 +697,27 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const d = await hp.evaluate(() => JSON.parse(localStorage.getItem('habit-tracker-demo')));
     ok(d.hold.length === 5 && d.logs[daysAgo(2)].cb > 0, 'old demo data gets sample holdings and cost basis');
     await done(hp, 'demo holdings');
+  }
+
+  console.log('• automatic backups');
+  {
+    p = await page(b, { 'habit-tracker-v1': { v: 1, logs: { [T]: { mood: 2 } }, settings: { onboarded: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3) }] } });
+    let A = await p.evaluate(() => JSON.parse(localStorage.getItem('habit-tracker-v1-auto') || '[]'));
+    ok(A.length === 1 && A[0].why === 'daily', 'first open of the day keeps a daily copy');
+    await p.evaluate(() => localStorage.setItem('habit-tracker-v1-ver', '2026.10.01-1')); await p.reload(); await p.waitForSelector('.page');
+    A = await p.evaluate(() => JSON.parse(localStorage.getItem('habit-tracker-v1-auto') || '[]'));
+    ok(A.length === 2 && A[0].why === 'update' && A[0].v === '2026.10.01-1', 'opening a new version keeps a copy from before the update');
+    await p.reload(); await p.waitForSelector('.page');
+    ok((await p.evaluate(() => JSON.parse(localStorage.getItem('habit-tracker-v1-auto')).length)) === 2, 'no extra copies on later opens the same day');
+    await p.click('[data-tab=today]'); await p.click('[data-act=toggle][data-id=g1]');
+    await p.click('[data-tab=settings]'); await p.click('[data-act=autobk]');
+    const sh = await p.$eval('.sheet', e => e.innerText);
+    ok(/\d+\/\d+（.）\d\d:\d\d/.test(sh) && sh.includes('更新前（2026.10.01-1 版）') && sh.includes('每日自動備份') && sh.includes('1 個習慣'), 'backup list shows date, weekday, time and reason');
+    await p.click('[data-act=autorestore][data-i="0"]'); await p.click('[data-act=confirmimport]');
+    ok(!((await db(p)).logs[T].h), 'restoring brings back the data from before');
+    A = await p.evaluate(() => JSON.parse(localStorage.getItem('habit-tracker-v1-auto')));
+    ok(A[0].why === 'restore' && JSON.parse(A[0].d).logs[T].h, 'the data replaced by a restore is kept too');
+    await done(p, 'auto backups');
   }
 
   console.log('• security headers in page');
