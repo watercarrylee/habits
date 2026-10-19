@@ -1,0 +1,7 @@
+old_ew 200 1918980 5.913163
+curl: (92) HTTP/2 stream 1 was not closed cleanly: INTERNAL_ERROR (err 2)
+old_al 200 931998 3.580524
+old_al curl-fail
+new_otc_ew 200 146680 0.431021
+new_otc 200 471 0.303317
+new_dq 302 0 1.191123
