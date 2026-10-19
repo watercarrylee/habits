@@ -1,0 +1,3 @@
+[{"Date":"1151019","Code":"2330","Name":"台積電","TradeVolume":"1","TradeValue":"1","OpeningPrice":"1000.00","HighestPrice":"1010.00","LowestPrice":"990.00","ClosingPrice":"1005.00","Change":"+15.0000","Transaction":"1"},
+ {"Date":"1151019","Code":"0050","Name":"元大台灣50","ClosingPrice":"190.50","Change":"-1.2500"},
+ {"Date":"1151019","Code":"9999","Name":"停牌股","ClosingPrice":"--","Change":"0.0000"}]
