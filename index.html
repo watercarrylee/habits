@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-9YqW0VCWqU5ge1RwPe9TzU4+MJACSAPI3MY0570XWy4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-4PgZG1E3BQ3dz5EOTiWcXOUoq214Pf8oK5NRC5lMFnQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -508,6 +508,7 @@ button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
 .pie-wrap{display:flex;flex-direction:row;align-items:center;gap:16px;padding:14px 16px}.pie{width:132px;height:132px;flex:0 0 132px}
 .pie-lg{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.pie-li{display:flex;align-items:center;gap:8px;font-size:13px}
 .pie-li i{width:10px;height:10px;border-radius:3px;flex:0 0 10px}.pie-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pie-li b{font-variant-numeric:tabular-nums;font-weight:600}
+.pct{font-size:.5em;font-weight:600;margin-left:6px;vertical-align:middle}
 .hrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-soft)}.hrow:last-child{border-bottom:0}
 .hrow-l,.hrow-r{display:flex;flex-direction:column;gap:2px;min-width:0}.hrow-r{align-items:flex-end;font-variant-numeric:tabular-nums}
 .hedit{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:10px 14px 14px;margin-bottom:10px}.hedit-h{display:flex;justify-content:space-between;align-items:center}
@@ -1301,7 +1302,7 @@ function normalize(d){
     if(l.h&&typeof l.h==='object'){o.h={};Object.keys(l.h).forEach(function(id){var v=Math.min(999999,Math.floor(+l.h[id])),c=cid(id);if(v>0&&c)o.h[c]=v;});if(!Object.keys(o.h).length)delete o.h;}
     if(typeof l.mood==='number'&&l.mood>=0&&l.mood<=4)o.mood=l.mood;
     if(typeof l.note==='string'&&l.note)o.note=l.note;
-    if(typeof l.pnl==='number'&&isFinite(l.pnl)){o.pnl=Math.round(l.pnl);if(l.pa===true)o.pa=true;else if(l.pm===true)o.pm=true;}
+    if(typeof l.pnl==='number'&&isFinite(l.pnl)){o.pnl=Math.round(l.pnl);if(typeof l.cb==='number'&&l.cb>0&&isFinite(l.cb))o.cb=Math.round(l.cb);if(l.pa===true)o.pa=true;else if(l.pm===true)o.pm=true;}
     if(l.rest===true)o.rest=true;
     if(Array.isArray(l.fa)){var fa=l.fa.map(cid).filter(Boolean);if(fa.length)o.fa=fa;}
     if(l.diary&&typeof l.diary.t==='string'&&l.diary.t){o.diary={t:l.diary.t};if(typeof l.diary.q==='string'&&l.diary.q)o.diary.q=l.diary.q.slice(0,80);}
@@ -1513,7 +1514,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.19-5';
+var APP_VER='2026.10.19-6';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1995,6 +1996,16 @@ function hasP(k){var l=db.logs[k];return !!l&&typeof l.pnl==='number';}
 function pnlKeys(){return Object.keys(db.logs).filter(hasP).sort();}
 function pnlAt(k){return db.logs[k].pnl;}
 function prevPnlKey(k){var ks=pnlKeys(),r=null;for(var i=0;i<ks.length&&ks[i]<k;i++)r=ks[i];return r;}
+function pctS(f){return (f>0.00005?'+':f<-0.00005?'−':'')+Math.abs(f*100).toFixed(2)+'%';}
+function cbAt(k){var l=db.logs[k];return l&&l.cb>0?l.cb:null;}
+/* 累積 %: P&L ÷ cost (報酬率). 今日 %: change ÷ previous day's market value (cost + P&L). Needs the stored cost basis. */
+function pnlPct(k){var c=cbAt(k);return c?pnlAt(k)/c:null;}
+function dayPct(k,pk){var c=cbAt(pk),mv=c?c+pnlAt(pk):0;return mv>0?(pnlAt(k)-pnlAt(pk))/mv:null;}
+/* 今日損益 only when the previous record is the previous trading day (weekdays; the 30-day closes list when loaded) */
+function isPrevTD(pk,k){if(PXH){var i=PXH.d.indexOf(k),j=PXH.d.indexOf(pk);if(i>0&&j>=0)return j===i-1;}
+  for(var x=addDays(pk,1);x<k;x=addDays(x,1)){var w=parseKey(x).getDay();if(w>0&&w<6)return false;}return true;}
+function dLabel(pk,k){return isPrevTD(pk,k)?'今日損益':'比 '+shortMD(pk);}
+function pctTag(f,h,cls){return f==null?'':'<span class="pct'+(cls?' '+cls:'')+'">'+(h?'••%':pctS(f))+'</span>';}
 function fmtN(v){return Math.abs(v).toLocaleString('en-US');}
 function cmpN(v){var a=Math.abs(v);if(a<1e5)return a.toLocaleString('en-US');if(a<1e7)return (Math.round(a/1e3)/10).toLocaleString('en-US')+'萬';if(a<1e8)return Math.round(a/1e4).toLocaleString('en-US')+'萬';return (Math.round(a/1e6)/100)+'億';}
 function cchg(v){return (v>0?'▲':v<0?'▼':'')+cmpN(v);}
@@ -2023,7 +2034,7 @@ function pxLoad(){var now=Date.now();if(now-pxAt<60000||!db.hold.length)return;p
 var PXH=null,pxhAt=0;
 function holdSince(){var v=db.settings.holdSince;if(isKey(v))return v;v=todayKey();if(db.hold.length&&!DEMO){db.settings.holdSince=v;save();}return v;}
 function pnlFrom(closeOf){var mv=0,cost=0,miss=[];db.hold.forEach(function(h){var c=closeOf(h.code);if(!(c>0)){miss.push(h.code);return;}mv+=h.shares*c;cost+=h.shares*h.cost;});
-  return {un:Math.round(mv-cost),miss:miss};}
+  return {un:Math.round(mv-cost),cb:Math.round(cost),miss:miss};}
 function histClose(i){return function(code){var r=PXH&&PXH.c[code];return r?+r[i]:0;};}
 function autoDays(){var out={},hs=holdSince(),t=todayKey();
   if(PXH)PXH.d.forEach(function(d,i){if(d>=hs&&d<=t)out[d]=histClose(i);});
@@ -2033,9 +2044,9 @@ function autoVal(k){var f=autoDays()[k];return f?pnlFrom(f):null;}
 function holdAuto(){if(!db.settings.pnl||!db.hold.length||!PX||ui.sheet)return;
   var days=autoDays(),filled=[],changed=false;
   Object.keys(days).sort().forEach(function(k){var l=db.logs[k];if(l&&l.pm)return;var r=pnlFrom(days[k]);if(r.miss.length)return;
-    if(l&&l.pa&&l.pnl===r.un)return;
+    if(l&&l.pa&&l.pnl===r.un&&l.cb===r.cb)return;
     if(!l||typeof l.pnl!=='number'||!l.pa)filled.push(k);
-    l=db.logs[k]||(db.logs[k]={});l.pnl=r.un;l.pa=true;delete l.pm;changed=true;});
+    l=db.logs[k]||(db.logs[k]={});l.pnl=r.un;l.cb=r.cb;l.pa=true;delete l.pm;changed=true;});
   if(changed){save();if(/^(today|stats)$/.test(ui.view))render();
     var past=filled.filter(function(k){return k<PX.d;});
     if(past.length)toast('已依收盤價補上 '+(past.length>1?shortMD(past[0])+'–'+shortMD(past[past.length-1])+' 共 '+past.length+' 天':shortMD(past[0])));
@@ -2168,8 +2179,8 @@ function pnlSection(k){
     '<button class="eyebtn" data-act="hideamt">'+(h?I.eye+'顯示金額':I.eyeOff+'隱藏金額')+'</button></div><button class="pnl-card" data-act="pnlopen">';
   if(has){
     var v=pnlAt(k),mc=monthChange(d0.getFullYear(),d0.getMonth(),k),meta=[];
-    s+='<div class="pnl-top"><div><div class="pnl-l">收盤後帳面 · '+shortMD(k)+'</div><div class="pnl-v '+(h?'':pcls(v))+'">'+(h?MASK:sgn(v))+'</div></div><span class="pnl-chip">'+(db.logs[k].pa?'手動修改':'修改')+'</span></div>';
-    if(pk)meta.push('較上次（'+shortMD(pk)+'） <b class="'+(h?'':pcls(v-pnlAt(pk)))+'">'+(h?'••••':chg(v-pnlAt(pk)))+'</b>');
+    s+='<div class="pnl-top"><div><div class="pnl-l">收盤後帳面 · '+shortMD(k)+'</div><div class="pnl-v '+(h?'':pcls(v))+'">'+(h?MASK:sgn(v))+pctTag(pnlPct(k),h)+'</div></div><span class="pnl-chip">'+(db.logs[k].pa?'手動修改':'修改')+'</span></div>';
+    if(pk)meta.push(dLabel(pk,k)+' <b class="'+(h?'':pcls(v-pnlAt(pk)))+'">'+(h?'••••':chg(v-pnlAt(pk)))+(dayPct(k,pk)==null?'':'（'+(h?'••%':pctS(dayPct(k,pk)))+'）')+'</b>');
     if(mc&&mc.show)meta.push('本月 <b class="'+(h?'':pcls(mc.change))+'">'+(h?'••••':chg(mc.change))+'</b>');
     if(meta.length)s+='<div class="pnl-meta">'+meta.map(function(x){return '<span>'+x+'</span>';}).join('')+'</div>';
   }else if(pk){
@@ -2226,8 +2237,8 @@ function pnlStats(y,m){
   svg+='</svg>';
   var hiV=Math.max.apply(null,vals),loV=Math.min.apply(null,vals);
   var s='<div class="panel"><div class="pnl-read"><div><div class="pnl-l">'+(ds.getMonth()+1)+'/'+ds.getDate()+' 週'+WD[ds.getDay()]+' 記錄的未實現損益</div>'+
-    '<div class="pnl-v sm '+(h?'':pcls(sv))+'">'+(h?MASK:sgn(sv))+'</div></div>'+
-    '<div class="pnl-l" style="text-align:right">'+(pk?'比前一筆（'+shortMD(pk)+'）':'比前一筆')+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b></div></div>'+
+    '<div class="pnl-v sm '+(h?'':pcls(sv))+'">'+(h?MASK:sgn(sv))+pctTag(pnlPct(sk),h)+'</div></div>'+
+    '<div class="pnl-l" style="text-align:right">'+(pk?dLabel(pk,sk):'今日損益')+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b>'+(pk&&dayPct(sk,pk)!=null?'<br><span class="'+(h?'':pcls(sd))+'" style="font-size:12px">'+(h?'••%':pctS(dayPct(sk,pk)))+'</span>':'')+'</div></div>'+
     svg+'<div class="chart-x"><span>'+shortMD(ks[0])+'</span>'+(ks.length>1?'<span>'+shortMD(ks[ks.length-1])+'</span>':'')+'</div>'+
     '<p class="small muted">每個點是你那天記下的未實現損益（不是即時股價），只畫有記錄的日子，點圓點看那一天。</p></div>';
   s+='<div class="tiles">'+
@@ -3300,8 +3311,8 @@ function act(a,b){
     case 'holdrec': var hc=holdCalc();if(!hc||hc.d!==ui.date||hc.miss.length)return;l=db.logs[ui.date]||(db.logs[ui.date]={});l.pnl=hc.un;save();toast('已記錄 '+(hid()?'':sgn(hc.un)));break;
     case 'psave': l=db.logs[ui.date]||(db.logs[ui.date]={});var nv=(parseInt(ui.pe.digits||'0',10)*(ui.pe.neg?-1:1))||0;
       if(l.pa&&l.pnl===nv){go(ui.peBack||'today');break;}
-      l.pnl=nv;delete l.pa;if(db.hold.length&&ui.date>=holdSince()&&autoVal(ui.date))l.pm=true;else delete l.pm;save();ui.pnlSel=ui.date;go(ui.peBack||'today');toast(storageOK?'已記錄':'無法儲存');break;
-    case 'pclear': l=db.logs[ui.date];if(l){delete l.pnl;delete l.pa;delete l.pm;tidy(ui.date);save();}go(ui.peBack||'today');toast('已刪除這天的損益紀錄');break;
+      l.pnl=nv;delete l.pa;if(db.hold.length&&ui.date>=holdSince())l.cb=Math.round(db.hold.reduce(function(a,h){return a+h.shares*h.cost;},0));else delete l.cb;if(db.hold.length&&ui.date>=holdSince()&&autoVal(ui.date))l.pm=true;else delete l.pm;save();ui.pnlSel=ui.date;go(ui.peBack||'today');toast(storageOK?'已記錄':'無法儲存');break;
+    case 'pclear': l=db.logs[ui.date];if(l){delete l.pnl;delete l.pa;delete l.pm;delete l.cb;tidy(ui.date);save();}go(ui.peBack||'today');toast('已刪除這天的損益紀錄');break;
     case 'pcancel': go(ui.peBack||'today');break;
     case 'pnlpt': ui.pnlSel=b.dataset.k;break;
     case 'stab': ui.statTab=b.dataset.v;break;

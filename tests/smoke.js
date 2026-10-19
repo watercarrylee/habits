@@ -647,6 +647,13 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(!L[D[2]], 'day without a close for a holding is left empty');
     ok(L[D[4]].pnl === 9 && L[D[4]].pm, 'hand-locked day kept');
     ok(histCalls === 1, 'history downloaded once, only because days were missing');
+    ok(L[T].cb === 1000000, 'cost basis stored with the auto record');
+    await hp.reload(); await hp.waitForSelector('.pnl-card .pct');
+    const pc = await hp.$eval('.pnl-card', e => e.innerText);
+    ok(pc.includes('+10.00%') && pc.includes('今日損益') && pc.includes('+4.76%'), 'today card: return on cost and today % of previous market value (' + pc.replace(/\n/g, ' ') + ')');
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    const sp = await hp.$eval('.pnl-read', e => e.innerText);
+    ok(sp.includes('+10.00%') && sp.includes('今日損益') && sp.includes('+4.76%'), 'stats panel shows both percentages');
     await done(hp, 'holdings back-fill');
   }
 
