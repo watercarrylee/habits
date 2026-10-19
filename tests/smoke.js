@@ -572,7 +572,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok((await hp.$eval('.hsug', e => e.innerText)).includes('已依'), 'card shows it was recorded from closing prices');
     await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
     const hl = await hp.$eval('#main', e => e.innerText);
-    ok(hl.includes('台積電') && hl.includes('1 張 500 股') && hl.includes('市值 NT$1,500,000'), 'stats lists holdings with lots and market value');
+    ok(hl.includes('台積電') && hl.includes('1 張 500 股') && hl.includes('市值 NT$1,500,000') && hl.includes('今天收盤'), 'stats lists holdings with lots and market value');
     await hp.click('[data-act=holdedit]'); await hp.click('[data-act=holdadd]');
     await hp.fill('[data-hi="1"][data-hf=code]', '0050'); await hp.fill('[data-hi="1"][data-hf=shares]', '37'); await hp.fill('[data-hi="1"][data-hf=cost]', '180.5');
     await hp.click('[data-act=holdsave]');

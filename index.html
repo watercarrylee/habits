@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-4otqjqt98X/mWKgdQyaGpRjeFBwgb0tfz1L/3V1SpQs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-QxKI+ArmJwK6ieNVvWfF04hVs0Bu1uOFgRWEQvILs0w='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2029,7 +2029,9 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
     s+='<div class="hrow"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+esc(x.code)+' · '+lots(x.shares)+' · 成本 '+r1(x.cost)+'</span></div>'+
       (r?'<div class="hrow-r"><b class="'+(h?'':pcls(r.un))+'">'+(h?MASK:sgn(Math.round(r.un)))+'</b><span class="small '+(h?'muted':pcls(r.p.ch))+'">'+r.p.close+(r.p.ch?' '+(r.p.ch>0?'▲':'▼')+Math.abs(r.p.ch):'')+'</span></div>':'<div class="hrow-r small muted">'+(PX?'找不到價格':'等待收盤價')+'</div>')+'</div>';});
   s+='</div>';
-  if(c)s+='<p class="small muted">'+shortMD(c.d)+' 收盤 · 市值 '+(h?MASK:'NT$'+fmtN(c.mv))+' · 未實現 '+(h?MASK:sgn(c.un))+' · 今日 '+(h?'••••':chg(c.day))+'</p>';
+  if(c){var isT=c.d===todayKey(),dl=isT?'今天':shortMD(c.d);
+    s+='<p class="small muted">'+(isT?'今天收盤':'最新收盤是 '+dl)+' · 市值 '+(h?MASK:'NT$'+fmtN(c.mv))+' · 未實現 '+(h?MASK:sgn(c.un))+' · '+(isT?'今日':dl+' ')+'漲跌 '+(h?'••••':chg(c.day))+'</p>'+
+      (isT?'':'<p class="small muted">上面的價格和漲跌都是 '+dl+' 的收盤資料。交易日下午 2:40 後會更新成當天的收盤價。</p>');}
   else s+='<p class="small muted">收盤價每天下午更新，交易日 14:40 之後打開 App 就會算好。</p>';
   return s+'</section>';}
 function vHold(){var d=ui.hd;
@@ -2154,11 +2156,11 @@ function pnlStats(y,m){
   });
   svg+='</svg>';
   var hiV=Math.max.apply(null,vals),loV=Math.min.apply(null,vals);
-  var s='<div class="panel"><div class="pnl-read"><div><div class="pnl-l">'+(ds.getMonth()+1)+'/'+ds.getDate()+' 週'+WD[ds.getDay()]+' 收盤後</div>'+
+  var s='<div class="panel"><div class="pnl-read"><div><div class="pnl-l">'+(ds.getMonth()+1)+'/'+ds.getDate()+' 週'+WD[ds.getDay()]+' 記錄的未實現損益</div>'+
     '<div class="pnl-v sm '+(h?'':pcls(sv))+'">'+(h?MASK:sgn(sv))+'</div></div>'+
-    '<div class="pnl-l" style="text-align:right">當日變動<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b></div></div>'+
+    '<div class="pnl-l" style="text-align:right">'+(pk?'比前一筆（'+shortMD(pk)+'）':'比前一筆')+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b></div></div>'+
     svg+'<div class="chart-x"><span>'+shortMD(ks[0])+'</span>'+(ks.length>1?'<span>'+shortMD(ks[ks.length-1])+'</span>':'')+'</div>'+
-    '<p class="small muted">只畫有記錄的日子，點圓點看那一天。</p></div>';
+    '<p class="small muted">每個點是你那天記下的未實現損益（不是即時股價），只畫有記錄的日子，點圓點看那一天。</p></div>';
   s+='<div class="tiles">'+
     '<div class="tile"><div class="tile-l">本月變動</div><div class="tile-v sm '+(h||!mc.show?'':pcls(mc.change))+'">'+(!mc.show?'—':h?'••••':cchg(mc.change))+'</div></div>'+
     '<div class="tile"><div class="tile-l">本月最高</div><div class="tile-v sm">'+(h?'••••':csgn(hiV))+'</div></div>'+
