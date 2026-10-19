@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-NLSiRJpyDjxVsSBsm12nOqkhkMvgxXq9tJKKukqaZhs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-9Q13XpEwSvpLOCAIZ8fvV6+39EBaHvqSpyCcrOJhHwA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1515,7 +1515,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.19-7';
+var APP_VER='2026.10.19-8';
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1998,10 +1998,11 @@ function pnlKeys(){return Object.keys(db.logs).filter(hasP).sort();}
 function pnlAt(k){return db.logs[k].pnl;}
 function prevPnlKey(k){var ks=pnlKeys(),r=null;for(var i=0;i<ks.length&&ks[i]<k;i++)r=ks[i];return r;}
 function pctS(f){return (f>0.00005?'+':f<-0.00005?'−':'')+Math.abs(f*100).toFixed(2)+'%';}
-function cbAt(k){var l=db.logs[k];return l&&l.cb>0?l.cb:null;}
+function cbAt(k){var l=db.logs[k];if(l&&l.cb>0)return l.cb;if(!db.hold.length||k<holdSince())return null;
+  var c=Math.round(db.hold.reduce(function(a,h){return a+h.shares*h.cost;},0));return c>0?c:null;} // older records: today's holdings cost, only from the last holdings change
 /* 累積 %: P&L ÷ cost (報酬率). 今日 %: change ÷ previous day's market value (cost + P&L). Needs the stored cost basis. */
 function pnlPct(k){var c=cbAt(k);return c?pnlAt(k)/c:null;}
-function dayPct(k,pk){var c=cbAt(pk),mv=c?c+pnlAt(pk):0;return mv>0?(pnlAt(k)-pnlAt(pk))/mv:null;}
+function dayPct(k,pk){var c=cbAt(pk)||cbAt(k),mv=c?c+pnlAt(pk):0;return mv>0?(pnlAt(k)-pnlAt(pk))/mv:null;}
 /* 今日損益 only when the previous record is the previous trading day (weekdays; the 30-day closes list when loaded) */
 function isPrevTD(pk,k){if(PXH){var i=PXH.d.indexOf(k),j=PXH.d.indexOf(pk);if(i>0&&j>=0)return j===i-1;}
   for(var x=addDays(pk,1);x<k;x=addDays(x,1)){var w=parseKey(x).getDay();if(w>0&&w<6)return false;}return true;}

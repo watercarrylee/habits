@@ -658,6 +658,21 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'holdings back-fill');
   }
 
+  console.log('• P&L % for records without stored cost');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    await hp.route('**/prices.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: daysAgo(30), t: 'x', p: {} }) }));
+    await hp.addInitScript(s => { localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); },
+      { v: 1, settings: { pnl: true, holdSince: T }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }],
+        logs: { [daysAgo(1)]: { pnl: 120000 }, [T]: { pnl: 100000, pm: true } }, hold: [{ id: 'h1', code: '2330', shares: 1000, cost: 1000 }] });
+    await hp.goto(BASE); await hp.waitForSelector('.pnl-card');
+    const pc = await hp.$eval('.pnl-card', e => e.innerText);
+    ok(pc.includes('+10.00%') && pc.includes('−1.79%'), 'falls back to current holdings cost (' + pc.replace(/\n/g, ' ') + ')');
+    await done(hp, 'P&L % fallback');
+  }
+
   console.log('• security headers in page');
   p = await page(b);
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
