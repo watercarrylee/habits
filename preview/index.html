@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-nltEInTXiq+hzQYNBRQ9Mle1zqMJlCp7meuIOHDNNEQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-qSzieg6xtY8eeJGOxpZD95e91lbFDwjjs88Dy0d9Olw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,7 +14,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
-<body><div style="position:fixed;top:calc(4px + env(safe-area-inset-top,0px));right:8px;z-index:99;background:#b4531f;color:#fff;font:700 11px/1 -apple-system,sans-serif;padding:5px 8px;border-radius:10px;pointer-events:none">預覽版 · 資料分開</div>
+<body><div style="position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));left:8px;opacity:.9;z-index:99;background:#b4531f;color:#fff;font:700 11px/1 -apple-system,sans-serif;padding:5px 8px;border-radius:10px;pointer-events:none">預覽版 · 資料分開</div>
 <title>預覽 · 習慣紀錄</title>
 <style>
 /* Layout: one-screen phone app — a scrolling content column above a three-tab bar; data lives in this browser only */
@@ -1414,11 +1414,11 @@ function demoFill(days){
 }
 function demoBuild(){
   var t=todayKey();
-  db={v:1,habits:[],logs:{},settings:{pnl:true,diary:true,fit:true,fitUnit:'kg',iconAuto:true,onboarded:true},rewards:[],redeemed:[],fit:{ex:[],logs:{},ctypes:['拳擊有氧']}};
+  db={v:1,habits:[],logs:{},settings:{pnl:true,diary:true,fit:true,fitUnit:'kg',iconAuto:true,onboarded:true},rewards:[],redeemed:[],hold:[{id:'s1',code:'2330',name:'台積電',shares:2000,cost:612.5},{id:'s2',code:'0050',name:'元大台灣50',shares:1537,cost:42.2},{id:'s3',code:'2454',name:'聯發科',shares:300,cost:1180}],fit:{ex:[],logs:{},ctypes:['拳擊有氧']}};
   var H=function(id,name,kind,method,days,amt){db.habits.push({id:id,name:name,kind:kind,method:method,days:days||allDays(),created:t,archived:false,icon:guessIcon(name),saveHist:amt?[{from:t,amt:amt}]:[],fitLink:id==='d1'});};
   H('d1','運動 30 分鐘','good','check');db.habits[db.habits.length-1].freq='week';db.habits[db.habits.length-1].perWeek=3;H('d2','11:30 前睡覺','good','check');H('d3','喝水','good','count');(function(w){w.unit='ml';w.step=500;w.goalHist=[{from:GOAL_ALL,n:2000}];})(db.habits[db.habits.length-1]);H('d4','沒有買咖啡','good','check',null,80);
   H('d5','閱讀 20 頁','good','check',[false,true,true,true,true,true,false]);H('d6','吃宵夜','bad','count',null,150);H('d7','睡前滑手機','bad','check');H('d8','喝含糖飲料','bad','count',null,60);
-  db.logs[t]={h:{d3:3,d4:1}};
+  db.logs[t]={h:{d3:1500,d4:1}};
   var start=addDays(t,-120);
   var R=function(id,name,type,habit,target,repeat){db.rewards.push({id:id,name:name,type:type,habit:habit,target:target,repeat:repeat,created:start,earned:[],done:false});};
   R('r1','買新跑鞋','streak','d2',7,false);R('r2','週末看電影','weekly','d5',4,true);R('r3','去按摩','rate','d2',70,true);R('r4','吃一頓大餐','limit','d6',4,true);R('r5','買降噪耳機','saved',null,8000,false);
@@ -1434,6 +1434,12 @@ function demoBarHTML(){
   }else b+='<button data-act="demoreset">重置</button><a href="./?demo=new">新手引導</a>';
   return b+'<a href="./">離開</a>';
 }
+/* the preview build (tools/preview.py sets PREVIEW) gets a tools bar to load sample data into its own storage */
+var PREVIEW=true;
+function pvBarHTML(){var c=ui.pvConfirm;
+  return '<b>預覽版工具</b>'+(c==='fill'?'<button data-act="pvfill">再按一次：覆蓋成示範資料</button>':c==='clear'?'<button data-act="pvclear">再按一次：清空</button>':
+    '<button data-act="pvfill">帶入示範資料</button><button data-act="pvclear">清空</button>')+'<a href="./?demo">示範模式</a>';}
+if(PREVIEW&&!DEMO){var pvBar=document.createElement('div');pvBar.className='demobar';pvBar.id='pvbar';document.querySelector('.app').insertBefore(pvBar,$('#main'));}
 if(DEMO){
   document.title=DEMO_NEW?'習慣（新手示範）':'習慣（示範）';
   if(!DEMO_NEW&&!db.habits.length)demoBuild();
@@ -1834,7 +1840,7 @@ function progressOf(r,h,tot){
     note:'目前犯了 '+res.slips+' 次 · '+(over?(r.repeat?'這個月沒達成，下個月重來':'這次沒達成'):settle)};
 }
 /* small dots on the bottom tabs: a reward ready to redeem; backup due or a new 更新紀錄 */
-function bkDue(){if(DEMO||!db.habits.length)return false;var o=bkGet(),t=todayKey();if(o.snooze&&o.snooze>t)return false;
+function bkDue(){if(DEMO||PREVIEW||!db.habits.length)return false;var o=bkGet(),t=todayKey();if(o.snooze&&o.snooze>t)return false;
   var lim=isIOS()&&!isStandalone()?7:14,age=o.at?daysSince(o.at):daysSince(firstUseKey());return age>=lim;}
 function tabBadges(){var rw=false;try{syncRewards();var tot=savingsTotals();rw=db.rewards.some(function(r){return pending(r,tot)>0;});}catch(e){}
   var st=bkDue()||!clSeen();
@@ -2329,7 +2335,7 @@ function daysSince(k){return Math.round((parseKey(todayKey())-parseKey(k))/864e5
 function firstUseKey(){var k=Object.keys(db.logs).sort()[0]||todayKey();db.habits.forEach(function(h){if(h.created<k)k=h.created;});return k;}
 function bkAgeText(){var o=bkGet();if(!o.at)return '還沒備份過';var n=daysSince(o.at);return n<=0?'今天備份過':'上次 '+n+' 天前';}
 function bkBanner(){
-  if(DEMO||!db.habits.length)return '';
+  if(DEMO||PREVIEW||!db.habits.length)return '';
   var o=bkGet(),t=todayKey();if(o.snooze&&o.snooze>t)return '';
   var tab=isIOS()&&!isStandalone(),lim=tab?7:14,age=o.at?daysSince(o.at):daysSince(firstUseKey());
   if(age<lim)return '';
@@ -2935,6 +2941,7 @@ function render(){
   if(ui.view==='today'&&needOnboard()){if(!ui.ob)ui.ob=obNew();ui.view='onboard';}
   if(ui.view==='onboard'&&!ui.ob)ui.view='today';
   if(DEMO){var dbar=$('#demobar');if(dbar)dbar.innerHTML=demoBarHTML();}
+  var pvb=$('#pvbar');if(pvb)pvb.innerHTML=pvBarHTML();
   if(!fOn()&&/^(fit|flog|fpick|fcardio|fex)$/.test(ui.view))ui.view='today';
   if(ui.view==='flog'&&(!ui.fl||!exById(ui.fl.ex)))ui.view='fit';
   var main=$('#main'),v=ui.view;
@@ -3148,6 +3155,8 @@ function act(a,b){
     case 'demoreset': if(!DEMO)return;ui.date=t;ui.follow=true;ui.fpx=null;ui.ob=null;
       if(DEMO_NEW){try{localStorage.removeItem(KEY);localStorage.removeItem(BKKEY);}catch(e){}db=blank();go('today');toast('已清空，從新手引導重新開始');}
       else{demoBuild();go('today');toast('示範資料已重置');}break;
+    case 'pvfill': if(!PREVIEW)return;if(db.habits.length&&ui.pvConfirm!=='fill'){ui.pvConfirm='fill';break;}ui.pvConfirm=null;demoBuild();save();ui.date=t;ui.follow=true;go('today');toast('已帶入 4 個月示範資料（只在預覽版）',2600);break;
+    case 'pvclear': if(!PREVIEW)return;if(ui.pvConfirm!=='clear'){ui.pvConfirm='clear';break;}ui.pvConfirm=null;db=blank();save();ui.date=t;ui.follow=true;go('today');toast('預覽版資料已清空');break;
     case 'demofill': if(!DEMO_NEW)return;demoFill(120);ui.date=t;ui.follow=true;go('today');toast('已填入 4 個月假紀錄，到各分頁看看',2600);break;
     case 'obskip': db.settings.onboarded=true;save();ui.ob=null;go('today');break;
     case 'obarea': n=ui.ob.areas.indexOf(b.dataset.v);if(n>=0)ui.ob.areas.splice(n,1);else ui.ob.areas.push(b.dataset.v);

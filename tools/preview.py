@@ -10,8 +10,10 @@ if s.count(old) != 1: sys.exit('KEY line not found')
 s = s.replace(old, "var KEY=DEMO_NEW?'habit-preview-demo-new':DEMO?'habit-preview-demo':'habit-preview-v1';")
 s = s.replace("navigator.serviceWorker.register('sw.js')", "Promise.reject()")
 s = s.replace("fetch('prices.json?t='", "fetch('../prices.json?t='")  # prices.json lives at the site root
+if s.count('var PREVIEW=false;') != 1: sys.exit('PREVIEW flag not found')
+s = s.replace('var PREVIEW=false;', 'var PREVIEW=true;')
 s = s.replace("<title>", "<title>預覽 · ", 1)
-badge = ('<div style="position:fixed;top:calc(4px + env(safe-area-inset-top,0px));right:8px;z-index:99;background:#b4531f;color:#fff;'
+badge = ('<div style="position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));left:8px;opacity:.9;z-index:99;background:#b4531f;color:#fff;'
          'font:700 11px/1 -apple-system,sans-serif;padding:5px 8px;border-radius:10px;pointer-events:none">預覽版 · 資料分開</div>')
 s = s.replace('<body>', '<body>' + badge, 1) if '<body>' in s else re.sub(r'(<body[^>]*>)', lambda m: m.group(1) + badge, s, 1)
 scripts = re.findall(r'<script>(.*?)</script>', s, re.S)
