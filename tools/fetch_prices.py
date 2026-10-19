@@ -5,6 +5,9 @@ Runs from .github/workflows/prices.yml after the market closes. It downloads the
 purpose: the app keeps each person's holdings on their own phone, so nothing here may reveal them.
 
 prices.json: {"d": "YYYY-MM-DD" trading date, "t": fetched-at (UTC ISO), "p": {code: [close, change, name]}}
+prices-30.json: the last 30 trading days of closes, column style so it stays small:
+  {"d": [oldest ... newest date], "c": {code: [close or null for each date]}}
+The app only downloads it to fill in days it missed.
 """
 import json, re, sys, time, datetime, pathlib, urllib.request
 
@@ -61,6 +64,33 @@ def get(url, tries=4):
                 raise
             time.sleep(15 * (i + 1))
 
+HIST_DAYS = 30
+
+def add_history(hist, d, p):
+    """Put day d's closes into the 30-day history (replacing d if it is already there)."""
+    days = list(hist.get('d') or [])
+    old = {c: dict(zip(days, v)) for c, v in (hist.get('c') or {}).items()}
+    if d not in days:
+        days.append(d)
+    days = sorted(days)[-HIST_DAYS:]
+    for c in old:
+        old[c].pop(d, None)
+    for c, v in p.items():
+        old.setdefault(c, {})[d] = v[0]
+    cols = {}
+    for c in sorted(old):
+        row = [old[c].get(x) for x in days]
+        if any(x is not None for x in row):
+            cols[c] = row
+    return {'d': days, 'c': cols}
+
+def save_history(d, p):
+    path = ROOT / 'prices-30.json'
+    hist = json.loads(path.read_text()) if path.exists() else {}
+    new = add_history(hist, d, p)
+    if new != hist:
+        path.write_text(json.dumps(new, ensure_ascii=False, separators=(',', ':')))
+
 def main():
     p, dates, errs = {}, [], []
     for url in (TWSE, TPEX):
@@ -79,6 +109,7 @@ def main():
     out = {'d': d, 't': datetime.datetime.utcnow().replace(microsecond=0).isoformat() + 'Z', 'p': dict(sorted(p.items()))}
     path = ROOT / 'prices.json'
     old = json.loads(path.read_text()) if path.exists() else {}
+    save_history(d, p)
     if old.get('d') == d and old.get('p') == out['p']:
         print('unchanged', d); return
     path.write_text(json.dumps(out, ensure_ascii=False, separators=(',', ':')))

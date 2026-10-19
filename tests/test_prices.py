@@ -11,4 +11,11 @@ assert da == db == '2026-10-19'
 assert fp.roc_date('20261019') == '2026-10-19'
 w, _ = fp.parse([{'Code': '030012', 'ClosingPrice': '1.2', 'Change': '0'}, {'Code': '2881A', 'ClosingPrice': '60', 'Change': '0'}])
 assert '030012' not in w and '2881A' in w, w
+h = fp.add_history({}, '2026-10-16', {'2330': [1000, 5, 'x'], '0050': [190, 1, 'y']})
+h = fp.add_history(h, '2026-10-19', {'2330': [1010, 10, 'x'], '6488': [450, 0, 'z']})
+assert h == {'d': ['2026-10-16', '2026-10-19'], 'c': {'0050': [190, None], '2330': [1000, 1010], '6488': [None, 450]}}, h
+assert fp.add_history(h, '2026-10-19', {'2330': [1011, 11, 'x']})['c']['2330'] == [1000, 1011]
+for i in range(35):
+    h = fp.add_history(h, '2026-11-%02d' % (i % 28 + 1) if i < 28 else '2026-12-%02d' % (i - 27), {'2330': [i, 0, 'x']})
+assert len(h['d']) == 30 and len(h['c']['2330']) == 30 and h['d'] == sorted(h['d']) and '0050' not in h['c'], h['d']
 print('prices parser ok')
