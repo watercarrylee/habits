@@ -674,6 +674,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
     const sp = await hp.$eval('.pnl-read', e => e.innerText);
     ok(sp.includes('+10.00%') && sp.includes('今日損益') && sp.includes('+4.76%'), 'stats panel shows both percentages');
+    ok((await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('週變動') && (await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('本月變動'), 'trend shows a week row above the month row');
     await done(hp, 'holdings back-fill');
   }
 

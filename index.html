@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Xn9kqVCwfpNBOh9qu9oHEaG+HeVvwYvg+ik98w7R9y0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-s5mUyT07x0HEv8ibsmJbRJDtOW5ULSqEeZqEf4XJ7f4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -204,7 +204,7 @@ input[type=text]{height:52px;font-size:17px}
 .legend{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:4px;font-size:11px;color:var(--muted)}
 .legend span{display:flex;align-items:center;gap:4px}
 .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tiles+.tiles{margin-top:-4px}
 .tile{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .tile-l{font-size:11px;color:var(--muted)}
 .tile-v{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
@@ -719,12 +719,12 @@ html:root[data-skin=volt]{
 [data-skin=volt] .hcard.g-on .hc-sub{color:var(--on-good)!important}
 [data-skin=volt] .hcard.g-on .check.on{background:var(--on-good);color:var(--good);border-color:var(--on-good)}
 [data-skin=volt] .hcard.g-on .cnt{color:var(--on-good)}
-[data-skin=volt] .hcard.g-on .pbar{background:rgba(255,255,255,.22)}
+[data-skin=volt] .hcard.g-on .pbar{background:color-mix(in srgb,var(--on-ink) 22%,transparent)}
 [data-skin=volt] .hcard.g-on .pbar i{background:var(--on-good)}
 [data-skin=volt] .hcard.g-on .plus{background:var(--on-good);color:var(--good)}
-[data-skin=volt] .hcard.g-on .minus{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
-[data-skin=volt] .hcard.g-on .hico,[data-skin=volt] .hcard.g-on .cunit{color:#fff}
-[data-skin=volt] .hcard.g-on .hico{background:rgba(255,255,255,.12)}[data-skin=volt] .hcard.g-on svg .ko{stroke:var(--good)}
+[data-skin=volt] .hcard.g-on .minus{background:transparent;color:var(--on-ink);border-color:color-mix(in srgb,var(--on-ink) 40%,transparent)}
+[data-skin=volt] .hcard.g-on .hico,[data-skin=volt] .hcard.g-on .cunit{color:var(--on-ink)}
+[data-skin=volt] .hcard.g-on .hico{background:color-mix(in srgb,var(--on-ink) 12%,transparent)}[data-skin=volt] .hcard.g-on svg .ko{stroke:var(--good)}
 /* ===== 冰島: glacier blue + basalt + volcanic ash; moss, aurora pink, Icelandic roof red as accents ===== */
 html:root[data-skin=ice]{
   --bg:#E7EBEE; --surface:#F9FBFC; --chip:#DEE4E9; --line:#CDD5DC; --line-soft:#E3E8EC;
@@ -1530,7 +1530,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.20-5';
+var APP_VER='2026.10.20-6';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2279,6 +2279,13 @@ function pnlStats(y,m){
     '<div class="pnl-l" style="text-align:right">'+(pk?dLabel(pk,sk):'今日損益')+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b>'+(pk&&dayPct(sk,pk)!=null?'<br><span class="'+(h?'':pcls(sd))+'" style="font-size:12px">'+(h?'••%':pctS(dayPct(sk,pk)))+'</span>':'')+'</div></div>'+
     svg+'<div class="chart-x"><span>'+shortMD(ks[0])+'</span>'+(ks.length>1?'<span>'+shortMD(ks[ks.length-1])+'</span>':'')+'</div>'+
     '<p class="small muted">每個點是你那天記下的未實現損益（不是即時股價），只畫有記錄的日子，點圓點看那一天。</p></div>';
+  /* the week of the selected point (本週 when it is this week); change is against the last record before that Monday */
+  var ws=weekStartKey(sk),we=wkEnd(ws);if(we>t)we=t;var wk=pnlKeys().filter(function(k){return k>=ws&&k<=we;}),wbk=prevPnlKey(ws);
+  var wl=ws===weekStartKey(t)?'本週':shortMD(ws)+' 那週',wv=wk.map(pnlAt),wch=wk.length?pnlAt(wk[wk.length-1])-(wbk?pnlAt(wbk):wv[0]):0,wshow=!!wbk||wk.length>1;
+  s+='<div class="tiles">'+
+    '<div class="tile"><div class="tile-l">'+wl+'變動</div><div class="tile-v sm '+(h||!wshow?'':pcls(wch))+'">'+(!wshow?'—':h?'••••':cchg(wch))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">'+wl+'最高</div><div class="tile-v sm">'+(h?'••••':csgn(Math.max.apply(null,wv)))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">'+wl+'最低</div><div class="tile-v sm">'+(h?'••••':csgn(Math.min.apply(null,wv)))+'</div></div></div>';
   s+='<div class="tiles">'+
     '<div class="tile"><div class="tile-l">本月變動</div><div class="tile-v sm '+(h||!mc.show?'':pcls(mc.change))+'">'+(!mc.show?'—':h?'••••':cchg(mc.change))+'</div></div>'+
     '<div class="tile"><div class="tile-l">本月最高</div><div class="tile-v sm">'+(h?'••••':csgn(hiV))+'</div></div>'+
