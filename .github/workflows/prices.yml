@@ -2,6 +2,8 @@ name: closing prices
 # Saves the whole Taiwan market's closing prices to prices.json after the close (no holdings involved).
 on:
   schedule:
+    - cron: '50 5 * * 1-5'   # 13:50 Taiwan time: the official sites may already have the day's closes
+    - cron: '10 6 * * 1-5'   # 14:10 Taiwan time
     - cron: '40 6 * * 1-5'   # 14:40 Taiwan time
     - cron: '20 8 * * 1-5'   # 16:20 Taiwan time, in case the first run was early or delayed
     - cron: '30 9 * * 1-5'   # 17:30 Taiwan time: the open-data APIs can publish the day's closes late
