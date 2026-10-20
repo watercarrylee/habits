@@ -660,6 +660,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(L[D[4]].pnl === 9 && L[D[4]].pm, 'hand-locked day kept');
     ok(histCalls === 1, 'history downloaded once, only because days were missing');
     ok(L[T].cb === 1000000, 'cost basis stored with the auto record');
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    ok((await hp.$eval('.pxbar', e => e.innerText)).includes('重新整理'), 'investment tab has a refresh button with the price time');
+    await hp.click('[data-act=pxrefresh]'); await hp.waitForTimeout(300);
+    await hp.click('[data-act=holdedit]'); await hp.fill('#hdate', D[3]); await hp.fill('[data-hi="0"][data-hf=shares]', '2000'); await hp.click('[data-act=holdsave]');
+    await hp.waitForFunction(d => { const o = JSON.parse(localStorage.getItem('habit-tracker-v1')); return o.logs[d] && o.logs[d].pnl === 60000; }, D[3], { timeout: 5000 }).catch(() => {});
+    const L2 = (await db(hp)).logs;
+    ok(L2[D[3]].pnl === 60000 && L2[D[5]].pnl === 100000 && L2[T].pnl === 200000, 'holdings change dated earlier recomputes from that day');
+    ok(L2[D[1]].pnl === 10000 && L2[D[4]].pnl === 9 && (await db(hp)).settings.holdSince === D[3], 'days before the trade date and locked days stay as they were');
     await hp.reload(); await hp.waitForSelector('.pnl-card .pct');
     const pc = await hp.$eval('.pnl-card', e => e.innerText);
     ok(pc.includes('+10.00%') && pc.includes('今日損益') && pc.includes('+4.76%'), 'today card: return on cost and today % of previous market value (' + pc.replace(/\n/g, ' ') + ')');
@@ -718,6 +726,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     p = await page(b, { 'habit-tracker-v1': { v: 1, logs: { [T]: { mood: 2 } }, settings: { onboarded: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3) }] } });
     let A = await p.evaluate(() => JSON.parse(localStorage.getItem('habit-tracker-v1-auto') || '[]'));
     ok(A.length === 1 && A[0].why === 'daily', 'first open of the day keeps a daily copy');
+    await p.click('[data-tab=settings]'); ok((await p.$eval('[data-act=autobk]', e => e.innerText)).includes('瀏覽器'), 'auto backup row says it lives in the browser');
     await p.evaluate(() => localStorage.setItem('habit-tracker-v1-ver', '2026.10.01-1')); await p.reload(); await p.waitForSelector('.page');
     A = await p.evaluate(() => JSON.parse(localStorage.getItem('habit-tracker-v1-auto') || '[]'));
     ok(A.length === 2 && A[0].why === 'update' && A[0].v === '2026.10.01-1', 'opening a new version keeps a copy from before the update');
