@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Xn9kqVCwfpNBOh9qu9oHEaG+HeVvwYvg+ik98w7R9y0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-V0KDwo20f0kit2AexmXWrjUopkYmccwRg0+DaBcqs2I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -204,7 +204,7 @@ input[type=text]{height:52px;font-size:17px}
 .legend{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:4px;font-size:11px;color:var(--muted)}
 .legend span{display:flex;align-items:center;gap:4px}
 .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tiles+.tiles{margin-top:-4px}
 .tile{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .tile-l{font-size:11px;color:var(--muted)}
 .tile-v{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
@@ -2279,6 +2279,13 @@ function pnlStats(y,m){
     '<div class="pnl-l" style="text-align:right">'+(pk?dLabel(pk,sk):'今日損益')+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b>'+(pk&&dayPct(sk,pk)!=null?'<br><span class="'+(h?'':pcls(sd))+'" style="font-size:12px">'+(h?'••%':pctS(dayPct(sk,pk)))+'</span>':'')+'</div></div>'+
     svg+'<div class="chart-x"><span>'+shortMD(ks[0])+'</span>'+(ks.length>1?'<span>'+shortMD(ks[ks.length-1])+'</span>':'')+'</div>'+
     '<p class="small muted">每個點是你那天記下的未實現損益（不是即時股價），只畫有記錄的日子，點圓點看那一天。</p></div>';
+  /* the week of the selected point (本週 when it is this week); change is against the last record before that Monday */
+  var ws=weekStartKey(sk),we=wkEnd(ws);if(we>t)we=t;var wk=pnlKeys().filter(function(k){return k>=ws&&k<=we;}),wbk=prevPnlKey(ws);
+  var wl=ws===weekStartKey(t)?'本週':shortMD(ws)+' 那週',wv=wk.map(pnlAt),wch=wk.length?pnlAt(wk[wk.length-1])-(wbk?pnlAt(wbk):wv[0]):0,wshow=!!wbk||wk.length>1;
+  s+='<div class="tiles">'+
+    '<div class="tile"><div class="tile-l">'+wl+'變動</div><div class="tile-v sm '+(h||!wshow?'':pcls(wch))+'">'+(!wshow?'—':h?'••••':cchg(wch))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">'+wl+'最高</div><div class="tile-v sm">'+(h?'••••':csgn(Math.max.apply(null,wv)))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">'+wl+'最低</div><div class="tile-v sm">'+(h?'••••':csgn(Math.min.apply(null,wv)))+'</div></div></div>';
   s+='<div class="tiles">'+
     '<div class="tile"><div class="tile-l">本月變動</div><div class="tile-v sm '+(h||!mc.show?'':pcls(mc.change))+'">'+(!mc.show?'—':h?'••••':cchg(mc.change))+'</div></div>'+
     '<div class="tile"><div class="tile-l">本月最高</div><div class="tile-v sm">'+(h?'••••':csgn(hiV))+'</div></div>'+
