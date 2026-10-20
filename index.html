@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-bY36mfK1JR9hGIiys9qO6un3bCAYAYljWqanas7UORc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-B8hLue0dac2BF8mqXFq/I/ODMfO2w1QOvO6rKrhG0A4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1530,7 +1530,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.20-3';
+var APP_VER='2026.10.20-4';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2117,7 +2117,7 @@ function pnlTab(y,m){var ord=(db.settings.pnlOrder||PBLK.join(',')).split(','),b
 /* on the 今天 card: suggest the number from closing prices; saving needs a tap (先確認再存) */
 function holdSuggest(k){if(!db.hold.length||k<holdSince())return '';var h=hid(),l=db.logs[k],c=holdCalc();
   var r=autoVal(k);
-  if(!r){return k===todayKey()&&(!PX||PX.d<k)&&parseKey(k).getDay()%6?'<div class="hsug note">收盤後（約下午 3 點）會依收盤價自動記錄。</div>':'';}
+  if(!r){return k===todayKey()&&(!PX||PX.d<k)&&parseKey(k).getDay()%6?'<div class="hsug note">收盤價約下午 2 點半更新（偶爾會晚一些），之後打開 App 就會自動記錄。</div>':'';}
   if(r.miss.length)return '<div class="hsug warn">找不到 '+r.miss.map(esc).join('、')+' 的收盤價，這天沒有自動記錄，請檢查代號。</div>';
   if(l&&l.pm)return '<div class="hsug"><div><div class="hsug-l">這天是手動輸入 · 依收盤價算是</div><b class="'+(h?'':pcls(r.un))+'">'+(h?MASK:sgn(r.un))+'</b></div>'+
     '<button class="secondary hsug-b" data-act="pauto" data-k="'+k+'">改回自動</button></div>';
@@ -2143,8 +2143,8 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
   s+='<div class="pxbar"><span class="small muted">'+(pxWhen()?'收盤價更新於 '+pxWhen():PX?shortMD(PX.d)+' 的收盤價':'還沒有收盤價')+'</span><button class="ghost pxre" data-act="pxrefresh">重新整理</button></div>';
   if(c){var isT=c.d===todayKey(),dl=isT?'今天':shortMD(c.d);
     s+='<p class="small muted">'+(isT?'今天收盤':'最新收盤是 '+dl)+' · 市值 '+(h?MASK:'NT$'+fmtN(c.mv))+' · 未實現 '+(h?MASK:sgn(c.un))+' · '+(isT?'今日':dl+' ')+'漲跌 '+(h?'••••':chg(c.day))+'</p>'+
-      (isT?'':'<p class="small muted">上面的價格和漲跌都是 '+dl+' 的收盤資料。交易日收盤後（約下午 3 點）會更新成當天的收盤價。</p>');}
-  else s+='<p class="small muted">收盤價每天下午更新，交易日約下午 3 點後打開 App 就會自動記錄。</p>';
+      (isT?'':'<p class="small muted">上面的價格和漲跌都是 '+dl+' 的收盤資料。交易日約下午 2 點半會更新成當天的收盤價（偶爾會晚一些）。</p>');}
+  else s+='<p class="small muted">收盤價在交易日約下午 2 點半更新（偶爾會晚一些），之後打開 App 就會自動記錄。</p>';
   return s+'</section>';}
 function vHold(){var d=ui.hd;
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="holdcancel">取消</button><h1 class="edit-t">編輯持股</h1><button class="textbtn strong" data-act="holdsave">儲存</button></header>'+
