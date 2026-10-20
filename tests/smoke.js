@@ -699,6 +699,20 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'demo holdings');
   }
 
+  console.log('• 禁止斜線 on icons');
+  {
+    p = await page(b, { 'habit-tracker-v1': { v: 1, logs: {}, settings: { onboarded: true }, rewards: [], redeemed: [], habits: [
+      { id: 'n1', name: '不喝咖啡', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3), icon: 'coffee' },
+      { id: 'n2', name: '喝咖啡', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3), icon: 'coffee' }] } });
+    ok(await p.$eval('[data-id=n1] .hico', e => !!e.querySelector('.ko')) && !(await p.$eval('[data-id=n2] .hico', e => !!e.querySelector('.ko'))), 'names that say "don\'t" get a slash');
+    await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=n1]'); await p.click('[data-act=iconpick]').catch(() => {});
+    await p.click('[data-act=slasht]'); await p.click('[data-act=save]');
+    ok((await db(p)).habits.find(h => h.id === 'n1').slash === false, 'slash can be turned off by hand');
+    await p.click('[data-tab=today]');
+    ok(!(await p.$eval('[data-id=n1] .hico', e => !!e.querySelector('.ko'))), 'turned-off slash is not drawn');
+    await done(p, 'slash');
+  }
+
   console.log('• automatic backups');
   {
     p = await page(b, { 'habit-tracker-v1': { v: 1, logs: { [T]: { mood: 2 } }, settings: { onboarded: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3) }] } });
