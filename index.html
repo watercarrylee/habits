@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-B8hLue0dac2BF8mqXFq/I/ODMfO2w1QOvO6rKrhG0A4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Xn9kqVCwfpNBOh9qu9oHEaG+HeVvwYvg+ik98w7R9y0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -514,7 +514,7 @@ button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
 .pie-lg{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.pie-li{display:flex;align-items:center;gap:8px;font-size:13px}
 .pie-li i{width:10px;height:10px;border-radius:3px;flex:0 0 10px}.pie-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pie-li b{font-variant-numeric:tabular-nums;font-weight:600}
 .hrow-r .small{white-space:nowrap}
-.pct{font-size:.5em;font-weight:600;margin-left:6px;vertical-align:middle}
+.pct{display:block;font-size:16px;font-weight:600;margin-top:4px;line-height:1.2}.pnl-v.sm .pct{font-size:14px;margin-top:2px}
 .hrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-soft)}.hrow:last-child{border-bottom:0}
 .hrow-l,.hrow-r{display:flex;flex-direction:column;gap:2px;min-width:0}.hrow-r{align-items:flex-end;font-variant-numeric:tabular-nums}
 .hedit{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:10px 14px 14px;margin-bottom:10px}.hedit-h{display:flex;justify-content:space-between;align-items:center}
@@ -1530,7 +1530,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.20-4';
+var APP_VER='2026.10.20-5';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
