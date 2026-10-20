@@ -18,7 +18,7 @@ This is a personal project; we aim to reply within 7 days and to ship a fix as s
 
 - 沒有伺服器、沒有帳號。所有使用者資料只存在使用者自己裝置的 `localStorage`，不會上傳。
   No server and no accounts. All user data stays in the user's own browser storage (`localStorage`) and is never uploaded.
-- 頁面使用雜湊式 Content-Security-Policy：只允許本頁的 inline script（以 hash 比對）、禁止 inline 事件處理器、禁止連到外部網站，也不允許被嵌入其他網頁（frame-ancestors 與程式檢查）。
+- 頁面使用雜湊式 Content-Security-Policy：只允許本頁的 inline script（以 hash 比對）、禁止 inline 事件處理器、禁止連到外部網站，另外程式會偵測自己是否被嵌在其他網頁裡，是的話就停止執行（GitHub Pages 無法送 frame-ancestors 標頭）。
   A hash-based CSP allows only the page's own inline script, blocks inline event handlers and outbound requests, and the page refuses to run inside a frame.
 - 備份匯入（貼上或檔案）會經過 `normalize()` 驗證與清理；可選的加密備份使用 Web Crypto。
   Imported backups (pasted or from a file) are validated and cleaned by `normalize()`; optional encrypted backups use Web Crypto.
