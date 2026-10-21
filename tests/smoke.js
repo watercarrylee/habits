@@ -786,7 +786,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-tab=rewards]');
     const rw = await p.$eval('#main', e => e.innerText), d0 = await db(p), E = id => d0.rewards.find(r => r.id === id).earned;
     ok(E('r1')[0] === WS && !E('r2').length && E('r3')[0] === T && E('r4')[0] === T && !E('r5').length, 'week change (amount), break-through and return % are earned; week % and month amount are not yet');
-    ok(rw.includes('本週 +2.73% / 3%') && rw.includes('一週內未實現損益增加 NT$20,000'), 'progress and rule text for 投資 rewards (' + rw.split('進行中')[1].slice(0, 80).replace(/\n/g, ' ') + ')');
+    ok(rw.includes('本週 ▲2.73% / 3%') && rw.includes('一週內未實現損益增加 NT$20,000'), 'progress and rule text for 投資 rewards (' + rw.split('進行中')[1].slice(0, 80).replace(/\n/g, ' ') + ')');
     await p.click('[data-act=rnew]'); await p.click('[data-act=rhabit][data-id=inv]'); await p.click('[data-act=rtype][data-v=invmo]'); await p.click('[data-act=runit][data-v=pct]');
     await p.fill('#rtarget', '4'); await p.fill('#rname', '按摩'); await p.click('[data-act=rsave]');
     const nr = (await db(p)).rewards.find(r => r.name === '按摩');
