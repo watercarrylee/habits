@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ZZ8g9Ox4ydmQbP2PK0KbPIfh6qP8HmHR7iswg9AKb9g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-sgcZmUdfDpYrssu4/RKfIdzlXTRnXx8oBLloHSjD5NM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -83,7 +83,7 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .pre-more{margin:4px 0 0}
 .pxbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}.pxre{min-height:32px;padding:0 12px;font-size:13px}
 .abk .hrow{padding:10px 14px}.abk-b{min-height:36px;padding:0 14px;flex:0 0 auto}
-.phrow{margin-top:10px}.phadd{display:flex;width:100%;align-items:center;justify-content:center;gap:6px;height:44px;padding:0 12px;border-radius:14px;border:1.5px dashed var(--line);background:none;color:var(--muted);font-size:14px}.phadd svg{width:16px;height:16px}
+.phrow{margin-top:10px}.phrow.top{margin:0 0 10px}.phadd{display:flex;width:100%;align-items:center;justify-content:center;gap:6px;height:44px;padding:0 12px;border-radius:14px;border:1.5px dashed var(--line);background:none;color:var(--muted);font-size:14px}.phadd svg{width:16px;height:16px}
 .phthumb{display:block;width:100%;padding:0;border:1.5px solid var(--line);background:var(--chip);border-radius:14px;overflow:hidden}.phthumb img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;min-height:80px}
 .dcard.hasph{display:grid;grid-template-columns:64px 1fr;column-gap:12px}.dcard.hasph .dthumb{grid-row:span 2;width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--chip)}
 .phsheet img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:12px;background:var(--chip);margin-bottom:12px}.phmiss{visibility:hidden}.phopt{margin:8px 0;border:1.5px solid var(--line);border-radius:14px}
@@ -1628,10 +1628,11 @@ function vDiary(){
     s+='<div class="dprompt" id="dprompt"><div class="dprompt-l">引導題</div><div class="dprompt-q">'+esc(DPROMPTS[dpIdx(k)])+'</div>'+
       '<div class="dprompt-a"><button class="pbtn" data-act="duse">用這題開始</button><button class="pbtn alt" data-act="dswap">換一題</button><button class="pbtn skip" data-act="dskip">不用</button></div></div>';
   }
+  if(l.dp)s+='<div class="phrow top">'+phSlot(k,'dp')+'</div>';
   if(q)s+='<div class="dq"><span>'+esc(q)+'</span>'+(ed?'<button data-act="dqx" aria-label="拿掉題目">'+I.x+'</button>':'')+'</div>';
   if(ed)s+='<label class="sr" for="diary">日記內容</label><textarea id="diary" placeholder="想到什麼就寫什麼⋯">'+esc(t)+'</textarea>';
   else s+='<div class="dview">'+linkify(t)+'</div>';
-  s+='<div class="phrow">'+phSlot(k,'dp')+'</div>';
+  if(!l.dp)s+='<div class="phrow">'+phSlot(k,'dp')+'</div>';
   s+='<div class="dstat"><span id="dstatus">'+(ed?(n?'草稿已自動儲存':'寫的時候會自動存草稿'):'已鎖定 · 按「編輯」修改')+'</span><span id="dcount">'+fmtN(n)+' 字</span></div>';
   return s+'</div></div>';
 }
@@ -1730,10 +1731,11 @@ function takePhotos(o){var p=o&&o.photos,out={};if(o)delete o.photos;if(p&&typeo
 function phRestore(ph){var ids=Object.keys(ph||{});return Promise.all(ids.map(function(id){var b=dataToBlob(ph[id]);return b?phPut(id,b):null;}));}
 function noteBox(k,log){
   var n=log.note||'';
-  var ph='<div class="phrow">'+phSlot(k,'np')+'</div>';
-  if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div><div class="note-view" id="note-view">'+linkify(n)+'</div>'+ph;
-  return '<div class="note-h"><label for="note" class="lbl">備註</label></div><textarea id="note" rows="3" placeholder="今天發生了什麼？">'+esc(n)+'</textarea>'+
-    '<div class="note-foot" id="note-foot"'+(n.trim()?'':' hidden')+'><button class="minibtn" data-act="notedone">確認</button></div>'+ph;
+  /* 圖上字下: a photo sits above the text; without one, the add button stays below so the empty layout is unchanged */
+  var hp=!!log.np,top=hp?'<div class="phrow top">'+phSlot(k,'np')+'</div>':'',bot=hp?'':'<div class="phrow">'+phSlot(k,'np')+'</div>';
+  if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div>'+top+'<div class="note-view" id="note-view">'+linkify(n)+'</div>'+bot;
+  return '<div class="note-h"><label for="note" class="lbl">備註</label></div>'+top+'<textarea id="note" rows="3" placeholder="今天發生了什麼？">'+esc(n)+'</textarea>'+
+    '<div class="note-foot" id="note-foot"'+(n.trim()?'':' hidden')+'><button class="minibtn" data-act="notedone">確認</button></div>'+bot;
 }
 function tidy(k){var l=db.logs[k];if(!l)return;if(l.h&&!Object.keys(l.h).length)delete l.h;if(!l.note)delete l.note;if(l.mood==null)delete l.mood;if(typeof l.pnl!=='number')delete l.pnl;if(!l.rest)delete l.rest;if(l.diary&&!l.diary.t&&!l.diary.q)delete l.diary;if(l.fa&&!l.fa.length)delete l.fa;if(!Object.keys(l).length)delete db.logs[k];}
 function setVal(k,id,v){
