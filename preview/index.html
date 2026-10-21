@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-SfqcjjKZNq+k8cFjBu7eIFR7sPjm124YcVMl3DkbIIU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-OzGV5hsTa6Nn8SPhUawDN4zK+sxWnEJZRugzJ/yxRDM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -87,6 +87,7 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .phthumb{display:block;width:100%;padding:0;border:1.5px solid var(--line);background:var(--chip);border-radius:14px;overflow:hidden}.phthumb img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;min-height:80px}
 .dcard.hasph{display:grid;grid-template-columns:64px 1fr;column-gap:12px}.dcard.hasph .dthumb{grid-row:span 2;width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--chip)}
 .phsheet img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:12px;background:var(--chip);margin-bottom:12px}.phmiss{visibility:hidden}.phopt{margin:8px 0;border:1.5px solid var(--line);border-radius:14px}
+.goal-p.inv{color:var(--fg)}.goal-p .gtgt{color:var(--muted);font-weight:500}
 .linkbtn{align-self:center;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;margin-top:-14px}
 
 .sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -1560,7 +1561,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.21-4';
+var APP_VER='2026.10.21-5';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -1943,14 +1944,17 @@ function progressOf(r,h,tot){
   if(isInv(r.type)){var hd=hid(),ks=pnlKeys().filter(function(k){return k>=r.created;}),lk=ks[ks.length-1];
     if(!db.settings.pnl)return {txt:'暫停中',pct:0,cls:'paused',note:'「記錄未實現損益」關閉中'};
     if(!lk)return {txt:'還沒有紀錄',pct:0,note:'從 '+shortMD(r.created)+' 起的紀錄才會算'};
-    if(r.type==='invhi'){var v=pnlAt(lk);return {txt:hd?'••••':'目前 '+sgn(v),pct:pctOf(v,r.target)};}
-    if(r.type==='invpct'){var f=pnlPct(lk);return {txt:f==null?'—':hd?'••%':'目前 '+pctS(f),pct:f==null?0:pctOf(f*100,r.target)};}
+    /* current value in stock colors (漲紅跌綠), target in grey */
+    var tg=function(x){return '<span class="gtgt"> / '+x+'</span>';},cv=function(v,txt){return '<b class="'+(hd?'':pcls(v))+'">'+txt+'</b>';};
+    if(r.type==='invhi'){var v=pnlAt(lk);return {txt:'目前 '+cv(v,hd?'••••':sgn(v))+tg(hd?'••••':fmtN(r.target)),pct:pctOf(v,r.target),cls:'inv'};}
+    if(r.type==='invpct'){var f=pnlPct(lk);return {txt:f==null?'—':'目前 '+cv(f,hd?'••%':pctS(f))+tg(r.target+'%'),pct:f==null?0:pctOf(f*100,r.target),cls:'inv'};}
     var wk=r.type==='invwk',per=wk?weekStartKey(t):t.slice(0,8)+'01',lbl=wk?'本週':'本月';
     if(r.earned.indexOf(per)>=0)return {txt:lbl+'已達成',pct:100,note:r.repeat?RTYPES[r.type].again:''};
     var inP=ks.filter(function(k){return k>=per;}),c=inP.length?invChg(per,wk?wkEnd(per):monthEndKey(per),inP[inP.length-1]):null;
     if(!c)return {txt:lbl+'還沒有紀錄',pct:0};
     var pm=rPctMode(r),cur=pm?(c.pct==null?0:c.pct*100):c.amt;
-    return {txt:hd?lbl+' '+(pm?'••%':'••••'):lbl+' '+(pm?pctS(c.pct||0):chg(c.amt))+' / '+(pm?r.target+'%':fmtN(r.target)),pct:pctOf(cur,r.target),note:'碰到就算，之後跌回去也不會收回'};}
+    var arr=function(v){return v>0?'▲':v<0?'▼':'';},cvv=pm?(c.pct||0):c.amt,ctx=pm?arr(cvv)+Math.abs(cvv*100).toFixed(2)+'%':arr(cvv)+fmtN(cvv);
+    return {txt:lbl+' '+cv(cvv,hd?(pm?'••%':'••••'):ctx)+tg(pm?r.target+'%':hd?'••••':fmtN(r.target)),pct:pctOf(cur,r.target),note:'碰到就算，之後跌回去也不會收回',cls:'inv'};}
   if(!h)return {txt:'',pct:0};
   if(h.archived)return {txt:'暫停中',pct:0,cls:'paused',note:'習慣已封存，恢復後會繼續計算。'};
   if(r.type==='streak'){var n=streakSince(h,t,r.earned.length?r.earned[r.earned.length-1]:null).n;return {txt:n+' / '+r.target+(isWk(h)?' 週':' 天'),pct:pctOf(n,r.target)};}
