@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-YyNNEY8nZEsNgeSW1v06N61CEq12s0J9LbU1qtye7SE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-U3ewvwnIOWgdf+b6GLtT1apGz3YvI+N818PENorIOPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -536,7 +536,7 @@ button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
 .key.alt{background:var(--line)}
 .pnl-read{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
 .chart{display:block;width:100%;height:auto}
-.chart-x{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}.chart-x.ticks{display:block;position:relative;height:16px}.chart-x.ticks span{position:absolute;top:0;white-space:nowrap}.pgran{margin-bottom:10px}.obrestore{margin-top:4px}.pgran button{height:32px;font-size:14px}
+.chart-x{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}.chart-x.ticks{display:block;position:relative;height:16px}.chart-x.ticks span{position:absolute;top:0;white-space:nowrap}.pgran{margin-bottom:10px}.ohlc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;margin:10px 0 2px;padding:8px 10px;border-radius:10px;background:var(--chip);font-variant-numeric:tabular-nums}.ohlc span{display:flex;align-items:baseline;gap:8px;min-width:0}.ohlc small{font-size:12px;color:var(--muted)}.ohlc b{font-size:14px;font-weight:700;white-space:nowrap}.obrestore{margin-top:4px}.pgran button{height:32px;font-size:14px}
 .tile-v.sm{font-size:16px;white-space:nowrap}
 .switch{flex:0 0 auto;width:52px;height:32px;border-radius:16px;border:0;padding:3px;display:flex;justify-content:flex-start;background:var(--faint)}
 .switch[aria-checked="true"]{background:var(--good);justify-content:flex-end}
@@ -1555,7 +1555,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.21-2';
+var APP_VER='2026.10.21-3';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2312,7 +2312,9 @@ function pnlStats(y,m){
   var sk=ks[sel],sv=vals[sel],pk=gr==='d'?prevPnlKey(sk):sel>0?ks[sel-1]:prevPnlKey(per(sk)),sd=pk!=null?sv-pnlAt(pk):null,ds=parseKey(sk);
   var mcb=gr==='d'&&mc;
   var W=320,H=170,L=10,R=10,T=16,B=12;
-  var all=vals.slice();if(mcb&&mc.baseKey)all.push(mc.base);
+  var K=gr==='d'?null:ks.map(function(k){var ps=per(k),pe=gr==='w'?wkEnd(ps):monthEndKey(ps),r=pnlKeys().filter(function(x){return x>=ps&&x<=pe&&x<=t;}).map(pnlAt),pb=prevPnlKey(ps),o=pb?pnlAt(pb):r[0];
+    return {o:o,c:pnlAt(k),h:Math.max.apply(null,r.concat(o)),l:Math.min.apply(null,r.concat(o))};});
+  var all=vals.slice();if(mcb&&mc.baseKey)all.push(mc.base);if(K)K.forEach(function(q){all.push(q.h,q.l);});
   var lo=Math.min.apply(null,all),hi=Math.max.apply(null,all),pad=(hi-lo)*0.12||Math.max(1,Math.abs(hi)*0.05);lo-=pad;hi+=pad;
   function X(i){return ks.length===1?W/2:L+i*(W-L-R)/(ks.length-1);}
   function Y(v){return T+(hi-v)/(hi-lo)*(H-T-B);}
@@ -2320,12 +2322,19 @@ function pnlStats(y,m){
   if(lo<0&&hi>0)svg+='<line x1="0" x2="'+W+'" y1="'+Y(0).toFixed(1)+'" y2="'+Y(0).toFixed(1)+'" style="stroke:var(--line)" stroke-width="1"/><text x="'+(W-2)+'" y="'+(Y(0)-4).toFixed(1)+'" text-anchor="end" font-size="10" style="fill:var(--faint)">0</text>';
  if(mcb&&mc.baseKey)svg+='<line x1="0" x2="'+W+'" y1="'+Y(mc.base).toFixed(1)+'" y2="'+Y(mc.base).toFixed(1)+'" style="stroke:var(--faint)" stroke-width="1" stroke-dasharray="4 4"/>'+
     '<text x="'+(W-2)+'" y="'+(Y(mc.base)-4).toFixed(1)+'" text-anchor="end" font-size="10" style="fill:var(--muted)">上月底'+(h?'':' '+sgn(mc.base))+'</text>';
+  if(K){var cw=Math.max(3,Math.min(14,(W-L-R)/Math.max(1,ks.length-1)*0.62)),step=ks.length>1?(W-L-R)/(ks.length-1):W;
+    ks.forEach(function(k,i){var q=K[i],x=X(i),col=q.c>q.o?'var(--up)':q.c<q.o?'var(--down)':'var(--faint)',yt=Y(Math.max(q.o,q.c)),yb=Y(Math.min(q.o,q.c));
+      svg+='<g data-act="pnlpt" data-k="'+k+'" style="cursor:pointer">'+(i===sel?'<rect x="'+Math.max(0,x-step/2).toFixed(1)+'" y="'+T+'" width="'+(Math.min(W,x+step/2)-Math.max(0,x-step/2)).toFixed(1)+'" height="'+(H-T-B)+'" style="fill:var(--chip)" rx="3"/>':'')+
+        '<rect x="'+(x-step/2).toFixed(1)+'" y="0" width="'+step.toFixed(1)+'" height="'+H+'" fill="transparent"/>'+
+        '<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+Y(q.h).toFixed(1)+'" y2="'+Y(q.l).toFixed(1)+'" style="stroke:'+col+'" stroke-width="1.5"/>'+
+        '<rect x="'+(x-cw/2).toFixed(1)+'" y="'+yt.toFixed(1)+'" width="'+cw.toFixed(1)+'" height="'+Math.max(1.5,yb-yt).toFixed(1)+'" style="fill:'+col+'" rx="1"/></g>';});}
+  else{
   if(ks.length>1)svg+='<path d="'+ks.map(function(_,i){return (i?'L':'M')+X(i).toFixed(1)+' '+Y(vals[i]).toFixed(1);}).join(' ')+'" fill="none" style="stroke:var(--fg)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
   ks.forEach(function(k,i){
     var p=i?vals[i]-vals[i-1]:(mcb&&mc.baseKey?vals[0]-mc.base:0),col=p>0?'var(--up)':p<0?'var(--down)':'var(--faint)';
     svg+='<g data-act="pnlpt" data-k="'+k+'" style="cursor:pointer"><circle cx="'+X(i).toFixed(1)+'" cy="'+Y(vals[i]).toFixed(1)+'" r="14" fill="transparent"/>'+
       '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(vals[i]).toFixed(1)+'" r="'+(i===sel?6:4)+'" style="fill:'+col+';stroke:var(--surface)" stroke-width="2"/></g>';
-  });
+  });}
   svg+='</svg>';
   var hiV=Math.max.apply(null,vals),loV=Math.min.apply(null,vals);
   var curP=per(sk)===per(t),pl=gr==='d'?(ds.getMonth()+1)+'/'+ds.getDate()+' 週'+WD[ds.getDay()]+' 記錄的未實現損益':
@@ -2341,8 +2350,9 @@ function pnlStats(y,m){
   var s=gseg+'<div class="panel"><div class="pnl-read"><div><div class="pnl-l">'+pl+'</div>'+
     '<div class="pnl-v sm '+(h?'':pcls(sv))+'">'+(h?MASK:sgn(sv))+pctTag(pnlPct(sk),h)+'</div></div>'+
     '<div class="pnl-l" style="text-align:right">'+rl+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b>'+(pk&&dayPct(sk,pk)!=null?'<br><span class="'+(h?'':pcls(sd))+'" style="font-size:12px">'+(h?'••%':pctS(dayPct(sk,pk)))+'</span>':'')+'</div></div>'+
+    (K?'<div class="ohlc">'+[['開',K[sel].o],['高',K[sel].h],['低',K[sel].l],['收',K[sel].c]].map(function(q){return '<span><small>'+q[0]+'</small><b class="'+(h?'':pcls(q[1]))+'">'+(h?'••••':sgn(q[1]))+'</b></span>';}).join('')+'</div>':'')+
     svg+ticks+
-    '<p class="small muted">'+(gr==='d'?'每個點是你那天記下的未實現損益（不是即時股價），只畫有記錄的日子，點圓點看那一天。':gr==='w'?'每個點是那一週最後一筆紀錄（最近 26 週），點圓點看那一週。':'每個點是那個月最後一筆紀錄（最近 12 個月），點圓點看那個月。')+'</p></div>';
+    '<p class="small muted">'+(gr==='d'?'每個點是你那天記下的未實現損益（不是即時股價），只畫有記錄的日子，點圓點看那一天。':gr==='w'?'每根 K 棒是一週（最近 26 週）：開＝上週最後一筆，收＝這週最後一筆，高低是這週紀錄的最高和最低。點 K 棒看那一週。':'每根 K 棒是一個月（最近 12 個月）：開＝上個月最後一筆，收＝這個月最後一筆，高低是這個月紀錄的最高和最低。點 K 棒看那個月。')+'</p></div>';
   /* the week of the selected point (本週 when it is this week); change is against the last record before that Monday */
   var ws=weekStartKey(sk),we=wkEnd(ws);if(we>t)we=t;var wk=pnlKeys().filter(function(k){return k>=ws&&k<=we;}),wbk=prevPnlKey(ws);
   var wl=ws===weekStartKey(t)?'本週':shortMD(ws)+' 那週',wv=wk.map(pnlAt),wch=wk.length?pnlAt(wk[wk.length-1])-(wbk?pnlAt(wbk):wv[0]):0,wshow=!!wbk||wk.length>1;

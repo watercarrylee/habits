@@ -689,6 +689,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok((await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('週變動') && (await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('本月變動'), 'trend shows a week row above the month row');
     await hp.click('[data-act=pgran][data-v=w]');
     ok((await hp.$eval('.pnl-read', e => e.innerText)).includes('本週損益') && (await db(hp)).settings.pnlGran === 'w', 'week view: one point per week, 本週損益');
+    const oh = await hp.$eval('.ohlc', e => e.innerText); ok(['開', '高', '低', '收'].every(x => oh.includes(x)) && oh.includes('+200,000'), 'week view draws K bars with open/high/low/close (' + oh.replace(/\n/g, ' ') + ')');
     await hp.click('[data-act=pgran][data-v=m]');
     ok((await hp.$eval('.pnl-read', e => e.innerText)).includes('本月損益') && (await hp.$$('[data-act=pnlpt]')).length >= 1, 'month view: one point per month, 本月損益');
     await hp.click('[data-act=pgran][data-v=d]');
