@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-s5mUyT07x0HEv8ibsmJbRJDtOW5ULSqEeZqEf4XJ7f4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-jr8sCIHuEoFFN5z5YbQjysUqNOUQdG/jtAeMZQLqsAQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -835,11 +835,29 @@ var RTYPES={
   saved:{label:'省下的錢',ex:'累計存到 NT$3,000',unit:'NT$',min:100,max:9999999,step:100,def:3000,kind:null,tl:'省下的錢累計到',again:'重新累計',rep:false},
   total:{label:'累計天數',ex:'累計做到 30 天',unit:'天',min:2,max:999,step:1,def:30,kind:'good',tl:'累計做到幾天',again:'重新累計',rep:false},
   wktotal:{label:'累計達標週數',ex:'累計達標 8 週',unit:'週',min:1,max:104,step:1,def:8,kind:'good',tl:'累計達標幾週',again:'重新累計',rep:false},
-  clean:{label:'連續沒犯',ex:'連續 14 天沒犯',unit:'天',min:2,max:365,step:1,def:14,kind:'bad',tl:'連續幾天沒犯',again:'再挑戰一次',rep:false}
+  clean:{label:'連續沒犯',ex:'連續 14 天沒犯',unit:'天',min:2,max:365,step:1,def:14,kind:'bad',tl:'連續幾天沒犯',again:'再挑戰一次',rep:false},
+  invwk:{label:'本週變動',ex:'本週賺 5 萬或 2%',unit:'NT$',min:1000,max:999999999,step:10000,def:50000,kind:'inv',tl:'本週未實現損益增加',again:'下週重來',rep:true,pct:2},
+  invmo:{label:'本月變動',ex:'本月賺 20 萬或 5%',unit:'NT$',min:1000,max:999999999,step:10000,def:200000,kind:'inv',tl:'本月未實現損益增加',again:'下個月重來',rep:true,pct:5},
+  invhi:{label:'損益突破',ex:'帳面突破 1,000 萬',unit:'NT$',min:1000,max:9999999999,step:100000,def:10000000,kind:'inv',tl:'未實現損益突破',again:'',rep:false,once:true},
+  invpct:{label:'報酬率達到',ex:'報酬率到 60%',unit:'%',min:1,max:10000,step:5,def:60,kind:'inv',tl:'報酬率達到',again:'',rep:false,once:true}
 };
+var INVT=['invwk','invmo','invhi','invpct'];
+function isInv(t){return INVT.indexOf(t)>=0;}
+function rPctMode(r){return (r.type==='invwk'||r.type==='invmo')&&r.u==='pct';}
+/* 投資獎勵 (一碰到就算): change of the recorded P&L from the last record before `from` to record k; % is of that day's market value */
+function invChg(from,to,k){var ks=pnlKeys().filter(function(x){return x>=from&&x<=to;});if(!ks.length)return null;var b=prevPnlKey(from)||ks[0];
+  var a=pnlAt(k)-pnlAt(b),c=cbAt(b)||cbAt(k),mv=c?c+pnlAt(b):0;return {amt:a,pct:mv>0?a/mv:null};}
+function invHit(r,v){return v&&(rPctMode(r)?v.pct!=null&&v.pct*100>=r.target:v.amt>=r.target);}
+function invSync(r,t){var ch=false,ks=pnlKeys().filter(function(k){return k>=r.created&&k<=t;});
+  if(r.type==='invhi'||r.type==='invpct'){if(r.earned.length)return false;
+    for(var i=0;i<ks.length;i++){var k=ks[i],ok=r.type==='invhi'?pnlAt(k)>=r.target:(pnlPct(k)!=null&&pnlPct(k)*100>=r.target);if(ok){r.earned.push(k);return true;}}return false;}
+  var wk=r.type==='invwk',seen={};
+  ks.forEach(function(k){var p=wk?weekStartKey(k):k.slice(0,8)+'01';if(seen[p]||r.earned.indexOf(p)>=0)return;if(!r.repeat&&r.earned.length)return;
+    var to=wk?wkEnd(p):monthEndKey(p);if(invHit(r,invChg(p,to,k))){seen[p]=1;r.earned.push(p);ch=true;}});
+  return ch;}
 /* which reward conditions fit a habit (the editor picks the habit first) */
 function rTypesFor(h){if(!h)return ['saved'];if(h.kind==='bad')return ['limit','clean'];if(isWk(h))return ['wktotal','streak'];return ['streak','weekly','rate','total'];}
-function rFix(d){var h=d.habit?byId(d.habit):null,ok=rTypesFor(h);if(ok.indexOf(d.type)<0){var RT=RTYPES[ok[0]];d.type=ok[0];d.target=RT.def;d.repeat=RT.rep;}if(d.type==='saved')d.habit=null;}
+function rFix(d){if(isInv(d.type)){d.habit=null;if(RTYPES[d.type].once)d.repeat=false;return;}var h=d.habit?byId(d.habit):null,ok=rTypesFor(h);if(ok.indexOf(d.type)<0){var RT=RTYPES[ok[0]];d.type=ok[0];d.target=RT.def;d.repeat=RT.rep;}if(d.type==='saved')d.habit=null;}
 /* 累計天數 / 累計達標週數 / 連續沒犯: replay from the reward's start; each hit is an earned key, the count restarts after it */
 function rReplay(r,h,t){var out=[],n=0,start=maxK(r.created,h.created),d;
   if(r.type==='total'){for(d=start;d<=t;d=addDays(d,1)){if(isDone(h,d)){n++;if(n>=r.target){out.push(d);n=0;if(!r.repeat)break;}}}}
@@ -1321,8 +1339,8 @@ function normalize(d){
   });
   var st=d.settings||{};
   var rewards=(Array.isArray(d.rewards)?d.rewards:[]).filter(function(r){return r&&cid(r.id)&&r.name&&RTYPES[r.type];}).map(function(r){
-    return {id:cid(r.id),name:String(r.name).slice(0,40),type:r.type,habit:r.habit?cid(r.habit)||null:null,target:Math.max(0,Math.round(+r.target)||0),
-      repeat:!!r.repeat,created:isKey(r.created)?r.created:todayKey(),earned:(Array.isArray(r.earned)?r.earned:[]).filter(isKey),done:!!r.done};
+    return {id:cid(r.id),name:String(r.name).slice(0,40),type:r.type,habit:r.habit&&!isInv(r.type)?cid(r.habit)||null:null,target:Math.max(0,Math.round(+r.target)||0),
+      repeat:!!r.repeat,u:r.u==='pct'?'pct':undefined,created:isKey(r.created)?r.created:todayKey(),earned:(Array.isArray(r.earned)?r.earned:[]).filter(isKey),done:!!r.done};
   });
   var redeemed=(Array.isArray(d.redeemed)?d.redeemed:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.date);}).map(function(x){
     return {id:cid(x.id),rid:cid(x.rid),name:String(x.name||'').slice(0,40),date:x.date,amount:Math.max(0,Math.round(+x.amount)||0)};
@@ -1530,7 +1548,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.20-6';
+var APP_VER='2026.10.21-1';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -1823,6 +1841,7 @@ function syncRewards(){
   var t=todayKey(),changed=false;
   db.rewards.forEach(function(r){
     if(r.done||r.type==='saved')return;
+    if(isInv(r.type)){if(db.settings.pnl&&invSync(r,t))changed=true;return;}
     var h=byId(r.habit);if(!h||h.archived)return;
     if(!r.repeat&&r.earned.length)return;
     if(r.type==='streak'){
@@ -1850,11 +1869,14 @@ function redCount(rid){return db.redeemed.filter(function(x){return x.rid===rid;
 function pending(r,tot){
   if(r.done)return 0;
   if(r.type==='saved')return r.target>0&&tot.avail>=r.target?1:0;
+  if(isInv(r.type))return Math.max(0,r.earned.length-redCount(r.id));
   var h=byId(r.habit);if(!h||h.archived)return 0;
   return Math.max(0,r.earned.length-redCount(r.id));
 }
 function pctOf(a,b){return b>0?Math.max(0,Math.min(100,Math.round(a/b*100))):0;}
 function ruleText(r,h,ml){
+  if(isInv(r.type)){var hd=hid(),am=function(v){return hd?'NT$••••':'NT$'+fmtN(v);};
+    return r.type==='invhi'?'未實現損益突破 '+am(r.target):r.type==='invpct'?'報酬率達到 '+r.target+'%':(r.type==='invwk'?'一週內':(ml||'一個月內'))+'未實現損益增加 '+(rPctMode(r)?r.target+'%':am(r.target));}
   var hn=h?'「'+esc(h.name)+'」':'「（已刪除的習慣）」',t=r.target,mm=ml||'這個月';
   return {streak:hn+'連續做到 '+t+(isWk(h)?' 週':' 天'),weekly:'一週內'+hn+'做到 '+t+' 天',rate:mm+hn+'完成率達到 '+t+'%',
     limit:mm+hn+'最多犯 '+t+' 次',saved:'省下的錢累計到 NT$'+fmtN(t),total:hn+'累計做到 '+t+' 天',wktotal:hn+'累計達標 '+t+' 週'+(h&&isWk(h)?'（每週 '+(h.perWeek||3)+' 次）':''),clean:hn+'連續 '+t+' 天沒犯'}[r.type];
@@ -1862,6 +1884,17 @@ function ruleText(r,h,ml){
 function progressOf(r,h,tot){
   var t=todayKey(),me=monthEndKey(t),settle=shortMD(me)+' 結算';
   if(r.type==='saved')return {txt:'NT$'+fmtN(Math.max(0,tot.avail))+' / '+fmtN(r.target),pct:pctOf(tot.avail,r.target)};
+  if(isInv(r.type)){var hd=hid(),ks=pnlKeys().filter(function(k){return k>=r.created;}),lk=ks[ks.length-1];
+    if(!db.settings.pnl)return {txt:'暫停中',pct:0,cls:'paused',note:'「記錄未實現損益」關閉中'};
+    if(!lk)return {txt:'還沒有紀錄',pct:0,note:'從 '+shortMD(r.created)+' 起的紀錄才會算'};
+    if(r.type==='invhi'){var v=pnlAt(lk);return {txt:hd?'••••':'目前 '+sgn(v),pct:pctOf(v,r.target)};}
+    if(r.type==='invpct'){var f=pnlPct(lk);return {txt:f==null?'—':hd?'••%':'目前 '+pctS(f),pct:f==null?0:pctOf(f*100,r.target)};}
+    var wk=r.type==='invwk',per=wk?weekStartKey(t):t.slice(0,8)+'01',lbl=wk?'本週':'本月';
+    if(r.earned.indexOf(per)>=0)return {txt:lbl+'已達成',pct:100,note:r.repeat?RTYPES[r.type].again:''};
+    var inP=ks.filter(function(k){return k>=per;}),c=inP.length?invChg(per,wk?wkEnd(per):monthEndKey(per),inP[inP.length-1]):null;
+    if(!c)return {txt:lbl+'還沒有紀錄',pct:0};
+    var pm=rPctMode(r),cur=pm?(c.pct==null?0:c.pct*100):c.amt;
+    return {txt:hd?lbl+' '+(pm?'••%':'••••'):lbl+' '+(pm?pctS(c.pct||0):chg(c.amt))+' / '+(pm?r.target+'%':fmtN(r.target)),pct:pctOf(cur,r.target),note:'碰到就算，之後跌回去也不會收回'};}
   if(!h)return {txt:'',pct:0};
   if(h.archived)return {txt:'暫停中',pct:0,cls:'paused',note:'習慣已封存，恢復後會繼續計算。'};
   if(r.type==='streak'){var n=streakSince(h,t,r.earned.length?r.earned[r.earned.length-1]:null).n;return {txt:n+' / '+r.target+(isWk(h)?' 週':' 天'),pct:pctOf(n,r.target)};}
@@ -1949,6 +1982,9 @@ function vRewards(){
 }
 function rPreview(d){
   var R=RTYPES[d.type],h=d.habit?byId(d.habit):null;
+  if(isInv(d.type)){var nm=(d.name||'').trim()||'這個獎勵';
+    return ruleText({type:d.type,target:d.target,u:d.u},null)+'，就可以兌換「'+esc(nm)+'」。'+(R.once?'達成一次就結束。':d.repeat?'兌換後'+R.again+'。':'兌換一次就結束。')+
+      '從今天起的紀錄才算，碰到目標就達成，之後跌回去也不會收回。'+(R.once?'':'變動是跟上'+(d.type==='invwk'?'週':'個月')+'最後一筆紀錄比，期間改了持股也會算進去。');}
   if(R.kind&&!h)return '先選一個'+(R.kind==='bad'?'壞':'')+'習慣。';
   var name=(d.name||'').trim()||'這個獎勵';
   return ruleText({type:d.type,target:d.target},h)+'，就可以兌換「'+esc(name)+'」。'+(d.repeat?'兌換後'+R.again+'。':'兌換一次就結束。')+
@@ -1963,17 +1999,20 @@ function vRewardEdit(){
   var goods=active('good'),bads=active('bad'),row=function(h){var on=d.habit===h.id;
     return '<button class="pickrow" data-act="rhabit" data-id="'+h.id+'" aria-pressed="'+on+'">'+rowIco(h)+'<span class="nm">'+esc(h.name)+(isWk(h)?'<small class="muted"> · 每週 '+(h.perWeek||3)+' 次</small>':'')+'</span><span class="radio'+(on?' on':'')+'"></span></button>';};
   s+='<div class="field"><div class="lbl">哪個習慣</div><div class="list">'+(goods.length?'<div class="pickhead">好習慣</div>'+goods.map(row).join(''):'')+(bads.length?'<div class="pickhead">壞習慣</div>'+bads.map(row).join(''):'')+
+    (db.settings.pnl||isInv(d.type)?'<div class="pickhead">投資</div><button class="pickrow" data-act="rhabit" data-id="inv" aria-pressed="'+isInv(d.type)+'"><span class="sico">'+icoSvg('money',18)+'</span><span class="nm">未實現損益</span><span class="radio'+(isInv(d.type)?' on':'')+'"></span></button>':'')+
     '<div class="pickhead">其他</div><button class="pickrow" data-act="rhabit" data-id="" aria-pressed="'+(d.type==='saved')+'"><span class="sico"></span><span class="nm">不綁習慣：省下的錢</span><span class="radio'+(d.type==='saved'?' on':'')+'"></span></button></div></div>';
-  var types=rTypesFor(d.habit?byId(d.habit):null);if(d.type!=='saved'&&types.indexOf(d.type)<0)types=types.concat(d.type);
+  var types=isInv(d.type)?INVT:rTypesFor(d.habit?byId(d.habit):null);if(d.type!=='saved'&&types.indexOf(d.type)<0)types=types.concat(d.type);
   if(types.length>1)s+='<div class="field"><div class="lbl">達成條件</div><div class="rtypes">'+types.map(function(k){
       return '<button class="rtype'+(d.type===k?' on':'')+'" data-act="rtype" data-v="'+k+'" aria-pressed="'+(d.type===k)+'"><b>'+(k==='streak'&&d.habit&&isWk(byId(d.habit))?'連續週數':RTYPES[k].label)+'</b><span>'+(k==='streak'&&d.habit&&isWk(byId(d.habit))?'連續 4 週達標':RTYPES[k].ex)+'</span></button>';
     }).join('')+'</div></div>';
+  var pmode=(d.type==='invwk'||d.type==='invmo')&&d.u==='pct',RU=pmode?'%':R.unit;
+  if(d.type==='invwk'||d.type==='invmo')s+='<div class="field"><div class="lbl">目標用</div><div class="seg"><button class="'+(!pmode?'on':'')+'" data-act="runit" data-v="amt" aria-pressed="'+!pmode+'">金額</button><button class="'+(pmode?'on':'')+'" data-act="runit" data-v="pct" aria-pressed="'+pmode+'">%</button></div></div>';
   s+='<div class="field"><label class="lbl" for="rtarget">'+R.tl+'</label><div class="stepper">'+
     '<button class="stepbtn" data-act="rstep" data-n="-1" aria-label="減少">−</button>'+
-    '<div class="stepval">'+(R.unit==='NT$'?'<span>NT$</span>':'')+'<input id="rtarget" type="text" inputmode="numeric" value="'+d.target+'">'+(R.unit!=='NT$'?'<span>'+R.unit+'</span>':'')+'</div>'+
+    '<div class="stepval">'+(RU==='NT$'?'<span>NT$</span>':'')+'<input id="rtarget" type="text" inputmode="numeric" value="'+d.target+'">'+(RU!=='NT$'?'<span>'+RU+'</span>':'')+'</div>'+
     '<button class="stepbtn dark" data-act="rstep" data-n="1" aria-label="增加">+</button></div></div>'+
-    '<div class="field"><div class="lbl">兌換之後</div><div class="seg"><button class="'+(!d.repeat?'on':'')+'" data-act="rrep" data-v="0" aria-pressed="'+(!d.repeat)+'">結束</button>'+
-    '<button class="'+(d.repeat?'on':'')+'" data-act="rrep" data-v="1" aria-pressed="'+d.repeat+'">'+R.again+'</button></div></div>'+
+    (R.once?'':'<div class="field"><div class="lbl">兌換之後</div><div class="seg">')+(R.once?'':'<button class="'+(!d.repeat?'on':'')+'" data-act="rrep" data-v="0" aria-pressed="'+(!d.repeat)+'">結束</button>'+
+    '<button class="'+(d.repeat?'on':'')+'" data-act="rrep" data-v="1" aria-pressed="'+d.repeat+'">'+R.again+'</button></div></div>')+
     '<div class="rpreview" id="rpreview">'+rPreview(d)+'</div>';
   if(!isNew)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="rdelete">'+(ui.confirmDel?'再按一次，刪除這個獎勵（兌換紀錄會保留）':'刪除獎勵')+'</button></div>';
   return s+'</div>';
@@ -1981,15 +2020,15 @@ function vRewardEdit(){
 function saveReward(){
   var d=ui.rd,R=RTYPES[d.type],name=(d.name||'').trim();
   if(!name){ui.err='請輸入想犒賞自己的東西。';render();return;}
-  if(R.kind&&!byId(d.habit)){ui.err='請選一個習慣。';render();return;}
-  var tg=Math.max(R.min,Math.min(R.max,Math.round(+d.target)||0));
-  var hab=R.kind?d.habit:null,t=todayKey();
+  if(R.kind&&R.kind!=='inv'&&!byId(d.habit)){ui.err='請選一個習慣。';render();return;}
+  var pm=(d.type==='invwk'||d.type==='invmo')&&d.u==='pct',tg=pm?Math.max(1,Math.min(1000,Math.round(+d.target)||0)):Math.max(R.min,Math.min(R.max,Math.round(+d.target)||0));
+  var hab=R.kind&&R.kind!=='inv'?d.habit:null,t=todayKey(),uu=pm?'pct':undefined;
   if(d.id){
     var r=rById(d.id);if(r){
-      if(r.type!==d.type||r.habit!==hab){r.earned=[];r.created=t;r.done=false;}
-      r.name=name;r.type=d.type;r.habit=hab;r.target=tg;r.repeat=d.repeat;
+      if(r.type!==d.type||r.habit!==hab||r.u!==uu){r.earned=[];r.created=t;r.done=false;}
+      r.name=name;r.type=d.type;r.habit=hab;r.target=tg;r.repeat=R.once?false:d.repeat;if(uu)r.u=uu;else delete r.u;
     }
-  }else db.rewards.push({id:uid(),name:name,type:d.type,habit:hab,target:tg,repeat:d.repeat,created:t,earned:[],done:false});
+  }else{var nr={id:uid(),name:name,type:d.type,habit:hab,target:tg,repeat:R.once?false:d.repeat,created:t,earned:[],done:false};if(uu)nr.u=uu;db.rewards.push(nr);}
   save();syncRewards();go('rewards');render();toast('已儲存');
 }
 function saveFromRow(d){
@@ -2926,6 +2965,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.20-6','10/20',['回看過去時，還沒開始的習慣會收成一行；習慣可以設定「開始日期」，要補記就把日期往前改','新增「自動備份」：每次更新前和每天第一次打開時自動存一份，可以在設定裡挑時間還原','名稱有「不、別、戒」等字的習慣，圖示會加上禁止斜線','投資頁可以「重新整理」收盤價；編輯持股可以選成交日','損益走勢多了「本週變動／最高／最低」，報酬率 % 移到數字下一行','修正：打勾再取消不會再弄斷連續天數；黑白螢光外觀的圖示看不清楚']],
  ['2026.10.19-10','10/19',['新功能「我的持股」：輸入代號、股數和均價，收盤後 App 會依收盤價自動算好未實現損益並記錄','可以把券商截圖丟給 AI 辨識，再貼回 App 一次匯入持股','漏記的日子會依收盤價自動補上；手動改過的日子會保留，想恢復可以按「改回自動」','新增持股佔比圓餅圖，每檔顯示佔比；持股列表可以切換「今日／損益／市值」排序並顯示 %','未實現損益加上報酬率 %，「比前一筆」改成「今日損益」並顯示漲跌幅 %','統計的「損益」分頁改名「投資」，裡面的區塊可以按住拖曳調整順序','股數一律用「股」顯示']],
  ['2026.10.18-20','10/18',['新功能「我的這一週」：在統計頁按「分享這週」，產生這週的圖片分享給朋友，可以選習慣、運動、投資、心情，也能加一句自己的話','新功能「外觀」：到設定可以換成衝刺橘、黑白螢光或冰島','新增獎勵改成先選習慣；每週習慣可以設「累計達標幾週」，壞習慣可以設「連續幾天沒犯」，也多了「累計天數」','有氧可以記距離和秒數，自動算配速；進步頁多了最快配速和每週距離','有新版本時會跳出更新小卡，按一下就更新','每週習慣達標後整張卡片變綠，超過目標會顯示實際次數','新增 14 個健身房常見的內建動作','「今天」分頁改名「習慣」、「習慣設定」改名「設定」；有獎勵可兌換或該備份時，分頁會出現小紅點','回看過去時，還沒開始的習慣會淡化；開始使用以前的日子不能再往前翻','修正：只改「每按一次」的量時，以前的紀錄不會再被換算']],
  ['2026.10.18-1','10/18',['新增「常見問題」（設定 → 說明），部分設定旁也有「?」可以直接看','有目標的習慣卡片統一成「名稱 / 75% · 連續 5 天 / 進度條」，畫面更整齊','每週幾次的習慣用分格進度條顯示']],
@@ -3394,10 +3434,14 @@ function act(a,b){
     case 'savefrom': if(ui.draft&&isKey(b.dataset.v)&&b.dataset.v<=t)ui.draft.saveFrom=b.dataset.v;break;
     case 'savechip': if(ui.draft){ui.draft.save=+b.dataset.v;}break;
     case 'rnew': ui.rd={id:null,name:'',type:'weekly',habit:(active('good')[0]||{}).id||null,target:RTYPES.weekly.def,repeat:true};rFix(ui.rd);ui.err='';go('redit');render();var rn=$('#rname');if(rn)rn.focus();return;
-    case 'redit': h=rById(id);if(!h)return;ui.rd={id:h.id,name:h.name,type:h.type,habit:h.habit,target:h.target,repeat:h.repeat};ui.err='';go('redit');break;
+    case 'redit': h=rById(id);if(!h)return;ui.rd={id:h.id,name:h.name,type:h.type,habit:h.habit,target:h.target,repeat:h.repeat,u:h.u};ui.err='';go('redit');break;
     case 'rtype': n=b.dataset.v;if(ui.rd.type!==n&&RTYPES[n]){var RT=RTYPES[n];ui.rd.type=n;ui.rd.target=RT.def;ui.rd.repeat=RT.rep;rFix(ui.rd);}ui.err='';break;
-    case 'rhabit': ui.rd.habit=id||null;if(!id)ui.rd.type='saved';else if(ui.rd.type==='saved')ui.rd.type='';rFix(ui.rd);ui.err='';break;
-    case 'rstep': var RS=RTYPES[ui.rd.type],cur=Math.round(+ui.rd.target)||0,stp=RS.unit==='NT$'?(cur<1000||(cur===1000&&+b.dataset.n<0)?100:500):RS.step;ui.rd.target=Math.max(RS.min,Math.min(RS.max,cur+stp*(+b.dataset.n)));break;
+    case 'rhabit': if(id==='inv'){if(!isInv(ui.rd.type)){ui.rd.type='invwk';ui.rd.target=RTYPES.invwk.def;ui.rd.repeat=true;ui.rd.u=undefined;}rFix(ui.rd);ui.err='';break;}
+      ui.rd.habit=id||null;if(isInv(ui.rd.type)){ui.rd.type='';}if(!id)ui.rd.type='saved';else if(ui.rd.type==='saved')ui.rd.type='';rFix(ui.rd);ui.err='';break;
+    case 'rstep': var RS=RTYPES[ui.rd.type],cur=Math.round(+ui.rd.target)||0,pmd=(ui.rd.type==='invwk'||ui.rd.type==='invmo')&&ui.rd.u==='pct';
+      if(pmd){ui.rd.target=Math.max(1,Math.min(1000,cur+(+b.dataset.n)));break;}
+      var stp=isInv(ui.rd.type)?RS.step:RS.unit==='NT$'?(cur<1000||(cur===1000&&+b.dataset.n<0)?100:500):RS.step;ui.rd.target=Math.max(RS.min,Math.min(RS.max,cur+stp*(+b.dataset.n)));break;
+    case 'runit': ui.rd.u=b.dataset.v==='pct'?'pct':undefined;ui.rd.target=ui.rd.u?RTYPES[ui.rd.type].pct:RTYPES[ui.rd.type].def;break;
     case 'rrep': ui.rd.repeat=b.dataset.v==='1';break;
     case 'rsave': saveReward();return;
     case 'rcancel': go('rewards');break;

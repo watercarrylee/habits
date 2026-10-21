@@ -722,6 +722,26 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'slash');
   }
 
+  console.log('• 投資 rewards');
+  {
+    const wsOf = k => { const d = new Date(k + 'T00:00:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    const WS = wsOf(T), bd = new Date(WS + 'T00:00:00'); bd.setDate(bd.getDate() - 3);
+    const B = bd.getFullYear() + '-' + String(bd.getMonth() + 1).padStart(2, '0') + '-' + String(bd.getDate()).padStart(2, '0');
+    const R = (id, name, type, target, extra) => Object.assign({ id, name, type, habit: null, target, repeat: true, created: daysAgo(10), earned: [], done: false }, extra || {});
+    p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, pnl: true }, redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(20) }],
+      logs: { [B]: { pnl: 100000, cb: 1000000 }, [T]: { pnl: 130000, cb: 1000000 } },
+      rewards: [R('r1', '跑鞋', 'invwk', 20000), R('r2', '耳機', 'invwk', 3, { u: 'pct' }), R('r3', '新手機', 'invhi', 120000, { repeat: false }), R('r4', '出國', 'invpct', 12, { repeat: false }), R('r5', '大餐', 'invmo', 1000000)] } });
+    await p.click('[data-tab=rewards]');
+    const rw = await p.$eval('#main', e => e.innerText), d0 = await db(p), E = id => d0.rewards.find(r => r.id === id).earned;
+    ok(E('r1')[0] === WS && !E('r2').length && E('r3')[0] === T && E('r4')[0] === T && !E('r5').length, 'week change (amount), break-through and return % are earned; week % and month amount are not yet');
+    ok(rw.includes('本週 +2.73% / 3%') && rw.includes('一週內未實現損益增加 NT$20,000'), 'progress and rule text for 投資 rewards (' + rw.split('進行中')[1].slice(0, 80).replace(/\n/g, ' ') + ')');
+    await p.click('[data-act=rnew]'); await p.click('[data-act=rhabit][data-id=inv]'); await p.click('[data-act=rtype][data-v=invmo]'); await p.click('[data-act=runit][data-v=pct]');
+    await p.fill('#rtarget', '4'); await p.fill('#rname', '按摩'); await p.click('[data-act=rsave]');
+    const nr = (await db(p)).rewards.find(r => r.name === '按摩');
+    ok(nr && nr.type === 'invmo' && nr.u === 'pct' && nr.target === 4 && nr.habit === null, 'editor creates a monthly % 投資 reward');
+    await done(p, 'investment rewards');
+  }
+
   console.log('• automatic backups');
   {
     p = await page(b, { 'habit-tracker-v1': { v: 1, logs: { [T]: { mood: 2 } }, settings: { onboarded: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3) }] } });
