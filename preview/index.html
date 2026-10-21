@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-QOL0nHHKklS7G2GX/bzvqu/f90H5L0UkuNqgMiHcUXs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-FAh9fjuSm+9bZvYmQu6UW4/m7Gi66HIKZRNr1plrRGQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -80,6 +80,13 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .datebar-mid{display:flex;flex-direction:column;align-items:center;gap:2px}
 .iconbtn{flex:0 0 auto;width:44px;height:44px;border:0;border-radius:22px;background:var(--chip);color:var(--fg);display:flex;align-items:center;justify-content:center;padding:0}
 .iconbtn:disabled{opacity:.35;cursor:default}
+.pre-more{margin:4px 0 0}
+.pxbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}.pxre{min-height:32px;padding:0 12px;font-size:13px}
+.abk .hrow{padding:10px 14px}.abk-b{min-height:36px;padding:0 14px;flex:0 0 auto}
+.phrow{margin-top:8px}.phadd{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:17px;border:1.5px dashed var(--line);background:none;color:var(--muted);font-size:13px}.phadd svg{width:16px;height:16px}
+.phthumb{display:block;padding:0;border:0;background:none;border-radius:12px;overflow:hidden;max-width:220px}.phthumb img{display:block;width:100%;max-height:220px;object-fit:cover;min-height:60px;background:var(--chip)}
+.dcard.hasph{display:grid;grid-template-columns:64px 1fr;column-gap:12px}.dcard.hasph .dthumb{grid-row:span 2;width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--chip)}
+.phsheet img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:12px;background:var(--chip);margin-bottom:12px}.phmiss{visibility:hidden}.phopt{margin:8px 0;border:1.5px solid var(--line);border-radius:14px}
 .linkbtn{align-self:center;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;margin-top:-14px}
 
 .sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -201,7 +208,7 @@ input[type=text]{height:52px;font-size:17px}
 .legend{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:4px;font-size:11px;color:var(--muted)}
 .legend span{display:flex;align-items:center;gap:4px}
 .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tiles+.tiles{margin-top:-4px}
 .tile{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .tile-l{font-size:11px;color:var(--muted)}
 .tile-v{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
@@ -465,6 +472,8 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .pwrow{display:flex;flex-direction:column;gap:6px}
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--on-ink);padding:10px 18px;border-radius:20px;font-size:14px;font-weight:700;z-index:20;max-width:calc(100% - 48px);text-align:center}
 .hc-lead{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:12px}
+.slashrow{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}.slashrow .chip{display:inline-flex;align-items:center;gap:6px}
+svg .ko{stroke:var(--chip)}.g-on svg .ko,.b-on svg .ko,.icobtn svg .ko,.chip svg .ko{stroke:var(--surface)}.chip.on svg .ko{stroke:var(--good-soft)}
 .hico{flex:0 0 auto;width:40px;height:40px;border-radius:12px;background:var(--chip);color:var(--fg);display:flex;align-items:center;justify-content:center}
 .g-on .hico,.b-on .hico{background:var(--surface)}
 .sico{flex:0 0 auto;width:32px;height:32px;border-radius:10px;background:var(--chip);color:var(--fg);display:flex;align-items:center;justify-content:center}
@@ -501,7 +510,15 @@ button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
 .hp-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hsug{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:var(--good-soft);border:1.5px solid var(--good-line)}
 .hsug b{font-size:20px;font-variant-numeric:tabular-nums}.hsug-l{font-size:12px;color:var(--muted)}.hsug-d{display:block;font-size:12px;color:var(--muted)}.hsug-d b{font-size:12px}
-.hsug-b{min-height:40px;padding:0 16px;flex:0 0 auto}.hsug.ok,.hsug.warn{display:block;font-size:13px;color:var(--muted)}.hsug.warn{background:var(--bad-soft);border-color:var(--bad-line)}
+.hsug-b{min-height:40px;padding:0 16px;flex:0 0 auto}.hsug.ok,.hsug.warn,.hsug.note{display:block;font-size:13px;color:var(--muted)}.hsug.warn{background:var(--bad-soft);border-color:var(--bad-line)}
+.pgrip{width:32px;height:28px;margin-right:-8px}.tb-r .pgrip{margin-left:2px}.sec-row{align-items:center}
+.hsort{margin:10px 0}.hsort button{height:34px;font-size:14px}
+.pblk.dragging{opacity:.6}.pblk.dragging .panel,.pblk.dragging .list{outline:2px dashed var(--good-line)}
+.pie-wrap{display:flex;flex-direction:row;align-items:center;gap:16px;padding:14px 16px}.pie{width:132px;height:132px;flex:0 0 132px}
+.pie-lg{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.pie-li{display:flex;align-items:center;gap:8px;font-size:13px}
+.pie-li i{width:10px;height:10px;border-radius:3px;flex:0 0 10px}.pie-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pie-li b{font-variant-numeric:tabular-nums;font-weight:600}
+.hrow-r .small{white-space:nowrap}
+.pct{display:block;font-size:16px;font-weight:600;margin-top:4px;line-height:1.2}.pnl-v.sm .pct{font-size:14px;margin-top:2px}
 .hrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-soft)}.hrow:last-child{border-bottom:0}
 .hrow-l,.hrow-r{display:flex;flex-direction:column;gap:2px;min-width:0}.hrow-r{align-items:flex-end;font-variant-numeric:tabular-nums}
 .hedit{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:10px 14px 14px;margin-bottom:10px}.hedit-h{display:flex;justify-content:space-between;align-items:center}
@@ -523,7 +540,7 @@ button.sum-card{text-align:left;color:var(--fg);cursor:pointer}
 .key.alt{background:var(--line)}
 .pnl-read{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
 .chart{display:block;width:100%;height:auto}
-.chart-x{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+.chart-x{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}.chart-x.ticks{display:block;position:relative;height:16px}.chart-x.ticks span{position:absolute;top:0;white-space:nowrap}.pgran{margin-bottom:10px}.ohlc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;margin:10px 0 2px;padding:8px 10px;border-radius:10px;background:var(--chip);font-variant-numeric:tabular-nums}.ohlc span{display:flex;align-items:baseline;gap:8px;min-width:0}.ohlc small{font-size:12px;color:var(--muted)}.ohlc b{font-size:14px;font-weight:700;white-space:nowrap}.obrestore{margin-top:4px}.pgran button{height:32px;font-size:14px}
 .tile-v.sm{font-size:16px;white-space:nowrap}
 .switch{flex:0 0 auto;width:52px;height:32px;border-radius:16px;border:0;padding:3px;display:flex;justify-content:flex-start;background:var(--faint)}
 .switch[aria-checked="true"]{background:var(--good);justify-content:flex-end}
@@ -706,11 +723,12 @@ html:root[data-skin=volt]{
 [data-skin=volt] .hcard.g-on .hc-sub{color:var(--on-good)!important}
 [data-skin=volt] .hcard.g-on .check.on{background:var(--on-good);color:var(--good);border-color:var(--on-good)}
 [data-skin=volt] .hcard.g-on .cnt{color:var(--on-good)}
-[data-skin=volt] .hcard.g-on .pbar{background:rgba(255,255,255,.22)}
+[data-skin=volt] .hcard.g-on .pbar{background:color-mix(in srgb,var(--on-ink) 22%,transparent)}
 [data-skin=volt] .hcard.g-on .pbar i{background:var(--on-good)}
 [data-skin=volt] .hcard.g-on .plus{background:var(--on-good);color:var(--good)}
-[data-skin=volt] .hcard.g-on .minus{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
-[data-skin=volt] .hcard.g-on .hico,[data-skin=volt] .hcard.g-on .cunit{color:#fff}
+[data-skin=volt] .hcard.g-on .minus{background:transparent;color:var(--on-ink);border-color:color-mix(in srgb,var(--on-ink) 40%,transparent)}
+[data-skin=volt] .hcard.g-on .hico,[data-skin=volt] .hcard.g-on .cunit{color:var(--on-ink)}
+[data-skin=volt] .hcard.g-on .hico{background:color-mix(in srgb,var(--on-ink) 12%,transparent)}[data-skin=volt] .hcard.g-on svg .ko{stroke:var(--good)}
 /* ===== 冰島: glacier blue + basalt + volcanic ash; moss, aurora pink, Icelandic roof red as accents ===== */
 html:root[data-skin=ice]{
   --bg:#E7EBEE; --surface:#F9FBFC; --chip:#DEE4E9; --line:#CDD5DC; --line-soft:#E3E8EC;
@@ -821,11 +839,29 @@ var RTYPES={
   saved:{label:'省下的錢',ex:'累計存到 NT$3,000',unit:'NT$',min:100,max:9999999,step:100,def:3000,kind:null,tl:'省下的錢累計到',again:'重新累計',rep:false},
   total:{label:'累計天數',ex:'累計做到 30 天',unit:'天',min:2,max:999,step:1,def:30,kind:'good',tl:'累計做到幾天',again:'重新累計',rep:false},
   wktotal:{label:'累計達標週數',ex:'累計達標 8 週',unit:'週',min:1,max:104,step:1,def:8,kind:'good',tl:'累計達標幾週',again:'重新累計',rep:false},
-  clean:{label:'連續沒犯',ex:'連續 14 天沒犯',unit:'天',min:2,max:365,step:1,def:14,kind:'bad',tl:'連續幾天沒犯',again:'再挑戰一次',rep:false}
+  clean:{label:'連續沒犯',ex:'連續 14 天沒犯',unit:'天',min:2,max:365,step:1,def:14,kind:'bad',tl:'連續幾天沒犯',again:'再挑戰一次',rep:false},
+  invwk:{label:'本週變動',ex:'本週賺 5 萬或 2%',unit:'NT$',min:1000,max:999999999,step:10000,def:50000,kind:'inv',tl:'本週未實現損益增加',again:'下週重來',rep:true,pct:2},
+  invmo:{label:'本月變動',ex:'本月賺 20 萬或 5%',unit:'NT$',min:1000,max:999999999,step:10000,def:200000,kind:'inv',tl:'本月未實現損益增加',again:'下個月重來',rep:true,pct:5},
+  invhi:{label:'損益突破',ex:'帳面突破 1,000 萬',unit:'NT$',min:1000,max:9999999999,step:100000,def:10000000,kind:'inv',tl:'未實現損益突破',again:'',rep:false,once:true},
+  invpct:{label:'報酬率達到',ex:'報酬率到 60%',unit:'%',min:1,max:10000,step:5,def:60,kind:'inv',tl:'報酬率達到',again:'',rep:false,once:true}
 };
+var INVT=['invwk','invmo','invhi','invpct'];
+function isInv(t){return INVT.indexOf(t)>=0;}
+function rPctMode(r){return (r.type==='invwk'||r.type==='invmo')&&r.u==='pct';}
+/* 投資獎勵 (一碰到就算): change of the recorded P&L from the last record before `from` to record k; % is of that day's market value */
+function invChg(from,to,k){var ks=pnlKeys().filter(function(x){return x>=from&&x<=to;});if(!ks.length)return null;var b=prevPnlKey(from)||ks[0];
+  var a=pnlAt(k)-pnlAt(b),c=cbAt(b)||cbAt(k),mv=c?c+pnlAt(b):0;return {amt:a,pct:mv>0?a/mv:null};}
+function invHit(r,v){return v&&(rPctMode(r)?v.pct!=null&&v.pct*100>=r.target:v.amt>=r.target);}
+function invSync(r,t){var ch=false,ks=pnlKeys().filter(function(k){return k>=r.created&&k<=t;});
+  if(r.type==='invhi'||r.type==='invpct'){if(r.earned.length)return false;
+    for(var i=0;i<ks.length;i++){var k=ks[i],ok=r.type==='invhi'?pnlAt(k)>=r.target:(pnlPct(k)!=null&&pnlPct(k)*100>=r.target);if(ok){r.earned.push(k);return true;}}return false;}
+  var wk=r.type==='invwk',seen={};
+  ks.forEach(function(k){var p=wk?weekStartKey(k):k.slice(0,8)+'01';if(seen[p]||r.earned.indexOf(p)>=0)return;if(!r.repeat&&r.earned.length)return;
+    var to=wk?wkEnd(p):monthEndKey(p);if(invHit(r,invChg(p,to,k))){seen[p]=1;r.earned.push(p);ch=true;}});
+  return ch;}
 /* which reward conditions fit a habit (the editor picks the habit first) */
 function rTypesFor(h){if(!h)return ['saved'];if(h.kind==='bad')return ['limit','clean'];if(isWk(h))return ['wktotal','streak'];return ['streak','weekly','rate','total'];}
-function rFix(d){var h=d.habit?byId(d.habit):null,ok=rTypesFor(h);if(ok.indexOf(d.type)<0){var RT=RTYPES[ok[0]];d.type=ok[0];d.target=RT.def;d.repeat=RT.rep;}if(d.type==='saved')d.habit=null;}
+function rFix(d){if(isInv(d.type)){d.habit=null;if(RTYPES[d.type].once)d.repeat=false;return;}var h=d.habit?byId(d.habit):null,ok=rTypesFor(h);if(ok.indexOf(d.type)<0){var RT=RTYPES[ok[0]];d.type=ok[0];d.target=RT.def;d.repeat=RT.rep;}if(d.type==='saved')d.habit=null;}
 /* 累計天數 / 累計達標週數 / 連續沒犯: replay from the reward's start; each hit is an earned key, the count restarts after it */
 function rReplay(r,h,t){var out=[],n=0,start=maxK(r.created,h.created),d;
   if(r.type==='total'){for(d=start;d<=t;d=addDays(d,1)){if(isDone(h,d)){n++;if(n>=r.target){out.push(d);n=0;if(!r.repeat)break;}}}}
@@ -841,9 +877,13 @@ function normHold(a){return (Array.isArray(a)?a:[]).filter(function(h){return h&
   .map(function(h){return {id:cid(h.id),code:String(h.code),name:typeof h.name==='string'?h.name.replace(/[<>&"']/g,'').slice(0,20):'',shares:Math.min(1e9,Math.floor(+h.shares)),cost:Math.round(Math.min(1e6,+h.cost)*10000)/10000};});}
 function normGoal(a){return (Array.isArray(a)?a:[]).filter(function(e){return e&&isKey(e.from)&&+e.n>=1;}).map(function(e){return {from:e.from,n:clampInt(e.n,1,999999,1)};}).sort(function(x,y){return x.from<y.from?-1:1;});}
 function normHist(a){return (Array.isArray(a)?a:[]).filter(function(e){return e&&isKey(e.from)&&+e.amt>=0;}).map(function(e){return {from:e.from,amt:Math.round(+e.amt)||0};}).sort(function(x,y){return x.from<y.from?-1:1;});}
-function icoSvg(key,size){var x=ICONS[key];if(!x)return '';return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+x[1]+'</svg>';}
-function cardIco(h){return h.icon&&ICONS[h.icon]?'<span class="hico">'+icoSvg(h.icon,22)+'</span>':'';}
-function rowIco(h){return h.icon&&ICONS[h.icon]?'<span class="sico">'+icoSvg(h.icon,18)+'</span>':'';}
+/* 禁止斜線: names that say "don't" (不喝咖啡、戒菸、別熬夜) get a slash over the icon; h.slash true/false overrides the guess */
+var NEG=/不|別|勿|戒|禁|停止|拒絕/;
+function hasSlash(name,flag){return flag===true||(flag!==false&&NEG.test(name||''));}
+var SLASH='<path class="ko" d="M4 4l16 16" stroke-width="4.6"/><path d="M4 4l16 16" stroke-width="2"/>';
+function icoSvg(key,size,sl){var x=ICONS[key];if(!x)return '';return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+x[1]+(sl?SLASH:'')+'</svg>';}
+function cardIco(h){return h.icon&&ICONS[h.icon]?'<span class="hico">'+icoSvg(h.icon,22,hasSlash(h.name,h.slash))+'</span>':'';}
+function rowIco(h){return h.icon&&ICONS[h.icon]?'<span class="sico">'+icoSvg(h.icon,18,hasSlash(h.name,h.slash))+'</span>':'';}
 var GUESS=[
   [/咖啡/,'coffee'],[/酒/,'drink'],[/菸|煙/,'smoke'],[/牙/,'tooth'],[/藥|維他命|保健|魚油/,'pill'],
   [/冥想|靜坐|呼吸/,'leaf'],[/記帳|存錢|理財|投資|花費|消費|股|基金/,'money'],[/手機|滑|社群|IG|臉書/i,'phone'],
@@ -982,7 +1022,7 @@ function fitSync(k){
     if(h.kind!=='good'||h.archived||!h.fitLink||h.method!=='check')return;
     var auto=fa.indexOf(h.id)>=0,on=val(k,h.id)>0;
     var tg=fitTarget(h),ok=tg?fm.tot>=tg:fm.any;
-    if(ok&&!on){var l=db.logs[k]||(db.logs[k]={});l.h=l.h||{};l.h[h.id]=1;if(k<h.created)h.created=k;fa.push(h.id);changed=true;}
+    if(ok&&!on&&k>=h.created){var l=db.logs[k]||(db.logs[k]={});l.h=l.h||{};l.h[h.id]=1;fa.push(h.id);changed=true;}
     else if(!ok&&on&&auto){delete db.logs[k].h[h.id];fa.splice(fa.indexOf(h.id),1);changed=true;}
   });
   if(changed){var L=db.logs[k]||(db.logs[k]={});if(fa.length)L.fa=fa;else delete L.fa;tidy(k);}
@@ -1279,13 +1319,15 @@ function vFEx(){
 function blank(){return {v:1,habits:[],logs:{},settings:{},rewards:[],redeemed:[],hold:[],fit:{ex:[],logs:{},ctypes:[]}};}
 function valid(d){return d&&Array.isArray(d.habits)&&d.logs&&typeof d.logs==='object'&&!Array.isArray(d.logs);}
 function cid(v){var c=String(v==null?'':v).replace(/[^A-Za-z0-9_-]/g,'').slice(0,40);return /^(__proto__|constructor|prototype)$/.test(c)?'':c;}
+var PBLK=['trend','pie','hold'];
+function pOrd(v){if(typeof v!=='string')return undefined;var a=v.split(',');return a.length===PBLK.length&&PBLK.every(function(k){return a.indexOf(k)>=0;})&&v!==PBLK.join(',')?v:undefined;}
 function normalize(d){
   if(!valid(d))return null;
   var habits=d.habits.filter(function(h){return h&&cid(h.id)&&h.name;}).map(function(h){
     return {id:cid(h.id),name:String(h.name).slice(0,40),kind:h.kind==='bad'?'bad':'good',
       method:h.method==='count'?'count':'check',
       days:Array.isArray(h.days)&&h.days.length===7?h.days.map(Boolean):allDays(),
-      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),stepHist:normStep(h.stepHist),unit:normUnit(h.unit),step:clampInt(h.step,1,9999,1),freq:h.kind!=='bad'&&h.freq==='week'?'week':'day',perWeek:clampInt(h.perWeek,1,6,3),fitLink:!!h.fitLink};
+      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),stepHist:normStep(h.stepHist),unit:normUnit(h.unit),step:clampInt(h.step,1,9999,1),freq:h.kind!=='bad'&&h.freq==='week'?'week':'day',perWeek:clampInt(h.perWeek,1,6,3),fitLink:!!h.fitLink,slash:typeof h.slash==='boolean'?h.slash:undefined};
   });
   var logs={};
   Object.keys(d.logs).forEach(function(k){
@@ -1293,16 +1335,17 @@ function normalize(d){
     if(l.h&&typeof l.h==='object'){o.h={};Object.keys(l.h).forEach(function(id){var v=Math.min(999999,Math.floor(+l.h[id])),c=cid(id);if(v>0&&c)o.h[c]=v;});if(!Object.keys(o.h).length)delete o.h;}
     if(typeof l.mood==='number'&&l.mood>=0&&l.mood<=4)o.mood=l.mood;
     if(typeof l.note==='string'&&l.note)o.note=l.note;
-    if(typeof l.pnl==='number'&&isFinite(l.pnl))o.pnl=Math.round(l.pnl);
+    if(typeof l.pnl==='number'&&isFinite(l.pnl)){o.pnl=Math.round(l.pnl);if(typeof l.cb==='number'&&l.cb>0&&isFinite(l.cb))o.cb=Math.round(l.cb);if(l.pa===true)o.pa=true;else if(l.pm===true)o.pm=true;}
     if(l.rest===true)o.rest=true;
+    if(cid(l.np))o.np=cid(l.np);if(cid(l.dp))o.dp=cid(l.dp);
     if(Array.isArray(l.fa)){var fa=l.fa.map(cid).filter(Boolean);if(fa.length)o.fa=fa;}
     if(l.diary&&typeof l.diary.t==='string'&&l.diary.t){o.diary={t:l.diary.t};if(typeof l.diary.q==='string'&&l.diary.q)o.diary.q=l.diary.q.slice(0,80);}
     if(Object.keys(o).length)logs[k]=o;
   });
   var st=d.settings||{};
   var rewards=(Array.isArray(d.rewards)?d.rewards:[]).filter(function(r){return r&&cid(r.id)&&r.name&&RTYPES[r.type];}).map(function(r){
-    return {id:cid(r.id),name:String(r.name).slice(0,40),type:r.type,habit:r.habit?cid(r.habit)||null:null,target:Math.max(0,Math.round(+r.target)||0),
-      repeat:!!r.repeat,created:isKey(r.created)?r.created:todayKey(),earned:(Array.isArray(r.earned)?r.earned:[]).filter(isKey),done:!!r.done};
+    return {id:cid(r.id),name:String(r.name).slice(0,40),type:r.type,habit:r.habit&&!isInv(r.type)?cid(r.habit)||null:null,target:Math.max(0,Math.round(+r.target)||0),
+      repeat:!!r.repeat,u:r.u==='pct'?'pct':undefined,created:isKey(r.created)?r.created:todayKey(),earned:(Array.isArray(r.earned)?r.earned:[]).filter(isKey),done:!!r.done};
   });
   var redeemed=(Array.isArray(d.redeemed)?d.redeemed:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.date);}).map(function(x){
     return {id:cid(x.id),rid:cid(x.rid),name:String(x.name||'').slice(0,40),date:x.date,amount:Math.max(0,Math.round(+x.amount)||0)};
@@ -1321,14 +1364,15 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
-  Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k))R[k]=d[k];});
+  Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k)&&k!=='photos')R[k]=d[k];});
   Object.keys(st).forEach(function(k){if(!(k in R.settings)&&okKey(k)&&(typeof st[k]==='boolean'||typeof st[k]==='number'||typeof st[k]==='string'))R.settings[k]=st[k];});
   return R;
 }
 function load(){try{var s=localStorage.getItem(KEY);if(s){var d=normalize(JSON.parse(s));if(d)return d;}}catch(e){}return blank();}
+var RAW0=(function(){try{return localStorage.getItem(KEY);}catch(e){return null;}})(); // as stored before this session changes anything (自動備份)
 var db=load();
 var storageOK=true;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db));storageOK=true;}catch(e){storageOK=false;}}
@@ -1341,7 +1385,7 @@ if(!db.hold)db.hold=[];
 if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};if(!db.fit.cdist)db.fit.cdist=[];
 if(db.settings.fit&&fSeed())save();
 if(!DEMO&&!isKey(db.settings.firstUse)){db.settings.firstUse=todayKey();save();}
-var SKINS=[['sprout','小芽綠',['#2F6B52','#F5F2EC','#B4471C']],['sport','衝刺橘',['#FC5200','#EEEEF1','#1C1C21']],['volt','黑白螢光',['#111111','#D8FF00','#FFFFFF']],['ice','冰島',['#2D6A89','#E7EBEE','#D97BA6']]];
+var SKINS=[['sprout','小芽綠',['#2F6B52','#F5F2EC','#B4471C']],['sport','衝刺橘',['#FC5200','#EEEEF1','#1C1C21']],['volt','黑白螢光',['#111111','#D8FF00','#FFFFFF']],['ice','冰島藍',['#2D6A89','#E7EBEE','#D97BA6']]];
 function skinNow(){var v=db.settings.skin;return SKINS.some(function(k){return k[0]===v;})?v:'sprout';}
 function applySkin(){var k=skinNow(),r=document.documentElement;if(k==='sprout')r.removeAttribute('data-skin');else r.setAttribute('data-skin',k);
   try{var bg=getComputedStyle(document.body).backgroundColor;Array.prototype.forEach.call(document.querySelectorAll('meta[name=theme-color]'),function(m){m.setAttribute('content',bg);});}catch(e){}}
@@ -1361,7 +1405,7 @@ function demoFill(days){
     ['今天學到了什麼？','原來深蹲時膝蓋往外推，腰就不會那麼痠。'],['','連假第一天，睡到自然醒，下午去書店待了三小時，買了兩本書。'],
     ['明天最想做好的一件事？','把提案大綱寫完，晚上去練背。'],['有什麼事讓你卡住？','報告的數字一直對不起來，明天早上頭腦清楚再看一次。']];
   db.habits.forEach(function(h){if(h.created>start)h.created=start;(h.saveHist||[]).forEach(function(e){if(e.from>start)e.from=start;});});
-  var pnl=120000,di=0;
+  var pnl=300000,di=0;
   for(k=start;k<t;k=addDays(k,1)){
     var prog=1-(parseKey(t)-parseKey(k))/864e5/days,l=db.logs[k]||{};l.h=l.h||{};dow=parseKey(k).getDay();
     db.habits.forEach(function(h){
@@ -1412,9 +1456,15 @@ function demoFill(days){
   syncRewards();
   db=normalize(db)||db;save();
 }
+/* sample holdings: costs near recent prices so the auto-recorded P&L stays close to the sample history */
+function demoHold(){return [{id:'s1',code:'2330',name:'台積電',shares:2000,cost:2310},{id:'s2',code:'0050',name:'元大台灣50',shares:1537,cost:101.5},{id:'s3',code:'2454',name:'聯發科',shares:300,cost:3980},{id:'s4',code:'2317',name:'鴻海',shares:3000,cost:221},{id:'s5',code:'00878',name:'國泰永續高股息',shares:5000,cost:33.2}];}
+function demoCb(){var c=Math.round(db.hold.reduce(function(a,h){return a+h.shares*h.cost;},0));Object.keys(db.logs).forEach(function(k){var l=db.logs[k];if(typeof l.pnl==='number'&&!l.cb)l.cb=c;});}
+/* demo P&L history reaches back a year so the 週／月 charts have something to show */
+function demoPnlBack(){var ks=Object.keys(db.logs).filter(hasP).sort();if(!ks.length)return;var t=todayKey(),lim=addDays(t,-372);if(ks[0]<=addDays(t,-360))return;
+  var v=db.logs[ks[0]].pnl;for(var d=addDays(ks[0],-1);d>=lim;d=addDays(d,-1)){var w=parseKey(d).getDay();if(w>0&&w<6){v-=Math.round((Math.random()-0.42)*9000);(db.logs[d]||(db.logs[d]={})).pnl=v;}}}
 function demoBuild(){
   var t=todayKey();
-  db={v:1,habits:[],logs:{},settings:{pnl:true,diary:true,fit:true,fitUnit:'kg',iconAuto:true,onboarded:true},rewards:[],redeemed:[],hold:[{id:'s1',code:'2330',name:'台積電',shares:2000,cost:612.5},{id:'s2',code:'0050',name:'元大台灣50',shares:1537,cost:42.2},{id:'s3',code:'2454',name:'聯發科',shares:300,cost:1180}],fit:{ex:[],logs:{},ctypes:['拳擊有氧']}};
+  db={v:1,habits:[],logs:{},settings:{pnl:true,diary:true,fit:true,fitUnit:'kg',iconAuto:true,onboarded:true},rewards:[],redeemed:[],hold:demoHold(),fit:{ex:[],logs:{},ctypes:['拳擊有氧']}};
   var H=function(id,name,kind,method,days,amt){db.habits.push({id:id,name:name,kind:kind,method:method,days:days||allDays(),created:t,archived:false,icon:guessIcon(name),saveHist:amt?[{from:t,amt:amt}]:[],fitLink:id==='d1'});};
   H('d1','運動 30 分鐘','good','check');db.habits[db.habits.length-1].freq='week';db.habits[db.habits.length-1].perWeek=3;H('d2','11:30 前睡覺','good','check');H('d3','喝水','good','count');(function(w){w.unit='ml';w.step=500;w.goalHist=[{from:GOAL_ALL,n:2000}];})(db.habits[db.habits.length-1]);H('d4','沒有買咖啡','good','check',null,80);
   H('d5','閱讀 20 頁','good','check',[false,true,true,true,true,true,false]);H('d6','吃宵夜','bad','count',null,150);H('d7','睡前滑手機','bad','check');H('d8','喝含糖飲料','bad','count',null,60);
@@ -1423,7 +1473,7 @@ function demoBuild(){
   var R=function(id,name,type,habit,target,repeat){db.rewards.push({id:id,name:name,type:type,habit:habit,target:target,repeat:repeat,created:start,earned:[],done:false});};
   R('r1','買新跑鞋','streak','d2',7,false);R('r2','週末看電影','weekly','d5',4,true);R('r3','去按摩','rate','d2',70,true);R('r4','吃一頓大餐','limit','d6',4,true);R('r5','買降噪耳機','saved',null,8000,false);
   db.redeemed.push({id:'x1',rid:'r2',name:'週末看電影',date:addDays(t,-20),amount:350});
-  demoFill(120);
+  demoFill(120);demoPnlBack();demoCb();
 }
 function demoFilled(){return Object.keys(db.logs).some(function(k){return k<addDays(todayKey(),-7);});}
 function demoBarHTML(){
@@ -1443,13 +1493,15 @@ if(PREVIEW&&!DEMO){var pvBar=document.createElement('div');pvBar.className='demo
 if(DEMO){
   document.title=DEMO_NEW?'習慣（新手示範）':'習慣（示範）';
   if(!DEMO_NEW&&!db.habits.length)demoBuild();
+  if(!DEMO_NEW&&!db.hold.length){db.hold=demoHold();demoCb();save();} // demo data made before 我的持股 existed
+  if(!DEMO_NEW&&db.settings.pnl){var dk0=Object.keys(db.logs).filter(function(k){return db.logs[k]&&typeof db.logs[k].pnl==='number';}).sort()[0];if(dk0&&dk0>addDays(todayKey(),-300)){demoPnlBack();demoCb();save();}}
   var demoBar=document.createElement('div');demoBar.className='demobar';demoBar.id='demobar';
   document.querySelector('.app').insertBefore(demoBar,$('#main'));
 }
 
 /* ---------- onboarding (first run) ----------
-   ONBOARD_ALL=false: only shown in ?demo=new until it is approved for everyone. */
-var ONBOARD_ALL=false;
+   Shown to every new user (ONBOARD_ALL). 設定 → 用範本加入習慣 reuses the same steps (ob.add) without the feature step. */
+var ONBOARD_ALL=true;
 var OB_AREAS=[['sleep','作息睡眠','sleep'],['fit','運動健身','fitness'],['food','飲食喝水','water'],['learn','學習成長','book'],['phone','少滑手機','phone'],['money','理財存錢','money'],['mind','心情與反思','leaf']];
 var OB_TPL={
   sleep:[['12 點前睡覺','good','check'],['早上 7 點前起床','good','check'],['睡前滑手機','bad','check']],
@@ -1464,16 +1516,18 @@ function needOnboard(){return (DEMO_NEW||ONBOARD_ALL)&&!db.settings.onboarded&&!
 function obNew(){return {step:0,areas:[],size:3,feats:{pnl:false,diary:false,fit:false},touched:{},picks:null,sig:''};}
 function obRecommend(areas,size){
   var lists=areas.map(function(a){return OB_TPL[a].slice();}),out=[],seen={},i=0;
+  active('good').concat(active('bad')).forEach(function(h){seen[h.name]=1;}); // 用範本加入: skip habits the user already has
   while(out.length<size&&lists.some(function(l){return l.length;})){var l=lists[i%lists.length];i++;if(!l.length)continue;var x=l.shift();if(seen[x[0]])continue;seen[x[0]]=1;
     out.push({name:x[0],kind:x[1],method:x[2],save:x[3]||0,fitLink:!!x[4],on:true});}
   return out;
 }
 function vOnboard(){
-  var o=ui.ob,st=o.step,dots='<div class="obdots">'+[0,1,2,3].map(function(i){return '<i class="'+(i===st?'on':i<st?'done':'')+'"></i>';}).join('')+'</div>';
-  var s='<div class="page ob"><header class="obhead">'+dots+'<button class="textbtn" data-act="obskip">跳過</button></header>';
+  var o=ui.ob,st=o.step,dots='<div class="obdots">'+(o.add?[0,1,3]:[0,1,2,3]).map(function(i){return '<i class="'+(i===st?'on':i<st?'done':'')+'"></i>';}).join('')+'</div>';
+  var s='<div class="page ob"><header class="obhead">'+dots+'<button class="textbtn" data-act="obskip">'+(o.add?'取消':'跳過')+'</button></header>';
   if(st===0){
-    s+='<div><h1 class="ob-t">歡迎！先問你幾個小問題</h1><p class="ob-s">你想改善哪些方面？可以複選，我會推薦適合的習慣。</p></div><div class="obgrid">'+
+    s+='<div><h1 class="ob-t">'+(o.add?'用範本加入習慣':'歡迎！先問你幾個小問題')+'</h1><p class="ob-s">你想改善哪些方面？可以複選，我會推薦適合的習慣。</p></div><div class="obgrid">'+
       OB_AREAS.map(function(a){var on=o.areas.indexOf(a[0])>=0;return '<button class="obarea'+(on?' on':'')+'" data-act="obarea" data-v="'+a[0]+'" aria-pressed="'+on+'">'+icoSvg(a[2],22)+'<span>'+a[1]+'</span></button>';}).join('')+'</div>';
+    if(!o.add)s+='<button class="linkbtn obrestore" data-act="import">已經有備份？從備份還原</button>';
   }else if(st===1){
     s+='<div><h1 class="ob-t">想從幾個習慣開始？</h1><p class="ob-s">一開始少一點比較容易持續，之後隨時可以再加。</p></div><div class="stack">'+
       OB_SIZES.map(function(z){var on=o.size===z[0];return '<button class="obopt'+(on?' on':'')+'" data-act="obsize" data-v="'+z[0]+'" aria-pressed="'+on+'"><b>'+z[1]+' · '+z[0]+' 個</b><span>'+z[2]+'</span></button>';}).join('')+'</div>';
@@ -1486,12 +1540,12 @@ function vOnboard(){
     s+='<div><h1 class="ob-t">推薦給你的習慣</h1><p class="ob-s">不要的取消勾選，名稱可以直接改。</p></div><div class="list">'+
       o.picks.map(function(p,i){var meta=(p.kind==='good'?'好習慣':'壞習慣')+' · '+(p.method==='count'?'計次':'打勾')+(p.save?' · 每次省 NT$'+p.save:'')+(p.fitLink&&o.feats.fit?' · 連動運動紀錄':'');
         return '<div class="obpick'+(p.on?'':' off')+'"><button class="obchk'+(p.on?' on':'')+'" data-act="obpick" data-i="'+i+'" aria-pressed="'+p.on+'" aria-label="選取 '+esc(p.name)+'">'+(p.on?I.check:'')+'</button>'+
-          '<span class="obico">'+icoSvg(guessIcon(p.name),20)+'</span><span class="obname"><input class="obin" data-i="'+i+'" value="'+esc(p.name)+'" maxlength="40" aria-label="習慣名稱"><small class="'+(p.kind==='bad'?'bad-t':'')+'">'+meta+'</small></span></div>';}).join('')+'</div>'+
-      '<div class="obtips"><b>兩個小提醒</b><span>· 加到主畫面：Safari 的分享按鈕 →「加入主畫面」，用起來像 App。</span><span>· 記得備份：紀錄只存在這支手機上，在「設定 → 匯出備份」。</span></div>';
+          '<span class="obico">'+icoSvg(guessIcon(p.name),20,hasSlash(p.name))+'</span><span class="obname"><input class="obin" data-i="'+i+'" value="'+esc(p.name)+'" maxlength="40" aria-label="習慣名稱"><small class="'+(p.kind==='bad'?'bad-t':'')+'">'+meta+'</small></span></div>';}).join('')+'</div>'+
+      (o.add?'':'<div class="obtips"><b>兩個小提醒</b><span>· 加到主畫面：Safari 的分享按鈕 →「加入主畫面」，用起來像 App。</span><span>· 記得備份：紀錄只存在這支手機上，在「設定 → 匯出備份」。</span></div>');
   }
   var canNext=st===0?o.areas.length>0:st===3?o.picks.some(function(p){return p.on&&p.name.trim();}):true;
   s+='<div class="obfoot">'+(st>0?'<button class="secondary" data-act="obback">上一步</button>':'<span></span>')+
-    '<button class="primary" data-act="obnext"'+(canNext?'':' disabled')+'>'+(st===3?'開始使用（'+o.picks.filter(function(p){return p.on;}).length+' 個習慣）':'下一步')+'</button></div>';
+    '<button class="primary" data-act="obnext"'+(canNext?'':' disabled')+'>'+(st===3?(o.add?'加入':'開始使用')+'（'+o.picks.filter(function(p){return p.on;}).length+' 個習慣）':'下一步')+'</button></div>';
   return s+'</div>';
 }
 function obFinish(){
@@ -1500,12 +1554,27 @@ function obFinish(){
     var nm=p.name.trim().slice(0,40);
     db.habits.push({id:uid(),name:nm,kind:p.kind,method:p.method,days:allDays(),created:t,archived:false,icon:guessIcon(nm),saveHist:p.save?[{from:t,amt:p.save}]:[],fitLink:!!(p.fitLink&&o.feats.fit)});
   });
+  if(o.add){var na=o.picks.filter(function(p){return p.on&&p.name.trim();}).length;save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();toast('已加入 '+na+' 個習慣',2400);return;}
   db.settings.pnl=!!o.feats.pnl;db.settings.diary=!!o.feats.diary;db.settings.fit=!!o.feats.fit;db.settings.onboarded=true;
   if(db.settings.fit)fSeed();
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.18-20';
+var APP_VER='2026.10.21-4';
+/* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
+   and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
+var AUTOK=KEY+'-auto';
+function autoList(){try{var a=JSON.parse(localStorage.getItem(AUTOK)||'[]');return Array.isArray(a)?a.filter(function(x){return x&&typeof x.d==='string'&&typeof x.at==='string';}):[];}catch(e){return [];}}
+function autoSnap(why,ver,raw){try{raw=raw||localStorage.getItem(KEY);if(!raw)return;var a=autoList(),n={update:0,daily:0,restore:0},lim={update:3,daily:7,restore:2};
+  a.unshift({at:new Date().toISOString(),why:why,v:ver||APP_VER,d:raw});
+  a=a.filter(function(x){n[x.why]=(n[x.why]||0)+1;return n[x.why]<=(lim[x.why]||2);});
+  // stay well under the browser's storage limit so saving the real data never fails
+  while(a.length>1&&JSON.stringify(a).length>1500000)a.pop();
+  while(a.length){try{localStorage.setItem(AUTOK,JSON.stringify(a));return;}catch(e){a.pop();}}}catch(e){}}
+(function(){if(!RAW0)return;try{var pv=localStorage.getItem(KEY+'-ver'),t=todayKey();
+  if(pv&&pv!==APP_VER)autoSnap('update',pv,RAW0);
+  else if(!autoList().some(function(x){return x.why==='daily'&&keyOf(new Date(x.at))===t;}))autoSnap('daily',APP_VER,RAW0);
+  localStorage.setItem(KEY+'-ver',APP_VER);}catch(e){}})();
 var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
@@ -1532,7 +1601,8 @@ function diaryCard(k){
   var s='<section class="sec"><div class="sec-row"><h2 class="sec-t">日記</h2>'+
     (t?'<button class="eyebtn" data-act="dhide">'+(h?I.eye+'顯示內容':I.eyeOff+'隱藏內容')+'</button>':'')+'</div>';
   if(t){
-    s+='<button class="dcard" data-act="dopen">'+(h?'<div class="dlocked">'+I.lock+'內容已隱藏，點開來看</div>':'<div class="dprev">'+esc(t)+'</div>')+
+    var dpi=!h&&(db.logs[k]||{}).dp;
+    s+='<button class="dcard'+(dpi?' hasph':'')+'" data-act="dopen">'+(dpi?'<img class="dthumb" data-ph="'+dpi+'" alt="">':'')+(h?'<div class="dlocked">'+I.lock+'內容已隱藏，點開來看</div>':'<div class="dprev">'+esc(t)+'</div>')+
       '<div class="dmeta"><span>已寫 · '+fmtN(dCount(t))+' 字 · 已鎖定</span><b>打開'+I.right+'</b></div></button>';
   }else{
     var sub=db.settings.dNoPrompt?'想到什麼就寫什麼':DPROMPTS[dpIdx(k)];
@@ -1561,6 +1631,7 @@ function vDiary(){
   if(q)s+='<div class="dq"><span>'+esc(q)+'</span>'+(ed?'<button data-act="dqx" aria-label="拿掉題目">'+I.x+'</button>':'')+'</div>';
   if(ed)s+='<label class="sr" for="diary">日記內容</label><textarea id="diary" placeholder="想到什麼就寫什麼⋯">'+esc(t)+'</textarea>';
   else s+='<div class="dview">'+linkify(t)+'</div>';
+  s+='<div class="phrow">'+phSlot(k,'dp')+'</div>';
   s+='<div class="dstat"><span id="dstatus">'+(ed?(n?'草稿已自動儲存':'寫的時候會自動存草稿'):'已鎖定 · 按「編輯」修改')+'</span><span id="dcount">'+fmtN(n)+' 字</span></div>';
   return s+'</div></div>';
 }
@@ -1595,7 +1666,7 @@ function diaryStats(y,m){
   if(sel){
     var st=dText(sel),sl=db.logs[sel]||{},sd=parseKey(sel);
     s+='<section class="sec"><h2 class="sec-t">'+(sd.getMonth()+1)+'月'+sd.getDate()+'日'+(sel===t?'（今天）':'')+'</h2>';
-    if(st)s+='<button class="dcard" data-act="dopen" data-k="'+sel+'">'+(dQ(sel)?'<div class="lastyr">'+esc(dQ(sel))+'</div>':'')+'<div class="dprev three">'+esc(st)+'</div><div class="dmeta"><span>'+(sl.mood!=null?'心情：'+MOODS[sl.mood]+' · ':'')+fmtN(dCount(st))+' 字</span><b>打開'+I.right+'</b></div></button>';
+    if(st)s+='<button class="dcard'+(sl.dp?' hasph':'')+'" data-act="dopen" data-k="'+sel+'">'+(sl.dp?'<img class="dthumb" data-ph="'+sl.dp+'" alt="">':'')+(dQ(sel)?'<div class="lastyr">'+esc(dQ(sel))+'</div>':'')+'<div class="dprev three">'+esc(st)+'</div><div class="dmeta"><span>'+(sl.mood!=null?'心情：'+MOODS[sl.mood]+' · ':'')+fmtN(dCount(st))+' 字</span><b>打開'+I.right+'</b></div></button>';
     else s+='<button class="dcard blankd" data-act="dopen" data-k="'+sel+'" style="justify-content:space-between"><span class="muted">這天沒有日記</span><b class="good-t">'+(sel===t?'寫日記':'補寫')+'</b></button>';
     s+='</section>';
   }
@@ -1618,17 +1689,56 @@ function linkify(text){
   }
   return out+esc(text.slice(last));
 }
+/* ---------- 照片: one photo per 備註 and one per 日記 (log.np / log.dp = photo id).
+   Photos live in IndexedDB on this phone (localStorage is too small); each is re-encoded to JPEG with the long edge
+   at most 1600 px (~350 KB), which also drops EXIF data such as GPS location. ---------- */
+var PHDB=KEY+'-photos',PHURL={},phDbP=null;
+function phDb(){if(!phDbP)phDbP=new Promise(function(res,rej){try{var r=indexedDB.open(PHDB,1);r.onupgradeneeded=function(){r.result.createObjectStore('p');};
+  r.onsuccess=function(){res(r.result);};r.onerror=function(){phDbP=null;rej(r.error);};}catch(e){phDbP=null;rej(e);}});return phDbP;}
+function phTx(mode,fn){return phDb().then(function(d){return new Promise(function(res,rej){var tx=d.transaction('p',mode),st=tx.objectStore('p'),out=fn(st);
+  tx.oncomplete=function(){res(out&&out.result!==undefined?out.result:out);};tx.onerror=tx.onabort=function(){rej(tx.error);};});});}
+function phPut(id,blob){return phTx('readwrite',function(st){st.put(blob,id);});}
+function phGet(id){return phTx('readonly',function(st){return st.get(id);});}
+function phDel(id){if(PHURL[id]){try{URL.revokeObjectURL(PHURL[id]);}catch(e){}delete PHURL[id];}return phTx('readwrite',function(st){st.delete(id);});}
+function phAll(){return phDb().then(function(d){return new Promise(function(res,rej){var out={},tx=d.transaction('p','readonly'),c=tx.objectStore('p').openCursor();
+  c.onsuccess=function(){var cu=c.result;if(cu){out[cu.key]=cu.value;cu.continue();}};tx.oncomplete=function(){res(out);};tx.onerror=function(){rej(tx.error);};});});}
+function phUrl(id){if(PHURL[id])return Promise.resolve(PHURL[id]);return phGet(id).then(function(b){if(!b)return '';PHURL[id]=URL.createObjectURL(b);return PHURL[id];});}
+function phHydrate(){Array.prototype.forEach.call(document.querySelectorAll('img[data-ph]:not([src])'),function(im){phUrl(im.dataset.ph).then(function(u){if(u)im.src=u;else im.classList.add('phmiss');},function(){im.classList.add('phmiss');});});}
+function phShrink(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file),im=new Image();
+  im.onload=function(){var w=im.naturalWidth,h=im.naturalHeight,sc=Math.min(1,1600/Math.max(w,h)),cv=document.createElement('canvas');cv.width=Math.round(w*sc);cv.height=Math.round(h*sc);
+    cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(u);
+    var go=function(q){cv.toBlob(function(b){if(!b){rej(new Error('encode'));return;}if(b.size>520000&&q>0.55)go(q-0.12);else res(b);},'image/jpeg',q);};go(0.8);};
+  im.onerror=function(){URL.revokeObjectURL(u);rej(new Error('decode'));};im.src=u;});}
+function phSlot(k,slot){var l=db.logs[k]||{},id=l[slot];
+  if(id)return '<button class="phthumb" data-act="phview" data-k="'+k+'" data-slot="'+slot+'" aria-label="看照片"><img data-ph="'+id+'" alt="照片"></button>';
+  return '<button class="phadd" data-act="phadd" data-k="'+k+'" data-slot="'+slot+'">'+I.plus+'加照片</button>';}
+function phPick(k,slot){var f=document.createElement('input');f.type='file';f.accept='image/*';f.style.display='none';document.body.appendChild(f);
+  f.onchange=function(){var file=f.files&&f.files[0];f.remove();if(!file)return;toast('處理照片中⋯',4000);
+    phShrink(file).then(function(b){var id=uid();return phPut(id,b).then(function(){var l=db.logs[k]||(db.logs[k]={}),old=l[slot];l[slot]=id;save();if(old)phDel(old);render();toast('已加入照片（'+Math.round(b.size/1024)+' KB）');});})
+      .catch(function(){toast('這張照片無法讀取，請換一張試試',3000);});};
+  f.click();}
+function phSize(){return phAll().then(function(m){var n=0,b=0;for(var k in m){n++;b+=m[k]&&m[k].size||0;}return {n:n,b:b};});}
+function phMB(b){return b<1048576?Math.max(1,Math.round(b/1024))+' KB':(Math.round(b/104857.6)/10)+' MB';}
+function blobToData(b){return new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=function(){res('');};r.readAsDataURL(b);});}
+function dataToBlob(u){var m=/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+\/=]+)$/.exec(u||'');if(!m)return null;var bin=atob(m[2]),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:m[1]});}
+/* backups: photos ride along as data URLs under "photos" (only ids referenced by the logs), restored into IndexedDB */
+function phRefs(d){var r={};Object.keys(d.logs||{}).forEach(function(k){var l=d.logs[k];if(l.np)r[l.np]=1;if(l.dp)r[l.dp]=1;});return r;}
+function payloadText(cb){if(ui.bkNoPh||!window.indexedDB){cb(backupPayload());return;}var refs=phRefs(db);if(!Object.keys(refs).length){cb(backupPayload());return;}
+  phAll().then(function(m){var ids=Object.keys(m).filter(function(id){return refs[id];});return Promise.all(ids.map(function(id){return blobToData(m[id]);})).then(function(us){
+    var o=JSON.parse(backupPayload()),ph={};ids.forEach(function(id,i){if(us[i])ph[id]=us[i];});if(Object.keys(ph).length)o.photos=ph;cb(JSON.stringify(o));});}).catch(function(){cb(backupPayload());});}
+function takePhotos(o){var p=o&&o.photos,out={};if(o)delete o.photos;if(p&&typeof p==='object')Object.keys(p).forEach(function(id){var c=cid(id);if(c&&typeof p[id]==='string')out[c]=p[id];});return out;}
+function phRestore(ph){var ids=Object.keys(ph||{});return Promise.all(ids.map(function(id){var b=dataToBlob(ph[id]);return b?phPut(id,b):null;}));}
 function noteBox(k,log){
   var n=log.note||'';
-  if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div><div class="note-view" id="note-view">'+linkify(n)+'</div>';
+  var ph='<div class="phrow">'+phSlot(k,'np')+'</div>';
+  if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div><div class="note-view" id="note-view">'+linkify(n)+'</div>'+ph;
   return '<div class="note-h"><label for="note" class="lbl">備註</label></div><textarea id="note" rows="3" placeholder="今天發生了什麼？">'+esc(n)+'</textarea>'+
-    '<div class="note-foot" id="note-foot"'+(n.trim()?'':' hidden')+'><button class="minibtn" data-act="notedone">確認</button></div>';
+    '<div class="note-foot" id="note-foot"'+(n.trim()?'':' hidden')+'><button class="minibtn" data-act="notedone">確認</button></div>'+ph;
 }
 function tidy(k){var l=db.logs[k];if(!l)return;if(l.h&&!Object.keys(l.h).length)delete l.h;if(!l.note)delete l.note;if(l.mood==null)delete l.mood;if(typeof l.pnl!=='number')delete l.pnl;if(!l.rest)delete l.rest;if(l.diary&&!l.diary.t&&!l.diary.q)delete l.diary;if(l.fa&&!l.fa.length)delete l.fa;if(!Object.keys(l).length)delete db.logs[k];}
 function setVal(k,id,v){
   var l=db.logs[k]||(db.logs[k]={});l.h=l.h||{};
   if(v>0)l.h[id]=v;else delete l.h[id];
-  var h=byId(id);if(h&&v>0&&k<h.created)h.created=k;
   tidy(k);save();
 }
 function sched(h,k){return h.kind!=='good'||!isWk(h)&&!!h.days[parseKey(k).getDay()];}
@@ -1785,6 +1895,7 @@ function syncRewards(){
   var t=todayKey(),changed=false;
   db.rewards.forEach(function(r){
     if(r.done||r.type==='saved')return;
+    if(isInv(r.type)){if(db.settings.pnl&&invSync(r,t))changed=true;return;}
     var h=byId(r.habit);if(!h||h.archived)return;
     if(!r.repeat&&r.earned.length)return;
     if(r.type==='streak'){
@@ -1812,11 +1923,14 @@ function redCount(rid){return db.redeemed.filter(function(x){return x.rid===rid;
 function pending(r,tot){
   if(r.done)return 0;
   if(r.type==='saved')return r.target>0&&tot.avail>=r.target?1:0;
+  if(isInv(r.type))return Math.max(0,r.earned.length-redCount(r.id));
   var h=byId(r.habit);if(!h||h.archived)return 0;
   return Math.max(0,r.earned.length-redCount(r.id));
 }
 function pctOf(a,b){return b>0?Math.max(0,Math.min(100,Math.round(a/b*100))):0;}
 function ruleText(r,h,ml){
+  if(isInv(r.type)){var hd=hid(),am=function(v){return hd?'NT$••••':'NT$'+fmtN(v);};
+    return r.type==='invhi'?'未實現損益突破 '+am(r.target):r.type==='invpct'?'報酬率達到 '+r.target+'%':(r.type==='invwk'?'一週內':(ml||'一個月內'))+'未實現損益增加 '+(rPctMode(r)?r.target+'%':am(r.target));}
   var hn=h?'「'+esc(h.name)+'」':'「（已刪除的習慣）」',t=r.target,mm=ml||'這個月';
   return {streak:hn+'連續做到 '+t+(isWk(h)?' 週':' 天'),weekly:'一週內'+hn+'做到 '+t+' 天',rate:mm+hn+'完成率達到 '+t+'%',
     limit:mm+hn+'最多犯 '+t+' 次',saved:'省下的錢累計到 NT$'+fmtN(t),total:hn+'累計做到 '+t+' 天',wktotal:hn+'累計達標 '+t+' 週'+(h&&isWk(h)?'（每週 '+(h.perWeek||3)+' 次）':''),clean:hn+'連續 '+t+' 天沒犯'}[r.type];
@@ -1824,6 +1938,17 @@ function ruleText(r,h,ml){
 function progressOf(r,h,tot){
   var t=todayKey(),me=monthEndKey(t),settle=shortMD(me)+' 結算';
   if(r.type==='saved')return {txt:'NT$'+fmtN(Math.max(0,tot.avail))+' / '+fmtN(r.target),pct:pctOf(tot.avail,r.target)};
+  if(isInv(r.type)){var hd=hid(),ks=pnlKeys().filter(function(k){return k>=r.created;}),lk=ks[ks.length-1];
+    if(!db.settings.pnl)return {txt:'暫停中',pct:0,cls:'paused',note:'「記錄未實現損益」關閉中'};
+    if(!lk)return {txt:'還沒有紀錄',pct:0,note:'從 '+shortMD(r.created)+' 起的紀錄才會算'};
+    if(r.type==='invhi'){var v=pnlAt(lk);return {txt:hd?'••••':'目前 '+sgn(v),pct:pctOf(v,r.target)};}
+    if(r.type==='invpct'){var f=pnlPct(lk);return {txt:f==null?'—':hd?'••%':'目前 '+pctS(f),pct:f==null?0:pctOf(f*100,r.target)};}
+    var wk=r.type==='invwk',per=wk?weekStartKey(t):t.slice(0,8)+'01',lbl=wk?'本週':'本月';
+    if(r.earned.indexOf(per)>=0)return {txt:lbl+'已達成',pct:100,note:r.repeat?RTYPES[r.type].again:''};
+    var inP=ks.filter(function(k){return k>=per;}),c=inP.length?invChg(per,wk?wkEnd(per):monthEndKey(per),inP[inP.length-1]):null;
+    if(!c)return {txt:lbl+'還沒有紀錄',pct:0};
+    var pm=rPctMode(r),cur=pm?(c.pct==null?0:c.pct*100):c.amt;
+    return {txt:hd?lbl+' '+(pm?'••%':'••••'):lbl+' '+(pm?pctS(c.pct||0):chg(c.amt))+' / '+(pm?r.target+'%':fmtN(r.target)),pct:pctOf(cur,r.target),note:'碰到就算，之後跌回去也不會收回'};}
   if(!h)return {txt:'',pct:0};
   if(h.archived)return {txt:'暫停中',pct:0,cls:'paused',note:'習慣已封存，恢復後會繼續計算。'};
   if(r.type==='streak'){var n=streakSince(h,t,r.earned.length?r.earned[r.earned.length-1]:null).n;return {txt:n+' / '+r.target+(isWk(h)?' 週':' 天'),pct:pctOf(n,r.target)};}
@@ -1911,6 +2036,9 @@ function vRewards(){
 }
 function rPreview(d){
   var R=RTYPES[d.type],h=d.habit?byId(d.habit):null;
+  if(isInv(d.type)){var nm=(d.name||'').trim()||'這個獎勵';
+    return ruleText({type:d.type,target:d.target,u:d.u},null)+'，就可以兌換「'+esc(nm)+'」。'+(R.once?'達成一次就結束。':d.repeat?'兌換後'+R.again+'。':'兌換一次就結束。')+
+      '從今天起的紀錄才算，碰到目標就達成，之後跌回去也不會收回。'+(R.once?'':'變動是跟上'+(d.type==='invwk'?'週':'個月')+'最後一筆紀錄比，期間改了持股也會算進去。');}
   if(R.kind&&!h)return '先選一個'+(R.kind==='bad'?'壞':'')+'習慣。';
   var name=(d.name||'').trim()||'這個獎勵';
   return ruleText({type:d.type,target:d.target},h)+'，就可以兌換「'+esc(name)+'」。'+(d.repeat?'兌換後'+R.again+'。':'兌換一次就結束。')+
@@ -1925,17 +2053,20 @@ function vRewardEdit(){
   var goods=active('good'),bads=active('bad'),row=function(h){var on=d.habit===h.id;
     return '<button class="pickrow" data-act="rhabit" data-id="'+h.id+'" aria-pressed="'+on+'">'+rowIco(h)+'<span class="nm">'+esc(h.name)+(isWk(h)?'<small class="muted"> · 每週 '+(h.perWeek||3)+' 次</small>':'')+'</span><span class="radio'+(on?' on':'')+'"></span></button>';};
   s+='<div class="field"><div class="lbl">哪個習慣</div><div class="list">'+(goods.length?'<div class="pickhead">好習慣</div>'+goods.map(row).join(''):'')+(bads.length?'<div class="pickhead">壞習慣</div>'+bads.map(row).join(''):'')+
+    (db.settings.pnl||isInv(d.type)?'<div class="pickhead">投資</div><button class="pickrow" data-act="rhabit" data-id="inv" aria-pressed="'+isInv(d.type)+'"><span class="sico">'+icoSvg('money',18)+'</span><span class="nm">未實現損益</span><span class="radio'+(isInv(d.type)?' on':'')+'"></span></button>':'')+
     '<div class="pickhead">其他</div><button class="pickrow" data-act="rhabit" data-id="" aria-pressed="'+(d.type==='saved')+'"><span class="sico"></span><span class="nm">不綁習慣：省下的錢</span><span class="radio'+(d.type==='saved'?' on':'')+'"></span></button></div></div>';
-  var types=rTypesFor(d.habit?byId(d.habit):null);if(d.type!=='saved'&&types.indexOf(d.type)<0)types=types.concat(d.type);
+  var types=isInv(d.type)?INVT:rTypesFor(d.habit?byId(d.habit):null);if(d.type!=='saved'&&types.indexOf(d.type)<0)types=types.concat(d.type);
   if(types.length>1)s+='<div class="field"><div class="lbl">達成條件</div><div class="rtypes">'+types.map(function(k){
       return '<button class="rtype'+(d.type===k?' on':'')+'" data-act="rtype" data-v="'+k+'" aria-pressed="'+(d.type===k)+'"><b>'+(k==='streak'&&d.habit&&isWk(byId(d.habit))?'連續週數':RTYPES[k].label)+'</b><span>'+(k==='streak'&&d.habit&&isWk(byId(d.habit))?'連續 4 週達標':RTYPES[k].ex)+'</span></button>';
     }).join('')+'</div></div>';
+  var pmode=(d.type==='invwk'||d.type==='invmo')&&d.u==='pct',RU=pmode?'%':R.unit;
+  if(d.type==='invwk'||d.type==='invmo')s+='<div class="field"><div class="lbl">目標用</div><div class="seg"><button class="'+(!pmode?'on':'')+'" data-act="runit" data-v="amt" aria-pressed="'+!pmode+'">金額</button><button class="'+(pmode?'on':'')+'" data-act="runit" data-v="pct" aria-pressed="'+pmode+'">%</button></div></div>';
   s+='<div class="field"><label class="lbl" for="rtarget">'+R.tl+'</label><div class="stepper">'+
     '<button class="stepbtn" data-act="rstep" data-n="-1" aria-label="減少">−</button>'+
-    '<div class="stepval">'+(R.unit==='NT$'?'<span>NT$</span>':'')+'<input id="rtarget" type="text" inputmode="numeric" value="'+d.target+'">'+(R.unit!=='NT$'?'<span>'+R.unit+'</span>':'')+'</div>'+
+    '<div class="stepval">'+(RU==='NT$'?'<span>NT$</span>':'')+'<input id="rtarget" type="text" inputmode="numeric" value="'+d.target+'">'+(RU!=='NT$'?'<span>'+RU+'</span>':'')+'</div>'+
     '<button class="stepbtn dark" data-act="rstep" data-n="1" aria-label="增加">+</button></div></div>'+
-    '<div class="field"><div class="lbl">兌換之後</div><div class="seg"><button class="'+(!d.repeat?'on':'')+'" data-act="rrep" data-v="0" aria-pressed="'+(!d.repeat)+'">結束</button>'+
-    '<button class="'+(d.repeat?'on':'')+'" data-act="rrep" data-v="1" aria-pressed="'+d.repeat+'">'+R.again+'</button></div></div>'+
+    (R.once?'':'<div class="field"><div class="lbl">兌換之後</div><div class="seg">')+(R.once?'':'<button class="'+(!d.repeat?'on':'')+'" data-act="rrep" data-v="0" aria-pressed="'+(!d.repeat)+'">結束</button>'+
+    '<button class="'+(d.repeat?'on':'')+'" data-act="rrep" data-v="1" aria-pressed="'+d.repeat+'">'+R.again+'</button></div></div>')+
     '<div class="rpreview" id="rpreview">'+rPreview(d)+'</div>';
   if(!isNew)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="rdelete">'+(ui.confirmDel?'再按一次，刪除這個獎勵（兌換紀錄會保留）':'刪除獎勵')+'</button></div>';
   return s+'</div>';
@@ -1943,15 +2074,15 @@ function vRewardEdit(){
 function saveReward(){
   var d=ui.rd,R=RTYPES[d.type],name=(d.name||'').trim();
   if(!name){ui.err='請輸入想犒賞自己的東西。';render();return;}
-  if(R.kind&&!byId(d.habit)){ui.err='請選一個習慣。';render();return;}
-  var tg=Math.max(R.min,Math.min(R.max,Math.round(+d.target)||0));
-  var hab=R.kind?d.habit:null,t=todayKey();
+  if(R.kind&&R.kind!=='inv'&&!byId(d.habit)){ui.err='請選一個習慣。';render();return;}
+  var pm=(d.type==='invwk'||d.type==='invmo')&&d.u==='pct',tg=pm?Math.max(1,Math.min(1000,Math.round(+d.target)||0)):Math.max(R.min,Math.min(R.max,Math.round(+d.target)||0));
+  var hab=R.kind&&R.kind!=='inv'?d.habit:null,t=todayKey(),uu=pm?'pct':undefined;
   if(d.id){
     var r=rById(d.id);if(r){
-      if(r.type!==d.type||r.habit!==hab){r.earned=[];r.created=t;r.done=false;}
-      r.name=name;r.type=d.type;r.habit=hab;r.target=tg;r.repeat=d.repeat;
+      if(r.type!==d.type||r.habit!==hab||r.u!==uu){r.earned=[];r.created=t;r.done=false;}
+      r.name=name;r.type=d.type;r.habit=hab;r.target=tg;r.repeat=R.once?false:d.repeat;if(uu)r.u=uu;else delete r.u;
     }
-  }else db.rewards.push({id:uid(),name:name,type:d.type,habit:hab,target:tg,repeat:d.repeat,created:t,earned:[],done:false});
+  }else{var nr={id:uid(),name:name,type:d.type,habit:hab,target:tg,repeat:R.once?false:d.repeat,created:t,earned:[],done:false};if(uu)nr.u=uu;db.rewards.push(nr);}
   save();syncRewards();go('rewards');render();toast('已儲存');
 }
 function saveFromRow(d){
@@ -1987,6 +2118,17 @@ function hasP(k){var l=db.logs[k];return !!l&&typeof l.pnl==='number';}
 function pnlKeys(){return Object.keys(db.logs).filter(hasP).sort();}
 function pnlAt(k){return db.logs[k].pnl;}
 function prevPnlKey(k){var ks=pnlKeys(),r=null;for(var i=0;i<ks.length&&ks[i]<k;i++)r=ks[i];return r;}
+function pctS(f){return (f>0.00005?'+':f<-0.00005?'−':'')+Math.abs(f*100).toFixed(2)+'%';}
+function cbAt(k){var l=db.logs[k];if(l&&l.cb>0)return l.cb;if(!db.hold.length||k<holdSince())return null;
+  var c=Math.round(db.hold.reduce(function(a,h){return a+h.shares*h.cost;},0));return c>0?c:null;} // older records: today's holdings cost, only from the last holdings change
+/* 累積 %: P&L ÷ cost (報酬率). 今日 %: change ÷ previous day's market value (cost + P&L). Needs the stored cost basis. */
+function pnlPct(k){var c=cbAt(k);return c?pnlAt(k)/c:null;}
+function dayPct(k,pk){var c=cbAt(pk)||cbAt(k),mv=c?c+pnlAt(pk):0;return mv>0?(pnlAt(k)-pnlAt(pk))/mv:null;}
+/* 今日損益 only when the previous record is the previous trading day (weekdays; the 30-day closes list when loaded) */
+function isPrevTD(pk,k){if(PXH){var i=PXH.d.indexOf(k),j=PXH.d.indexOf(pk);if(i>0&&j>=0)return j===i-1;}
+  for(var x=addDays(pk,1);x<k;x=addDays(x,1)){var w=parseKey(x).getDay();if(w>0&&w<6)return false;}return true;}
+function dLabel(pk,k){return isPrevTD(pk,k)?'今日損益':'比 '+shortMD(pk);}
+function pctTag(f,h,cls){return f==null?'':'<span class="pct'+(cls?' '+cls:'')+'">'+(h?'••%':pctS(f))+'</span>';}
 function fmtN(v){return Math.abs(v).toLocaleString('en-US');}
 function cmpN(v){var a=Math.abs(v);if(a<1e5)return a.toLocaleString('en-US');if(a<1e7)return (Math.round(a/1e3)/10).toLocaleString('en-US')+'萬';if(a<1e8)return Math.round(a/1e4).toLocaleString('en-US')+'萬';return (Math.round(a/1e6)/100)+'億';}
 function cchg(v){return (v>0?'▲':v<0?'▼':'')+cmpN(v);}
@@ -2005,39 +2147,104 @@ function monthChange(y,m,endKey){
 }
 /* ---------- 持股: closing prices from prices.json (whole market; holdings never leave the phone) ---------- */
 var PX=null,pxAt=0;
-function pxLoad(){var now=Date.now();if(now-pxAt<60000||!db.hold.length)return;pxAt=now;
+function pxLoad(cb){var now=Date.now();if(now-pxAt<60000||!db.hold.length)return;pxAt=now;
   fetch('../prices.json?t='+now,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
-    if(!j||!isKey(j.d)||!j.p||typeof j.p!=='object')return;var old=PX&&PX.d;PX={d:j.d,p:j.p};
-    if(old!==PX.d&&/^(today|stats|hold)$/.test(ui.view)&&!ui.sheet)render();}).catch(function(){});}
+    if(!j||!isKey(j.d)||!j.p||typeof j.p!=='object')return;var old=PX&&PX.d,ot=PX&&PX.t;PX={d:j.d,p:j.p,t:typeof j.t==='string'?j.t:''};
+    if((old!==PX.d||ot!==PX.t||cb)&&/^(today|stats|hold)$/.test(ui.view)&&!ui.sheet)render();holdAuto();if(cb)cb(true);}).catch(function(){if(cb)cb(false);});}
+function pxWhen(){var d=PX&&PX.t?new Date(PX.t):null;return d&&!isNaN(d)?(d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes()):'';}
+/* 自動優先: closes beat typed numbers. From the day holdings were last changed (settings.holdSince), every trading day
+   with closes gets its P&L computed and saved, unless the day was edited by hand after its closes were out (pm).
+   prices-30.json (last 30 trading days) is only downloaded when days may be missing. */
+var PXH=null,pxhAt=0;
+function holdSince(){var v=db.settings.holdSince;if(isKey(v))return v;v=todayKey();if(db.hold.length&&!DEMO){db.settings.holdSince=v;save();}return v;}
+function pnlFrom(closeOf){var mv=0,cost=0,miss=[];db.hold.forEach(function(h){var c=closeOf(h.code);if(!(c>0)){miss.push(h.code);return;}mv+=h.shares*c;cost+=h.shares*h.cost;});
+  return {un:Math.round(mv-cost),cb:Math.round(cost),miss:miss};}
+function histClose(i){return function(code){var r=PXH&&PXH.c[code];return r?+r[i]:0;};}
+function autoDays(){var out={},hs=holdSince(),t=todayKey();
+  if(PXH)PXH.d.forEach(function(d,i){if(d>=hs&&d<=t)out[d]=histClose(i);});
+  if(PX&&PX.d>=hs&&PX.d<=t)out[PX.d]=function(code){var p=pxOf(code);return p?p.close:0;};
+  return out;}
+function autoVal(k){var f=autoDays()[k];return f?pnlFrom(f):null;}
+function holdAuto(){if(!db.settings.pnl||!db.hold.length||!PX||ui.sheet)return;
+  var days=autoDays(),filled=[],redone=[],changed=false;
+  Object.keys(days).sort().forEach(function(k){var l=db.logs[k];if(l&&l.pm)return;var r=pnlFrom(days[k]);if(r.miss.length)return;
+    if(l&&l.pa&&l.pnl===r.un&&l.cb===r.cb)return;
+    if(!l||typeof l.pnl!=='number'||!l.pa)filled.push(k);else if(k<PX.d)redone.push(k);
+    l=db.logs[k]||(db.logs[k]={});l.pnl=r.un;l.cb=r.cb;l.pa=true;delete l.pm;changed=true;});
+  if(changed){save();if(/^(today|stats)$/.test(ui.view))render();
+    var past=filled.filter(function(k){return k<PX.d;});
+    if(redone.length&&!past.length)toast('已依新持股重算 '+shortMD(redone[0])+(redone.length>1?' 起 '+redone.length+' 天':''));
+    else if(past.length)toast('已依收盤價補上 '+(past.length>1?shortMD(past[0])+'–'+shortMD(past[past.length-1])+' 共 '+past.length+' 天':shortMD(past[0])));
+    else if(filled.length)toast('已依 '+shortMD(filled[0])+' 收盤價記錄損益');}
+  // fetch the 30-day history only if a trading day between holdSince and the latest close may be missing
+  var hs=holdSince(),last=null;Object.keys(db.logs).forEach(function(k){if(k>=hs&&k<PX.d&&db.logs[k].pa&&(!last||k>last))last=k;});
+  var from=last?addDays(last,1):hs,gap=false;for(var k=from;k<PX.d;k=addDays(k,1)){var wd=parseKey(k).getDay();if(wd>0&&wd<6&&!(db.logs[k]&&db.logs[k].pm)){gap=true;break;}}
+  if(ui.histNeed&&hs<PX.d)gap=true;
+  if(gap&&!PXH&&Date.now()-pxhAt>600000){pxhAt=Date.now();ui.histNeed=false;
+    fetch('../prices-30.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+      if(!j||!Array.isArray(j.d)||!j.c||typeof j.c!=='object'||!j.d.every(isKey))return;PXH={d:j.d,c:j.c};holdAuto();}).catch(function(){});}}
 function pxOf(code){var x=PX&&PX.p[code];return Array.isArray(x)&&+x[0]>0?{close:+x[0],ch:+x[1]||0,name:String(x[2]||'')}:null;}
 function holdCalc(){if(!PX||!db.hold.length)return null;var r={d:PX.d,mv:0,cost:0,day:0,rows:[],miss:[]};
   db.hold.forEach(function(h){var p=pxOf(h.code);if(!p){r.miss.push(h);return;}var v=h.shares*p.close,c=h.shares*h.cost;
     r.mv+=v;r.cost+=c;r.day+=h.shares*p.ch;r.rows.push({h:h,p:p,v:v,un:v-c,day:h.shares*p.ch});});
   r.un=Math.round(r.mv-r.cost);r.day=Math.round(r.day);r.mv=Math.round(r.mv);return r;}
-function lots(n){var z=Math.floor(n/1000),o=n%1000;return z&&o?z+' 張 '+fmtN(o)+' 股':z?z+' 張':fmtN(o)+' 股';}
+function lots(n){return fmtN(n)+' 股';}
+function hSort(){var v=db.settings.holdSort;return /^(day|un|mv)-?$/.test(v||'')?v:'un';}
+function pct1(f){var v=Math.round(f*1000)/10;return (v<0.1&&f>0?'<0.1':v.toFixed(1))+'%';}
+function pGrip(k){return '<span class="handle pgrip" data-pdrag="'+k+'" role="img" aria-label="按住拖曳調整順序">'+I.grip+'</span>';}
+/* 持股佔比 donut: by market value, top 6 + 其他, shades of the current skin's --good */
+var PIE_COL=['var(--good)','color-mix(in srgb,var(--good) 45%,var(--surface))','color-mix(in srgb,var(--good) 15%,var(--fg))','color-mix(in srgb,var(--good) 18%,var(--surface))','color-mix(in srgb,var(--good) 60%,var(--fg))','color-mix(in srgb,var(--good) 70%,var(--surface))'];
+function pieHTML(){var c=holdCalc();if(!c||!c.rows.length||c.mv<=0)return '';var h=hid();
+  var rows=c.rows.slice().sort(function(a,b){return b.v-a.v;}),sl=rows.slice(0,6).map(function(r,i){var p=r.p;return {n:r.h.name||(p&&p.name)||r.h.code,v:r.v,col:PIE_COL[i]};});
+  if(rows.length>6){var o=0;rows.slice(6).forEach(function(r){o+=r.v;});sl.push({n:'其他 '+(rows.length-6)+' 檔',v:o,col:'var(--faint)'});}
+  var R=60,C=2*Math.PI*R,acc=0,svg='<svg class="pie" viewBox="0 0 160 160" role="img" aria-label="持股佔比：'+sl.map(function(x){return esc(x.n)+' '+pct1(x.v/c.mv);}).join('、')+'">';
+  sl.forEach(function(x){var f=x.v/c.mv,len=f*C,gap=sl.length>1&&len>3?1.5:0;
+    svg+='<circle cx="80" cy="80" r="'+R+'" fill="none" stroke-width="26" style="stroke:'+x.col+'" stroke-dasharray="'+Math.max(0,len-gap).toFixed(2)+' '+C.toFixed(2)+'" stroke-dashoffset="'+(-acc).toFixed(2)+'" transform="rotate(-90 80 80)"/>';acc+=len;});
+  svg+='<text x="80" y="74" text-anchor="middle" font-size="11" style="fill:var(--muted)">總市值</text><text x="80" y="94" text-anchor="middle" font-size="'+(h?16:c.mv>=1e7?13:15)+'" font-weight="700" style="fill:var(--fg)">'+(h?MASK:fmtN(c.mv))+'</text></svg>';
+  var s='<section class="sec"><div class="sec-row"><h2 class="sec-t">持股佔比</h2>'+pGrip('pie')+'</div><div class="panel pie-wrap">'+svg+'<div class="pie-lg">'+
+    sl.map(function(x){return '<div class="pie-li"><i style="background:'+x.col+'"></i><span class="pie-n">'+esc(x.n)+'</span><b>'+pct1(x.v/c.mv)+'</b></div>';}).join('')+'</div></div>';
+  if(c.miss.length)s+='<p class="small muted">'+c.miss.map(function(x){return esc(x.code);}).join('、')+' 沒有收盤價，未列入。</p>';
+  return s+'</section>';}
+function pnlTab(y,m){var ord=(db.settings.pnlOrder||PBLK.join(',')).split(','),b={trend:'<section class="sec"><div class="sec-row"><h2 class="sec-t">損益走勢</h2>'+pGrip('trend')+'</div>'+pnlStats(y,m)+'</section>',pie:pieHTML(),hold:holdHTML()};
+  return ord.map(function(k){return b[k]?'<div class="pblk'+(ui.pDrag===k?' dragging':'')+'" data-pblk="'+k+'">'+b[k]+'</div>':'';}).join('');}
 /* on the 今天 card: suggest the number from closing prices; saving needs a tap (先確認再存) */
-function holdSuggest(k){var c=holdCalc();if(!c||c.d!==k)return '';var h=hid(),has=hasP(k);
-  if(c.miss.length)return '<div class="hsug warn">找不到 '+c.miss.map(function(x){return esc(x.code);}).join('、')+' 的收盤價，請檢查代號。</div>';
-  if(has&&pnlAt(k)===c.un)return '<div class="hsug ok">✓ 已依 '+shortMD(c.d)+' 收盤價記錄</div>';
-  return '<div class="hsug"><div><div class="hsug-l">依 '+shortMD(c.d)+' 收盤價計算</div><b class="'+(h?'':pcls(c.un))+'">'+(h?MASK:sgn(c.un))+'</b>'+
-    '<span class="hsug-d">今日 <b class="'+(h?'':pcls(c.day))+'">'+(h?'••••':chg(c.day))+'</b></span></div>'+
-    '<button class="primary hsug-b" data-act="holdrec">'+(has?'改用這個':'確認記錄')+'</button></div>';}
-function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class="sec-row"><h2 class="sec-t">我的持股</h2><button class="ghost" data-act="holdedit">'+(db.hold.length?'編輯持股':'新增持股')+'</button></div>';
-  if(!db.hold.length)return s+'<p class="small muted">輸入持股的代號、股數和平均成本，每天收盤後 App 會用收盤價幫你算好未實現損益，按一下確認就記錄。持股只存在這支手機。</p></section>';
+function holdSuggest(k){if(!db.hold.length||k<holdSince())return '';var h=hid(),l=db.logs[k],c=holdCalc();
+  var r=autoVal(k);
+  if(!r){return k===todayKey()&&(!PX||PX.d<k)&&parseKey(k).getDay()%6?'<div class="hsug note">收盤價約下午 2 點半更新（偶爾會晚一些），之後打開 App 就會自動記錄。</div>':'';}
+  if(r.miss.length)return '<div class="hsug warn">找不到 '+r.miss.map(esc).join('、')+' 的收盤價，這天沒有自動記錄，請檢查代號。</div>';
+  if(l&&l.pm)return '<div class="hsug"><div><div class="hsug-l">這天是手動輸入 · 依收盤價算是</div><b class="'+(h?'':pcls(r.un))+'">'+(h?MASK:sgn(r.un))+'</b></div>'+
+    '<button class="secondary hsug-b" data-act="pauto" data-k="'+k+'">改回自動</button></div>';
+  if(l&&l.pa&&l.pnl===r.un)return '<div class="hsug ok">✓ 已依 '+shortMD(k)+' 收盤價自動記錄'+(c&&c.d===k?' · 今日 <b class="'+(h?'':pcls(c.day))+'">'+(h?'••••':chg(c.day))+'</b>':'')+'</div>';
+  return '';}
+function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class="sec-row"><h2 class="sec-t">我的持股</h2><span class="tb-r"><button class="ghost" data-act="holdedit">'+(db.hold.length?'編輯持股':'新增持股')+'</button>'+pGrip('hold')+'</span></div>';
+  if(!db.hold.length)return s+'<p class="small muted">輸入持股的代號、股數和平均成本，每天收盤後 App 會用收盤價自動算好並記錄未實現損益。持股只存在這支手機。</p></section>';
+  var srt=hSort(),mode=srt.replace('-',''),rev=srt.slice(-1)==='-';
+  var list=db.hold.map(function(x){return {x:x,r:c&&c.rows.filter(function(q){return q.h.id===x.id;})[0]};});
+  if(c){var f=function(o){return o.r?(mode==='day'?o.r.day:mode==='mv'?o.r.v:o.r.un):null;};
+    list.sort(function(a,b){var va=f(a),vb=f(b);if(va==null||vb==null)return va==null?(vb==null?0:1):-1;return rev?va-vb:vb-va;});}
+  if(c&&c.rows.length>1){var isT0=c.d===todayKey();
+    s+='<div class="seg three hsort">'+[['day',isT0?'今日':shortMD(c.d)],['un','損益'],['mv','市值']].map(function(o){var on=o[0]===mode;
+      return '<button class="'+(on?'on':'')+'" data-act="hsort" data-v="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+(on?' '+(rev?'↑':'↓'):'')+'</button>';}).join('')+'</div>';}
   s+='<div class="list">';
-  db.hold.forEach(function(x){var r=c&&c.rows.filter(function(q){return q.h.id===x.id;})[0],p=pxOf(x.code);
-    s+='<div class="hrow"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+esc(x.code)+' · '+lots(x.shares)+' · 成本 '+r1(x.cost)+'</span></div>'+
-      (r?'<div class="hrow-r"><b class="'+(h?'':pcls(r.un))+'">'+(h?MASK:sgn(Math.round(r.un)))+'</b><span class="small '+(h?'muted':pcls(r.p.ch))+'">'+r.p.close+(r.p.ch?' '+(r.p.ch>0?'▲':'▼')+Math.abs(r.p.ch):'')+'</span></div>':'<div class="hrow-r small muted">'+(PX?'找不到價格':'等待收盤價')+'</div>')+'</div>';});
+  list.forEach(function(o){var x=o.x,r=o.r,p=pxOf(x.code),big,cls='';
+    if(r){big=mode==='day'?r.day:mode==='mv'?r.v:r.un;cls=mode==='mv'?'':pcls(big);big=mode==='mv'?fmtN(Math.round(big)):sgn(Math.round(big));}
+    var cst=x.shares*x.cost,px=!r?'':mode==='un'?'<span class="muted">'+r.p.close+' · </span><span class="'+(h?'muted':pcls(r.un))+'">'+(h?'••%':cst>0?pctS(r.un/cst):'')+'</span>':
+      '<span class="'+(h?'muted':pcls(r.p.ch))+'">'+r.p.close+' '+(r.p.ch>0?'▲':r.p.ch<0?'▼':'')+(r.p.close-r.p.ch>0?pctS(r.p.ch/(r.p.close-r.p.ch)).replace(/^[+−]/,''):'')+'</span>';
+    s+='<div class="hrow"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+esc(x.code)+' · '+lots(x.shares)+' · 成本 '+r1(x.cost)+(r&&c.mv?' · 佔 '+pct1(r.v/c.mv):'')+'</span>'+'</div>'+
+      (r?'<div class="hrow-r"><b class="'+(h?'':cls)+'">'+(h?MASK:big)+'</b>'+'<span class="small">'+px+'</span>'+'</div>':'<div class="hrow-r small muted">'+(PX?'找不到價格':'等待收盤價')+'</div>')+'</div>';});
   s+='</div>';
+  s+='<div class="pxbar"><span class="small muted">'+(pxWhen()?'收盤價更新於 '+pxWhen():PX?shortMD(PX.d)+' 的收盤價':'還沒有收盤價')+'</span><button class="ghost pxre" data-act="pxrefresh">重新整理</button></div>';
   if(c){var isT=c.d===todayKey(),dl=isT?'今天':shortMD(c.d);
     s+='<p class="small muted">'+(isT?'今天收盤':'最新收盤是 '+dl)+' · 市值 '+(h?MASK:'NT$'+fmtN(c.mv))+' · 未實現 '+(h?MASK:sgn(c.un))+' · '+(isT?'今日':dl+' ')+'漲跌 '+(h?'••••':chg(c.day))+'</p>'+
-      (isT?'':'<p class="small muted">上面的價格和漲跌都是 '+dl+' 的收盤資料。交易日下午 2:40 後會更新成當天的收盤價。</p>');}
-  else s+='<p class="small muted">收盤價每天下午更新，交易日 14:40 之後打開 App 就會算好。</p>';
+      (isT?'':'<p class="small muted">上面的價格和漲跌都是 '+dl+' 的收盤資料。交易日約下午 2 點半會更新成當天的收盤價（偶爾會晚一些）。</p>');}
+  else s+='<p class="small muted">收盤價在交易日約下午 2 點半更新（偶爾會晚一些），之後打開 App 就會自動記錄。</p>';
   return s+'</section>';}
 function vHold(){var d=ui.hd;
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="holdcancel">取消</button><h1 class="edit-t">編輯持股</h1><button class="textbtn strong" data-act="holdsave">儲存</button></header>'+
     (ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'')+
-    '<p class="small muted">股數請填「股」，1 張 = 1000 股，零股照實際股數填。平均成本可以在券商 App 的庫存頁看到。</p>'+
+    '<div class="field hdate"><label class="lbl" for="hdate">這次變動是哪天成交的</label><input id="hdate" class="datein" type="date" min="'+addDays(todayKey(),-42)+'" max="'+todayKey()+'" value="'+(ui.hdate||todayKey())+'">'+
+      '<p class="hint">選以前的日子，會從那天起用新的持股重新計算（最多 30 個交易日）。漏了好幾筆交易，請照順序一筆一筆補，每次選各自的成交日。</p></div>'+
+    '<p class="small muted">股數請填「股」，零股照實際股數填。平均成本可以在券商 App 的庫存頁看到。</p>'+
     (ui.hp?holdPasteHTML():'<button class="secondary hp-open" data-act="hpopen">從截圖匯入（用 AI 辨識後貼上）</button>');
   d.forEach(function(x,i){var p=pxOf(x.code);
     s+='<div class="hedit"><div class="hedit-h"><b>'+esc((p&&p.name)||x.name||'持股 '+(i+1))+'</b><button class="iconbtn" data-act="holddel" data-i="'+i+'" aria-label="刪除這筆">'+I.x+'</button></div>'+
@@ -2089,7 +2296,9 @@ function holdSave(){var out=[],bad='';
     else if(!(sh>0))bad=bad||code+' 的股數要大於 0。';else if(!(c>0))bad=bad||code+' 的平均成本要大於 0。';
     else{var p=pxOf(code);out.push({id:x.id||uid(),code:code,name:(p&&p.name)||x.name||'',shares:sh,cost:c});}});
   if(bad){ui.err=bad;render();return;}
-  db.hold=normHold(out);save();ui.err='';pxAt=0;pxLoad();go('stats');ui.statTab='pnl';render();toast('持股已儲存');}
+  var nh=normHold(out),sig=function(a){return JSON.stringify(a.map(function(x){return [x.code,x.shares,x.cost];}));};
+  var td0=todayKey(),hd0=isKey(ui.hdate)&&ui.hdate<=td0?ui.hdate:td0;
+  if(sig(nh)!==sig(db.hold)){db.settings.holdSince=hd0;if(hd0<td0){PXH=null;pxhAt=0;ui.histNeed=true;}}db.hold=nh;save();ui.err='';pxAt=0;pxLoad();go('stats');ui.statTab='pnl';render();toast('持股已儲存');}
 function pnlTile(k){
   var h=hid(),pk=prevPnlKey(k),txt='—',cls='';
   if(hasP(k)&&pk){var d=pnlAt(k)-pnlAt(pk);txt=h?'••••':cchg(d);cls=h?'':pcls(d);}
@@ -2101,8 +2310,8 @@ function pnlSection(k){
     '<button class="eyebtn" data-act="hideamt">'+(h?I.eye+'顯示金額':I.eyeOff+'隱藏金額')+'</button></div><button class="pnl-card" data-act="pnlopen">';
   if(has){
     var v=pnlAt(k),mc=monthChange(d0.getFullYear(),d0.getMonth(),k),meta=[];
-    s+='<div class="pnl-top"><div><div class="pnl-l">收盤後帳面 · '+shortMD(k)+'</div><div class="pnl-v '+(h?'':pcls(v))+'">'+(h?MASK:sgn(v))+'</div></div><span class="pnl-chip">修改</span></div>';
-    if(pk)meta.push('較上次（'+shortMD(pk)+'） <b class="'+(h?'':pcls(v-pnlAt(pk)))+'">'+(h?'••••':chg(v-pnlAt(pk)))+'</b>');
+    s+='<div class="pnl-top"><div><div class="pnl-l">收盤後帳面 · '+shortMD(k)+'</div><div class="pnl-v '+(h?'':pcls(v))+'">'+(h?MASK:sgn(v))+pctTag(pnlPct(k),h)+'</div></div><span class="pnl-chip">'+(db.logs[k].pa?'手動修改':'修改')+'</span></div>';
+    if(pk)meta.push(dLabel(pk,k)+' <b class="'+(h?'':pcls(v-pnlAt(pk)))+'">'+(h?'••••':chg(v-pnlAt(pk)))+(dayPct(k,pk)==null?'':'（'+(h?'••%':pctS(dayPct(k,pk)))+'）')+'</b>');
     if(mc&&mc.show)meta.push('本月 <b class="'+(h?'':pcls(mc.change))+'">'+(h?'••••':chg(mc.change))+'</b>');
     if(meta.length)s+='<div class="pnl-meta">'+meta.map(function(x){return '<span>'+x+'</span>';}).join('')+'</div>';
   }else if(pk){
@@ -2122,6 +2331,8 @@ function vPnl(){
     '<div class="pe-num '+pcls(n)+'" aria-live="polite">'+sgn(n)+'</div>';
   if(pk){var dd=n-pnlAt(pk);s+='<div class="pe-hint">上次 '+shortMD(pk)+'：'+sgn(pnlAt(pk))+'　變動 <b class="'+pcls(dd)+'">'+chg(dd)+'</b></div>';}
   else s+='<div class="pe-hint">第一筆紀錄。之後會自動算出和上次相比的變動。</div>';
+  var lk=db.logs[k];
+  if(lk&&lk.pa)s+='<div class="pe-hint">這天已依收盤價自動記錄。手動改了之後，這天就不會再被自動覆蓋。</div>';
   var acts=[];
   if(pk)acts.push('<button class="ghost" data-act="plast">沿用上次的數字</button>');
   if(hasP(k))acts.push('<button class="ghost bad-t" data-act="pclear">刪除這天的紀錄</button>');
@@ -2135,36 +2346,71 @@ function pnlStats(y,m){
   var t=todayKey(),h=hid(),end=keyOf(new Date(y,m+1,0));if(end>t)end=t;
   var now=new Date(),isCur=y===now.getFullYear()&&m===now.getMonth();
   var mc=keyOf(new Date(y,m,1))>t?null:monthChange(y,m,end);
-  if(!mc)return '<div class="empty"><div class="empty-t">這個月沒有紀錄</div><p>每天收盤後記下帳面上的未實現損益，這裡會畫出走勢。</p>'+
-    (isCur?'<button class="primary" data-act="pnlopen" data-k="'+t+'">輸入今天的數字</button>':'')+'</div>';
-  var ks=mc.keys,vals=ks.map(pnlAt),sel=ks.indexOf(ui.pnlSel);if(sel<0)sel=ks.length-1;
-  var sk=ks[sel],sv=vals[sel],pk=prevPnlKey(sk),sd=pk!=null?sv-pnlAt(pk):null,ds=parseKey(sk);
+  /* 日 = this month's records; 週 = last record of each of the last 26 weeks; 月 = last record of each of the last 12 months */
+  var gr=db.settings.pnlGran==='w'||db.settings.pnlGran==='m'?db.settings.pnlGran:'d';
+  var gseg='<div class="seg three pgran">'+[['d','日'],['w','週'],['m','月']].map(function(o){return '<button class="'+(gr===o[0]?'on':'')+'" data-act="pgran" data-v="'+o[0]+'" aria-pressed="'+(gr===o[0])+'">'+o[1]+'</button>';}).join('')+'</div>';
+  var per=function(k){return gr==='w'?weekStartKey(k):k.slice(0,8)+'01';},ks;
+  if(gr==='d')ks=mc?mc.keys:[];
+  else{var from=gr==='w'?addDays(weekStartKey(t),-175):keyOf(new Date(now.getFullYear(),now.getMonth()-11,1)),grp={};
+    pnlKeys().forEach(function(k){if(k>=from&&k<=t)grp[per(k)]=k;});ks=Object.keys(grp).sort().map(function(g){return grp[g];});}
+  if(!ks.length)return gseg+'<div class="empty"><div class="empty-t">'+(gr==='d'?'這個月沒有紀錄':'還沒有紀錄')+'</div><p>每天收盤後記下帳面上的未實現損益，這裡會畫出走勢。</p>'+
+    (isCur||gr!=='d'?'<button class="primary" data-act="pnlopen" data-k="'+t+'">輸入今天的數字</button>':'')+'</div>';
+  var vals=ks.map(pnlAt),sel=ks.indexOf(ui.pnlSel);if(sel<0)sel=ks.length-1;
+  var sk=ks[sel],sv=vals[sel],pk=gr==='d'?prevPnlKey(sk):sel>0?ks[sel-1]:prevPnlKey(per(sk)),sd=pk!=null?sv-pnlAt(pk):null,ds=parseKey(sk);
+  var mcb=gr==='d'&&mc;
   var W=320,H=170,L=10,R=10,T=16,B=12;
-  var all=vals.slice();if(mc.baseKey)all.push(mc.base);
+  var K=gr==='d'?null:ks.map(function(k){var ps=per(k),pe=gr==='w'?wkEnd(ps):monthEndKey(ps),r=pnlKeys().filter(function(x){return x>=ps&&x<=pe&&x<=t;}).map(pnlAt),pb=prevPnlKey(ps),o=pb?pnlAt(pb):r[0];
+    return {o:o,c:pnlAt(k),h:Math.max.apply(null,r.concat(o)),l:Math.min.apply(null,r.concat(o))};});
+  var all=vals.slice();if(mcb&&mc.baseKey)all.push(mc.base);if(K)K.forEach(function(q){all.push(q.h,q.l);});
   var lo=Math.min.apply(null,all),hi=Math.max.apply(null,all),pad=(hi-lo)*0.12||Math.max(1,Math.abs(hi)*0.05);lo-=pad;hi+=pad;
   function X(i){return ks.length===1?W/2:L+i*(W-L-R)/(ks.length-1);}
   function Y(v){return T+(hi-v)/(hi-lo)*(H-T-B);}
-  var svg='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(m+1)+'月未實現損益走勢，共 '+ks.length+' 筆紀錄">';
+  var svg='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(gr==='d'?(m+1)+'月':gr==='w'?'最近 26 週':'最近 12 個月')+'未實現損益走勢，共 '+ks.length+' 個點">';
   if(lo<0&&hi>0)svg+='<line x1="0" x2="'+W+'" y1="'+Y(0).toFixed(1)+'" y2="'+Y(0).toFixed(1)+'" style="stroke:var(--line)" stroke-width="1"/><text x="'+(W-2)+'" y="'+(Y(0)-4).toFixed(1)+'" text-anchor="end" font-size="10" style="fill:var(--faint)">0</text>';
-  if(mc.baseKey)svg+='<line x1="0" x2="'+W+'" y1="'+Y(mc.base).toFixed(1)+'" y2="'+Y(mc.base).toFixed(1)+'" style="stroke:var(--faint)" stroke-width="1" stroke-dasharray="4 4"/>'+
+ if(mcb&&mc.baseKey)svg+='<line x1="0" x2="'+W+'" y1="'+Y(mc.base).toFixed(1)+'" y2="'+Y(mc.base).toFixed(1)+'" style="stroke:var(--faint)" stroke-width="1" stroke-dasharray="4 4"/>'+
     '<text x="'+(W-2)+'" y="'+(Y(mc.base)-4).toFixed(1)+'" text-anchor="end" font-size="10" style="fill:var(--muted)">上月底'+(h?'':' '+sgn(mc.base))+'</text>';
+  if(K){var cw=Math.max(3,Math.min(14,(W-L-R)/Math.max(1,ks.length-1)*0.62)),step=ks.length>1?(W-L-R)/(ks.length-1):W;
+    ks.forEach(function(k,i){var q=K[i],x=X(i),col=q.c>q.o?'var(--up)':q.c<q.o?'var(--down)':'var(--faint)',yt=Y(Math.max(q.o,q.c)),yb=Y(Math.min(q.o,q.c));
+      svg+='<g data-act="pnlpt" data-k="'+k+'" style="cursor:pointer">'+(i===sel?'<rect x="'+Math.max(0,x-step/2).toFixed(1)+'" y="'+T+'" width="'+(Math.min(W,x+step/2)-Math.max(0,x-step/2)).toFixed(1)+'" height="'+(H-T-B)+'" style="fill:var(--chip)" rx="3"/>':'')+
+        '<rect x="'+(x-step/2).toFixed(1)+'" y="0" width="'+step.toFixed(1)+'" height="'+H+'" fill="transparent"/>'+
+        '<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+Y(q.h).toFixed(1)+'" y2="'+Y(q.l).toFixed(1)+'" style="stroke:'+col+'" stroke-width="1.5"/>'+
+        '<rect x="'+(x-cw/2).toFixed(1)+'" y="'+yt.toFixed(1)+'" width="'+cw.toFixed(1)+'" height="'+Math.max(1.5,yb-yt).toFixed(1)+'" style="fill:'+col+'" rx="1"/></g>';});}
+  else{
   if(ks.length>1)svg+='<path d="'+ks.map(function(_,i){return (i?'L':'M')+X(i).toFixed(1)+' '+Y(vals[i]).toFixed(1);}).join(' ')+'" fill="none" style="stroke:var(--fg)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
   ks.forEach(function(k,i){
-    var p=i?vals[i]-vals[i-1]:(mc.baseKey?vals[0]-mc.base:0),col=p>0?'var(--up)':p<0?'var(--down)':'var(--faint)';
+    var p=i?vals[i]-vals[i-1]:(mcb&&mc.baseKey?vals[0]-mc.base:0),col=p>0?'var(--up)':p<0?'var(--down)':'var(--faint)';
     svg+='<g data-act="pnlpt" data-k="'+k+'" style="cursor:pointer"><circle cx="'+X(i).toFixed(1)+'" cy="'+Y(vals[i]).toFixed(1)+'" r="14" fill="transparent"/>'+
       '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(vals[i]).toFixed(1)+'" r="'+(i===sel?6:4)+'" style="fill:'+col+';stroke:var(--surface)" stroke-width="2"/></g>';
-  });
+  });}
   svg+='</svg>';
   var hiV=Math.max.apply(null,vals),loV=Math.min.apply(null,vals);
-  var s='<div class="panel"><div class="pnl-read"><div><div class="pnl-l">'+(ds.getMonth()+1)+'/'+ds.getDate()+' 週'+WD[ds.getDay()]+' 記錄的未實現損益</div>'+
-    '<div class="pnl-v sm '+(h?'':pcls(sv))+'">'+(h?MASK:sgn(sv))+'</div></div>'+
-    '<div class="pnl-l" style="text-align:right">'+(pk?'比前一筆（'+shortMD(pk)+'）':'比前一筆')+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b></div></div>'+
-    svg+'<div class="chart-x"><span>'+shortMD(ks[0])+'</span>'+(ks.length>1?'<span>'+shortMD(ks[ks.length-1])+'</span>':'')+'</div>'+
-    '<p class="small muted">每個點是你那天記下的未實現損益（不是即時股價），只畫有記錄的日子，點圓點看那一天。</p></div>';
+  var curP=per(sk)===per(t),pl=gr==='d'?(ds.getMonth()+1)+'/'+ds.getDate()+' 週'+WD[ds.getDay()]+' 記錄的未實現損益':
+    gr==='w'?(curP?'本週':shortMD(per(sk))+' 那週')+'的未實現損益（'+shortMD(sk)+'）':(curP?'本月':(ds.getMonth()+1)+' 月')+'的未實現損益（'+shortMD(sk)+'）';
+  var rl=gr==='d'?(pk?dLabel(pk,sk):'今日損益'):gr==='w'?(curP?'本週損益':'那週損益'):(curP?'本月損益':'那月損益');
+  /* x-axis: 日 → each week's first record; 週 → each month's first week; 月 → every month; labels too close together are skipped */
+  var tk=[],lastX=-99;ks.forEach(function(k,i){var lab=null;
+    if(gr==='d'){if(!i||weekStartKey(k)!==weekStartKey(ks[i-1]))lab=shortMD(k);}
+    else if(gr==='w'){if(!i||k.slice(0,7)!==ks[i-1].slice(0,7))lab=(parseKey(k).getMonth()+1)+'月';}
+    else lab=(parseKey(k).getMonth()+1)+'月';
+    if(lab&&X(i)-lastX>=30){tk.push([X(i)/W*100,lab]);lastX=X(i);}});
+  var ticks='<div class="chart-x ticks">'+tk.map(function(q){return '<span style="left:'+q[0].toFixed(1)+'%;transform:translateX('+(q[0]<6?'0':q[0]>94?'-100%':'-50%')+')">'+q[1]+'</span>';}).join('')+'</div>';
+  var s=gseg+'<div class="panel"><div class="pnl-read"><div><div class="pnl-l">'+pl+'</div>'+
+    '<div class="pnl-v sm '+(h?'':pcls(sv))+'">'+(h?MASK:sgn(sv))+pctTag(pnlPct(sk),h)+'</div></div>'+
+    '<div class="pnl-l" style="text-align:right">'+rl+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b>'+(pk&&dayPct(sk,pk)!=null?'<br><span class="'+(h?'':pcls(sd))+'" style="font-size:12px">'+(h?'••%':pctS(dayPct(sk,pk)))+'</span>':'')+'</div></div>'+
+    (K?'<div class="ohlc">'+[['開',K[sel].o],['高',K[sel].h],['低',K[sel].l],['收',K[sel].c]].map(function(q){return '<span><small>'+q[0]+'</small><b class="'+(h?'':pcls(q[1]))+'">'+(h?'••••':sgn(q[1]))+'</b></span>';}).join('')+'</div>':'')+
+    svg+ticks+
+    '<p class="small muted">'+(gr==='d'?'每個點是你那天記下的未實現損益（不是即時股價），只畫有記錄的日子，點圓點看那一天。':gr==='w'?'每根 K 棒是一週（最近 26 週）：開＝上週最後一筆，收＝這週最後一筆，高低是這週紀錄的最高和最低。點 K 棒看那一週。':'每根 K 棒是一個月（最近 12 個月）：開＝上個月最後一筆，收＝這個月最後一筆，高低是這個月紀錄的最高和最低。點 K 棒看那個月。')+'</p></div>';
+  /* the week of the selected point (本週 when it is this week); change is against the last record before that Monday */
+  var ws=weekStartKey(sk),we=wkEnd(ws);if(we>t)we=t;var wk=pnlKeys().filter(function(k){return k>=ws&&k<=we;}),wbk=prevPnlKey(ws);
+  var wl=ws===weekStartKey(t)?'本週':shortMD(ws)+' 那週',wv=wk.map(pnlAt),wch=wk.length?pnlAt(wk[wk.length-1])-(wbk?pnlAt(wbk):wv[0]):0,wshow=!!wbk||wk.length>1;
   s+='<div class="tiles">'+
+    '<div class="tile"><div class="tile-l">'+wl+'變動</div><div class="tile-v sm '+(h||!wshow?'':pcls(wch))+'">'+(!wshow?'—':h?'••••':cchg(wch))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">'+wl+'最高</div><div class="tile-v sm">'+(h?'••••':csgn(Math.max.apply(null,wv)))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">'+wl+'最低</div><div class="tile-v sm">'+(h?'••••':csgn(Math.min.apply(null,wv)))+'</div></div></div>';
+  if(mc)s+='<div class="tiles">'+
     '<div class="tile"><div class="tile-l">本月變動</div><div class="tile-v sm '+(h||!mc.show?'':pcls(mc.change))+'">'+(!mc.show?'—':h?'••••':cchg(mc.change))+'</div></div>'+
-    '<div class="tile"><div class="tile-l">本月最高</div><div class="tile-v sm">'+(h?'••••':csgn(hiV))+'</div></div>'+
-    '<div class="tile"><div class="tile-l">本月最低</div><div class="tile-v sm">'+(h?'••••':csgn(loV))+'</div></div></div>';
+    '<div class="tile"><div class="tile-l">本月最高</div><div class="tile-v sm">'+(h?'••••':csgn(Math.max.apply(null,mc.keys.map(pnlAt))))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">本月最低</div><div class="tile-v sm">'+(h?'••••':csgn(Math.min.apply(null,mc.keys.map(pnlAt))))+'</div></div></div>';
   return s;
 }
 
@@ -2392,16 +2638,22 @@ function vToday(){
   var ad=live>0&&done===live;
   s+='<div class="sum'+(pOn?' three':'')+'"><div class="sum-card good'+(ad?' alldone':'')+(ad&&ui.celAnim?' glow':'')+'"><div class="sum-l">'+(ad?(k===t?'今天全部完成':'全部完成'):'好習慣')+'</div><div class="sum-v">'+done+'<small> / '+live+'</small></div></div>'+
      '<div class="sum-card"><div class="sum-l muted">壞習慣</div><div class="sum-v bad-t">'+badSum+'<small class="muted"> 次</small></div></div>'+(pOn?pnlTile(k):'')+'</div>';
+  function notPre(h){return !(k<h.created&&!val(k,h.id));}
+  var gsv=gs.filter(notPre);
   if(goods.length){
     s+='<section class="sec"><h2 class="sec-t good-t">好習慣</h2>';
-    if(!gs.length)s+='<p class="small muted">這天沒有排定的好習慣。</p>';
-    gs.forEach(function(h){s+=goodCard(h,k);});
+    if(!gsv.length)s+='<p class="small muted">'+(gs.length?'這天還沒開始任何好習慣。':'這天沒有排定的好習慣。')+'</p>';
+    gsv.forEach(function(h){s+=goodCard(h,k);});
     if(rest.length)s+='<p class="small muted">這天休息：'+rest.map(function(h){return esc(h.name);}).join('、')+'</p>';
     s+='</section>'+restUI(k);
   }
-  var wkv=wks.filter(function(h){return wkEnd(weekStartKey(k))>=h.created;});
+  var wkv=wks.filter(function(h){return wkEnd(weekStartKey(k))>=h.created;}).filter(notPre),bsv=bads.filter(notPre);
   if(wkv.length){s+='<section class="sec"><h2 class="sec-t good-t">這週</h2>';wkv.forEach(function(h){s+=goodCard(h,k);});s+='</section>';}
-  if(bads.length){s+='<section class="sec"><h2 class="sec-t bad-t">壞習慣</h2>';bads.forEach(function(h){s+=badCard(h,k);});s+='</section>';}
+  if(bsv.length){s+='<section class="sec"><h2 class="sec-t bad-t">壞習慣</h2>';bsv.forEach(function(h){s+=badCard(h,k);});s+='</section>';}
+  /* habits that start after this day: one line only; back-filling means moving the habit's start date (編輯習慣 → 開始日期) */
+  var pres=gs.concat(wks.filter(function(h){return wkEnd(weekStartKey(k))>=h.created;}),bads).filter(function(h){return !notPre(h);});
+  if(pres.length){
+    s+='<p class="small muted pre-more">還有 '+pres.length+' 個習慣這天還沒開始（要補記，請到「設定」把它的開始日期往前改）</p>';}
   if(pOn)s+=pnlSection(k);
   s+='<section class="sec"><h2 class="sec-t">心情</h2><div class="moods">'+
     MOODS.map(function(m,i){var on=log.mood===i;return '<button class="mood'+(on?' on':'')+'" data-act="mood" data-i="'+i+'" aria-pressed="'+on+'">'+m+'</button>';}).join('')+
@@ -2417,7 +2669,7 @@ function vStats(){
   var isCur=y===now.getFullYear()&&m===now.getMonth();
   var goods=active('good'),bads=active('bad');
   var pOn=!!db.settings.pnl,tabs=[['habits','習慣']];
-  if(pOn)tabs.push(['pnl',dOn()?'損益':'未實現損益']);
+  if(pOn)tabs.push(['pnl','投資']);
   if(dOn())tabs.push(['diary','日記']);
   var tab=tabs.some(function(x){return x[0]===ui.statTab;})?ui.statTab:'habits';
   var s='<div class="page"><header class="titlebar"><h1 class="h1">統計</h1><span class="tb-r"><button class="ghost repbtn" data-act="report">'+I.share+'分享這週</button><button class="iconbtn" data-act="search" aria-label="'+(dOn()?'搜尋備註和日記':'搜尋備註')+'">'+I.search+'</button></span></header>';
@@ -2425,7 +2677,7 @@ function vStats(){
   s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="month" data-n="-1" aria-label="上個月"'+(keyOf(first)<=us?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="month-l">'+y+' 年 '+(m+1)+' 月</div>'+
     '<button class="iconbtn" data-act="month" data-n="1" aria-label="下個月"'+(isCur||first>now?' disabled':'')+'>'+I.right+'</button></div>';
-  if(tab==='pnl')return s+pnlStats(y,m)+holdHTML()+'</div>';
+  if(tab==='pnl')return s+pnlTab(y,m)+'</div>';
   if(tab==='diary')return s+diaryStats(y,m)+'</div>';
   if(!goods.length&&!bads.length){
     return s+'<div class="empty"><div class="empty-t">還沒有資料</div><p>先到「設定」新增習慣，記錄幾天後這裡就會出現月曆和趨勢。</p><button class="primary" data-act="new">新增習慣</button></div></div>';
@@ -2473,6 +2725,7 @@ function vSettings(){
     }).join('')+'</div>';
     s+='</section>';
   });
+  s+='<div class="list"><button class="row-btn" data-act="obtpl"><span class="row-l"><span>用範本加入習慣</span><span class="row-sub">選想改善的方面，推薦幾個常見的習慣</span></span>'+I.chev+'</button></div>';
   var arch=db.habits.filter(function(h){return h.archived;}).length;
   var pOn=!!db.settings.pnl;
   var dO=dOn(),dP=!db.settings.dNoPrompt;
@@ -2501,8 +2754,9 @@ function vSettings(){
     '<button class="row-btn" data-act="archived"><span>已封存的習慣</span><span class="side">'+arch+'</span></button>'+
     '<button class="row-btn" data-act="export"><span>匯出備份</span><span class="side"><span class="small muted" style="margin-right:6px">'+bkAgeText()+'</span>'+I.down+'</span></button>'+
     '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button>'+
+    '<button class="row-btn" data-act="autobk"><span class="row-l"><span>自動備份</span><span class="row-sub">存在這支手機的瀏覽器裡</span></span><span class="side"><span class="small muted" style="margin-right:6px">'+autoList().length+' 份</span>'+I.chev+'</span></button>'+
     (a2Eligible()?'<button class="row-btn" data-act="a2how"><span>加到主畫面的方法</span><span class="side">'+I.share+'</span></button>':'')+'</div>'+
-    '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><button class="clink" data-act="changelog">版本 '+APP_VER+' · 更新紀錄'+(clSeen()?'':'<span class="cldot" aria-label="有新的更新"></span>')+'</button>'+
+    '<p class="small muted" id="phuse"></p><p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><button class="clink" data-act="changelog">版本 '+APP_VER+' · 更新紀錄'+(clSeen()?'':'<span class="cldot" aria-label="有新的更新"></span>')+'</button>'+
     '<button class="small muted cl-foot" data-act="cltap">'+SPROUT+'<span>Aaron × Claude</span><span class="cl-c" aria-hidden="true">C</span></button>'+
     (storageOK?'':'<p class="small bad-t"><strong>目前無法寫入手機儲存空間，新的紀錄不會被保存。</strong>如果開著私密瀏覽，請改用一般模式。</p>')+
     '</section>';
@@ -2588,6 +2842,7 @@ var SPARK_PX=[".....K.....","....KLK....","....KLK....","...KLLLK...",".KKLLLLLK
 var FLAME_PX=["...K...","..KRK..","..KRRK.",".KRROK.","KRROORK","KROYYOK","KROYYOK",".KOYYK.","..KKKK."];
 var ICON_PAL={K:'#16261b',Y:'#ffd447',y:'#e9a92f',h:'#fff6c8',L:'#9be28b',R:'#e2574c',O:'#f59a3c'};
 function rPix(x,px,pal,X,Y,s){px.forEach(function(row,r){for(var c=0;c<row.length;c++){var p=pal[row[c]];if(p){x.fillStyle=p;x.fillRect(X+c*s,Y+r*s,s,s);}}});}
+/* colors of the shared image follow the current 外觀 (read from the page's CSS variables when drawing) */
 var RC={bg:'#F5F2EC',card:'#FFFFFF',fg:'#1C1B19',muted:'#6B655C',faint:'#CFC8BC',line:'#E2DBCF',tile:'#F5F2EC',good:'#2F6B52',good2:'#7FB297',goodSoft:'#E3EFE8',bad:'#B4471C',badLine:'#E9BFA9',up:'#C8283A',down:'#1F7A4A'};
 var RF='-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
 var RX0=104,RX1=976,RW=872;
@@ -2649,7 +2904,7 @@ function repFit(R){return function(x,y,dr){
     if(dr){rRound(x,X,Y,TW,TH,28,RC.tile);rText(x,t[0],X+30,Y+52,28,400,RC.muted);rFont(x,48,800);x.fillStyle=RC.fg;x.fillText(rFit(x,t[1],TW-60),X+30,Y+116);}});
   h+=Math.ceil(tiles.length/2)*(TH+24)+8;
   /* stacked bars: 重訓 (dark) + 有氧 (light) minutes per day */
-  var CS='#2F6B52',CC='#8CC9A8',mx=Math.max.apply(null,F.byDay.map(function(v){return v?v.s+v.c:0;})),top=Math.max(30,Math.ceil(mx/30)*30),CH=260,LW=70,BW=RW-LW,SX=BW/7;
+  var CS=RC.good,CC=RC.good2,mx=Math.max.apply(null,F.byDay.map(function(v){return v?v.s+v.c:0;})),top=Math.max(30,Math.ceil(mx/30)*30),CH=260,LW=70,BW=RW-LW,SX=BW/7;
   if(dr){var Y0=y+h+76+CH;
     [0,top/2,top].forEach(function(g){var gy=Y0-g/top*CH;x.fillStyle=RC.line;x.fillRect(RX0+LW,gy,BW,2);rText(x,Math.round(g)+' 分',RX0+LW-14,gy+9,24,400,RC.muted,'right');});
     F.byDay.forEach(function(v,i){var X=RX0+LW+SX*i+SX*0.2,W=SX*0.6;rText(x,'一二三四五六日'[i],X+W/2,Y0+40,26,400,RC.muted,'center');if(!v||!(v.s+v.c))return;
@@ -2689,7 +2944,7 @@ function repPnl(R,inc){return function(x,y,dr){
 function repMood(R){return function(x,y,dr){
   var M=R.mood,h=48;h+=rTitle(x,y+h,dr,'心情',M.n?'記錄 '+M.n+' 天':'');
   if(!M.n){if(dr)rText(x,'這週沒有記錄心情',RX0,y+h+30,30,400,RC.muted);return h+52+40;}
-  var cols=['#B4471C','#E9A98A','#DCD5C9','#9CCBB2','#2F6B52'],DX=RW/7,r=44;
+  var cols=[RC.bad,RC.badLine,RC.line,RC.good2,RC.good],DX=RW/7,r=44;
   R.days.forEach(function(d,i){var l=db.logs[d],m=d<=R.end&&l&&typeof l.mood==='number'?l.mood:null,X=RX0+DX*i+DX/2,Y=y+h+r+44;
     if(!dr)return;rText(x,'一二三四五六日'[i],X,y+h+26,26,400,RC.muted,'center');
     if(m===null){x.setLineDash([8,8]);x.lineWidth=3;x.strokeStyle=RC.faint;x.beginPath();x.arc(X,Y,r-2,0,7);x.stroke();x.setLineDash([]);return;}
@@ -2703,7 +2958,10 @@ function repMood(R){return function(x,y,dr){
   if(dr){rRound(x,RX0,y+h,RW,BH,28,RC.goodSoft);lines.forEach(function(s,i){rText(x,s,RX0+36,y+h+62+i*54,34,400,RC.fg);});}
   h+=BH;
   return h+40;};}
-function repCanvas(R,inc){
+function repTheme(){try{var cs=getComputedStyle(document.documentElement),g=function(n,k){var v=cs.getPropertyValue(n).trim();if(v)RC[k]=v;};
+  g('--bg','bg');g('--bg','tile');g('--surface','card');g('--fg','fg');g('--muted','muted');g('--line','faint');g('--line','line');g('--good','good');g('--h2','good2');g('--good-soft','goodSoft');
+  g('--bad','bad');g('--bad-line','badLine');g('--up','up');g('--down','down');}catch(e){}}
+function repCanvas(R,inc){repTheme();
   var secs=[];if(inc.h)secs.push(repHabits(R,inc));if(inc.fit)secs.push(repFit(R));if(inc.pnl)secs.push(repPnl(R,inc));if(inc.mood)secs.push(repMood(R));
   var hl=repHL(R,inc);secs.unshift(function(x,y,dr){var h=40;rFont(x,34,700);var ls=[];hl.forEach(function(t,i){rFont(x,i?32:34,i?400:700);ls=ls.concat(rWrap(x,t,RW-120).map(function(s2){return [s2,i];}));});
     if(dr){rSprout(x,RX0,y+(Math.max(ls.length*50+80,150)-95)/2,5);ls.forEach(function(q,i){rText(x,q[0],RX0+120,y+h+42+i*50,q[1]?32:34,q[1]?400:700,q[1]?RC.muted:RC.good);});}
@@ -2794,6 +3052,9 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.20-6','10/20',['回看過去時，還沒開始的習慣會收成一行；習慣可以設定「開始日期」，要補記就把日期往前改','新增「自動備份」：每次更新前和每天第一次打開時自動存一份，可以在設定裡挑時間還原','名稱有「不、別、戒」等字的習慣，圖示會加上禁止斜線','投資頁可以「重新整理」收盤價；編輯持股可以選成交日','損益走勢多了「本週變動／最高／最低」，報酬率 % 移到數字下一行','修正：打勾再取消不會再弄斷連續天數；黑白螢光外觀的圖示看不清楚']],
+ ['2026.10.19-10','10/19',['新功能「我的持股」：輸入代號、股數和均價，收盤後 App 會依收盤價自動算好未實現損益並記錄','可以把券商截圖丟給 AI 辨識，再貼回 App 一次匯入持股','漏記的日子會依收盤價自動補上；手動改過的日子會保留，想恢復可以按「改回自動」','新增持股佔比圓餅圖，每檔顯示佔比；持股列表可以切換「今日／損益／市值」排序並顯示 %','未實現損益加上報酬率 %，「比前一筆」改成「今日損益」並顯示漲跌幅 %','統計的「損益」分頁改名「投資」，裡面的區塊可以按住拖曳調整順序','股數一律用「股」顯示']],
+ ['2026.10.18-20','10/18',['新功能「我的這一週」：在統計頁按「分享這週」，產生這週的圖片分享給朋友，可以選習慣、運動、投資、心情，也能加一句自己的話','新功能「外觀」：到設定可以換成衝刺橘、黑白螢光或冰島','新增獎勵改成先選習慣；每週習慣可以設「累計達標幾週」，壞習慣可以設「連續幾天沒犯」，也多了「累計天數」','有氧可以記距離和秒數，自動算配速；進步頁多了最快配速和每週距離','有新版本時會跳出更新小卡，按一下就更新','每週習慣達標後整張卡片變綠，超過目標會顯示實際次數','新增 14 個健身房常見的內建動作','「今天」分頁改名「習慣」、「習慣設定」改名「設定」；有獎勵可兌換或該備份時，分頁會出現小紅點','回看過去時，還沒開始的習慣會淡化；開始使用以前的日子不能再往前翻','修正：只改「每按一次」的量時，以前的紀錄不會再被換算']],
  ['2026.10.18-1','10/18',['新增「常見問題」（設定 → 說明），部分設定旁也有「?」可以直接看','有目標的習慣卡片統一成「名稱 / 75% · 連續 5 天 / 進度條」，畫面更整齊','每週幾次的習慣用分格進度條顯示']],
  ['2026.10.17-10','10/17',['編輯習慣時，自動選的圖示會跟著名稱更新；頻率移到前面','「用運動紀錄自動打勾」只在運動類的習慣出現','好習慣可以設「每週幾次，哪天都可以」，例如一週運動 3 次','今天頁多了「這週」區塊，顯示本週進度和連續幾週','統計排行用「週」計算這類習慣']],
  ['2026.10.17-9','10/17',['藏了一個小彩蛋']],
@@ -2847,11 +3108,13 @@ function vEdit(){
   var n=d.days.filter(Boolean).length;
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="cancel">取消</button><h1 class="edit-t">'+(isNew?'新增習慣':'編輯習慣')+'</h1><button class="textbtn strong" data-act="save">儲存</button></header>'+
     '<div class="field"><label class="lbl" for="hname">名稱與圖示</label><div class="namerow">'+
-      '<button id="icobtn" class="icobtn'+(ICONS[d.icon]?'':' empty')+'" data-act="iconpick" aria-expanded="'+!!ui.pickIcon+'" aria-label="選擇圖示，目前：'+(ICONS[d.icon]?ICONS[d.icon][0]:'沒有圖示')+'">'+(ICONS[d.icon]?icoSvg(d.icon,24):I.plus)+'</button>'+
+      '<button id="icobtn" class="icobtn'+(ICONS[d.icon]?'':' empty')+'" data-act="iconpick" aria-expanded="'+!!ui.pickIcon+'" aria-label="選擇圖示，目前：'+(ICONS[d.icon]?ICONS[d.icon][0]:'沒有圖示')+'">'+(ICONS[d.icon]?icoSvg(d.icon,24,hasSlash(d.name,d.slash)):I.plus)+'</button>'+
       '<input id="hname" type="text" maxlength="40" placeholder="例如：冥想 10 分鐘" value="'+esc(d.name)+'" autocomplete="off" enterkeyhint="done"></div>'+
       (ui.pickIcon?'<div class="icogrid" role="group" aria-label="圖示">'+
         '<button class="none" data-act="seticon" data-v="none" aria-pressed="'+(!ICONS[d.icon])+'">無</button>'+
         ICON_KEYS.map(function(k){return '<button data-act="seticon" data-v="'+k+'" aria-pressed="'+(d.icon===k)+'" aria-label="'+ICONS[k][0]+'" title="'+ICONS[k][0]+'">'+icoSvg(k,22)+'</button>';}).join('')+'</div>':'')+
+      (ICONS[d.icon]?'<div class="slashrow"><button class="chip'+(hasSlash(d.name,d.slash)?' on':'')+'" data-act="slasht" aria-pressed="'+hasSlash(d.name,d.slash)+'">'+icoSvg(d.icon,16,true)+' 加上禁止斜線</button>'+
+        '<span class="small muted">'+(d.slash==null?'依名稱自動判斷（例如「不喝咖啡」）':'已手動設定')+'</span></div>':'')+
     '</div>'+
     (ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'')+
     '<div class="field"><div class="lbl">類型</div><div class="two">'+
@@ -2885,6 +3148,9 @@ function vEdit(){
       '<button class="switch" role="switch" aria-checked="'+!!d.fitLink+'" aria-label="用運動紀錄自動打勾" data-act="fitlink"><span class="knob"></span></button></div>'+
       (d.fitLink?'<p class="hint">'+(tg?'目標 '+tg+' 分鐘（從名稱抓到的數字）。當天「有氧分鐘 ＋ 運動頁填的重訓分鐘」達到 '+tg+' 分就自動打勾。':'名稱裡沒有分鐘數，所以當天只要有任何運動紀錄就自動打勾。')+'紀錄刪掉時，只會取消自動打的勾。</p>':'')+'</div>';
   }
+  var tk0=todayKey();
+  s+='<div class="field"><label class="lbl" for="hstart">開始日期</label><input id="hstart" class="datein" type="date" min="'+useStart()+'" max="'+tk0+'" value="'+(d.start||tk0)+'">'+
+    '<p class="hint">這天以前不會出現這個習慣，也不算進統計。要補記以前的紀錄，就把日期往前改。</p></div>';
   s+=saveField(d);
   if(!isNew){
     var relR=db.rewards.filter(function(r){return r.habit===d.id;}).length;
@@ -2899,11 +3165,17 @@ function renderSheet(){
   var el=$('#sheet'),sh=ui.sheet;
   if(!sh){el.hidden=true;el.innerHTML='';return;}
   var h='';
+  if(sh.type==='photo'){
+    el.innerHTML='<div class="sheet phsheet" role="dialog" aria-modal="true"><img data-ph="'+sh.id+'" alt="照片"><div class="stack">'+
+      '<button class="secondary" data-act="phreplace">換一張</button><button class="secondary bad-t" data-act="phremove">'+(sh.conf?'再按一次，刪除這張照片':'刪除照片')+'</button>'+
+      '<button class="primary" data-act="closesheet">關閉</button></div></div>';el.hidden=false;phHydrate();return;
+  }
   if(sh.type==='exportpw'){
     h='<h2>幫備份設密碼</h2><p>建議設定。加密後就算備份檔外流，沒有密碼也打不開。<b>密碼忘記就無法還原</b>，請記好。</p>'+
       '<div class="pwrow"><label class="lbl" for="pw1">密碼（至少 6 個字）</label><input id="pw1" type="password" autocomplete="new-password"></div>'+
       '<div class="pwrow"><label class="lbl" for="pw2">再輸入一次</label><input id="pw2" type="password" autocomplete="new-password"></div>'+
       (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
+      (sh.ph&&sh.ph.n?'<button class="row-btn phopt" data-act="bkph"><span class="row-l"><span>包含照片</span><span class="row-sub">'+sh.ph.n+' 張，約 '+phMB(sh.ph.b)+'</span></span><span class="switch" role="switch" aria-checked="'+!ui.bkNoPh+'"><span class="knob"></span></span></button>':'')+
       '<div class="stack"><button class="primary" data-act="exportenc">加密後匯出</button><button class="secondary" data-act="exportplain">不加密，直接匯出</button></div>';
   }else if(sh.type==='unlock'){
     h='<h2>這是加密的備份</h2><p>請輸入匯出時設定的密碼。</p>'+
@@ -2925,6 +3197,12 @@ function renderSheet(){
     el.innerHTML='<div class="sheet ms" role="dialog" aria-modal="true"><div class="ms-n">'+sh.n+'</div><h2>連續 '+sh.n+' 天全部完成！</h2>'+
       '<p>'+(sh.n>=100?'這已經不是習慣，是你的生活方式了。':sh.n>=30?'一整個月都沒有中斷，真的很厲害。':sh.n>=21?'三週了，習慣正在變成自然。':'一整週都做到了，好的開始！')+'</p>'+
       '<div class="stack"><button class="primary" data-act="closesheet">繼續保持</button></div></div>';el.hidden=false;return;
+  }else if(sh.type==='autobk'){
+    var al=autoList(),WHY={update:'更新前',daily:'每日自動備份',restore:'還原前'};
+    h='<h2>自動備份</h2><p class="small muted">App 會在每次更新前、每天第一次打開時，以及還原之前，自動把資料存一份在<b>這支手機的瀏覽器裡</b>。</p><p class="small bad-t">刪除主畫面的 App、清除 Safari 網站資料或換手機時，自動備份會跟著一起消失。請定期按「匯出備份」，把備份存到手機以外的地方（例如雲端硬碟或寄給自己）。</p>'+
+      (al.length?'<div class="list abk">'+al.map(function(x,i){var a=new Date(x.at),info='';try{var o=JSON.parse(x.d);info=(o.habits||[]).length+' 個習慣 · '+Object.keys(o.logs||{}).length+' 天紀錄';}catch(e){info='無法讀取';}
+        return '<div class="hrow"><div class="hrow-l"><b>'+(a.getMonth()+1)+'/'+a.getDate()+'（'+WD[a.getDay()]+'）'+pad(a.getHours())+':'+pad(a.getMinutes())+'</b><span class="small muted">'+WHY[x.why]+(x.why==='update'?'（'+esc(x.v)+' 版）':'')+' · '+info+'</span></div>'+
+          '<button class="secondary abk-b" data-act="autorestore" data-i="'+i+'">還原</button></div>';}).join('')+'</div>':'<p>還沒有自動備份，明天打開 App 時會存第一份。</p>');
   }else if(sh.type==='confirm'){
     h='<h2>確定要還原嗎？</h2>'+metaLine(sh.meta)+'<p>備份裡有 '+sh.data.habits.length+' 個習慣、'+Object.keys(sh.data.logs).length+' 天的紀錄。還原後會取代這支手機上目前的所有資料。</p>'+
       '<div class="stack"><button class="primary danger" data-act="confirmimport">取代目前資料</button></div>';
@@ -2952,6 +3230,8 @@ function render(){
   $('#tabs').hidden=(v==='faq'&&ui.faqBack&&ui.faqBack.view==='edit')||v==='edit'||v==='hold'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
   var tabv=v==='archived'||v==='changelog'||v==='faq'?'settings':v==='search'||v==='report'||v==='hold'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
+  phHydrate();
+  if(v==='settings'&&window.indexedDB&&Object.keys(phRefs(db)).length)phSize().then(function(z){var e=$('#phuse');if(e&&z.n)e.textContent='照片 '+z.n+' 張 · 約 '+phMB(z.b)+'（存在這支手機的瀏覽器裡，匯出備份時可以一起帶走）';});
   if(v==='report')repDraw();
   if(!db.hold)db.hold=[];
   if(db.hold.length&&(v==='today'||v==='stats'))pxLoad();
@@ -2968,14 +3248,14 @@ function saveDraft(){
   if(!name){ui.err='請輸入習慣名稱。';render();return;}
   if(d.kind==='good'&&d.freq!=='week'&&!d.days.some(Boolean)){ui.err='請至少選一天。';render();return;}
   var fq=d.kind==='good'&&d.freq==='week'?'week':'day',pwk=Math.max(1,Math.min(6,d.perWeek||3));
-  if(d.id){var h=byId(d.id);if(h){h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'&&fq==='day'?d.days.slice():allDays();h.freq=fq;h.perWeek=pwk;h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1),nu=normUnit(d.unit);changeStep(h,s1,nu);h.step=s1;h.unit=nu;setGoal(h,d.goal||1);}}}
-  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,freq:fq,perWeek:pwk,days:d.kind==='good'&&fq==='day'?d.days.slice():allDays(),created:todayKey(),archived:false,icon:d.icon||'',saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
+  if(d.id){var h=byId(d.id);if(h){if(typeof d.slash==='boolean')h.slash=d.slash;else delete h.slash;if(isKey(d.start)&&d.start<=todayKey())h.created=d.start;h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'&&fq==='day'?d.days.slice():allDays();h.freq=fq;h.perWeek=pwk;h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1),nu=normUnit(d.unit);changeStep(h,s1,nu);h.step=s1;h.unit=nu;setGoal(h,d.goal||1);}}}
+  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,freq:fq,perWeek:pwk,days:d.kind==='good'&&fq==='day'?d.days.slice():allDays(),created:isKey(d.start)&&d.start<=todayKey()?d.start:todayKey(),archived:false,icon:d.icon||'',slash:typeof d.slash==='boolean'?d.slash:undefined,saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
   fitSync(todayKey());if(ui.date!==todayKey())fitSync(ui.date);
   save();go(ui.back||'settings');render();toast('已儲存');
 }
 
 /* ---------- backup encryption (PBKDF2-SHA256 + AES-GCM) ---------- */
-var MAX_BACKUP=5e6,KDF_ITER=600000;
+var MAX_BACKUP=300e6,KDF_ITER=600000;
 function canCrypt(){try{return !!(window.crypto&&crypto.subtle&&window.TextEncoder);}catch(e){return false;}}
 function b64(buf){var a=new Uint8Array(buf),s='';for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s);}
 function unb64(str){var s=atob(str),a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a;}
@@ -2995,18 +3275,19 @@ function decryptText(o,pw){
 }
 function isEncBackup(o){return o&&o.habitsBackup===1&&o.enc==='AES-GCM'&&typeof o.salt==='string'&&typeof o.iv==='string'&&typeof o.data==='string';}
 function startExport(){
-  if(!canCrypt()){doExport(null);return;}
+  if(!canCrypt()){payloadText(function(pt){doExport(pt,false);});return;}
   ui.sheet={type:'exportpw',err:''};render();var f=$('#pw1');if(f)f.focus();
+  if(window.indexedDB&&Object.keys(phRefs(db)).length)phSize().then(function(z){if(ui.sheet&&ui.sheet.type==='exportpw'){ui.sheet.ph=z;var a=$('#pw1')&&$('#pw1').value,b2=$('#pw2')&&$('#pw2').value;render();if($('#pw1'))$('#pw1').value=a||'';if($('#pw2'))$('#pw2').value=b2||'';}});
 }
 function exportWithPw(){
   var p1=($('#pw1')||{}).value||'',p2=($('#pw2')||{}).value||'';
   if(p1.length<6){ui.sheet.err='密碼至少 6 個字。';render();return;}
   if(p1!==p2){ui.sheet.err='兩次輸入的密碼不一樣。';render();return;}
   ui.sheet={type:'busy',msg:'加密中⋯'};render();
-  encryptText(backupPayload(),p1).then(function(t){doExport(t,true);},function(){ui.sheet={type:'exportpw',err:'加密失敗，請再試一次。'};render();});
+  payloadText(function(pt){encryptText(pt,p1).then(function(t){doExport(t,true);},function(){ui.sheet={type:'exportpw',err:'加密失敗，請再試一次。'};render();});});
 }
 /* backup file naming: time + source, so backups from different browsers or times never share a name */
-var SRC_LABEL={app:'主畫面 App',safari:'Safari',chrome:'Chrome',edge:'Edge',firefox:'Firefox',demo:'示範',browser:'瀏覽器'};
+var SRC_LABEL={app:'主畫面 App',safari:'Safari',chrome:'Chrome',edge:'Edge',firefox:'Firefox',demo:'示範',browser:'瀏覽器',auto:'自動備份'};
 function backupSource(){if(DEMO)return 'demo';if(isStandalone())return 'app';var u=navigator.userAgent||'';
   if(/EdgiOS|Edg\//.test(u))return 'edge';if(/FxiOS|Firefox\//.test(u))return 'firefox';if(/CriOS|Chrome\//.test(u))return 'chrome';if(/Safari\//.test(u))return 'safari';return 'browser';}
 function backupStamp(){var d=new Date(),p=function(n){return String(n).padStart(2,'0');};return todayKey()+'-'+p(d.getHours())+p(d.getMinutes());}
@@ -3039,9 +3320,9 @@ function downloadText(text,name){
 function unlockImport(){
   var pw=($('#pw3')||{}).value||'',raw=ui.sheet.raw;if(!pw){ui.sheet.err='請輸入密碼。';render();return;}
   ui.sheet={type:'busy',msg:'解密中⋯'};render();
-  decryptText(raw,pw).then(function(t){var d=null,mt=null;try{var o=JSON.parse(t);mt=takeMeta(o);d=normalize(o);}catch(e){}
+  decryptText(raw,pw).then(function(t){var d=null,mt=null,ph={};try{var o=JSON.parse(t);mt=takeMeta(o);ph=takePhotos(o);d=normalize(o);}catch(e){}
     if(!d){ui.sheet={type:'import',paste:'',err:'解開了，但內容讀不懂。'};render();return;}
-    ui.sheet={type:'confirm',data:d,meta:mt};render();
+    ui.sheet={type:'confirm',data:d,meta:mt,photos:ph};render();
   },function(){ui.sheet={type:'unlock',raw:raw,err:'密碼不對，請再試一次。'};render();var f=$('#pw3');if(f)f.focus();});
 }
 function tryImport(text){
@@ -3051,9 +3332,9 @@ function tryImport(text){
     if(!canCrypt()){ui.sheet={type:'import',paste:'',err:'這是加密備份，但這個瀏覽器不支援解密。'};render();return;}
     ui.sheet={type:'unlock',raw:raw,err:''};render();var f=$('#pw3');if(f)f.focus();return;
   }
-  var d=null,mt=null;try{mt=takeMeta(raw);d=normalize(raw);}catch(e){}
+  var d=null,mt=null,ph={};try{mt=takeMeta(raw);ph=takePhotos(raw);d=normalize(raw);}catch(e){}
   if(!d){ui.sheet={type:'import',paste:text,err:'讀不懂這份內容，請確認是從這個 App 匯出的備份。'};render();return;}
-  ui.sheet={type:'confirm',data:d,meta:mt};render();
+  ui.sheet={type:'confirm',data:d,meta:mt,photos:ph};render();
 }
 
 /* ---------- events ---------- */
@@ -3064,11 +3345,16 @@ function act(a,b){
   switch(a){
     case 'unlockday': ui.unlocked=ui.date;break;
     case 'relock': ui.unlocked=null;break;
+    case 'hsort': var cur=hSort(),v=b.dataset.v;v=cur.replace('-','')===v?(cur.slice(-1)==='-'?v:v+'-'):v;db.settings.holdSort=v==='un'?undefined:v;if(!db.settings.holdSort)delete db.settings.holdSort;save();render();break;
     case 'skin': db.settings.skin=b.dataset.v==='sprout'?undefined:b.dataset.v;if(!db.settings.skin)delete db.settings.skin;save();applySkin();break;
     case 'locktoggle': db.settings.lockOff=!db.settings.lockOff;save();toast(db.settings.lockOff?'已關閉，過去的紀錄可以直接修改':'已開啟，過去的紀錄會先鎖住');break;
     case 'lockn': n=+b.dataset.v;if(LOCK_NS.indexOf(n)>=0){db.settings.lockN=n;save();}break;
     case 'tab': go(b.dataset.tab);if(ui.view==='today'){ui.date=t;ui.follow=true;}else if(ui.view==='fit'&&ui.follow)ui.date=t;break;
     case 'day': k=addDays(ui.date,+b.dataset.n);if(k>t||k<useStart())return;ui.date=k;ui.follow=k===t;break;
+    case 'phadd': phPick(b.dataset.k,b.dataset.slot);return;
+    case 'phview': var pl=db.logs[b.dataset.k];if(!pl||!pl[b.dataset.slot])return;ui.sheet={type:'photo',id:pl[b.dataset.slot],k:b.dataset.k,slot:b.dataset.slot};break;
+    case 'phreplace': var ps=ui.sheet;ui.sheet=null;render();phPick(ps.k,ps.slot);return;
+    case 'phremove': if(!ui.sheet.conf){ui.sheet.conf=true;break;}var pr=ui.sheet,pl2=db.logs[pr.k];if(pl2&&pl2[pr.slot]===pr.id){delete pl2[pr.slot];tidy(pr.k);save();}phDel(pr.id);ui.sheet=null;toast('已刪除照片');break;
     case 'noteedit': ui.noteEdit=ui.date;render();var ta=document.getElementById('note');if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}return;
     case 'notedone': var nl=db.logs[ui.date];if(nl&&nl.note){nl.note=nl.note.replace(/\s+$/,'');tidy(ui.date);save();}ui.noteEdit=null;render();if(nl&&nl.note)toast('備註已確認');return;
     case 'dtoggle': db.settings.diary=!db.settings.diary;if(!db.settings.diary&&ui.statTab==='diary')ui.statTab='habits';save();toast(db.settings.diary?'已開啟日記':'已關閉，日記仍保留');break;
@@ -3160,15 +3446,17 @@ function act(a,b){
     case 'pvfill': if(!PREVIEW)return;if(db.habits.length&&ui.pvConfirm!=='fill'){ui.pvConfirm='fill';break;}ui.pvConfirm=null;demoBuild();save();ui.date=t;ui.follow=true;go('today');toast('已帶入 4 個月示範資料（只在預覽版）',2600);break;
     case 'pvclear': if(!PREVIEW)return;if(ui.pvConfirm!=='clear'){ui.pvConfirm='clear';break;}ui.pvConfirm=null;db=blank();save();ui.date=t;ui.follow=true;go('today');toast('預覽版資料已清空');break;
     case 'demofill': if(!DEMO_NEW)return;demoFill(120);ui.date=t;ui.follow=true;go('today');toast('已填入 4 個月假紀錄，到各分頁看看',2600);break;
-    case 'obskip': db.settings.onboarded=true;save();ui.ob=null;go('today');break;
+    case 'obskip': if(ui.ob&&ui.ob.add){ui.ob=null;go('settings');break;}db.settings.onboarded=true;save();ui.ob=null;go('today');break;
+    case 'obtpl': ui.ob=obNew();ui.ob.add=true;ui.top=true;go('onboard');break;
     case 'obarea': n=ui.ob.areas.indexOf(b.dataset.v);if(n>=0)ui.ob.areas.splice(n,1);else ui.ob.areas.push(b.dataset.v);
       if(!ui.ob.touched.diary)ui.ob.feats.diary=ui.ob.areas.indexOf('mind')>=0;if(!ui.ob.touched.fit)ui.ob.feats.fit=ui.ob.areas.indexOf('fit')>=0;
       if(!ui.ob.touched.pnl)ui.ob.feats.pnl=ui.ob.areas.indexOf('money')>=0;break;
     case 'obsize': ui.ob.size=+b.dataset.v;break;
     case 'obfeat': ui.ob.feats[b.dataset.v]=!ui.ob.feats[b.dataset.v];ui.ob.touched[b.dataset.v]=true;break;
     case 'obpick': n=ui.ob.picks[+b.dataset.i];if(n)n.on=!n.on;break;
-    case 'obback': if(ui.ob.step>0)ui.ob.step--;ui.top=true;break;
+    case 'obback': if(ui.ob.step>0)ui.ob.step--;if(ui.ob.add&&ui.ob.step===2)ui.ob.step=1;ui.top=true;break;
     case 'obnext': if(ui.ob.step===3){obFinish();return;}
+      if(ui.ob.add&&ui.ob.step===1)ui.ob.step=2;
       if(ui.ob.step===2){var sig=ui.ob.areas.join(',')+'|'+ui.ob.size;if(sig!==ui.ob.sig||!ui.ob.picks){ui.ob.picks=obRecommend(ui.ob.areas,ui.ob.size);ui.ob.sig=sig;}}
       ui.ob.step++;ui.top=true;break;
     case 'bksnooze': n=bkGet();n.snooze=addDays(t,3);bkSet(n);toast('3 天後再提醒你');break;
@@ -3182,8 +3470,8 @@ function act(a,b){
     case 'month': n=ui.month[1]+(+b.dataset.n);if(+b.dataset.n<0&&keyOf(new Date(ui.month[0],ui.month[1],1))<=useStart())return;ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
     case 'pickday': if(b.dataset.k<useStart())return;ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
     case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「設定」修改');break;
-    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
-    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,unit0:h.unit||'次',freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
+    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),start:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
+    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,start:h.created,slash:typeof h.slash==='boolean'?h.slash:null,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,unit0:h.unit||'次',freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
     case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
     case 'iconpick': ui.pickIcon=!ui.pickIcon;break;
     case 'seticon': ui.draft.icon=b.dataset.v;ui.draft.iconTouched=true;ui.pickIcon=false;break;
@@ -3192,6 +3480,7 @@ function act(a,b){
     case 'unitchip': ui.draft.unit=b.dataset.v;break;
     case 'dayt': n=+b.dataset.i;ui.draft.days[n]=!ui.draft.days[n];ui.err='';break;
     case 'freq': ui.draft.freq=b.dataset.v==='week'?'week':'day';ui.err='';break;
+    case 'slasht': ui.draft.slash=!hasSlash(ui.draft.name,ui.draft.slash);break;
     case 'pwstep': ui.draft.perWeek=Math.max(1,Math.min(6,(ui.draft.perWeek||3)+(+b.dataset.n)));break;
     case 'cancel': go(ui.back||'settings');break;
     case 'save': saveDraft();return;
@@ -3215,7 +3504,8 @@ function act(a,b){
       break;
     case 'psign': ui.pe.neg=b.dataset.v==='1';break;
     case 'plast': k=prevPnlKey(ui.date);if(k){ui.pe={digits:String(Math.abs(pnlAt(k))),neg:pnlAt(k)<0};}break;
-    case 'holdedit': ui.hp=null;ui.hd=db.hold.map(function(x){return {id:x.id,code:x.code,name:x.name,shares:String(x.shares),cost:String(x.cost)};});if(!ui.hd.length)ui.hd.push({code:'',shares:'',cost:''});ui.err='';go('hold');break;
+    case 'pxrefresh': pxAt=0;PXH=null;pxhAt=0;pxLoad(function(ok){toast(ok?'已重新讀取收盤價'+(pxWhen()?'（更新於 '+pxWhen()+'）':''):'讀取失敗，請稍後再試');});return;
+    case 'holdedit': ui.hp=null;ui.hdate=todayKey();ui.hd=db.hold.map(function(x){return {id:x.id,code:x.code,name:x.name,shares:String(x.shares),cost:String(x.cost)};});if(!ui.hd.length)ui.hd.push({code:'',shares:'',cost:''});ui.err='';go('hold');break;
     case 'hpopen': ui.hp={text:''};break;
     case 'hpclose': ui.hp=null;break;
     case 'hpcopy': try{navigator.clipboard.writeText(HOLD_PROMPT).then(function(){toast('提示詞已複製');},function(){var d=$('.hp-prompt');if(d)d.open=true;var ta=$('#hprompt');if(ta){ta.focus();ta.select();}toast('請長按選取提示詞後拷貝');});}catch(e){}return;
@@ -3225,11 +3515,15 @@ function act(a,b){
     case 'holddel': ui.hd.splice(+b.dataset.i,1);break;
     case 'holdcancel': ui.err='';go('stats');break;
     case 'holdsave': holdSave();return;
+    case 'pauto': l=db.logs[b.dataset.k];if(l){delete l.pm;delete l.pa;}holdAuto();break;
     case 'holdrec': var hc=holdCalc();if(!hc||hc.d!==ui.date||hc.miss.length)return;l=db.logs[ui.date]||(db.logs[ui.date]={});l.pnl=hc.un;save();toast('已記錄 '+(hid()?'':sgn(hc.un)));break;
-    case 'psave': l=db.logs[ui.date]||(db.logs[ui.date]={});l.pnl=(parseInt(ui.pe.digits||'0',10)*(ui.pe.neg?-1:1))||0;save();ui.pnlSel=ui.date;go(ui.peBack||'today');toast(storageOK?'已記錄':'無法儲存');break;
-    case 'pclear': l=db.logs[ui.date];if(l){delete l.pnl;tidy(ui.date);save();}go(ui.peBack||'today');toast('已刪除這天的損益紀錄');break;
+    case 'psave': l=db.logs[ui.date]||(db.logs[ui.date]={});var nv=(parseInt(ui.pe.digits||'0',10)*(ui.pe.neg?-1:1))||0;
+      if(l.pa&&l.pnl===nv){go(ui.peBack||'today');break;}
+      l.pnl=nv;delete l.pa;if(db.hold.length&&ui.date>=holdSince())l.cb=Math.round(db.hold.reduce(function(a,h){return a+h.shares*h.cost;},0));else delete l.cb;if(db.hold.length&&ui.date>=holdSince()&&autoVal(ui.date))l.pm=true;else delete l.pm;save();ui.pnlSel=ui.date;go(ui.peBack||'today');toast(storageOK?'已記錄':'無法儲存');break;
+    case 'pclear': l=db.logs[ui.date];if(l){delete l.pnl;delete l.pa;delete l.pm;delete l.cb;tidy(ui.date);save();}go(ui.peBack||'today');toast('已刪除這天的損益紀錄');break;
     case 'pcancel': go(ui.peBack||'today');break;
     case 'pnlpt': ui.pnlSel=b.dataset.k;break;
+    case 'pgran': db.settings.pnlGran=b.dataset.v==='d'?undefined:b.dataset.v;if(!db.settings.pnlGran)delete db.settings.pnlGran;ui.pnlSel=null;save();break;
     case 'stab': ui.statTab=b.dataset.v;break;
     case 'search': go('search');render();var qi=$('#q');if(qi)qi.focus();return;
     case 'sback': go('stats');break;
@@ -3243,10 +3537,14 @@ function act(a,b){
     case 'savefrom': if(ui.draft&&isKey(b.dataset.v)&&b.dataset.v<=t)ui.draft.saveFrom=b.dataset.v;break;
     case 'savechip': if(ui.draft){ui.draft.save=+b.dataset.v;}break;
     case 'rnew': ui.rd={id:null,name:'',type:'weekly',habit:(active('good')[0]||{}).id||null,target:RTYPES.weekly.def,repeat:true};rFix(ui.rd);ui.err='';go('redit');render();var rn=$('#rname');if(rn)rn.focus();return;
-    case 'redit': h=rById(id);if(!h)return;ui.rd={id:h.id,name:h.name,type:h.type,habit:h.habit,target:h.target,repeat:h.repeat};ui.err='';go('redit');break;
+    case 'redit': h=rById(id);if(!h)return;ui.rd={id:h.id,name:h.name,type:h.type,habit:h.habit,target:h.target,repeat:h.repeat,u:h.u};ui.err='';go('redit');break;
     case 'rtype': n=b.dataset.v;if(ui.rd.type!==n&&RTYPES[n]){var RT=RTYPES[n];ui.rd.type=n;ui.rd.target=RT.def;ui.rd.repeat=RT.rep;rFix(ui.rd);}ui.err='';break;
-    case 'rhabit': ui.rd.habit=id||null;if(!id)ui.rd.type='saved';else if(ui.rd.type==='saved')ui.rd.type='';rFix(ui.rd);ui.err='';break;
-    case 'rstep': var RS=RTYPES[ui.rd.type],cur=Math.round(+ui.rd.target)||0,stp=RS.unit==='NT$'?(cur<1000||(cur===1000&&+b.dataset.n<0)?100:500):RS.step;ui.rd.target=Math.max(RS.min,Math.min(RS.max,cur+stp*(+b.dataset.n)));break;
+    case 'rhabit': if(id==='inv'){if(!isInv(ui.rd.type)){ui.rd.type='invwk';ui.rd.target=RTYPES.invwk.def;ui.rd.repeat=true;ui.rd.u=undefined;}rFix(ui.rd);ui.err='';break;}
+      ui.rd.habit=id||null;if(isInv(ui.rd.type)){ui.rd.type='';}if(!id)ui.rd.type='saved';else if(ui.rd.type==='saved')ui.rd.type='';rFix(ui.rd);ui.err='';break;
+    case 'rstep': var RS=RTYPES[ui.rd.type],cur=Math.round(+ui.rd.target)||0,pmd=(ui.rd.type==='invwk'||ui.rd.type==='invmo')&&ui.rd.u==='pct';
+      if(pmd){ui.rd.target=Math.max(1,Math.min(1000,cur+(+b.dataset.n)));break;}
+      var stp=isInv(ui.rd.type)?RS.step:RS.unit==='NT$'?(cur<1000||(cur===1000&&+b.dataset.n<0)?100:500):RS.step;ui.rd.target=Math.max(RS.min,Math.min(RS.max,cur+stp*(+b.dataset.n)));break;
+    case 'runit': ui.rd.u=b.dataset.v==='pct'?'pct':undefined;ui.rd.target=ui.rd.u?RTYPES[ui.rd.type].pct:RTYPES[ui.rd.type].def;break;
     case 'rrep': ui.rd.repeat=b.dataset.v==='1';break;
     case 'rsave': saveReward();return;
     case 'rcancel': go('rewards');break;
@@ -3259,12 +3557,16 @@ function act(a,b){
     case 'rdel': if(ui.confirmDel!==id){ui.confirmDel=id;break;}removeRedemption(id);ui.confirmDel=false;toast('已刪除這筆兌換紀錄');break;
     case 'export': startExport();return;
     case 'exportenc': exportWithPw();return;
-    case 'exportplain': doExport(null);return;
+    case 'exportplain': ui.sheet={type:'busy',msg:'準備備份⋯'};render();payloadText(function(pt){doExport(pt,false);});return;
+    case 'bkph': ui.bkNoPh=!ui.bkNoPh;break;
     case 'unlockimp': unlockImport();return;
     case 'import': ui.sheet={type:'import',paste:''};break;
+    case 'autobk': ui.sheet={type:'autobk'};break;
+    case 'autorestore': var ax=autoList()[+b.dataset.i],ad=null;try{ad=ax&&normalize(JSON.parse(ax.d));}catch(e){}
+      if(!ad){toast('這份備份無法讀取');return;}ui.sheet={type:'confirm',data:ad,meta:{at:new Date(ax.at),src:'auto'}};break;
     case 'pickfile': $('#importFile').click();return;
     case 'usepaste': tryImport((ui.sheet&&ui.sheet.paste)||'');return;
-    case 'confirmimport': db=ui.sheet.data;save();ui.sheet=null;ui.date=t;ui.follow=true;go('today');toast('已還原備份');break;
+    case 'confirmimport': autoSnap('restore');var iph=ui.sheet.photos;if(iph&&Object.keys(iph).length&&window.indexedDB)phRestore(iph).then(function(){render();});db=ui.sheet.data;save();ui.sheet=null;ui.date=t;ui.follow=true;go('today');toast('已還原備份');break;
     case 'copy': copyText(ui.sheet.text);return;
     case 'download': downloadText(ui.sheet.text,ui.sheet.name);return;
     case 'closesheet': ui.sheet=null;break;
@@ -3280,8 +3582,8 @@ document.addEventListener('input',function(e){
   var el=e.target;
   if(el.tagName==='SELECT'&&fitSelect(el))return;
   if(el.id==='note'){ui.noteEdit=ui.date;var nf=document.getElementById('note-foot');if(nf)nf.hidden=!el.value.trim();var l=db.logs[ui.date]||(db.logs[ui.date]={});l.note=el.value;tidy(ui.date);save();}
-  else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;var flf=$('#fitlinkf');if(flf)flf.hidden=!fitEligible({fitLink:ui.draft.fitLink,name:el.value,icon:ui.draft.iconTouched?ui.draft.icon:guessIcon(el.value)});
-    if(!ui.draft.iconTouched){var g=guessIcon(el.value);if(g!==ui.draft.icon){ui.draft.icon=g;var ib=$('#icobtn');if(ib){ib.innerHTML=g?icoSvg(g,24):I.plus;ib.classList.toggle('empty',!g);ib.setAttribute('aria-label','選擇圖示，目前：'+(ICONS[g]?ICONS[g][0]:'沒有圖示'));}
+  else if(el.id==='hname'&&ui.draft){ui.draft.name=el.value;var sc=$('.slashrow .chip');if(sc){var on=hasSlash(el.value,ui.draft.slash);sc.classList.toggle('on',on);sc.setAttribute('aria-pressed',on);}var ib0=$('#icobtn');if(ib0&&ICONS[ui.draft.icon])ib0.innerHTML=icoSvg(ui.draft.icon,24,hasSlash(el.value,ui.draft.slash));var flf=$('#fitlinkf');if(flf)flf.hidden=!fitEligible({fitLink:ui.draft.fitLink,name:el.value,icon:ui.draft.iconTouched?ui.draft.icon:guessIcon(el.value)});
+    if(!ui.draft.iconTouched){var g=guessIcon(el.value);if(g!==ui.draft.icon){ui.draft.icon=g;var ib=$('#icobtn');if(ib){ib.innerHTML=g?icoSvg(g,24,hasSlash(el.value,ui.draft.slash)):I.plus;ib.classList.toggle('empty',!g);ib.setAttribute('aria-label','選擇圖示，目前：'+(ICONS[g]?ICONS[g][0]:'沒有圖示'));}
       Array.prototype.forEach.call(document.querySelectorAll('.icogrid [data-act=seticon]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.v===g));});}}}
   else if(el.id==='pastebox'&&ui.sheet){ui.sheet.paste=el.value;}
   else if(el.id==='hptext'&&ui.hp){ui.hp.text=el.value;}
@@ -3299,6 +3601,8 @@ document.addEventListener('input',function(e){
     else if(el.id==='fcsec'){var se=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.sec=se>0?Math.min(59,se):0;Array.prototype.forEach.call(document.querySelectorAll('[data-act=fcset]'),function(x){x.classList.toggle('on',+x.dataset.v===ui.fc.min&&!ui.fc.sec);});}
     else{var dv=parseFloat(el.value.replace(/[^0-9.]/g,''));var kd2=cKind(ui.fc.type);ui.fc.dist=dv>0?Math.min(1000,kd2==='swim'||kd2==='row'?dv/1000:dv):0;}
     var pe=$('#fcpace');if(pe)pe.innerHTML=fcPaceTxt(ui.fc);}
+  else if(el.id==='hdate'){var tk2=todayKey();if(isKey(el.value))ui.hdate=el.value>tk2?tk2:el.value;}
+  else if(el.id==='hstart'&&ui.draft){var tk1=todayKey();if(isKey(el.value))ui.draft.start=el.value>tk1?tk1:el.value;}
   else if(el.id==='hsavefrom'&&ui.draft){var tk=todayKey();if(isKey(el.value)){ui.draft.saveFrom=el.value>tk?tk:el.value;render();}}
   else if(el.id==='hsave'&&ui.draft){ui.draft.save=parseInt(el.value.replace(/[^0-9]/g,''),10)||0;Array.prototype.forEach.call(document.querySelectorAll('[data-act=savechip]'),function(c){c.classList.toggle('on',+c.dataset.v===ui.draft.save);});}
   else if(el.id==='diary'){var dl=db.logs[ui.date]||(db.logs[ui.date]={});dl.diary=dl.diary||{};dl.diary.t=el.value;ui.dEdit=ui.date;tidy(ui.date);save();
@@ -3356,6 +3660,19 @@ document.addEventListener('pointerdown',function(e){
     render();
   }
   function up(){window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);ui.dragId=null;save();render();}
+  window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
+});
+
+/* drag to reorder the 損益 blocks; order kept in settings.pnlOrder */
+document.addEventListener('pointerdown',function(e){
+  var hd=e.target.closest('[data-pdrag]');if(!hd)return;
+  e.preventDefault();try{hd.releasePointerCapture(e.pointerId);}catch(err){}
+  var ord=(db.settings.pnlOrder||PBLK.join(',')).split(',');ui.pDrag=hd.dataset.pdrag;render();
+  function move(ev){var el=document.elementFromPoint(ev.clientX,ev.clientY),b=el&&el.closest('[data-pblk]');
+    if(!b||b.dataset.pblk===ui.pDrag)return;var r=b.getBoundingClientRect(),from=ord.indexOf(ui.pDrag),to=ord.indexOf(b.dataset.pblk);
+    if(from<to&&ev.clientY<r.top+r.height/2||from>to&&ev.clientY>r.top+r.height/2)return;
+    ord.splice(from,1);ord.splice(to,0,ui.pDrag);db.settings.pnlOrder=pOrd(ord.join(','));if(!db.settings.pnlOrder)delete db.settings.pnlOrder;render();}
+  function up(){window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);ui.pDrag=null;save();render();}
   window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
 });
 
