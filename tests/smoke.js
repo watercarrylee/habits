@@ -424,6 +424,39 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!(await p.$eval('.tab[data-tab=settings]', e => e.classList.contains('tdot'))), 'dot on 設定 clears after viewing 更新紀錄 (backed up)');
   await done(p, 'badges');
 
+  console.log('• photos in 備註 and 日記');
+  {
+    p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, diary: true }, rewards: [], redeemed: [], logs: {}, habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3) }] } });
+    const png = await p.evaluate(() => { const c = document.createElement('canvas'); c.width = 3000; c.height = 2000; const x = c.getContext('2d');
+      for (let i = 0; i < 4000; i++) { x.fillStyle = 'hsl(' + (i * 37 % 360) + ',70%,50%)'; x.fillRect(Math.random() * 3000, Math.random() * 2000, 60, 60); } return c.toDataURL('image/png').split(',')[1]; });
+    const buf = Buffer.from(png, 'base64');
+    let fc = p.waitForEvent('filechooser'); await p.click('[data-act=phadd][data-slot=np]'); await (await fc).setFiles({ name: 'big.png', mimeType: 'image/png', buffer: buf });
+    await p.waitForSelector('.phthumb img[src]', { timeout: 10000 });
+    const np = (await db(p)).logs[T].np;
+    const info = await p.evaluate(async id => { const d = await new Promise(r => { const q = indexedDB.open('habit-tracker-v1-photos'); q.onsuccess = () => r(q.result); });
+      const blob = await new Promise(r => { const g = d.transaction('p').objectStore('p').get(id); g.onsuccess = () => r(g.result); });
+      const bm = await createImageBitmap(blob); return { size: blob.size, type: blob.type, w: bm.width, h: bm.height }; }, np);
+    ok(!!np && info.type === 'image/jpeg' && info.size < 600000 && Math.max(info.w, info.h) === 1600, 'note photo is shrunk to JPEG, long edge 1600 (' + JSON.stringify(info) + ', original ' + buf.length + ' bytes)');
+    await p.click('[data-act=dopen]'); fc = p.waitForEvent('filechooser'); await p.click('[data-act=phadd][data-slot=dp]'); await (await fc).setFiles({ name: 'd.png', mimeType: 'image/png', buffer: buf });
+    await p.waitForSelector('.phthumb img[src]', { timeout: 10000 });
+    ok(!!(await db(p)).logs[T].dp, 'diary photo saved');
+    await p.click('[data-act=phview]'); await p.waitForSelector('.phsheet img[src]');
+    await p.click('[data-act=phremove]'); await p.click('[data-act=phremove]');
+    ok(!(await db(p)).logs[T].dp, 'photo can be deleted (asks twice)');
+    await p.click('[data-act=dback]'); await p.click('[data-tab=settings]');
+    await p.waitForFunction(() => /照片 1 張/.test(document.getElementById('phuse').textContent), null, { timeout: 5000 }).catch(() => {});
+    ok((await p.$eval('#phuse', e => e.textContent)).includes('照片 1 張'), 'settings shows how much space photos use');
+    await p.click('[data-act=export]'); await p.waitForSelector('.phopt'); await p.click('[data-act=exportplain]');
+    await p.waitForSelector('#exporttext', { timeout: 10000 }); const bk = await p.$eval('#exporttext', e => e.value);
+    ok(JSON.parse(bk).photos && JSON.parse(bk).photos[np].startsWith('data:image/jpeg;base64,'), 'backup carries the photo');
+    await p.click('[data-act=closesheet]');
+    await p.evaluate(() => new Promise(r => { localStorage.removeItem('habit-tracker-v1'); const q = indexedDB.deleteDatabase('habit-tracker-v1-photos'); q.onsuccess = q.onerror = q.onblocked = () => r(); }));
+    await p.reload(); await p.click('.ob [data-act=import]'); await p.fill('#pastebox', bk); await p.dispatchEvent('#pastebox', 'input'); await p.click('[data-act=usepaste]'); await p.click('[data-act=confirmimport]');
+    await p.waitForSelector('.phthumb img[src]', { timeout: 10000 });
+    ok((await db(p)).logs[T].np === np && !('photos' in (await db(p))), 'restoring the backup brings the photo back (not into localStorage)');
+    await done(p, 'photos');
+  }
+
   console.log('• 用範本加入習慣');
   p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, pnl: true }, rewards: [], redeemed: [], logs: {}, habits: [{ id: 'g1', name: '閱讀 20 頁', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3) }] } });
   await p.click('[data-tab=settings]'); await p.click('[data-act=obtpl]');
