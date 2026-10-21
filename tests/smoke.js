@@ -25,6 +25,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
 
   console.log('• basics: examples, habits, notes with links');
   let p = await page(b);
+  ok(!!(await p.$('.ob')), 'a brand-new user sees the onboarding'); await p.click('[data-act=obskip]');
   await p.click('[data-act=examples]');
   let d = await db(p); ok(d.habits.length === 7, 'examples add 7 habits');
   const g = d.habits.find(h => h.kind === 'good');
@@ -108,7 +109,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=copy]'); await p.click('[data-act=closesheet]');
   ok((await p.$eval('[data-act=export]', e => e.textContent)).includes('今天備份過'), 'settings shows backup age');
   await p.evaluate(() => localStorage.removeItem('habit-tracker-v1')); await p.reload();
-  await p.click('[data-tab=settings]'); await p.click('[data-act=import]'); await p.fill('#pastebox', enc); await p.dispatchEvent('#pastebox', 'input'); await p.click('[data-act=usepaste]');
+  await p.click('.ob [data-act=import]'); await p.fill('#pastebox', enc); await p.dispatchEvent('#pastebox', 'input'); await p.click('[data-act=usepaste]');
   await p.fill('#pw3', 'wrong-pass'); await p.click('[data-act=unlockimp]'); await p.waitForSelector('.err0'); ok(true, 'wrong password rejected');
   await p.fill('#pw3', 'correct-horse'); await p.click('[data-act=unlockimp]'); await p.waitForSelector('[data-act=confirmimport]', { timeout: 20000 });
   ok((await p.$eval('.sheet', e => e.innerText)).includes('備份時間'), 'restore shows when the backup was made');
@@ -142,7 +143,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(Object.keys(d.logs).length > 100 && Object.keys(d.fit.logs).length > 30, 'fake history filled for chosen habits');
   await p.click('[data-act=demoreset]'); ok(!!(await p.$('.ob')), 'restart returns to onboarding');
   ok((await db(p)).habits.length === 0, 'real data untouched');
-  await p.goto(BASE); ok(!(await p.$('.ob')), 'real app does not show onboarding yet');
+  await p.goto(BASE); ok(!!(await p.$('.ob')), 'real app shows onboarding to new users');
   await done(p, 'onboarding');
 
   console.log('• 運動 tab + all-done celebration');
@@ -365,7 +366,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   }
 
   console.log('• cardio pace + 今天 tab');
-  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true }, rewards: [], redeemed: [], logs: {}, habits: [], fit: { ex: [], ctypes: ['拳擊有氧', '健走課'], cdist: [], logs: {
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true, onboarded: true }, rewards: [], redeemed: [], logs: {}, habits: [], fit: { ex: [], ctypes: ['拳擊有氧', '健走課'], cdist: [], logs: {
     [daysAgo(9)]: { c: [{ id: 'r1', type: '戶外跑步', min: 30, dist: 5 }] }, [daysAgo(2)]: { c: [{ id: 'r2', type: '戶外跑步', min: 31, sec: 15, dist: 5.2 }] } } } } });
   await p.click('[data-tab=fit]'); await p.click('[data-act=fcnew]');
   await p.click('[data-act=fctype][data-v=戶外跑步]');
@@ -423,8 +424,19 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!(await p.$eval('.tab[data-tab=settings]', e => e.classList.contains('tdot'))), 'dot on 設定 clears after viewing 更新紀錄 (backed up)');
   await done(p, 'badges');
 
+  console.log('• 用範本加入習慣');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, pnl: true }, rewards: [], redeemed: [], logs: {}, habits: [{ id: 'g1', name: '閱讀 20 頁', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3) }] } });
+  await p.click('[data-tab=settings]'); await p.click('[data-act=obtpl]');
+  ok((await p.$eval('.ob', e => e.innerText)).includes('用範本加入習慣') && (await p.$$('.obdots i')).length === 3, 'template picker reuses onboarding without the feature step');
+  await p.click('[data-act=obarea][data-v=learn]'); await p.click('[data-act=obnext]'); await p.click('[data-act=obnext]');
+  const tp = (await p.$$eval('.obin', a => a.map(e => e.value))).join(',');
+  ok(!tp.includes('閱讀 20 頁') && tp.includes('學英文'), 'habits you already have are not suggested again');
+  await p.click('[data-act=obnext]');
+  const d2t = await db(p); ok(d2t.habits.length >= 2 && d2t.settings.pnl === true, 'adds habits and leaves feature settings alone');
+  await done(p, 'templates');
+
   console.log('• 更新紀錄');
-  p = await page(b);
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true }, habits: [], logs: {}, rewards: [], redeemed: [] } });
   await p.click('[data-tab=settings]');
   ok(!!(await p.$('.clink .cldot')), 'dot shown for an unseen version');
   await p.click('[data-act=changelog]');
@@ -516,7 +528,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await done(p, 'first use');
 
   console.log('• skins');
-  p = await page(b);
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true }, habits: [], logs: {}, rewards: [], redeemed: [] } });
   await p.click('[data-tab=settings]');
   ok((await p.$$('[data-act=skin]')).length === 4, 'four skins offered');
   await p.click('[data-act=skin][data-v=ice]'); ok(await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--good').trim()) === '#2D6A89', '冰島 colours in effect');
@@ -565,7 +577,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
 
   console.log('• 持股 from closing prices');
   {
-    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const ctx = await b.newContext({ viewport: { width: 390, height: 1600 }, serviceWorkers: 'block' });
     const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
     hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
     let pxCalls = 0;
@@ -675,6 +687,12 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const sp = await hp.$eval('.pnl-read', e => e.innerText);
     ok(sp.includes('+10.00%') && sp.includes('今日損益') && sp.includes('+4.76%'), 'stats panel shows both percentages');
     ok((await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('週變動') && (await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('本月變動'), 'trend shows a week row above the month row');
+    await hp.click('[data-act=pgran][data-v=w]');
+    ok((await hp.$eval('.pnl-read', e => e.innerText)).includes('本週損益') && (await db(hp)).settings.pnlGran === 'w', 'week view: one point per week, 本週損益');
+    await hp.click('[data-act=pgran][data-v=m]');
+    ok((await hp.$eval('.pnl-read', e => e.innerText)).includes('本月損益') && (await hp.$$('[data-act=pnlpt]')).length >= 1, 'month view: one point per month, 本月損益');
+    await hp.click('[data-act=pgran][data-v=d]');
+    ok((await hp.$$('.chart-x.ticks span')).length >= 1 && !('pnlGran' in (await db(hp)).settings), 'day view with weekly date ticks');
     await done(hp, 'holdings back-fill');
   }
 
@@ -765,7 +783,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   }
 
   console.log('• security headers in page');
-  p = await page(b);
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true }, habits: [], logs: {}, rewards: [], redeemed: [] } });
   ok(!(await p.evaluate(() => fetch('https://example.com/').then(() => true, () => false))), 'CSP blocks outbound requests');
   await p.evaluate(() => { const d = document.createElement('div'); d.innerHTML = '<img src=x onerror="window.__x=1">'; document.body.appendChild(d); });
   await p.waitForTimeout(200); ok(!(await p.evaluate(() => window.__x)), 'CSP blocks inline handlers');
