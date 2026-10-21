@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-U3ewvwnIOWgdf+b6GLtT1apGz3YvI+N818PENorIOPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ZZ8g9Ox4ydmQbP2PK0KbPIfh6qP8HmHR7iswg9AKb9g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -83,6 +83,10 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .pre-more{margin:4px 0 0}
 .pxbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}.pxre{min-height:32px;padding:0 12px;font-size:13px}
 .abk .hrow{padding:10px 14px}.abk-b{min-height:36px;padding:0 14px;flex:0 0 auto}
+.phrow{margin-top:8px}.phadd{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:17px;border:1.5px dashed var(--line);background:none;color:var(--muted);font-size:13px}.phadd svg{width:16px;height:16px}
+.phthumb{display:block;padding:0;border:0;background:none;border-radius:12px;overflow:hidden;max-width:220px}.phthumb img{display:block;width:100%;max-height:220px;object-fit:cover;min-height:60px;background:var(--chip)}
+.dcard.hasph{display:grid;grid-template-columns:64px 1fr;column-gap:12px}.dcard.hasph .dthumb{grid-row:span 2;width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--chip)}
+.phsheet img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:12px;background:var(--chip);margin-bottom:12px}.phmiss{visibility:hidden}.phopt{margin:8px 0;border:1.5px solid var(--line);border-radius:14px}
 .linkbtn{align-self:center;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;margin-top:-14px}
 
 .sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -1333,6 +1337,7 @@ function normalize(d){
     if(typeof l.note==='string'&&l.note)o.note=l.note;
     if(typeof l.pnl==='number'&&isFinite(l.pnl)){o.pnl=Math.round(l.pnl);if(typeof l.cb==='number'&&l.cb>0&&isFinite(l.cb))o.cb=Math.round(l.cb);if(l.pa===true)o.pa=true;else if(l.pm===true)o.pm=true;}
     if(l.rest===true)o.rest=true;
+    if(cid(l.np))o.np=cid(l.np);if(cid(l.dp))o.dp=cid(l.dp);
     if(Array.isArray(l.fa)){var fa=l.fa.map(cid).filter(Boolean);if(fa.length)o.fa=fa;}
     if(l.diary&&typeof l.diary.t==='string'&&l.diary.t){o.diary={t:l.diary.t};if(typeof l.diary.q==='string'&&l.diary.q)o.diary.q=l.diary.q.slice(0,80);}
     if(Object.keys(o).length)logs[k]=o;
@@ -1362,7 +1367,7 @@ function normalize(d){
   var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
-  Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k))R[k]=d[k];});
+  Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k)&&k!=='photos')R[k]=d[k];});
   Object.keys(st).forEach(function(k){if(!(k in R.settings)&&okKey(k)&&(typeof st[k]==='boolean'||typeof st[k]==='number'||typeof st[k]==='string'))R.settings[k]=st[k];});
   return R;
 }
@@ -1555,7 +1560,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.21-3';
+var APP_VER='2026.10.21-4';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -1596,7 +1601,8 @@ function diaryCard(k){
   var s='<section class="sec"><div class="sec-row"><h2 class="sec-t">日記</h2>'+
     (t?'<button class="eyebtn" data-act="dhide">'+(h?I.eye+'顯示內容':I.eyeOff+'隱藏內容')+'</button>':'')+'</div>';
   if(t){
-    s+='<button class="dcard" data-act="dopen">'+(h?'<div class="dlocked">'+I.lock+'內容已隱藏，點開來看</div>':'<div class="dprev">'+esc(t)+'</div>')+
+    var dpi=!h&&(db.logs[k]||{}).dp;
+    s+='<button class="dcard'+(dpi?' hasph':'')+'" data-act="dopen">'+(dpi?'<img class="dthumb" data-ph="'+dpi+'" alt="">':'')+(h?'<div class="dlocked">'+I.lock+'內容已隱藏，點開來看</div>':'<div class="dprev">'+esc(t)+'</div>')+
       '<div class="dmeta"><span>已寫 · '+fmtN(dCount(t))+' 字 · 已鎖定</span><b>打開'+I.right+'</b></div></button>';
   }else{
     var sub=db.settings.dNoPrompt?'想到什麼就寫什麼':DPROMPTS[dpIdx(k)];
@@ -1625,6 +1631,7 @@ function vDiary(){
   if(q)s+='<div class="dq"><span>'+esc(q)+'</span>'+(ed?'<button data-act="dqx" aria-label="拿掉題目">'+I.x+'</button>':'')+'</div>';
   if(ed)s+='<label class="sr" for="diary">日記內容</label><textarea id="diary" placeholder="想到什麼就寫什麼⋯">'+esc(t)+'</textarea>';
   else s+='<div class="dview">'+linkify(t)+'</div>';
+  s+='<div class="phrow">'+phSlot(k,'dp')+'</div>';
   s+='<div class="dstat"><span id="dstatus">'+(ed?(n?'草稿已自動儲存':'寫的時候會自動存草稿'):'已鎖定 · 按「編輯」修改')+'</span><span id="dcount">'+fmtN(n)+' 字</span></div>';
   return s+'</div></div>';
 }
@@ -1659,7 +1666,7 @@ function diaryStats(y,m){
   if(sel){
     var st=dText(sel),sl=db.logs[sel]||{},sd=parseKey(sel);
     s+='<section class="sec"><h2 class="sec-t">'+(sd.getMonth()+1)+'月'+sd.getDate()+'日'+(sel===t?'（今天）':'')+'</h2>';
-    if(st)s+='<button class="dcard" data-act="dopen" data-k="'+sel+'">'+(dQ(sel)?'<div class="lastyr">'+esc(dQ(sel))+'</div>':'')+'<div class="dprev three">'+esc(st)+'</div><div class="dmeta"><span>'+(sl.mood!=null?'心情：'+MOODS[sl.mood]+' · ':'')+fmtN(dCount(st))+' 字</span><b>打開'+I.right+'</b></div></button>';
+    if(st)s+='<button class="dcard'+(sl.dp?' hasph':'')+'" data-act="dopen" data-k="'+sel+'">'+(sl.dp?'<img class="dthumb" data-ph="'+sl.dp+'" alt="">':'')+(dQ(sel)?'<div class="lastyr">'+esc(dQ(sel))+'</div>':'')+'<div class="dprev three">'+esc(st)+'</div><div class="dmeta"><span>'+(sl.mood!=null?'心情：'+MOODS[sl.mood]+' · ':'')+fmtN(dCount(st))+' 字</span><b>打開'+I.right+'</b></div></button>';
     else s+='<button class="dcard blankd" data-act="dopen" data-k="'+sel+'" style="justify-content:space-between"><span class="muted">這天沒有日記</span><b class="good-t">'+(sel===t?'寫日記':'補寫')+'</b></button>';
     s+='</section>';
   }
@@ -1682,11 +1689,51 @@ function linkify(text){
   }
   return out+esc(text.slice(last));
 }
+/* ---------- 照片: one photo per 備註 and one per 日記 (log.np / log.dp = photo id).
+   Photos live in IndexedDB on this phone (localStorage is too small); each is re-encoded to JPEG with the long edge
+   at most 1600 px (~350 KB), which also drops EXIF data such as GPS location. ---------- */
+var PHDB=KEY+'-photos',PHURL={},phDbP=null;
+function phDb(){if(!phDbP)phDbP=new Promise(function(res,rej){try{var r=indexedDB.open(PHDB,1);r.onupgradeneeded=function(){r.result.createObjectStore('p');};
+  r.onsuccess=function(){res(r.result);};r.onerror=function(){phDbP=null;rej(r.error);};}catch(e){phDbP=null;rej(e);}});return phDbP;}
+function phTx(mode,fn){return phDb().then(function(d){return new Promise(function(res,rej){var tx=d.transaction('p',mode),st=tx.objectStore('p'),out=fn(st);
+  tx.oncomplete=function(){res(out&&out.result!==undefined?out.result:out);};tx.onerror=tx.onabort=function(){rej(tx.error);};});});}
+function phPut(id,blob){return phTx('readwrite',function(st){st.put(blob,id);});}
+function phGet(id){return phTx('readonly',function(st){return st.get(id);});}
+function phDel(id){if(PHURL[id]){try{URL.revokeObjectURL(PHURL[id]);}catch(e){}delete PHURL[id];}return phTx('readwrite',function(st){st.delete(id);});}
+function phAll(){return phDb().then(function(d){return new Promise(function(res,rej){var out={},tx=d.transaction('p','readonly'),c=tx.objectStore('p').openCursor();
+  c.onsuccess=function(){var cu=c.result;if(cu){out[cu.key]=cu.value;cu.continue();}};tx.oncomplete=function(){res(out);};tx.onerror=function(){rej(tx.error);};});});}
+function phUrl(id){if(PHURL[id])return Promise.resolve(PHURL[id]);return phGet(id).then(function(b){if(!b)return '';PHURL[id]=URL.createObjectURL(b);return PHURL[id];});}
+function phHydrate(){Array.prototype.forEach.call(document.querySelectorAll('img[data-ph]:not([src])'),function(im){phUrl(im.dataset.ph).then(function(u){if(u)im.src=u;else im.classList.add('phmiss');},function(){im.classList.add('phmiss');});});}
+function phShrink(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file),im=new Image();
+  im.onload=function(){var w=im.naturalWidth,h=im.naturalHeight,sc=Math.min(1,1600/Math.max(w,h)),cv=document.createElement('canvas');cv.width=Math.round(w*sc);cv.height=Math.round(h*sc);
+    cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(u);
+    var go=function(q){cv.toBlob(function(b){if(!b){rej(new Error('encode'));return;}if(b.size>520000&&q>0.55)go(q-0.12);else res(b);},'image/jpeg',q);};go(0.8);};
+  im.onerror=function(){URL.revokeObjectURL(u);rej(new Error('decode'));};im.src=u;});}
+function phSlot(k,slot){var l=db.logs[k]||{},id=l[slot];
+  if(id)return '<button class="phthumb" data-act="phview" data-k="'+k+'" data-slot="'+slot+'" aria-label="看照片"><img data-ph="'+id+'" alt="照片"></button>';
+  return '<button class="phadd" data-act="phadd" data-k="'+k+'" data-slot="'+slot+'">'+I.plus+'加照片</button>';}
+function phPick(k,slot){var f=document.createElement('input');f.type='file';f.accept='image/*';f.style.display='none';document.body.appendChild(f);
+  f.onchange=function(){var file=f.files&&f.files[0];f.remove();if(!file)return;toast('處理照片中⋯',4000);
+    phShrink(file).then(function(b){var id=uid();return phPut(id,b).then(function(){var l=db.logs[k]||(db.logs[k]={}),old=l[slot];l[slot]=id;save();if(old)phDel(old);render();toast('已加入照片（'+Math.round(b.size/1024)+' KB）');});})
+      .catch(function(){toast('這張照片無法讀取，請換一張試試',3000);});};
+  f.click();}
+function phSize(){return phAll().then(function(m){var n=0,b=0;for(var k in m){n++;b+=m[k]&&m[k].size||0;}return {n:n,b:b};});}
+function phMB(b){return b<1048576?Math.max(1,Math.round(b/1024))+' KB':(Math.round(b/104857.6)/10)+' MB';}
+function blobToData(b){return new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=function(){res('');};r.readAsDataURL(b);});}
+function dataToBlob(u){var m=/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+\/=]+)$/.exec(u||'');if(!m)return null;var bin=atob(m[2]),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:m[1]});}
+/* backups: photos ride along as data URLs under "photos" (only ids referenced by the logs), restored into IndexedDB */
+function phRefs(d){var r={};Object.keys(d.logs||{}).forEach(function(k){var l=d.logs[k];if(l.np)r[l.np]=1;if(l.dp)r[l.dp]=1;});return r;}
+function payloadText(cb){if(ui.bkNoPh||!window.indexedDB){cb(backupPayload());return;}var refs=phRefs(db);if(!Object.keys(refs).length){cb(backupPayload());return;}
+  phAll().then(function(m){var ids=Object.keys(m).filter(function(id){return refs[id];});return Promise.all(ids.map(function(id){return blobToData(m[id]);})).then(function(us){
+    var o=JSON.parse(backupPayload()),ph={};ids.forEach(function(id,i){if(us[i])ph[id]=us[i];});if(Object.keys(ph).length)o.photos=ph;cb(JSON.stringify(o));});}).catch(function(){cb(backupPayload());});}
+function takePhotos(o){var p=o&&o.photos,out={};if(o)delete o.photos;if(p&&typeof p==='object')Object.keys(p).forEach(function(id){var c=cid(id);if(c&&typeof p[id]==='string')out[c]=p[id];});return out;}
+function phRestore(ph){var ids=Object.keys(ph||{});return Promise.all(ids.map(function(id){var b=dataToBlob(ph[id]);return b?phPut(id,b):null;}));}
 function noteBox(k,log){
   var n=log.note||'';
-  if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div><div class="note-view" id="note-view">'+linkify(n)+'</div>';
+  var ph='<div class="phrow">'+phSlot(k,'np')+'</div>';
+  if(n&&ui.noteEdit!==k)return '<div class="note-h"><span class="lbl">備註 · 已鎖定</span><button class="minibtn" data-act="noteedit">編輯</button></div><div class="note-view" id="note-view">'+linkify(n)+'</div>'+ph;
   return '<div class="note-h"><label for="note" class="lbl">備註</label></div><textarea id="note" rows="3" placeholder="今天發生了什麼？">'+esc(n)+'</textarea>'+
-    '<div class="note-foot" id="note-foot"'+(n.trim()?'':' hidden')+'><button class="minibtn" data-act="notedone">確認</button></div>';
+    '<div class="note-foot" id="note-foot"'+(n.trim()?'':' hidden')+'><button class="minibtn" data-act="notedone">確認</button></div>'+ph;
 }
 function tidy(k){var l=db.logs[k];if(!l)return;if(l.h&&!Object.keys(l.h).length)delete l.h;if(!l.note)delete l.note;if(l.mood==null)delete l.mood;if(typeof l.pnl!=='number')delete l.pnl;if(!l.rest)delete l.rest;if(l.diary&&!l.diary.t&&!l.diary.q)delete l.diary;if(l.fa&&!l.fa.length)delete l.fa;if(!Object.keys(l).length)delete db.logs[k];}
 function setVal(k,id,v){
@@ -2709,7 +2756,7 @@ function vSettings(){
     '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button>'+
     '<button class="row-btn" data-act="autobk"><span class="row-l"><span>自動備份</span><span class="row-sub">存在這支手機的瀏覽器裡</span></span><span class="side"><span class="small muted" style="margin-right:6px">'+autoList().length+' 份</span>'+I.chev+'</span></button>'+
     (a2Eligible()?'<button class="row-btn" data-act="a2how"><span>加到主畫面的方法</span><span class="side">'+I.share+'</span></button>':'')+'</div>'+
-    '<p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><button class="clink" data-act="changelog">版本 '+APP_VER+' · 更新紀錄'+(clSeen()?'':'<span class="cldot" aria-label="有新的更新"></span>')+'</button>'+
+    '<p class="small muted" id="phuse"></p><p class="small muted">所有紀錄只存在這支手機上，不會上傳。刪除主畫面上的 App 或清除 Safari 網站資料前，請先匯出備份。</p><button class="clink" data-act="changelog">版本 '+APP_VER+' · 更新紀錄'+(clSeen()?'':'<span class="cldot" aria-label="有新的更新"></span>')+'</button>'+
     '<button class="small muted cl-foot" data-act="cltap">'+SPROUT+'<span>Aaron × Claude</span><span class="cl-c" aria-hidden="true">C</span></button>'+
     (storageOK?'':'<p class="small bad-t"><strong>目前無法寫入手機儲存空間，新的紀錄不會被保存。</strong>如果開著私密瀏覽，請改用一般模式。</p>')+
     '</section>';
@@ -3118,11 +3165,17 @@ function renderSheet(){
   var el=$('#sheet'),sh=ui.sheet;
   if(!sh){el.hidden=true;el.innerHTML='';return;}
   var h='';
+  if(sh.type==='photo'){
+    el.innerHTML='<div class="sheet phsheet" role="dialog" aria-modal="true"><img data-ph="'+sh.id+'" alt="照片"><div class="stack">'+
+      '<button class="secondary" data-act="phreplace">換一張</button><button class="secondary bad-t" data-act="phremove">'+(sh.conf?'再按一次，刪除這張照片':'刪除照片')+'</button>'+
+      '<button class="primary" data-act="closesheet">關閉</button></div></div>';el.hidden=false;phHydrate();return;
+  }
   if(sh.type==='exportpw'){
     h='<h2>幫備份設密碼</h2><p>建議設定。加密後就算備份檔外流，沒有密碼也打不開。<b>密碼忘記就無法還原</b>，請記好。</p>'+
       '<div class="pwrow"><label class="lbl" for="pw1">密碼（至少 6 個字）</label><input id="pw1" type="password" autocomplete="new-password"></div>'+
       '<div class="pwrow"><label class="lbl" for="pw2">再輸入一次</label><input id="pw2" type="password" autocomplete="new-password"></div>'+
       (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
+      (sh.ph&&sh.ph.n?'<button class="row-btn phopt" data-act="bkph"><span class="row-l"><span>包含照片</span><span class="row-sub">'+sh.ph.n+' 張，約 '+phMB(sh.ph.b)+'</span></span><span class="switch" role="switch" aria-checked="'+!ui.bkNoPh+'"><span class="knob"></span></span></button>':'')+
       '<div class="stack"><button class="primary" data-act="exportenc">加密後匯出</button><button class="secondary" data-act="exportplain">不加密，直接匯出</button></div>';
   }else if(sh.type==='unlock'){
     h='<h2>這是加密的備份</h2><p>請輸入匯出時設定的密碼。</p>'+
@@ -3177,6 +3230,8 @@ function render(){
   $('#tabs').hidden=(v==='faq'&&ui.faqBack&&ui.faqBack.view==='edit')||v==='edit'||v==='hold'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
   var tabv=v==='archived'||v==='changelog'||v==='faq'?'settings':v==='search'||v==='report'||v==='hold'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
+  phHydrate();
+  if(v==='settings'&&window.indexedDB&&Object.keys(phRefs(db)).length)phSize().then(function(z){var e=$('#phuse');if(e&&z.n)e.textContent='照片 '+z.n+' 張 · 約 '+phMB(z.b)+'（存在這支手機的瀏覽器裡，匯出備份時可以一起帶走）';});
   if(v==='report')repDraw();
   if(!db.hold)db.hold=[];
   if(db.hold.length&&(v==='today'||v==='stats'))pxLoad();
@@ -3200,7 +3255,7 @@ function saveDraft(){
 }
 
 /* ---------- backup encryption (PBKDF2-SHA256 + AES-GCM) ---------- */
-var MAX_BACKUP=5e6,KDF_ITER=600000;
+var MAX_BACKUP=300e6,KDF_ITER=600000;
 function canCrypt(){try{return !!(window.crypto&&crypto.subtle&&window.TextEncoder);}catch(e){return false;}}
 function b64(buf){var a=new Uint8Array(buf),s='';for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s);}
 function unb64(str){var s=atob(str),a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a;}
@@ -3220,15 +3275,16 @@ function decryptText(o,pw){
 }
 function isEncBackup(o){return o&&o.habitsBackup===1&&o.enc==='AES-GCM'&&typeof o.salt==='string'&&typeof o.iv==='string'&&typeof o.data==='string';}
 function startExport(){
-  if(!canCrypt()){doExport(null);return;}
+  if(!canCrypt()){payloadText(function(pt){doExport(pt,false);});return;}
   ui.sheet={type:'exportpw',err:''};render();var f=$('#pw1');if(f)f.focus();
+  if(window.indexedDB&&Object.keys(phRefs(db)).length)phSize().then(function(z){if(ui.sheet&&ui.sheet.type==='exportpw'){ui.sheet.ph=z;var a=$('#pw1')&&$('#pw1').value,b2=$('#pw2')&&$('#pw2').value;render();if($('#pw1'))$('#pw1').value=a||'';if($('#pw2'))$('#pw2').value=b2||'';}});
 }
 function exportWithPw(){
   var p1=($('#pw1')||{}).value||'',p2=($('#pw2')||{}).value||'';
   if(p1.length<6){ui.sheet.err='密碼至少 6 個字。';render();return;}
   if(p1!==p2){ui.sheet.err='兩次輸入的密碼不一樣。';render();return;}
   ui.sheet={type:'busy',msg:'加密中⋯'};render();
-  encryptText(backupPayload(),p1).then(function(t){doExport(t,true);},function(){ui.sheet={type:'exportpw',err:'加密失敗，請再試一次。'};render();});
+  payloadText(function(pt){encryptText(pt,p1).then(function(t){doExport(t,true);},function(){ui.sheet={type:'exportpw',err:'加密失敗，請再試一次。'};render();});});
 }
 /* backup file naming: time + source, so backups from different browsers or times never share a name */
 var SRC_LABEL={app:'主畫面 App',safari:'Safari',chrome:'Chrome',edge:'Edge',firefox:'Firefox',demo:'示範',browser:'瀏覽器',auto:'自動備份'};
@@ -3264,9 +3320,9 @@ function downloadText(text,name){
 function unlockImport(){
   var pw=($('#pw3')||{}).value||'',raw=ui.sheet.raw;if(!pw){ui.sheet.err='請輸入密碼。';render();return;}
   ui.sheet={type:'busy',msg:'解密中⋯'};render();
-  decryptText(raw,pw).then(function(t){var d=null,mt=null;try{var o=JSON.parse(t);mt=takeMeta(o);d=normalize(o);}catch(e){}
+  decryptText(raw,pw).then(function(t){var d=null,mt=null,ph={};try{var o=JSON.parse(t);mt=takeMeta(o);ph=takePhotos(o);d=normalize(o);}catch(e){}
     if(!d){ui.sheet={type:'import',paste:'',err:'解開了，但內容讀不懂。'};render();return;}
-    ui.sheet={type:'confirm',data:d,meta:mt};render();
+    ui.sheet={type:'confirm',data:d,meta:mt,photos:ph};render();
   },function(){ui.sheet={type:'unlock',raw:raw,err:'密碼不對，請再試一次。'};render();var f=$('#pw3');if(f)f.focus();});
 }
 function tryImport(text){
@@ -3276,9 +3332,9 @@ function tryImport(text){
     if(!canCrypt()){ui.sheet={type:'import',paste:'',err:'這是加密備份，但這個瀏覽器不支援解密。'};render();return;}
     ui.sheet={type:'unlock',raw:raw,err:''};render();var f=$('#pw3');if(f)f.focus();return;
   }
-  var d=null,mt=null;try{mt=takeMeta(raw);d=normalize(raw);}catch(e){}
+  var d=null,mt=null,ph={};try{mt=takeMeta(raw);ph=takePhotos(raw);d=normalize(raw);}catch(e){}
   if(!d){ui.sheet={type:'import',paste:text,err:'讀不懂這份內容，請確認是從這個 App 匯出的備份。'};render();return;}
-  ui.sheet={type:'confirm',data:d,meta:mt};render();
+  ui.sheet={type:'confirm',data:d,meta:mt,photos:ph};render();
 }
 
 /* ---------- events ---------- */
@@ -3295,6 +3351,10 @@ function act(a,b){
     case 'lockn': n=+b.dataset.v;if(LOCK_NS.indexOf(n)>=0){db.settings.lockN=n;save();}break;
     case 'tab': go(b.dataset.tab);if(ui.view==='today'){ui.date=t;ui.follow=true;}else if(ui.view==='fit'&&ui.follow)ui.date=t;break;
     case 'day': k=addDays(ui.date,+b.dataset.n);if(k>t||k<useStart())return;ui.date=k;ui.follow=k===t;break;
+    case 'phadd': phPick(b.dataset.k,b.dataset.slot);return;
+    case 'phview': var pl=db.logs[b.dataset.k];if(!pl||!pl[b.dataset.slot])return;ui.sheet={type:'photo',id:pl[b.dataset.slot],k:b.dataset.k,slot:b.dataset.slot};break;
+    case 'phreplace': var ps=ui.sheet;ui.sheet=null;render();phPick(ps.k,ps.slot);return;
+    case 'phremove': if(!ui.sheet.conf){ui.sheet.conf=true;break;}var pr=ui.sheet,pl2=db.logs[pr.k];if(pl2&&pl2[pr.slot]===pr.id){delete pl2[pr.slot];tidy(pr.k);save();}phDel(pr.id);ui.sheet=null;toast('已刪除照片');break;
     case 'noteedit': ui.noteEdit=ui.date;render();var ta=document.getElementById('note');if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}return;
     case 'notedone': var nl=db.logs[ui.date];if(nl&&nl.note){nl.note=nl.note.replace(/\s+$/,'');tidy(ui.date);save();}ui.noteEdit=null;render();if(nl&&nl.note)toast('備註已確認');return;
     case 'dtoggle': db.settings.diary=!db.settings.diary;if(!db.settings.diary&&ui.statTab==='diary')ui.statTab='habits';save();toast(db.settings.diary?'已開啟日記':'已關閉，日記仍保留');break;
@@ -3497,7 +3557,8 @@ function act(a,b){
     case 'rdel': if(ui.confirmDel!==id){ui.confirmDel=id;break;}removeRedemption(id);ui.confirmDel=false;toast('已刪除這筆兌換紀錄');break;
     case 'export': startExport();return;
     case 'exportenc': exportWithPw();return;
-    case 'exportplain': doExport(null);return;
+    case 'exportplain': ui.sheet={type:'busy',msg:'準備備份⋯'};render();payloadText(function(pt){doExport(pt,false);});return;
+    case 'bkph': ui.bkNoPh=!ui.bkNoPh;break;
     case 'unlockimp': unlockImport();return;
     case 'import': ui.sheet={type:'import',paste:''};break;
     case 'autobk': ui.sheet={type:'autobk'};break;
@@ -3505,7 +3566,7 @@ function act(a,b){
       if(!ad){toast('這份備份無法讀取');return;}ui.sheet={type:'confirm',data:ad,meta:{at:new Date(ax.at),src:'auto'}};break;
     case 'pickfile': $('#importFile').click();return;
     case 'usepaste': tryImport((ui.sheet&&ui.sheet.paste)||'');return;
-    case 'confirmimport': autoSnap('restore');db=ui.sheet.data;save();ui.sheet=null;ui.date=t;ui.follow=true;go('today');toast('已還原備份');break;
+    case 'confirmimport': autoSnap('restore');var iph=ui.sheet.photos;if(iph&&Object.keys(iph).length&&window.indexedDB)phRestore(iph).then(function(){render();});db=ui.sheet.data;save();ui.sheet=null;ui.date=t;ui.follow=true;go('today');toast('已還原備份');break;
     case 'copy': copyText(ui.sheet.text);return;
     case 'download': downloadText(ui.sheet.text,ui.sheet.name);return;
     case 'closesheet': ui.sheet=null;break;
