@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ccibSF5nNTHfUP3yoVbW8Xu2E3fvmT1hCsWxdQwbqUU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-6r01fXxGGpzGXGbRppyVoDqNf39JH7MCKWTRNEAoisA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -92,6 +92,16 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .sell-f{grid-template-columns:1fr 1fr;margin:12px 0 4px}.sell-f label:last-child:nth-child(3){grid-column:1/-1}.sell-f input{box-sizing:border-box;width:100%;height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 12px;font-size:16px;color:var(--fg);font-family:inherit}
 .sellpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.sell-sign{margin:6px 0 8px}.sell-amt{box-sizing:border-box;width:100%;height:52px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 14px;font-size:24px;font-weight:800;color:var(--fg);font-family:inherit;font-variant-numeric:tabular-nums}
 .pnl-split{margin:4px 0 2px}
+.bmsex{grid-template-columns:repeat(2,minmax(0,1fr));padding:3px;border-radius:10px}.bmsex button{height:28px;font-size:13px;padding:0 12px}
+.seg.four{grid-template-columns:repeat(4,minmax(0,1fr))}.bmgran button{height:32px;font-size:14px}
+.bmnav{display:flex;align-items:center;justify-content:space-between;margin:8px 0 2px}.bmnav b{font-size:15px}
+.bmfigs{display:grid;grid-template-columns:1fr 1fr;gap:4px;text-align:center}.bmfigs small{color:var(--faint);font-size:12px}.bmfig{width:100%;height:auto;display:block}
+.bm-f,.bm-h{fill:var(--surface)}.bm-o{fill:none;stroke:var(--faint);stroke-width:.55;stroke-linejoin:round}.bm-h{stroke:var(--faint);stroke-width:.55}.bm-hair{fill:var(--muted)}
+.bm-m{stroke:var(--faint);stroke-width:.45;stroke-linejoin:round;cursor:pointer}.bm-ln{fill:none;stroke:var(--faint);stroke-width:.4;stroke-linecap:round;opacity:.75;pointer-events:none}
+.bl0{fill:var(--chip)}.bl1{fill:color-mix(in srgb,var(--good) 22%,var(--chip))}.bl2{fill:color-mix(in srgb,var(--good) 42%,var(--chip))}.bl3{fill:color-mix(in srgb,var(--good) 62%,var(--chip))}.bl4{fill:color-mix(in srgb,var(--good) 82%,var(--chip))}.bl5{fill:var(--good)}
+.bm-lbl circle{fill:var(--surface);stroke:var(--fg);stroke-width:.45}.bm-lbl text{font-size:5.2px;font-weight:700;text-anchor:middle;fill:var(--fg)}.bm-lbl{cursor:pointer}
+.bmfoot{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px}.bmlegend{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-top:8px;flex-wrap:wrap}.bmlegend i{width:14px;height:10px;border-radius:2px;display:inline-block}
+.bmlegend .bl1{background:color-mix(in srgb,var(--good) 22%,var(--chip))}.bmlegend .bl2{background:color-mix(in srgb,var(--good) 42%,var(--chip))}.bmlegend .bl3{background:color-mix(in srgb,var(--good) 62%,var(--chip))}.bmlegend .bl4{background:color-mix(in srgb,var(--good) 82%,var(--chip))}.bmlegend .bl5{background:var(--good)}
 .linkbtn{align-self:center;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;margin-top:-14px}
 
 .sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -1139,16 +1149,62 @@ function fitChart(H,data,unitTxt,name){
     '<text x="0" y="'+(top+4)+'" font-size="10" fill="var(--muted)">'+Math.round(hi)+'</text><text x="0" y="'+Ht+'" font-size="10" fill="var(--muted)">'+Math.round(lo)+'</text></svg>'+
     '<div class="chart-x"><span>'+shortMD(data[0].k)+'</span><span>'+shortMD(data[data.length-1].k)+'</span></div>';
 }
+/* 練了哪些部位: front/back muscle map (男／女), shaded by how many days each part was trained in the chosen period
+   (週／月／季／年, ‹ › to go back). Shapes are drawn for the right half and mirrored; the female figure reuses them,
+   narrower at the shoulders and waist and wider at the hips. */
+var BM_OUT='M50 26 L55 26 L56 31 C60 33 64 34 68 35 C73 35.5 76.5 38 78 44 C79 50 79.5 56 79 62 C79 66 80 69 81 73 C82.5 79 83 85 82 90 L81.5 93 C83 96 83.5 101 81.5 104 C80 106 77.5 105.5 77 103 C76.5 99 77 95 77.5 93 C76 86 74.5 79 73.5 72 C73 68 72.5 64 72 60 C71.5 55 70.5 51 69 48 C68.5 55 67.5 62 66 68 C65 74 64.5 79 65 84 C66 89 67 95 66.5 101 C66.5 112 65 124 63 134 C62.5 139 62.5 143 62.8 147 C64.5 154 64.5 163 62.5 172 C61.5 180 60.5 186 60 190 C62 192 64 195 62.5 197 L54 197.5 C53 195 53.5 192 54 189 C53.5 182 53 172 52.8 165 C52.5 158 53.5 152 53.5 148 C53 143 53 139 52.5 134 C52 124 51.5 114 50.5 107 L50 105 Z';
+var BM_DELT='M66 35 C71 34.5 76.5 37 77.8 43.5 C78.5 49 77 53 74.5 55 C72.5 50 70 44 66 39.5 Z';
+var BM={front:[['肩',BM_DELT],['胸','M51 35.5 C56 34.5 62 34.5 66 36 C69 40 69.5 45 67.5 49 C63 52.5 57 53 51 51.5 Z'],
+  ['核心','M51 54 C54.5 54 57.5 54.5 59 55.5 C59.5 64 59 74 57.5 84 C55.5 88 53 90 51 90.5 Z'],['核心','M60.5 57 C63 62 64.5 70 64 80 C62.5 84 60 86 58.5 87 C60 77 61 66 60.5 57 Z'],
+  ['二頭','M70.8 50.5 C73.5 52 76.5 56 77.2 61 C77.5 65 76.5 67.5 74.5 68 C72.5 64 71.5 58 70.8 50.5 Z'],
+  ['腿','M53 107 C57 101 62 96.5 65.5 97 C66.5 110 65.5 124 62.5 136 C60.5 141 57 143 54.5 141 C53.5 130 53 118 53 107 Z'],
+  ['小腿','M60.5 150 C63.5 155 63.8 163 62 170 C61 166 60.3 158 60.5 150 Z'],['小腿','M54 151 C53 158 53 166 54 172 C55.2 166 55.5 158 54 151 Z']],
+ back:[['背','M51 28 L55.5 30 C59 33 63.5 34 67 35.5 C67.5 42 67.2 50 65.5 58 C63 67 58 76 51 84 Z'],['肩',BM_DELT],
+  ['三頭','M71 48 C74 49.5 77.8 53 78.5 58 C79 63 78 66.5 76 68 C73.5 63.5 72 56 71 48 Z'],
+  ['臀','M51 88 C55 85.5 61 85.5 65 89 C67.5 95 66.5 103 62.5 107 C58 109.5 54 108.5 51 106 Z'],
+  ['腿','M52.5 110 C56 109 61 109 64.5 110.5 C64.5 122 63 133 60.5 141 C58.5 143.5 55.5 143.5 54 141 C53 131 52.5 120 52.5 110 Z'],
+  ['小腿','M53.8 147 C52.6 155 53 164 55.2 171 C56.5 172.5 57.5 171 57.6 168 C57.8 160 57.6 152 56.8 147 Z'],['小腿','M58 147 C60.5 150 62.8 156 62.5 164 C62 168.5 60.5 170.5 59 169 C58.5 162 58.2 154 58 147 Z']]};
+var BM_LN={front:['M51 62 L58.8 62','M51 70 L58.5 70','M51 78 L57.8 78','M59 105 C60 116 59.5 128 57.5 139','M70 56 C70 62 71.5 70 73.5 72'],back:['M51 50 C56 46 62 41 66.5 37','M58.5 111 C58.5 122 58.2 132 57.5 141','M55 31 C55 38 54 44 51 47']};
+var BM_FCHEST='M51 37.5 C56 36.5 61 36.5 64.5 38 C66.5 41 66.5 45 64.5 47.5 C60.5 49.5 55.5 49.5 51 48.5 Z';
+var BM_LBL={front:{'肩':[73.5,42],'胸':[58.5,44],'二頭':[74.5,60],'核心':[55,73],'腿':[59.5,120],'小腿':[61.5,161]},back:{'肩':[73.5,42],'背':[58.5,55],'三頭':[75.5,59],'臀':[58.5,97],'腿':[58.5,125],'小腿':[60.3,159]}};
+function bmK(y){var P=[[0,1],[26,.95],[40,.88],[60,.86],[80,.84],[92,1.03],[110,1.06],[150,1],[205,1]];for(var i=0;i<P.length-1;i++){if(y>=P[i][0]&&y<=P[i+1][0])return P[i][1]+(P[i+1][1]-P[i][1])*(y-P[i][0])/(P[i+1][0]-P[i][0]);}return 1;}
+function bmTr(d,f){var t=d.match(/[A-Za-z]|-?\d*\.?\d+/g),o=[],i=0;while(i<t.length){if(/[A-Za-z]/.test(t[i])){o.push(t[i]);i++;continue;}var q=f(+t[i],+t[i+1]);o.push(q[0].toFixed(2)+' '+q[1].toFixed(2));i+=2;}return o.join(' ');}
+function bmMir(d){return bmTr(d,function(x,y){return [100-x,y];});}
+function bmSvg(sex,side,cnt,mx){
+  var T=sex==='f'?function(d){return bmTr(d,function(x,y){return [50+(x-50)*bmK(y),y];});}:function(d){return d;},both=function(d){return T(d)+' '+T(bmMir(d));};
+  var lv=function(p){var c=cnt[p]||0;return c?Math.max(1,Math.min(5,Math.ceil(5*c/mx))):0;};
+  var s='<svg class="bmfig" viewBox="0 0 100 200" role="img" aria-label="'+(side==='front'?'正面':'背面')+'">';
+  var OP=BM_OUT.replace('M50 26 L55 26','M55 26').replace(' L50 105 Z','');
+  s+='<path class="bm-f" d="'+both(BM_OUT)+'"/><path class="bm-o" d="'+both(OP)+'"/><ellipse class="bm-h" cx="50" cy="15" rx="9.6" ry="11"/>';
+  if(sex==='m')s+=side==='front'?'<path class="bm-hair" d="M40.6 13.5 C40 5 47 3.2 51 3.6 C57 3.8 60.5 7 59.6 13.5 C58 10 55 9 50 9.5 C45 9.5 42 10.5 40.6 13.5 Z"/>':'<path class="bm-hair" d="M40.6 15 C39.5 5 47 3.2 51 3.6 C57 3.8 61 7 59.4 15 C59 19 58 21.5 56 23 L44 23 C42 21.5 41 19 40.6 15 Z"/>';
+  else s+='<circle class="bm-hair" cx="50" cy="3.6" r="3.7"/>'+(side==='front'?'<path class="bm-hair" d="M40.8 15 C40.5 6 46 4.5 50 4.5 C55 4.5 59.5 6.5 59.2 15 C57 10.5 53 9.8 50 10 C46 10 43 11 40.8 15 Z"/>':'<path class="bm-hair" d="M40.8 15.5 C40 6 46 4.5 50 4.5 C55 4.5 60 6.5 59.2 15.5 C58.8 19.5 57.5 22 55.5 23 L44.5 23 C42.5 22 41.2 19.5 40.8 15.5 Z"/>');
+  BM[side].forEach(function(q){var d=sex==='f'&&q[0]==='胸'?BM_FCHEST:q[1];s+='<path class="bm-m bl'+lv(q[0])+'" data-act="fbpart" data-v="'+q[0]+'" d="'+both(d)+'"/>';});
+  BM_LN[side].forEach(function(d){s+='<path class="bm-ln" d="'+both(d)+'"/>';});
+  if(sex==='f'&&side==='front')s+='<path class="bm-ln" d="'+both('M51 50 C56 51.5 61 51 65 49')+'"/>';
+  Object.keys(BM_LBL[side]).forEach(function(p){var c=cnt[p]||0;if(!c)return;var a=BM_LBL[side][p],x=sex==='f'?50+(a[0]-50)*bmK(a[1]):a[0];
+    s+='<g class="bm-lbl" data-act="fbpart" data-v="'+p+'"><circle cx="'+x.toFixed(1)+'" cy="'+a[1]+'" r="4"/><text x="'+x.toFixed(1)+'" y="'+(a[1]+1.5)+'">'+c+'</text></g>';});
+  return s+'</svg>';}
+function bmRange(g,off){var t=todayKey(),d=parseKey(t),a,b,lab;
+  if(g==='w'){a=addDays(weekStartKey(t),-7*off);b=addDays(a,6);lab=shortMD(a)+' – '+shortMD(b);}
+  else if(g==='q'){var q0=Math.floor(d.getMonth()/3)*3-3*off,qs=new Date(d.getFullYear(),q0,1);a=keyOf(qs);b=keyOf(new Date(qs.getFullYear(),qs.getMonth()+3,0));lab=qs.getFullYear()+' 年 Q'+(Math.floor(qs.getMonth()/3)+1);}
+  else if(g==='y'){a=(d.getFullYear()-off)+'-01-01';b=(d.getFullYear()-off)+'-12-31';lab=(d.getFullYear()-off)+' 年';}
+  else{var ms=new Date(d.getFullYear(),d.getMonth()-off,1);a=keyOf(ms);b=keyOf(new Date(ms.getFullYear(),ms.getMonth()+1,0));lab=ms.getFullYear()+' 年 '+(ms.getMonth()+1)+' 月';}
+  return {a:a,b:b>t?t:b,lab:lab};}
 function fitPartsHTML(){
-  var t=todayKey(),ms=t.slice(0,8)+'01',cnt={},lastK={};
-  Object.keys(db.fit.logs).forEach(function(k){var seen={};(db.fit.logs[k].s||[]).forEach(function(en){var e=exById(en.ex);if(!e)return;
-    if(!lastK[e.part]||k>lastK[e.part])lastK[e.part]=k;if(k>=ms&&!seen[e.part]){seen[e.part]=1;cnt[e.part]=(cnt[e.part]||0)+1;}});});
-  if(!Object.keys(lastK).length)return '';
-  var mx=Math.max.apply(null,PARTS.map(function(p){return cnt[p]||0;}).concat([1]));
-  var stale=PARTS.filter(function(p){return lastK[p]&&(parseKey(t)-parseKey(lastK[p]))/864e5>10;}).map(function(p){return [p,Math.round((parseKey(t)-parseKey(lastK[p]))/864e5)];}).sort(function(a,b){return b[1]-a[1];});
-  return '<section class="sec"><div class="sec-row"><h2 class="sec-t">這個月練了哪些部位</h2><span class="small muted">天數</span></div><div class="panel">'+
-    PARTS.map(function(p){var c=cnt[p]||0,st=stale.some(function(x){return x[0]===p;});return '<div class="prow"><span>'+p+'</span><span class="fbar"><i class="'+(st?'low':'')+'" style="width:'+(c/mx*100)+'%"></i></span><span class="'+(st?'bad-t':'')+'" style="text-align:right">'+c+'</span></div>';}).join('')+
-    (stale.length?'<p class="small bad-t">'+stale.slice(0,2).map(function(x){return x[0]+'已經 '+x[1]+' 天沒練了';}).join('，')+'</p>':'')+'</div></section>';
+  var t=todayKey(),cnt={},lastK={},first=null,g=/^[wqy]$/.test(db.settings.fitGran||'')?db.settings.fitGran:'m',off=Math.max(0,ui.fbOff||0),R=bmRange(g,off),sex=db.settings.fitSex==='f'?'f':'m';
+  Object.keys(db.fit.logs).forEach(function(k){var seen={};(db.fit.logs[k].s||[]).forEach(function(en){var e=exById(en.ex);if(!e)return;if(!first||k<first)first=k;
+    if(!lastK[e.part]||k>lastK[e.part])lastK[e.part]=k;if(k>=R.a&&k<=R.b&&!seen[e.part]){seen[e.part]=1;cnt[e.part]=(cnt[e.part]||0)+1;}});});
+  if(!first)return '';
+  var mx=Math.max.apply(null,PARTS.filter(function(p){return p!=='全身';}).map(function(p){return cnt[p]||0;}).concat([1]));
+  var stale=off?[]:PARTS.filter(function(p){return p!=='全身'&&lastK[p]&&(parseKey(t)-parseKey(lastK[p]))/864e5>10;}).map(function(p){return [p,Math.round((parseKey(t)-parseKey(lastK[p]))/864e5)];}).sort(function(a,b){return b[1]-a[1];});
+  var seg=function(cls,act,opts,cur){return '<div class="seg '+cls+'">'+opts.map(function(o){return '<button class="'+(cur===o[0]?'on':'')+'" data-act="'+act+'" data-v="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>';}).join('')+'</div>';};
+  var canBack=R.a>first;
+  return '<section class="sec"><div class="sec-row"><h2 class="sec-t">練了哪些部位</h2>'+seg('bmsex','fbsex',[['m','男'],['f','女']],sex)+'</div><div class="panel bm">'+
+    seg('four bmgran','fbgran',[['w','週'],['m','月'],['q','季'],['y','年']],g)+
+    '<div class="bmnav"><button class="iconbtn" data-act="fboff" data-n="1" aria-label="往前"'+(canBack?'':' disabled')+'>'+I.left+'</button><b>'+R.lab+'</b><button class="iconbtn" data-act="fboff" data-n="-1" aria-label="往後"'+(off?'':' disabled')+'>'+I.right+'</button></div>'+
+    '<div class="bmfigs"><div>'+bmSvg(sex,'front',cnt,mx)+'<small>正面</small></div><div>'+bmSvg(sex,'back',cnt,mx)+'<small>背面</small></div></div>'+
+    '<div class="bmfoot"><span>全身 <b>'+(cnt['全身']||0)+'</b> 天</span>'+(stale.length?'<span class="bad-t">'+stale.slice(0,2).map(function(x){return x[0]+' '+x[1]+' 天沒練';}).join('、')+'</span>':'')+'</div>'+
+    '<div class="bmlegend">少 <i class="bl1"></i><i class="bl2"></i><i class="bl3"></i><i class="bl4"></i><i class="bl5"></i> 多　數字是練到的天數，點部位看細節</div></div></section>';
 }
 function paceChart(pts,better){var W=318,Ht=150,top=12,L=40,lo=Infinity,hi=-Infinity;
   pts.forEach(function(p){lo=Math.min(lo,p.v);hi=Math.max(hi,p.v);});var pad=(hi-lo)*0.15||hi*0.05||1;lo-=pad;hi+=pad;
@@ -1373,7 +1429,7 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k)&&k!=='photos')R[k]=d[k];});
@@ -3609,6 +3665,12 @@ function act(a,b){
       l.pnl=nv;delete l.pa;if(db.hold.length&&ui.date>=holdSince())l.cb=Math.round(db.hold.reduce(function(a,h){return a+h.shares*h.cost;},0));else delete l.cb;if(db.hold.length&&ui.date>=holdSince()&&autoVal(ui.date))l.pm=true;else delete l.pm;save();ui.pnlSel=ui.date;go(ui.peBack||'today');toast(storageOK?'已記錄':'無法儲存');break;
     case 'pclear': l=db.logs[ui.date];if(l){delete l.pnl;delete l.pa;delete l.pm;delete l.cb;tidy(ui.date);save();}go(ui.peBack||'today');toast('已刪除這天的損益紀錄');break;
     case 'pcancel': go(ui.peBack||'today');break;
+    case 'fbsex': db.settings.fitSex=b.dataset.v==='f'?'f':undefined;if(!db.settings.fitSex)delete db.settings.fitSex;save();break;
+    case 'fbgran': db.settings.fitGran=b.dataset.v==='m'?undefined:b.dataset.v;if(!db.settings.fitGran)delete db.settings.fitGran;ui.fbOff=0;save();break;
+    case 'fboff': ui.fbOff=Math.max(0,(ui.fbOff||0)+(+b.dataset.n));break;
+    case 'fbpart': var bp=b.dataset.v,bg=/^[wqy]$/.test(db.settings.fitGran||'')?db.settings.fitGran:'m',br=bmRange(bg,ui.fbOff||0),bn=0,bl=null;
+      Object.keys(db.fit.logs).forEach(function(k){if((db.fit.logs[k].s||[]).some(function(en){var e=exById(en.ex);return e&&e.part===bp;})){if(k>=br.a&&k<=br.b)bn++;if(!bl||k>bl)bl=k;}});
+      toast(bp+' · '+br.lab+' 練了 '+bn+' 天'+(bl?' · 上次 '+shortMD(bl):' · 還沒練過'),2600);return;
     case 'pnlpt': ui.pnlSel=b.dataset.k;break;
     case 'pgran': db.settings.pnlGran=b.dataset.v==='d'?undefined:b.dataset.v;if(!db.settings.pnlGran)delete db.settings.pnlGran;ui.pnlSel=null;save();break;
     case 'stab': ui.statTab=b.dataset.v;break;
