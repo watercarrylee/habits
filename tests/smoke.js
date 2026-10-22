@@ -888,6 +888,12 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(/腿 40 天沒練/.test(await p.innerText('.bmfoot')), 'body map: stale part warning kept');
     await p.click('[data-act=fbgran][data-v=y]');
     ok((await db(p)).settings.fitGran === 'y', 'body map: 年 remembered');
+    for (const [id, nm] of [['mel', '南蜜瓜'], ['pp', '屁屁'], ['kaka', '咖咖']]) {
+      await p.click(`[data-act=fbchar][data-v=${id}]`);
+      ok((await p.getAttribute('svg.bear', 'aria-label')).startsWith(nm) && (await p.$$('.bear-lbl')).length === 9, 'body map: switch to ' + nm);
+    }
+    ok((await db(p)).settings.fitChar === undefined, 'body map: 咖咖 is the default');
+    await p.click('[data-act=fbchar][data-v=pp]'); ok((await db(p)).settings.fitChar === 'pp', 'body map: character remembered');
     await p.click('[data-act=fboff][data-n="1"]');
     ok(await p.$eval('.bmnav b', e => e.textContent) === (new Date().getFullYear() - 1) + ' 年', 'body map: ‹ pages to last year');
     await p.click('.bear-lbl[data-v=胸] .bear-n');
