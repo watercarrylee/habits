@@ -694,6 +694,44 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'holdings');
   }
 
+  console.log('• 賣出 / 已實現損益');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    await hp.route('**/prices.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: T, t: 'x', p: { '2330': [1100, 10, '台積電'], '0050': [190, 1, '元大台灣50'] } }) }));
+    await hp.route('**/prices-30.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: [], c: {} }) }));
+    await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); } },
+      { v: 1, settings: { pnl: true, onboarded: true, holdSince: daysAgo(3) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], logs: {},
+        hold: [{ id: 'h1', code: '2330', shares: 2000, cost: 1000 }, { id: 'h2', code: '0050', shares: 1000, cost: 150 }] });
+    await hp.goto(BASE); await hp.waitForTimeout(400);
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-act=sellnew]'); await hp.click('[data-act=sellpick][data-id=h1]');
+    ok(await hp.inputValue('#sellsh') === '2000' && await hp.inputValue('#sellpx') === '1100', 'sell: shares default to all, price to the latest close');
+    ok(await hp.inputValue('#sellamt') === '200000', 'sell: realized amount prefilled from price and cost');
+    await hp.fill('#sellsh', '1000');
+    ok(await hp.inputValue('#sellamt') === '100000', 'sell: estimate follows the shares');
+    await hp.fill('#sellamt', '99500'); await hp.click('[data-act=sellsave]'); await hp.waitForTimeout(300);
+    let d = await db(hp);
+    ok(d.sold.length === 1 && d.sold[0].amt === 99500 && d.sold[0].shares === 1000 && d.sold[0].c === 1000000 && d.sold[0].d === T, 'sell: record saved with the typed amount');
+    ok(d.hold.find(h => h.id === 'h1').shares === 1000, 'sell: holding reduced');
+    ok(d.logs[T] && d.logs[T].pnl === 140000, 'sell: 未實現 recalculated with the remaining shares');
+    ok(/\+239,500/.test(await hp.innerText('.pnl-read')), 'sell: chart shows 總損益 = 已實現 + 未實現');
+    ok(/已實現 \+99,500/.test(await hp.innerText('.pnl-split')), 'sell: split line shows 已實現');
+    ok(/已實現損益/.test(await hp.innerText('main')) && (await hp.$$('.sold-row')).length === 1, 'sell: 已實現損益 list');
+    await hp.click('[data-act=sellnew]'); await hp.click('[data-act=sellpick][data-id=h2]'); await hp.click('[data-act=sellsign][data-v="1"]'); await hp.fill('#sellamt', '500');
+    await hp.click('[data-act=sellsave]'); await hp.waitForTimeout(300); d = await db(hp);
+    ok(!d.hold.find(h => h.id === 'h2') && d.sold.some(x => x.code === '0050' && x.amt === -500), 'sell: selling all removes the holding; loss saved as negative');
+    await hp.click('.sold-row >> nth=1'); ok(!(await hp.$('#sellsh')), 'sell: editing an old sale does not change shares');
+    await hp.click('[data-act=selldel]'); await hp.waitForTimeout(300); d = await db(hp);
+    ok(d.sold.length === 1 && d.sold[0].code === '0050', 'sell: delete removes the record');
+    ok(d.hold.find(h => h.code === '2330').shares === 2000 && d.hold.find(h => h.code === '2330').cost === 1000, 'sell: delete puts the shares back at the same cost');
+    await hp.click('[data-tab=today]');
+    await hp.waitForTimeout(200); const tm = await hp.innerText('main'); if (!/投資損益/.test(tm)) console.log(tm.slice(0, 900));
+    ok(/投資損益/.test(tm) && /已實現/.test(await hp.innerText('.pnl-meta')), 'today card shows 總損益 with 已實現');
+    await done(hp, 'sell');
+  }
+
   console.log('• 持股 back-fill from 30-day closes');
   {
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
