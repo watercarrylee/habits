@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-6r01fXxGGpzGXGbRppyVoDqNf39JH7MCKWTRNEAoisA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-s/0Lqp8+fGZamorrkZdXj1Tt7OjvjFB67oWE6o2ZBn0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -92,6 +92,8 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .sell-f{grid-template-columns:1fr 1fr;margin:12px 0 4px}.sell-f label:last-child:nth-child(3){grid-column:1/-1}.sell-f input{box-sizing:border-box;width:100%;height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 12px;font-size:16px;color:var(--fg);font-family:inherit}
 .sellpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.sell-sign{margin:6px 0 8px}.sell-amt{box-sizing:border-box;width:100%;height:52px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 14px;font-size:24px;font-weight:800;color:var(--fg);font-family:inherit;font-variant-numeric:tabular-nums}
 .pnl-split{margin:4px 0 2px}
+.pnl-brk{margin:10px 0 4px;border-left:3px solid var(--line);padding-left:10px;font-size:13px}.pnl-brk div{display:flex;gap:8px;align-items:baseline;margin:3px 0;flex-wrap:wrap}.pnl-brk span{color:var(--muted);width:44px}.pnl-brk b{min-width:76px;text-align:right;font-variant-numeric:tabular-nums}.pnl-brk em{font-style:normal;color:var(--muted);font-size:12px}
+.pnl-lg{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px}.pnl-lg i{display:inline-block;width:20px;height:0;vertical-align:middle;margin-right:5px}.lg-tot{border-top:2px solid var(--fg)}.lg-real{border-top:2px dashed var(--good)}
 .bmsex{grid-template-columns:repeat(2,minmax(0,1fr));padding:3px;border-radius:10px}.bmsex button{height:28px;font-size:13px;padding:0 12px}
 .seg.four{grid-template-columns:repeat(4,minmax(0,1fr))}.bmgran button{height:32px;font-size:14px}
 .bmnav{display:flex;align-items:center;justify-content:space-between;margin:8px 0 2px}.bmnav b{font-size:15px}
@@ -2494,7 +2496,7 @@ function pnlStats(y,m){
   var W=320,H=170,L=10,R=10,T=16,B=12;
   var K=gr==='d'?null:ks.map(function(k){var ps=per(k),pe=gr==='w'?wkEnd(ps):monthEndKey(ps),r=pnlKeys().filter(function(x){return x>=ps&&x<=pe&&x<=t;}).map(pnlAt),pb=prevPnlKey(ps),o=pb?pnlAt(pb):r[0];
     return {o:o,c:pnlAt(k),h:Math.max.apply(null,r.concat(o)),l:Math.min.apply(null,r.concat(o))};});
-  var all=vals.slice();if(mcb&&mc.baseKey)all.push(mc.base);if(K)K.forEach(function(q){all.push(q.h,q.l);});
+  var rv=anySold()?ks.map(realAt):null,all=vals.slice();if(rv)all=all.concat(rv);if(mcb&&mc.baseKey)all.push(mc.base);if(K)K.forEach(function(q){all.push(q.h,q.l);});
   var lo=Math.min.apply(null,all),hi=Math.max.apply(null,all),pad=(hi-lo)*0.12||Math.max(1,Math.abs(hi)*0.05);lo-=pad;hi+=pad;
   function X(i){return ks.length===1?W/2:L+i*(W-L-R)/(ks.length-1);}
   function Y(v){return T+(hi-v)/(hi-lo)*(H-T-B);}
@@ -2515,6 +2517,8 @@ function pnlStats(y,m){
     svg+='<g data-act="pnlpt" data-k="'+k+'" style="cursor:pointer"><circle cx="'+X(i).toFixed(1)+'" cy="'+Y(vals[i]).toFixed(1)+'" r="14" fill="transparent"/>'+
       '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(vals[i]).toFixed(1)+'" r="'+(i===sel?6:4)+'" style="fill:'+col+';stroke:var(--surface)" stroke-width="2"/></g>';
   });}
+  if(rv){var rd='M'+X(0).toFixed(1)+' '+Y(rv[0]).toFixed(1);for(var ri=1;ri<ks.length;ri++)rd+=' H'+X(ri).toFixed(1)+(rv[ri]!==rv[ri-1]?' V'+Y(rv[ri]).toFixed(1):'');
+    if(ks.length===1)rd+=' h1';svg+='<path class="real-ln" d="'+rd+'" fill="none" style="stroke:var(--good)" stroke-width="1.6" stroke-dasharray="4 3" pointer-events="none"/>';}
   svg+='</svg>';
   var hiV=Math.max.apply(null,vals),loV=Math.min.apply(null,vals);
   var curP=per(sk)===per(t),pl=gr==='d'?(ds.getMonth()+1)+'/'+ds.getDate()+' 週'+WD[ds.getDay()]+' 的'+pnlName():
@@ -2530,9 +2534,12 @@ function pnlStats(y,m){
   var s=gseg+'<div class="panel"><div class="pnl-read"><div><div class="pnl-l">'+pl+'</div>'+
     '<div class="pnl-v sm '+(h?'':pcls(sv))+'">'+(h?MASK:sgn(sv))+pctTag(pnlPct(sk),h)+'</div></div>'+
     '<div class="pnl-l" style="text-align:right">'+rl+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b>'+(pk&&dayPct(sk,pk)!=null?'<br><span class="'+(h?'':pcls(sd))+'" style="font-size:12px">'+(h?'••%':pctS(dayPct(sk,pk)))+'</span>':'')+'</div></div>'+
-    (anySold()?'<div class="pnl-split small muted">已實現 <b class="'+(h?'':pcls(realAt(sk)))+'">'+(h?'••••':sgn(realAt(sk)))+'</b>　未實現 <b class="'+(h?'':pcls(unAt(sk)))+'">'+(h?'••••':sgn(unAt(sk)))+'</b></div>':'')+
+    (function(){if(!rv||pk==null)return '';var dR=realAt(sk)-realAt(pk);if(!dR)return '';var dU=unAt(sk)-unAt(pk),sl=db.sold.filter(function(x){return x.d>pk&&x.d<=sk;});
+      var nm=sl.map(function(x){var p=pxOf(x.code);return esc(x.name||(p&&p.name)||x.code)+' '+lots(x.shares);});
+      return '<div class="pnl-brk"><div><span>未實現</span><b class="'+(h?'':pcls(dU))+'">'+(h?'••••':chg(dU))+'</b></div><div><span>已實現</span><b class="'+(h?'':pcls(dR))+'">'+(h?'••••':chg(dR))+'</b><em>賣出 '+(nm.length>2?nm.slice(0,2).join('、')+' 等 '+nm.length+' 筆':nm.join('、'))+'</em></div></div>';})()+
+    (anySold()?'<div class="pnl-split small muted">累計：已實現 <b class="'+(h?'':pcls(realAt(sk)))+'">'+(h?'••••':sgn(realAt(sk)))+'</b>　未實現 <b class="'+(h?'':pcls(unAt(sk)))+'">'+(h?'••••':sgn(unAt(sk)))+'</b></div>':'')+
     (K?'<div class="ohlc">'+[['開',K[sel].o],['高',K[sel].h],['低',K[sel].l],['收',K[sel].c]].map(function(q){return '<span><small>'+q[0]+'</small><b class="'+(h?'':pcls(q[1]))+'">'+(h?'••••':sgn(q[1]))+'</b></span>';}).join('')+'</div>':'')+
-    svg+ticks+
+    svg+ticks+(rv?'<div class="pnl-lg"><span><i class="lg-tot"></i>總損益</span><span><i class="lg-real"></i>已實現</span></div>':'')+
     '<p class="small muted">'+(anySold()?'總損益＝已實現（賣出落袋）＋未實現（還在手上的帳面損益）。':'')+(gr==='d'?(anySold()?'每個點是那天收盤後的總損益':'每個點是你那天記下的未實現損益')+'（不是即時股價），只畫有記錄的日子，點圓點看那一天。':gr==='w'?'每根 K 棒是一週（最近 26 週）：開＝上週最後一筆，收＝這週最後一筆，高低是這週紀錄的最高和最低。點 K 棒看那一週。':'每根 K 棒是一個月（最近 12 個月）：開＝上個月最後一筆，收＝這個月最後一筆，高低是這個月紀錄的最高和最低。點 K 棒看那個月。')+'</p></div>';
   /* the week of the selected point (本週 when it is this week); change is against the last record before that Monday */
   var ws=weekStartKey(sk),we=wkEnd(ws);if(we>t)we=t;var wk=pnlKeys().filter(function(k){return k>=ws&&k<=we;}),wbk=prevPnlKey(ws);
