@@ -718,6 +718,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(d.logs[T] && d.logs[T].pnl === 140000, 'sell: 未實現 recalculated with the remaining shares');
     ok(/\+239,500/.test(await hp.innerText('.pnl-read')), 'sell: chart shows 總損益 = 已實現 + 未實現');
     ok(/已實現 \+99,500/.test(await hp.innerText('.pnl-split')), 'sell: split line shows 已實現');
+    ok(!!(await hp.$('.real-ln')) && !!(await hp.$('.pnl-lg')), 'sell: chart draws the 已實現 dashed line with a legend');
     ok(/已實現損益/.test(await hp.innerText('main')) && (await hp.$$('.sold-row')).length === 1, 'sell: 已實現損益 list');
     await hp.click('[data-act=sellnew]'); await hp.click('[data-act=sellpick][data-id=h2]'); await hp.click('[data-act=sellsign][data-v="1"]'); await hp.fill('#sellamt', '500');
     await hp.click('[data-act=sellsave]'); await hp.waitForTimeout(300); d = await db(hp);
