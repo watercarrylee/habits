@@ -835,6 +835,26 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(p.csp.length >= 2, 'CSP reported the blocked attempts'); p.csp = []; // violations above were triggered on purpose
   await done(p, 'security');
 
+  // 練了哪些部位: body map with 男／女, 週／月／季／年 and paging back
+  {
+    const ex = [['e1', '臥推', '胸'], ['e2', '深蹲', '腿'], ['e3', '波比', '全身']].map(([id, name, part]) => ({ id, name, part, eq: '槓鈴' }));
+    const logs = {}; logs[daysAgo(0)] = { s: [{ id: 'a1', ex: 'e1', sets: [[40, 10]] }, { id: 'a2', ex: 'e3', sets: [[0, 10]] }] };
+    logs[daysAgo(40)] = { s: [{ id: 'a3', ex: 'e2', sets: [[60, 5]] }] }; logs[daysAgo(400)] = { s: [{ id: 'a4', ex: 'e1', sets: [[30, 5]] }] };
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex, logs, ctypes: [] } } });
+    await p.click('#fitTab'); await p.click('[data-act=ftab][data-v=prog]');
+    ok((await p.$$('.bmfig')).length === 2, 'body map: front and back figures');
+    ok(await p.$eval('g.bm-lbl[data-v=胸] text', e => e.textContent) === '1', 'body map: chest badge counts days this month');
+    ok(/全身 1 天/.test(await p.innerText('.bmfoot')), 'body map: 全身 counted separately');
+    ok(/腿 40 天沒練/.test(await p.innerText('.bmfoot')), 'body map: stale part warning kept');
+    await p.click('[data-act=fbgran][data-v=y]'); await p.click('[data-act=fbsex][data-v=f]');
+    ok((await db(p)).settings.fitGran === 'y' && (await db(p)).settings.fitSex === 'f', 'body map: 年 and 女 remembered');
+    await p.click('[data-act=fboff][data-n="1"]');
+    ok(await p.$eval('.bmnav b', e => e.textContent) === (new Date().getFullYear() - 1) + ' 年', 'body map: ‹ pages to last year');
+    await p.click('g.bm-lbl[data-v=胸]');
+    ok(/胸 · .*練了 1 天/.test(await p.$eval('#toast', e => e.innerText)), 'body map: tapping a part shows its days');
+    await done(p, 'body map');
+  }
+
   await b.close();
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
