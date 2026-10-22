@@ -457,6 +457,15 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'photos');
   }
 
+  console.log('• weekly progress segments in every skin');
+  for (const skin of ['sprout', 'sport', 'volt', 'ice']) {
+    p = await page(b, { 'habit-tracker-v1': { v: 1, settings: Object.assign({ onboarded: true }, skin !== 'sprout' ? { skin } : {}), rewards: [], redeemed: [], logs: { [T]: { h: { w1: 1 } } },
+      habits: [{ id: 'w1', name: '運動', kind: 'good', method: 'check', freq: 'week', perWeek: 3, days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(20) }] } });
+    const cols = await p.$$eval('[data-id=w1] .pbar.seg i', a => a.map(e => getComputedStyle(e).backgroundColor));
+    ok(cols.length === 3 && cols[0] !== cols[1] && cols[1] === cols[2], skin + ': 1 of 3 segments filled (' + cols.join(' | ') + ')');
+    await done(p, 'segments ' + skin);
+  }
+
   console.log('• 用範本加入習慣');
   p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, pnl: true }, rewards: [], redeemed: [], logs: {}, habits: [{ id: 'g1', name: '閱讀 20 頁', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3) }] } });
   await p.click('[data-tab=settings]'); await p.click('[data-act=obtpl]');
