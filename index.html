@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-sTGcK+n80YCtb3FXtgbKQzIcfJ+wgxS2qmyORv0Cax4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-+ngASr9Mgwxp4CfF/z77L83e4X+Xs90K1FtgPBsdUp4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -191,8 +191,12 @@ button.hcard{padding-right:16px}
 .goalv{font-size:24px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums}
 
 .moods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.mood{height:44px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:14px;padding:0}
-.mood.on{background:var(--ink);border-color:var(--ink);color:var(--on-ink);font-weight:700}
+.mood{min-height:64px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:13px;padding:6px 0 4px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted)}
+.mood .mface{transition:transform .15s,opacity .15s}.moods.picked .mood:not(.on) .mface{opacity:.45}
+.mood.on{border-color:var(--fg);color:var(--fg);font-weight:700}.mood.on .mface{transform:scale(1.12)}
+.mface{display:inline-block;vertical-align:-3px;flex:0 0 auto}.mf0>circle:first-child{fill:var(--bad)}.mf1>circle:first-child{fill:var(--bad-line)}.mf2>circle:first-child{fill:var(--line)}.mf3>circle:first-child{fill:var(--h2)}.mf4>circle:first-child{fill:var(--good)}
+.mfi{fill:var(--fg)}.mfm{fill:none;stroke:var(--fg);stroke-width:5;stroke-linecap:round}.mf0 .mfi{fill:var(--on-bad)}.mf0 .mfm{stroke:var(--on-bad)}.mf4 .mfi{fill:var(--on-good)}.mf4 .mfm{stroke:var(--on-good)}
+.mchip .mface{margin-right:6px}
 .lbl{font-size:13px;color:var(--muted)}
 input[type=search]{-webkit-appearance:none;appearance:none;box-sizing:border-box;width:100%;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);padding:0 14px;height:48px;font-size:16px}
 textarea,input[type=text]{box-sizing:border-box;width:100%;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);padding:12px 14px;font-size:16px}
@@ -822,6 +826,9 @@ var DEMO_M=location.search.match(/[?&]demo(?:=([^&]*))?(?:&|$)/),DEMO=!!DEMO_M,D
 var KEY=DEMO_NEW?'habit-tracker-demo-new':DEMO?'habit-tracker-demo':'habit-tracker-v1';
 var WD=['日','一','二','三','四','五','六'];
 var MOODS=['很差','差','普通','好','很好'];
+/* mood faces, same as the 我的這一週 report: red → green, mouth from frown to smile */
+function moodFace(m,sz){var c=(m-2)*7;return '<svg class="mface mf'+m+'" width="'+sz+'" height="'+sz+'" viewBox="-46 -46 92 92" aria-hidden="true"><circle r="44"/>'+
+  '<circle class="mfi" cx="-14" cy="-9" r="5.5"/><circle class="mfi" cx="14" cy="-9" r="5.5"/><path class="mfm" d="M-16 '+(12-c/2)+' Q0 '+(12+c*1.5)+' 16 '+(12-c/2)+'"/></svg>';}
 var ICONS={
   flag:['通用','<path d="M5.5 21V4M5.5 4.5h11.5l-2.5 4 2.5 4H5.5"/>'],
   fitness:['健身','<path d="M6.5 7.5v9M17.5 7.5v9M4 10v4M20 10v4M6.5 12h11"/>'],
@@ -1620,7 +1627,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.22-3';
+var APP_VER='2026.10.23-1';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -1683,7 +1690,7 @@ function vDiary(){
   s+='<div class="dnav"><button class="iconbtn" data-act="dgo" data-k="'+(pk||'')+'" aria-label="上一篇日記'+(pk?'，'+shortMD(pk):'')+'"'+(pk?'':' disabled')+'>'+I.left+'</button>'+
     '<div class="dnav-c"><b>'+(dd0.getMonth()+1)+'月'+dd0.getDate()+'日 · 週'+WD[dd0.getDay()]+'</b><span>'+(k===tk?'今天':k===addDays(tk,-1)?'昨天':dd0.getFullYear()!==parseKey(tk).getFullYear()?dd0.getFullYear()+' 年':Math.round((parseKey(tk)-dd0)/864e5)+' 天前')+'</span></div>'+
     '<button class="iconbtn" data-act="dgo" data-k="'+(nk||'')+'" aria-label="'+(nk===tk&&!dText(tk)?'回到今天':'下一篇日記')+'"'+(nk?'':' disabled')+'>'+I.right+'</button></div>';
-  s+='<span class="mchip">'+(l.mood!=null?'心情：'+MOODS[l.mood]:'這天還沒選心情')+'</span>';
+  s+='<span class="mchip">'+(l.mood!=null?moodFace(l.mood,18)+'心情：'+MOODS[l.mood]:'這天還沒選心情')+'</span>';
   if(ed&&!q&&!t&&!db.settings.dNoPrompt&&ui.dSkip!==k){
     s+='<div class="dprompt" id="dprompt"><div class="dprompt-l">引導題</div><div class="dprompt-q">'+esc(DPROMPTS[dpIdx(k)])+'</div>'+
       '<div class="dprompt-a"><button class="pbtn" data-act="duse">用這題開始</button><button class="pbtn alt" data-act="dswap">換一題</button><button class="pbtn skip" data-act="dskip">不用</button></div></div>';
@@ -1707,7 +1714,7 @@ function diaryStats(y,m){
     var ly=keyOf(new Date(now.getFullYear()-1,now.getMonth(),now.getDate()));
     if(dText(ly)){var ll=db.logs[ly];
       s+='<button class="dcard" data-act="dopen" data-k="'+ly+'"><div class="lastyr">'+I.hist+'去年的今天 · '+ly.replace(/-/g,'/')+'</div>'+
-        '<div class="dprev three">'+esc(dText(ly))+'</div><div class="dmeta"><span>'+(ll.mood!=null?'心情：'+MOODS[ll.mood]+' · ':'')+fmtN(dCount(dText(ly)))+' 字</span><b>打開'+I.right+'</b></div></button>';}
+        '<div class="dprev three">'+esc(dText(ly))+'</div><div class="dmeta"><span>'+(ll.mood!=null?moodFace(ll.mood,14)+' '+MOODS[ll.mood]+' · ':'')+fmtN(dCount(dText(ly)))+' 字</span><b>打開'+I.right+'</b></div></button>';}
   }
   var cells=[];
   for(var b=0;b<first.getDay();b++)cells.push('<span class="cell blank"></span>');
@@ -2578,7 +2585,7 @@ function searchResults(){
   var s='<p class="small muted res-count">'+head+'</p>';
   if(hits.length)s+='<div class="list">'+hits.slice(0,300).map(function(x){
     var k=x.k,l=db.logs[k],d=parseKey(k);
-    return '<button class="res-item" data-act="'+(x.d?'dopen':'pickday')+'" data-k="'+k+'"><span class="res-d">'+d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' 週'+WD[d.getDay()]+(l.mood!=null?' · 心情 '+MOODS[l.mood]:'')+(dI?'<span class="rtag">'+(x.d?'日記':'備註')+'</span>':'')+'</span>'+
+    return '<button class="res-item" data-act="'+(x.d?'dopen':'pickday')+'" data-k="'+k+'"><span class="res-d">'+d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' 週'+WD[d.getDay()]+(l.mood!=null?' · '+moodFace(l.mood,13)+' '+MOODS[l.mood]:'')+(dI?'<span class="rtag">'+(x.d?'日記':'備註')+'</span>':'')+'</span>'+
       '<span class="res-t">'+highlight(snip(x.t,terms),terms)+'</span></button>';
   }).join('')+'</div>';
   return s;
@@ -2788,8 +2795,8 @@ function vToday(){
   if(pres.length){
     s+='<p class="small muted pre-more">還有 '+pres.length+' 個習慣這天還沒開始（要補記，請到「設定」把它的開始日期往前改）</p>';}
   if(pOn)s+=pnlSection(k);
-  s+='<section class="sec"><h2 class="sec-t">心情</h2><div class="moods">'+
-    MOODS.map(function(m,i){var on=log.mood===i;return '<button class="mood'+(on?' on':'')+'" data-act="mood" data-i="'+i+'" aria-pressed="'+on+'">'+m+'</button>';}).join('')+
+  s+='<section class="sec"><h2 class="sec-t">心情</h2><div class="moods'+(log.mood!=null?' picked':'')+'">'+
+    MOODS.map(function(m,i){var on=log.mood===i;return '<button class="mood'+(on?' on':'')+'" data-act="mood" data-i="'+i+'" aria-pressed="'+on+'" aria-label="心情'+m+'">'+moodFace(i,34)+'<span>'+m+'</span></button>';}).join('')+
     '</div>'+noteBox(k,log)+'</section>'+(dOn()?diaryCard(k):'');
   return s+'</div>';
 }
@@ -3185,6 +3192,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.22-3','10/22',['運動「練了哪些部位」換成可愛角色：咖咖、南蜜瓜、屁屁，正面和背面都標出每個部位練了幾天，可以切換週／月／季／年','投資可以記錄「賣出」和已實現損益；走勢改看總損益（已實現＋未實現），多一條已實現虛線，點賣出那天會拆開顯示','修正冰島藍和黑白螢光外觀下，每週習慣的進度條會顯示成全滿']],
  ['2026.10.21-5','10/21',['新獎勵類型「投資」：本週或本月未實現損益增加多少、帳面突破多少、報酬率達到多少，就可以兌換','備註和日記可以各放一張照片，會自動壓縮並拿掉位置資訊；匯出備份可以一起帶走照片','損益走勢可以切換「日／週／月」，週和月用 K 棒顯示，點一下看開高低收','新使用者會看到引導；設定多了「用範本加入習慣」','「我的這一週」分享圖跟著外觀換色；「冰島」改名「冰島藍」']],
  ['2026.10.20-6','10/20',['回看過去時，還沒開始的習慣會收成一行；習慣可以設定「開始日期」，要補記就把日期往前改','新增「自動備份」：每次更新前和每天第一次打開時自動存一份，可以在設定裡挑時間還原','名稱有「不、別、戒」等字的習慣，圖示會加上禁止斜線','投資頁可以「重新整理」收盤價；編輯持股可以選成交日','損益走勢多了「本週變動／最高／最低」，報酬率 % 移到數字下一行','修正：打勾再取消不會再弄斷連續天數；黑白螢光外觀的圖示看不清楚']],
  ['2026.10.19-10','10/19',['新功能「我的持股」：輸入代號、股數和均價，收盤後 App 會依收盤價自動算好未實現損益並記錄','可以把券商截圖丟給 AI 辨識，再貼回 App 一次匯入持股','漏記的日子會依收盤價自動補上；手動改過的日子會保留，想恢復可以按「改回自動」','新增持股佔比圓餅圖，每檔顯示佔比；持股列表可以切換「今日／損益／市值」排序並顯示 %','未實現損益加上報酬率 %，「比前一筆」改成「今日損益」並顯示漲跌幅 %','統計的「損益」分頁改名「投資」，裡面的區塊可以按住拖曳調整順序','股數一律用「股」顯示']],

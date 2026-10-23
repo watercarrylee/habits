@@ -242,6 +242,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=day][data-n="-1"]');
   ok(!!(await p.$('.page.locked .lockbar')), 'two days ago is locked');
   await p.click('[data-act=toggle][data-id=k1]'); await p.click('[data-act=mood][data-i="3"]');
+  ok((await p.$$('.moods .mood svg.mface')).length === 5, 'mood: five faces');
   ok(!(await db(p)).logs[daysAgo(2)], 'locked day ignores taps');
   ok((await p.$eval('#toast', e => e.innerText)).includes('編輯這天'), 'locked tap explains how to unlock');
   await p.click('[data-act=unlockday]'); await p.click('[data-act=toggle][data-id=k1]');
