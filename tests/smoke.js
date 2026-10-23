@@ -48,7 +48,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   const dl = await p.$$eval('.dview a', a => a.map(x => [x.getAttribute('href'), x.textContent]));
   ok(dl.length === 1 && dl[0][0].startsWith('https://github.com/watercarrylee/habits/blob'), 'diary: link with full href');
   ok(dl[0] && dl[0][1].length <= 40, 'diary: long URL shortened for display');
+  { const dd = (await db(p)).logs[T].diary; ok(dd.c > Date.now() - 60000 && dd.u >= dd.c, 'diary: first and last writing time saved');
+    ok(/^寫於 \d\d:\d\d$/.test(await p.innerText('#dwhen')), 'diary: 寫於 shown under the date'); }
   await done(p, 'diary');
+  { const k2 = daysAgo(2), c = Date.now() - 3600e3;
+    p = await page(b, { 'habit-tracker-v1': { v: 1, logs: { [k2]: { diary: { t: '補寫的日記', c: c, u: c + 30 * 60000 } } }, settings: { diary: true, onboarded: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '運動', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }] } });
+    await p.click('[data-tab=stats]'); await p.click('[data-act=stab][data-v=diary]').catch(() => {});
+    ok((await db(p)).logs[k2].diary.c === c, 'diary: writing time kept through load');
+    await done(p, 'diary late'); }
 
   console.log('• hostile backup data is inert');
   const X = '"><img src=x onerror="window.__pwn=1">';
