@@ -902,6 +902,29 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'body map');
   }
 
+  // 重訓計時 + 動作搜尋
+  {
+    const T0 = daysAgo(0), now = Date.now();
+    let p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true, ftStart: now - 45 * 60000, ftDay: T0 }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: { [T0]: { min: 10 } }, ctypes: [] } } });
+    await p.click('#fitTab');
+    ok(/45 分/.test(await p.innerText('.ftbox')), 'timer: elapsed minutes from the saved start');
+    await p.click('[data-act=ftend]'); let d = await db(p);
+    ok(d.fit.logs[T0].min === 55 && !d.settings.ftStart, 'timer: 結束 adds the minutes to 重訓時間');
+    await p.click('[data-act=ftstart]'); d = await db(p);
+    ok(d.settings.ftStart > now - 1000 && d.settings.ftDay === T0 && !!(await p.$('.ftbox')), 'timer: start saves the time');
+    await p.click('[data-act=ftcancel]'); ok(!(await db(p)).settings.ftStart, 'timer: cancel');
+    await p.click('[data-act=fpick]'); await p.fill('#fq', '槓鈴硬舉');
+    ok(/硬舉/.test(await p.innerText('#fplist')), 'search: 器材＋動作 finds 硬舉');
+    await p.fill('#fq', 'deadlift'); ok((await p.innerText('#fplist')).includes('羅馬尼亞硬舉') && /搜尋結果 · 2/.test(await p.innerText('#fplist')), 'search: English name');
+    await done(p, 'timer');
+    p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true, ftStart: now - 5 * 3600e3, ftDay: T0, ftLast: now - 4 * 3600e3 }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
+    await p.click('#fitTab');
+    ok(!!(await p.$('.ftbox.stale')), 'timer: over 3 hours asks instead of counting');
+    await p.click('[data-act=ftend][data-v=last]'); d = await db(p);
+    ok(d.fit.logs[T0] && d.fit.logs[T0].min === 60, 'timer: end at the last set');
+    await done(p, 'timer stale');
+  }
+
   await b.close();
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
