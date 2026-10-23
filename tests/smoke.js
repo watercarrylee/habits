@@ -890,14 +890,15 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=fbgran][data-v=y]');
     ok((await db(p)).settings.fitGran === 'y', 'body map: 年 remembered');
     for (const [id, nm] of [['mel', '南蜜瓜'], ['pp', '屁屁'], ['man', '男生'], ['woman', '女生'], ['kaka', '咖咖']]) {
-      await p.click(`[data-act=fbchar][data-v=${id}]`);
+      await p.selectOption('#fbchar', id);
       ok((await p.getAttribute('svg.bear', 'aria-label')).startsWith(nm) && (await p.$$('.bear-lbl')).length === 9, 'body map: switch to ' + nm);
     }
-    await p.click('[data-act=fbchar][data-v=man]');
+    await p.selectOption('#fbchar', 'man');
     ok(await p.$$eval('path.mp.bl5', e => e.length) >= 1 && await p.$$eval('path.mp', e => e.length) > 10, 'body map: 小人 shades the trained muscles');
-    await p.click('[data-act=fbchar][data-v=kaka]');
+    await p.selectOption('#fbchar', 'kaka');
     ok((await db(p)).settings.fitChar === undefined, 'body map: 咖咖 is the default');
-    await p.click('[data-act=fbchar][data-v=pp]'); ok((await db(p)).settings.fitChar === 'pp', 'body map: character remembered');
+    await p.selectOption('#fbchar', 'pp'); ok((await db(p)).settings.fitChar === 'pp', 'body map: character remembered');
+    ok((await p.$$eval('#fbchar option', o => o.map(x => x.textContent))).join() === '男生,女生,咖咖,屁屁,南蜜瓜', 'body map: dropdown order');
     await p.click('[data-act=fboff][data-n="1"]');
     ok(await p.$eval('.bmnav b', e => e.textContent) === (new Date().getFullYear() - 1) + ' 年', 'body map: ‹ pages to last year');
     await p.click('.bear-lbl[data-v=胸] .bear-n');
