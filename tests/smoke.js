@@ -889,10 +889,13 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(/腿 40 天沒練/.test(await p.innerText('.bmfoot')), 'body map: stale part warning kept');
     await p.click('[data-act=fbgran][data-v=y]');
     ok((await db(p)).settings.fitGran === 'y', 'body map: 年 remembered');
-    for (const [id, nm] of [['mel', '南蜜瓜'], ['pp', '屁屁'], ['kaka', '咖咖']]) {
+    for (const [id, nm] of [['mel', '南蜜瓜'], ['pp', '屁屁'], ['man', '小人'], ['kaka', '咖咖']]) {
       await p.click(`[data-act=fbchar][data-v=${id}]`);
       ok((await p.getAttribute('svg.bear', 'aria-label')).startsWith(nm) && (await p.$$('.bear-lbl')).length === 9, 'body map: switch to ' + nm);
     }
+    await p.click('[data-act=fbchar][data-v=man]');
+    ok(await p.$$eval('path.mp.bl5', e => e.length) >= 1 && await p.$$eval('path.mp', e => e.length) > 10, 'body map: 小人 shades the trained muscles');
+    await p.click('[data-act=fbchar][data-v=kaka]');
     ok((await db(p)).settings.fitChar === undefined, 'body map: 咖咖 is the default');
     await p.click('[data-act=fbchar][data-v=pp]'); ok((await db(p)).settings.fitChar === 'pp', 'body map: character remembered');
     await p.click('[data-act=fboff][data-n="1"]');
