@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-OprKVHqX2t5pJqFABpT6QgoBquYoEyaOXMYIlNij894='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-UI3gplUVneWYTKrbzC98IjEAcSKjCbr5Rk1NKLWdfHU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -453,6 +453,9 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .dq button{flex:0 0 auto;width:36px;height:36px;border:0;background:none;color:var(--muted);display:flex;align-items:center;justify-content:center;padding:0}
 #diary{flex:1 1 auto;min-height:320px;font-size:17px;line-height:1.75;padding:14px 16px}
 .dview{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;font-size:17px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+.dview.md{white-space:normal}.md-p,.md-li,.md-q{white-space:pre-wrap}.md-gap{height:.75em}.md-li{display:flex;gap:.45em}.md-m{flex:0 0 auto;min-width:1em;color:var(--muted);font-variant-numeric:tabular-nums}
+.md-q{border-left:3px solid var(--good-line);padding-left:.7em;color:var(--muted)}.dview b{font-weight:800}.dview s{color:var(--muted)}
+.mdbar{display:flex;gap:4px;margin:0 0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}.mdbar button{flex:1 0 auto;min-width:38px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:15px;font-family:inherit;padding:0 6px}
 .dstat{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .dcal .cell{background:none;flex-direction:column;font-size:14px}
 .dcal .cell.dsel{background:var(--fg);color:var(--bg);font-weight:700}
@@ -1654,7 +1657,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.23-7';
+var APP_VER='2026.10.23-8';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -1693,7 +1696,7 @@ function dWhen(k,short){var l=db.logs[k],d=l&&l.diary;if(!d||!(d.c>0))return '';
   return s;}
 function dText(k){var l=db.logs[k];return (l&&l.diary&&l.diary.t)||'';}
 function dQ(k){var l=db.logs[k];return (l&&l.diary&&l.diary.q)||'';}
-function dCount(t){return (t||'').replace(/\s/g,'').length;}
+function dCount(t){return mdPlain(t||'').replace(/\s/g,'').length;}
 function dpIdx(k){if(ui.dp&&ui.dp.k===k)return ui.dp.i;var n=0;for(var i=0;i<k.length;i++)n+=k.charCodeAt(i);return n%DPROMPTS.length;}
 function dDate(k){var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()];}
 function diaryCard(k){
@@ -1702,7 +1705,7 @@ function diaryCard(k){
     (t?'<button class="eyebtn" data-act="dhide">'+(h?I.eye+'顯示內容':I.eyeOff+'隱藏內容')+'</button>':'')+'</div>';
   if(t){
     var dpi=!h&&(db.logs[k]||{}).dp;
-    s+='<button class="dcard'+(dpi?' hasph':'')+'" data-act="dopen">'+(dpi?'<img class="dthumb" data-ph="'+dpi+'" alt="">':'')+(h?'<div class="dlocked">'+I.lock+'內容已隱藏，點開來看</div>':'<div class="dprev">'+esc(t)+'</div>')+
+    s+='<button class="dcard'+(dpi?' hasph':'')+'" data-act="dopen">'+(dpi?'<img class="dthumb" data-ph="'+dpi+'" alt="">':'')+(h?'<div class="dlocked">'+I.lock+'內容已隱藏，點開來看</div>':'<div class="dprev">'+esc(mdPlain(t))+'</div>')+
       '<div class="dmeta"><span>已寫 · '+fmtN(dCount(t))+' 字'+(dWhen(k,1)?' · '+dWhen(k,1):'')+' · 已鎖定</span><b>打開'+I.right+'</b></div></button>';
   }else{
     var sub=db.settings.dNoPrompt?'想到什麼就寫什麼':DPROMPTS[dpIdx(k)];
@@ -1731,8 +1734,9 @@ function vDiary(){
   }
   if(l.dp)s+='<div class="phrow top">'+phSlot(k,'dp')+'</div>';
   if(q)s+='<div class="dq"><span>'+esc(q)+'</span>'+(ed?'<button data-act="dqx" aria-label="拿掉題目">'+I.x+'</button>':'')+'</div>';
+  if(ed)s+='<div class="mdbar" role="toolbar" aria-label="格式">'+MD_BAR.map(function(x){return '<button type="button" data-act="md" data-v="'+x[0]+'" aria-label="'+x[2]+'">'+x[1]+'</button>';}).join('')+'</div>';
   if(ed)s+='<label class="sr" for="diary">日記內容</label><textarea id="diary" placeholder="想到什麼就寫什麼⋯">'+esc(t)+'</textarea>';
-  else s+='<div class="dview">'+linkify(t)+'</div>';
+  else s+='<div class="dview md">'+mdRender(t)+'</div>';
   if(!l.dp)s+='<div class="phrow">'+phSlot(k,'dp')+'</div>';
   s+='<div class="dstat"><span id="dstatus">'+(ed?(n?'草稿已自動儲存':'寫的時候會自動存草稿'):'已鎖定 · 按「編輯」修改')+'</span><span id="dcount">'+fmtN(n)+' 字</span></div>';
   return s+'</div></div>';
@@ -1748,7 +1752,7 @@ function diaryStats(y,m){
     var ly=keyOf(new Date(now.getFullYear()-1,now.getMonth(),now.getDate()));
     if(dText(ly)){var ll=db.logs[ly];
       s+='<button class="dcard" data-act="dopen" data-k="'+ly+'"><div class="lastyr">'+I.hist+'去年的今天 · '+ly.replace(/-/g,'/')+'</div>'+
-        '<div class="dprev three">'+esc(dText(ly))+'</div><div class="dmeta"><span>'+(ll.mood!=null?moodFace(ll.mood,14)+' '+MOODS[ll.mood]+' · ':'')+fmtN(dCount(dText(ly)))+' 字'+(dWhen(ly,1)?' · '+dWhen(ly,1):'')+'</span><b>打開'+I.right+'</b></div></button>';}
+        '<div class="dprev three">'+esc(mdPlain(dText(ly)))+'</div><div class="dmeta"><span>'+(ll.mood!=null?moodFace(ll.mood,14)+' '+MOODS[ll.mood]+' · ':'')+fmtN(dCount(dText(ly)))+' 字'+(dWhen(ly,1)?' · '+dWhen(ly,1):'')+'</span><b>打開'+I.right+'</b></div></button>';}
   }
   var cells=[];
   for(var b=0;b<first.getDay();b++)cells.push('<span class="cell blank"></span>');
@@ -1768,7 +1772,7 @@ function diaryStats(y,m){
   if(sel){
     var st=dText(sel),sl=db.logs[sel]||{},sd=parseKey(sel);
     s+='<section class="sec"><h2 class="sec-t">'+(sd.getMonth()+1)+'月'+sd.getDate()+'日'+(sel===t?'（今天）':'')+'</h2>';
-    if(st)s+='<button class="dcard'+(sl.dp?' hasph':'')+'" data-act="dopen" data-k="'+sel+'">'+(sl.dp?'<img class="dthumb" data-ph="'+sl.dp+'" alt="">':'')+(dQ(sel)?'<div class="lastyr">'+esc(dQ(sel))+'</div>':'')+'<div class="dprev three">'+esc(st)+'</div><div class="dmeta"><span>'+(sl.mood!=null?moodFace(sl.mood,14)+' '+MOODS[sl.mood]+' · ':'')+fmtN(dCount(st))+' 字'+(dWhen(sel,1)?' · '+dWhen(sel,1):'')+'</span><b>打開'+I.right+'</b></div></button>';
+    if(st)s+='<button class="dcard'+(sl.dp?' hasph':'')+'" data-act="dopen" data-k="'+sel+'">'+(sl.dp?'<img class="dthumb" data-ph="'+sl.dp+'" alt="">':'')+(dQ(sel)?'<div class="lastyr">'+esc(dQ(sel))+'</div>':'')+'<div class="dprev three">'+esc(mdPlain(st))+'</div><div class="dmeta"><span>'+(sl.mood!=null?moodFace(sl.mood,14)+' '+MOODS[sl.mood]+' · ':'')+fmtN(dCount(st))+' 字'+(dWhen(sel,1)?' · '+dWhen(sel,1):'')+'</span><b>打開'+I.right+'</b></div></button>';
     else s+='<button class="dcard blankd" data-act="dopen" data-k="'+sel+'" style="justify-content:space-between"><span class="muted">這天沒有日記</span><b class="good-t">'+(sel===t?'寫日記':'補寫')+'</b></button>';
     s+='</section>';
   }
@@ -1776,20 +1780,53 @@ function diaryStats(y,m){
 }
 /* turn http(s) URLs in plain text into links; everything else stays escaped text */
 var URL_RE=/(https?:\/\/|www\.)[^\s<>"'，。、；：！？「」『』（）【】《》]+/gi;
-function linkify(text){
-  text=String(text==null?'':text);var out='',last=0,m;URL_RE.lastIndex=0;
+/* 日記的簡易 Markdown: **粗體** *斜體* ~~刪除線~~，行首 > 引用、- 無序、1. 有序，每兩個空格縮一層。
+   Text is escaped first and only these marks become tags, so nothing typed can inject HTML. */
+var MD_LINE=/^( *)(> ?|[-*•] |\d{1,3}[.)] )?(.*)$/;
+function mdInline(t){return esc(t).replace(/\*\*(\S(?:[^*]*?\S)?)\*\*/g,'<b>$1</b>').replace(/~~(\S(?:[^~]*?\S)?)~~/g,'<s>$1</s>').replace(/(^|[^*\w])\*(\S(?:[^*]*?\S)?)\*(?!\*)/g,'$1<i>$2</i>');}
+function mdRender(t){return String(t||'').split('\n').map(function(line){var m=line.match(MD_LINE),lv=Math.min(4,Math.floor(m[1].length/2)),mk=m[2]||'',body=linkify(m[3],mdInline);
+    if(!mk&&!m[3].trim())return '<div class="md-gap"></div>';
+    var ind=lv?' style="margin-left:'+(lv*1.4)+'em"':'';
+    if(mk.charAt(0)==='>')return '<div class="md-q"'+ind+'>'+body+'</div>';
+    if(mk)return '<div class="md-li"'+ind+'><span class="md-m">'+(/\d/.test(mk)?esc(mk.trim().replace(')','.')):lv%2?'◦':'•')+'</span><span>'+body+'</span></div>';
+    return '<div class="md-p"'+ind+'>'+body+'</div>';}).join('');}
+function mdPlain(t){return String(t||'').split('\n').map(function(l){var m=l.match(MD_LINE);return m[1]+m[3];}).join('\n').replace(/\*\*(\S(?:[^*]*?\S)?)\*\*/g,'$1').replace(/~~(\S(?:[^~]*?\S)?)~~/g,'$1').replace(/(^|[^*\w])\*(\S(?:[^*]*?\S)?)\*(?!\*)/g,'$1$2');}
+/* toolbar + Enter continues lists; edits the textarea in place and fires input so the draft saves */
+function mdFire(ta){ta.dispatchEvent(new Event('input',{bubbles:true}));}
+function mdEdit(op){var ta=document.getElementById('diary');if(!ta)return;var v=ta.value,a=ta.selectionStart,b=ta.selectionEnd;
+  if(op==='b'||op==='i'||op==='s'){var w=op==='b'?'**':op==='i'?'*':'~~',sel=v.slice(a,b);
+    if(sel&&v.slice(a-w.length,a)===w&&v.slice(b,b+w.length)===w){v=v.slice(0,a-w.length)+sel+v.slice(b+w.length);a-=w.length;b-=w.length;}
+    else{v=v.slice(0,a)+w+sel+w+v.slice(b);a+=w.length;b+=w.length;}}
+  else{var ls=v.lastIndexOf('\n',a-1)+1,le=v.indexOf('\n',b);if(le<0)le=v.length;var lines=v.slice(ls,le).split('\n'),n0=1;
+    if(op==='ol'&&ls>0){var pv=v.slice(0,ls-1),pl=pv.slice(pv.lastIndexOf('\n')+1).match(/^ *(\d+)[.)] /);if(pl)n0=+pl[1]+1;}
+    var all=lines.every(function(l){var m=l.match(MD_LINE),k=m[2]||'';return op==='q'?k.charAt(0)==='>':op==='ul'?/^[-*•] $/.test(k):op==='ol'?/\d/.test(k):false;});
+    var nl=lines.map(function(l,i){var m=l.match(MD_LINE),sp=m[1];
+      if(op==='in')return '  '+l;if(op==='out')return l.replace(/^ {1,2}/,'');
+      if(all)return sp+m[3];return sp+(op==='q'?'> ':op==='ul'?'- ':(n0+i)+'. ')+m[3];}).join('\n');
+    var d=nl.length-(le-ls);v=v.slice(0,ls)+nl+v.slice(le);
+    if(a===b){a=b=Math.max(ls,b+d);}else{a=ls;b=ls+nl.length;}}
+  ta.value=v;ta.focus();ta.setSelectionRange(a,b);mdFire(ta);}
+function mdEnter(e){var ta=e.target,v=ta.value,a=ta.selectionStart;if(a!==ta.selectionEnd)return;
+  var ls=v.lastIndexOf('\n',a-1)+1,line=v.slice(ls,a),m=line.match(MD_LINE);if(!m[2])return;
+  e.preventDefault();
+  if(!m[3].trim()){ta.value=v.slice(0,ls)+v.slice(a);ta.setSelectionRange(ls,ls);mdFire(ta);return;} // empty item: end the list
+  var nm=m[2].match(/^(\d+)([.)]) $/),ins='\n'+m[1]+(nm?(+nm[1]+1)+nm[2]+' ':m[2].charAt(0)==='>'?'> ':m[2]);
+  ta.value=v.slice(0,a)+ins+v.slice(a);ta.setSelectionRange(a+ins.length,a+ins.length);mdFire(ta);}
+var MD_BAR=[['b','<b>B</b>','粗體'],['i','<i>I</i>','斜體'],['s','<s>S</s>','刪除線'],['q','❝','引用'],['ul','•','無序清單'],['ol','1.','有序清單'],['out','⇤','減少縮排'],['in','⇥','增加縮排']];
+function linkify(text,fm){
+  text=String(text==null?'':text);var out='',last=0,m,E=fm||esc;URL_RE.lastIndex=0;
   while((m=URL_RE.exec(text))){
     var raw=m[0],trail=raw.match(/[.,;:!?)\]}'"]+$/);if(trail)raw=raw.slice(0,-trail[0].length);
     var href=/^www\./i.test(raw)?'https://'+raw:raw;
-    out+=esc(text.slice(last,m.index));
+    out+=E(text.slice(last,m.index));
     if(/^https?:\/\/[^\s/]+\.[^\s]+/i.test(href)||/^https?:\/\/localhost/i.test(href)){
       var show=raw.replace(/^https?:\/\//i,'');
       if(show.length>36){var pt=show.split('/'),c2=pt.length>2?pt[0]+'/'+pt[1]+'/…':'';show=c2&&c2.length<=36?c2:pt.length>1&&pt[0].length<=34?pt[0]+'/…':show.slice(0,33)+'…';}
       out+='<a class="ulink" href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+esc(show)+'</a>';
-    }else out+=esc(raw);
+    }else out+=E(raw);
     last=m.index+raw.length;URL_RE.lastIndex=last;
   }
-  return out+esc(text.slice(last));
+  return out+E(text.slice(last));
 }
 /* ---------- 照片: one photo per 備註 and one per 日記 (log.np / log.dp = photo id).
    Photos live in IndexedDB on this phone (localStorage is too small); each is re-encoded to JPEG with the long edge
@@ -2611,7 +2648,7 @@ function searchResults(){
   var dI=dOn(),items=[];
   Object.keys(db.logs).sort().reverse().forEach(function(k){var l=db.logs[k];
     if(l.note)items.push({k:k,d:false,t:l.note});
-    if(dI&&l.diary&&l.diary.t)items.push({k:k,d:true,t:(l.diary.q?l.diary.q+'\n':'')+l.diary.t});});
+    if(dI&&l.diary&&l.diary.t)items.push({k:k,d:true,t:(l.diary.q?l.diary.q+'\n':'')+mdPlain(l.diary.t)});});
   var what=dI?'備註或日記':'備註';
   if(!items.length)return '<p class="small muted res-count">還沒有任何'+what+'。'+(dI?'':'在「習慣」頁最下面可以寫備註。')+'</p>';
   var hits=items.filter(function(x){var n=x.t.toLowerCase();return terms.every(function(t){return n.indexOf(t)>=0;});});
@@ -3542,6 +3579,7 @@ function act(a,b){
     case 'ddone': l=db.logs[ui.date];if(l&&l.diary&&l.diary.t&&l.diary.t.trim()){l.diary.t=l.diary.t.replace(/\s+$/,'');tidy(ui.date);save();ui.dEdit=null;render();toast('日記已完成');return;}
       act('dback',b);return;
     case 'dgo': if(b.dataset.k){dGo(b.dataset.k);}break;
+    case 'md': mdEdit(b.dataset.v);return;
     case 'dedit': ui.dEdit=ui.date;render();var dta=document.getElementById('diary');if(dta){dta.focus();dta.setSelectionRange(dta.value.length,dta.value.length);}return;
     case 'duse': l=db.logs[ui.date]||(db.logs[ui.date]={});l.diary={t:dText(ui.date),q:DPROMPTS[dpIdx(ui.date)]};save();ui.dEdit=ui.date;render();var dtb=document.getElementById('diary');if(dtb)dtb.focus();return;
     case 'dswap': ui.dp={k:ui.date,i:(dpIdx(ui.date)+1)%DPROMPTS.length};break;
@@ -3823,7 +3861,9 @@ function fitSelect(el){
   return false;
 }
 document.addEventListener('change',function(e){if(e.target.id==='fpace'){ui.fpace=e.target.value;render();return;}fitSelect(e.target);});
+document.addEventListener('pointerdown',function(e){if(e.target.closest&&e.target.closest('.mdbar'))e.preventDefault();}); // keep the keyboard up
 document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&e.target.id==='diary'&&!e.isComposing&&e.keyCode!==229&&!e.shiftKey){mdEnter(e);return;}
   if(e.key==='Enter'&&e.target.id==='fcnew'){e.preventDefault();act('fcaddok',{dataset:{}});return;}
   if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('fnum')){e.preventDefault();e.target.blur();return;}
   if(e.key==='Enter'&&(e.target.id==='pw1'||e.target.id==='pw2')){e.preventDefault();exportWithPw();return;}

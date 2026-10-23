@@ -50,6 +50,20 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(dl[0] && dl[0][1].length <= 40, 'diary: long URL shortened for display');
   { const dd = (await db(p)).logs[T].diary; ok(dd.c > Date.now() - 60000 && dd.u >= dd.c, 'diary: first and last writing time saved');
     ok(/^寫於 \d\d:\d\d$/.test(await p.innerText('#dwhen')), 'diary: 寫於 shown under the date'); }
+  await p.click('[data-act=dedit]');
+  await p.fill('#diary', '**粗** *斜* ~~刪~~ <img src=x onerror=window.__md=1>\n> 引用\n- 甲\n  - 乙\n1. 一\n2. 二');
+  await p.click('[data-act=ddone]');
+  ok(await p.$eval('.dview b', e => e.textContent) === '粗' && await p.$eval('.dview i', e => e.textContent) === '斜' && await p.$eval('.dview s', e => e.textContent) === '刪', 'markdown: bold, italic, strike');
+  ok(!!(await p.$('.dview .md-q')) && (await p.$$('.dview .md-li')).length === 4 && (await p.$$eval('.md-m', e => e.map(x => x.textContent))).join() === '•,◦,1.,2.', 'markdown: quote and lists with nesting');
+  ok(!(await p.$('.dview img')) && !(await p.evaluate(() => window.__md)), 'markdown: typed HTML stays text');
+  await p.click('[data-act=dedit]'); await p.fill('#diary', '- 甲'); await p.focus('#diary'); await p.keyboard.press('End'); await p.keyboard.press('Enter');
+  ok(await p.inputValue('#diary') === '- 甲\n- ', 'markdown: Enter continues the list');
+  await p.keyboard.press('Enter'); ok(await p.inputValue('#diary') === '- 甲\n', 'markdown: Enter on an empty item ends the list');
+  await p.fill('#diary', '重點'); await p.evaluate(() => { const ta = document.getElementById('diary'); ta.focus(); ta.setSelectionRange(0, 2); });
+  await p.click('[data-act=md][data-v=b]'); ok(await p.inputValue('#diary') === '**重點**', 'markdown: toolbar bold wraps the selection');
+  await p.click('[data-act=md][data-v=ol]'); ok(await p.inputValue('#diary') === '1. **重點**', 'markdown: toolbar numbered list');
+  await p.click('[data-act=md][data-v=in]'); ok(await p.inputValue('#diary') === '  1. **重點**', 'markdown: toolbar indent');
+  ok((await db(p)).logs[T].diary.t === '  1. **重點**', 'markdown: toolbar edits are saved');
   await done(p, 'diary');
   { const k2 = daysAgo(2), c = Date.now() - 3600e3;
     p = await page(b, { 'habit-tracker-v1': { v: 1, logs: { [k2]: { diary: { t: '補寫的日記', c: c, u: c + 30 * 60000 } } }, settings: { diary: true, onboarded: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '運動', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }] } });
