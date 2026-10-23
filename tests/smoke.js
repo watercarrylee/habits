@@ -940,6 +940,27 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'body map');
   }
 
+  // 日記 #標籤
+  {
+    const k1 = daysAgo(1), k2 = daysAgo(5);
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, diary: true }, habits: [{ id: 'g1', name: '運動', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], rewards: [], redeemed: [],
+      logs: { [k1]: { diary: { t: '結婚週年 #紀念 #感謝' } }, [k2]: { diary: { t: '想通了一件事。C# 不是標籤 https://x.com/#a\n#察覺 #紀念' } } } } });
+    await p.click('[data-act=dopen]');
+    ok((await p.$$('.mdtags .dtag')).length === 3 && await p.$eval('.mdtags .dtag', e => e.textContent) === '#紀念', 'tags: used tags offered as quick buttons, most used first');
+    await p.fill('#diary', '今天'); await p.evaluate(() => { const ta = document.getElementById('diary'); ta.focus(); ta.setSelectionRange(2, 2); });
+    await p.click('.mdtags [data-v=紀念]'); ok(await p.inputValue('#diary') === '今天 #紀念 ', 'tags: quick button inserts the tag');
+    await p.click('[data-act=ddone]');
+    ok(await p.$eval('.dview .dtag', e => e.textContent) === '#紀念', 'tags: shown as a chip');
+    await p.click('.dview .dtag');
+    ok(/3 篇日記/.test(await p.innerText('main')) && (await p.$$('.tagrow')).length === 3, 'tags: tapping lists every entry with the tag');
+    await p.click('.tagrow >> nth=2'); ok(/C# 不是標籤/.test(await p.innerText('.dview')) && (await p.$$('.dview .dtag')).length === 2, 'tags: C# and URL fragments are not tags');
+    await p.click('[data-act=dback]'); ok(/#紀念/.test(await p.innerText('main')) && !!(await p.$('.tagrow')), 'tags: back returns to the tag list');
+    await p.click('[data-act=tagback]'); ok(!!(await p.$('.dview')), 'tags: back from the list returns to the diary'); await p.click('[data-act=dback]');
+    await p.click('[data-tab=stats]'); await p.click('[data-act=stab][data-v=diary]');
+    ok(/標籤/.test(await p.innerText('main')) && (await p.$$('.tagcloud .dtag')).length === 3, 'tags: 統計 → 日記 lists all tags with counts');
+    await done(p, 'tags');
+  }
+
   // 重訓計時 + 動作搜尋
   {
     const T0 = daysAgo(0), now = Date.now();

@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-9w0xLy9StHa5yAaBW0AbY0tVEnWmPGoTiGmgtjtXfps='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-kOJzsTc+tz7mgcT423fZJ1Pq13T4Qbt3vkOxpIUOSjc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -456,7 +456,10 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .dview.md{white-space:normal}.md-p,.md-li,.md-q{white-space:pre-wrap}.md-gap{height:.75em}.md-li{display:flex;gap:.45em}.md-m{flex:0 0 auto;min-width:1em;color:var(--muted);font-variant-numeric:tabular-nums}
 .md-q{border-left:3px solid var(--good-line);padding-left:.7em;color:var(--muted)}.dview b{font-weight:800}.dview s{color:var(--muted)}
 .dsharebtn{width:100%;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px}.dsharebtn svg{width:18px;height:18px}
-.mdbar{display:flex;gap:4px;margin:0 0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}.mdbar button{flex:1 0 auto;min-width:38px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:15px;font-family:inherit;padding:0 6px}
+.dtag{display:inline-flex;align-items:center;gap:3px;border:0;border-radius:999px;padding:1px 9px;margin:0 1px;font:inherit;font-size:.86em;line-height:1.6;cursor:pointer;vertical-align:1px;background:color-mix(in srgb,var(--tc) 16%,var(--surface));color:var(--tc)}.dtag small{opacity:.7;font-size:.85em}.tc0{--tc:#C8962C}.tc1{--tc:#4F7FB0}.tc2{--tc:#B4533C}.tc3{--tc:#5E8F5A}.tc4{--tc:#8A63B5}.tc5{--tc:#C2607E}.tc6{--tc:#2E8C8C}.tc7{--tc:#7A7468}
+.mdtags{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.mdtags .dtag{font-size:14px;padding:4px 10px}.tagcloud{display:flex;flex-wrap:wrap;gap:8px}.tagcloud .dtag{font-size:15px;padding:5px 12px}
+.tagline{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.tagline .dtag{font-size:12px}.tagline .dtag.on{font-weight:800}
+.mdbar{display:flex;gap:3px;margin:0 0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}.mdbar button{flex:1 1 0;min-width:30px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:15px;font-family:inherit;padding:0 6px}
 .dstat{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .dcal .cell{background:none;flex-direction:column;font-size:14px}
 .dcal .cell.dsel{background:var(--fg);color:var(--bg);font-weight:700}
@@ -1658,7 +1661,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.23-9';
+var APP_VER='2026.10.23-10';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -1719,7 +1722,7 @@ function dNextKey(k){var t=todayKey();if(k>=t)return null;var ks=Object.keys(db.
 function dGo(k){var l=db.logs[ui.date];if(l&&l.diary&&!(l.diary.t||'').trim()){delete l.diary;tidy(ui.date);save();}ui.date=k;ui.follow=k===todayKey();ui.dEdit=dText(k)?null:k;ui.dSkip=null;ui.top=true;}
 function vDiary(){
   var k=ui.date,t=dText(k),q=dQ(k),l=db.logs[k]||{},ed=!t||ui.dEdit===k,n=dCount(t);
-  var s='<div class="dw"><div class="page" style="padding-bottom:0"><header class="editbar"><button class="textbtn" data-act="dback">'+(ui.dBack==='stats'?'統計':ui.dBack==='search'?'搜尋':'習慣')+'</button>'+
+  var s='<div class="dw"><div class="page" style="padding-bottom:0"><header class="editbar"><button class="textbtn" data-act="dback">'+(ui.dBack==='stats'?'統計':ui.dBack==='search'?'搜尋':ui.dBack==='tag'?'#'+esc(ui.tag||''):'習慣')+'</button>'+
     '<h1 class="edit-t">日記</h1>'+
     (ed?'<button class="textbtn strong" id="ddone" data-act="ddone">完成</button>':'<button class="textbtn" style="color:var(--fg);font-weight:700" data-act="dedit">編輯</button>')+
     '</header></div><div class="dw-body">';
@@ -1736,6 +1739,8 @@ function vDiary(){
   if(l.dp)s+='<div class="phrow top">'+phSlot(k,'dp')+'</div>';
   if(q)s+='<div class="dq"><span>'+esc(q)+'</span>'+(ed?'<button data-act="dqx" aria-label="拿掉題目">'+I.x+'</button>':'')+'</div>';
   if(ed)s+='<div class="mdbar" role="toolbar" aria-label="格式">'+MD_BAR.map(function(x){return '<button type="button" data-act="md" data-v="'+x[0]+'" aria-label="'+x[2]+'">'+x[1]+'</button>';}).join('')+'</div>';
+  if(ed){var tix=tagIndex(),tl=Object.keys(tix).sort(function(a,b){return tix[b].length-tix[a].length||(a<b?-1:1);}).slice(0,12);
+    if(tl.length)s+='<div class="mdtags" aria-label="常用標籤">'+tl.map(function(g){return '<button type="button" class="dtag tc'+tagCol(g)+'" data-act="mdtag" data-v="'+esc(g)+'">#'+esc(g)+'</button>';}).join('')+'</div>';}
   if(ed)s+='<label class="sr" for="diary">日記內容</label><textarea id="diary" placeholder="想到什麼就寫什麼⋯">'+esc(t)+'</textarea>';
   else s+='<div class="dview md">'+mdRender(t)+'</div>';
   if(!l.dp)s+='<div class="phrow">'+phSlot(k,'dp')+'</div>';
@@ -1747,6 +1752,15 @@ function dStreak(){
   var k=todayKey(),n=0;if(!dText(k))k=addDays(k,-1);
   while(dText(k)){n++;k=addDays(k,-1);}return n;
 }
+function vTag(){var g=ui.tag||'',ix=tagIndex(),ks=ix[g]||[],s='<div class="page"><header class="editbar"><button class="textbtn" data-act="tagback">返回</button><h1 class="edit-t">#'+esc(g)+'</h1><span style="width:44px"></span></header>';
+  s+='<p class="small muted" style="margin:4px 0 12px">'+ks.length+' 篇日記'+(ks.length?' · 最早 '+ks[ks.length-1].replace(/-/g,'/'):'')+'</p>';
+  if(!ks.length)s+='<div class="empty"><div class="empty-t">還沒有日記標了 #'+esc(g)+'</div></div>';
+  ks.forEach(function(k){var d=parseKey(k),l=db.logs[k],t=mdPlain(dText(k)).replace(TAG_RE,'$1').trim();
+    s+='<button class="dcard tagrow" data-act="dopen" data-k="'+k+'"><div class="lastyr">'+d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' 週'+WD[d.getDay()]+(l.mood!=null?' · '+moodFace(l.mood,14)+' '+MOODS[l.mood]:'')+'</div>'+
+      '<div class="dprev three">'+esc(t||'（只有標籤）')+'</div><div class="tagline">'+tagsOf(dText(k)).map(function(x){return '<span class="dtag tc'+tagCol(x)+(x===g?' on':'')+'">#'+esc(x)+'</span>';}).join('')+'</div></button>';});
+  return s+'</div>';}
+function tagCloud(){var ix=tagIndex(),gs=Object.keys(ix).sort(function(a,b){return ix[b].length-ix[a].length||(a<b?-1:1);});if(!gs.length)return '';
+  return '<section class="sec"><h2 class="sec-t">標籤</h2><div class="tagcloud">'+gs.map(function(g){return tagChip(g,ix[g].length);}).join('')+'</div></section>';}
 function diaryStats(y,m){
   var now=new Date(),t=todayKey(),first=new Date(y,m,1),lastDay=new Date(y,m+1,0).getDate(),isCur=y===now.getFullYear()&&m===now.getMonth();
   var s='',days=0,chars=0,lastK=null;
@@ -1778,6 +1792,7 @@ function diaryStats(y,m){
     else s+='<button class="dcard blankd" data-act="dopen" data-k="'+sel+'" style="justify-content:space-between"><span class="muted">這天沒有日記</span><b class="good-t">'+(sel===t?'寫日記':'補寫')+'</b></button>';
     s+='</section>';
   }
+  s+=tagCloud();
   return s;
 }
 /* turn http(s) URLs in plain text into links; everything else stays escaped text */
@@ -1785,7 +1800,15 @@ var URL_RE=/(https?:\/\/|www\.)[^\s<>"'，。、；：！？「」『』（）�
 /* 日記的簡易 Markdown: **粗體** *斜體* ~~刪除線~~，行首 > 引用、- 無序、1. 有序，每兩個空格縮一層。
    Text is escaped first and only these marks become tags, so nothing typed can inject HTML. */
 var MD_LINE=/^( *)(> ?|[-*•] |\d{1,3}[.)] )?(.*)$/;
-function mdInline(t){return esc(t).replace(/\*\*(\S(?:[^*]*?\S)?)\*\*/g,'<b>$1</b>').replace(/~~(\S(?:[^~]*?\S)?)~~/g,'<s>$1</s>').replace(/(^|[^*\w])\*(\S(?:[^*]*?\S)?)\*(?!\*)/g,'$1<i>$2</i>');}
+/* #標籤: # + letters/digits (any script), after start/space/punctuation; ends at space or punctuation. Colors are assigned from the name. */
+var TAG_RE=/(^|[\s>(（「『【，。、！？；：,.!?;:])#([\p{L}\p{N}_]{1,20})/gu,MD_EXPORT=false;
+function tagsOf(t){var o=[],m;TAG_RE.lastIndex=0;while((m=TAG_RE.exec(String(t||'')))){if(o.indexOf(m[2])<0)o.push(m[2]);}return o;}
+function tagCol(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;return h%8;}
+function tagIndex(){var ix={};Object.keys(db.logs).forEach(function(k){var d=db.logs[k].diary;if(d&&d.t)tagsOf((d.q?d.q+'\n':'')+d.t).forEach(function(g){(ix[g]=ix[g]||[]).push(k);});});
+  Object.keys(ix).forEach(function(g){ix[g].sort().reverse();});return ix;}
+function tagChip(g,n){return MD_EXPORT?'<span class="dtag tc'+tagCol(g)+'">#'+esc(g)+'</span>':'<button type="button" class="dtag tc'+tagCol(g)+'" data-act="dtag" data-v="'+esc(g)+'">#'+esc(g)+(n!=null?' <small>'+n+'</small>':'')+'</button>';}
+function mdTags(h){TAG_RE.lastIndex=0;return h.replace(TAG_RE,function(_,a,g){return a+tagChip(g);});}
+function mdInline(t){return mdTags(esc(t).replace(/\*\*(\S(?:[^*]*?\S)?)\*\*/g,'<b>$1</b>').replace(/~~(\S(?:[^~]*?\S)?)~~/g,'<s>$1</s>').replace(/(^|[^*\w])\*(\S(?:[^*]*?\S)?)\*(?!\*)/g,'$1<i>$2</i>'));}
 var MD_LINK=/\[([^\]\n]+)\]\(((?:https?:\/\/|www\.)[^\s)]+)\)/g;
 function mdBody(t){var out='',last=0,m;MD_LINK.lastIndex=0;
   while((m=MD_LINK.exec(t))){out+=linkify(t.slice(last,m.index),mdInline);var href=/^www\./i.test(m[2])?'https://'+m[2]:m[2];
@@ -1817,6 +1840,8 @@ function mdEdit(op){var ta=document.getElementById('diary');if(!ta)return;var v=
     var d=nl.length-(le-ls);v=v.slice(0,ls)+nl+v.slice(le);
     if(a===b){a=b=Math.max(ls,b+d);}else{a=ls;b=ls+nl.length;}}
   ta.value=v;ta.focus();ta.setSelectionRange(a,b);mdFire(ta);}
+function mdTagIns(g){var ta=document.getElementById('diary');if(!ta)return;var v=ta.value,a=ta.selectionStart,b=ta.selectionEnd,pre=a&&!/\s/.test(v.charAt(a-1))?' ':'',ins=pre+'#'+g+' ';
+  ta.value=v.slice(0,a)+ins+v.slice(b);ta.focus();ta.setSelectionRange(a+ins.length,a+ins.length);mdFire(ta);}
 function mdEnter(e){var ta=e.target,v=ta.value,a=ta.selectionStart;if(a!==ta.selectionEnd)return;
   var ls=v.lastIndexOf('\n',a-1)+1,line=v.slice(ls,a),m=line.match(MD_LINE);if(!m[2])return;
   e.preventDefault();
@@ -3257,9 +3282,9 @@ function dsHtml(o){ui.sheet={type:'busy',msg:'正在產生 HTML⋯'};render();
         'body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.8 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}main{max-width:680px;margin:0 auto;padding:24px 16px 48px}'+
         '.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px 22px}h1{font-size:22px;margin:0}.meta{color:var(--muted);font-size:14px;margin:4px 0 16px}img{display:block;width:100%;border-radius:14px;margin:0 0 18px}'+
         '.dq{font-weight:700;border-left:4px solid var(--accent);padding-left:12px;margin-bottom:12px}.md-p,.md-li,.md-q{white-space:pre-wrap;overflow-wrap:anywhere}.md-gap{height:.75em}.md-li{display:flex;gap:.45em}.md-m{flex:0 0 auto;min-width:1em;color:var(--muted)}'+
-        '.md-q{border-left:3px solid var(--accent);padding-left:.7em;color:var(--muted)}s{color:var(--muted)}a{color:var(--accent)}footer{text-align:center;color:var(--muted);font-size:13px;margin-top:20px}</style></head><body><main><div class="card">'+
+        '.md-q{border-left:3px solid var(--accent);padding-left:.7em;color:var(--muted)}s{color:var(--muted)}.dtag{display:inline-block;padding:0 .5em;border-radius:999px;background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent);font-size:.9em}a{color:var(--accent)}footer{text-align:center;color:var(--muted);font-size:13px;margin-top:20px}</style></head><body><main><div class="card">'+
         '<h1>'+esc(dsTitle(o.k))+'</h1><div class="meta">'+[wh,l.mood!=null&&!o.noMood?'心情：'+MOODS[l.mood]:''].filter(Boolean).join(' · ')+'</div>'+
-        (durl?'<img src="'+durl+'" alt="照片">':'')+(q?'<div class="dq">'+esc(q)+'</div>':'')+mdRender(dText(o.k))+'</div><footer>來自「習慣紀錄」</footer></main></body></html>';
+        (durl?'<img src="'+durl+'" alt="照片">':'')+(q?'<div class="dq">'+esc(q)+'</div>':'')+(function(){MD_EXPORT=true;try{return mdRender(dText(o.k));}finally{MD_EXPORT=false;}})()+'</div><footer>來自「習慣紀錄」</footer></main></body></html>';
       ui.sheet=null;render();dsFile(new Blob([h],{type:'text/html'}),'diary-'+o.k+'.html','text/html',function(){});};
     if(!blob){fin('');return;}var r=new FileReader();r.onload=function(){fin(/^data:image\/(jpeg|png|webp);base64,/.test(r.result)?r.result:'');};r.onerror=function(){fin('');};r.readAsDataURL(blob);});}
 function repRow(k,label,sub,on,indent){return '<div class="row-btn'+(indent?' rep-sub':'')+'"><span class="row-l"><span>'+label+'</span>'+(sub?'<span class="row-sub">'+sub+'</span>':'')+'</span>'+
@@ -3508,7 +3533,7 @@ function render(){
   if(ui.view==='flog'&&(!ui.fl||!exById(ui.fl.ex)))ui.view='fit';
   var main=$('#main'),v=ui.view;
   $('#fitTab').hidden=!fOn();$('#tabs').classList.toggle('five',fOn());
-  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='report'?vReport():v==='hold'?vHold():v==='sell'?vSell():v==='faq'?vFaq():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
+  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='report'?vReport():v==='hold'?vHold():v==='tag'?vTag():v==='sell'?vSell():v==='faq'?vFaq():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
   $('#tabs').hidden=(v==='faq'&&ui.faqBack&&ui.faqBack.view==='edit')||v==='edit'||v==='hold'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
   var tabv=v==='archived'||v==='changelog'||v==='faq'?'settings':v==='search'||v==='report'||v==='hold'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
@@ -3643,7 +3668,10 @@ function act(a,b){
     case 'dptoggle': db.settings.dNoPrompt=!db.settings.dNoPrompt;save();break;
     case 'dhide': db.settings.hideDiary=!db.settings.hideDiary;save();break;
     case 'dsel': ui.dSel=b.dataset.k;break;
-    case 'dopen': k=b.dataset.k||ui.date;ui.dBack=ui.view==='stats'?'stats':ui.view==='search'?'search':'today';ui.date=k;ui.follow=k===t;ui.dEdit=dText(k)?null:k;ui.dSkip=null;go('diary');break;
+    case 'dtag': ui.tagBack={v:ui.view,d:ui.date};ui.tag=b.dataset.v;go('tag');break;
+    case 'tagback': var tb=ui.tagBack||{v:'today'};if(tb.d)ui.date=tb.d;go(tb.v==='tag'?'today':tb.v);break;
+    case 'mdtag': mdTagIns(b.dataset.v);return;
+    case 'dopen': k=b.dataset.k||ui.date;ui.dBack=ui.view==='stats'?'stats':ui.view==='search'?'search':ui.view==='tag'?'tag':'today';ui.date=k;ui.follow=k===t;ui.dEdit=dText(k)?null:k;ui.dSkip=null;go('diary');break;
     case 'dback': l=db.logs[ui.date];if(l&&l.diary&&!(l.diary.t||'').trim()){delete l.diary;tidy(ui.date);save();}ui.dEdit=null;if(ui.dBack==='stats')ui.dSel=ui.date;go(ui.dBack||'today');break;
     case 'ddone': l=db.logs[ui.date];if(l&&l.diary&&l.diary.t&&l.diary.t.trim()){l.diary.t=l.diary.t.replace(/\s+$/,'');tidy(ui.date);save();ui.dEdit=null;render();toast('日記已完成');return;}
       act('dback',b);return;
@@ -3934,7 +3962,7 @@ function fitSelect(el){
   return false;
 }
 document.addEventListener('change',function(e){if(e.target.id==='fpace'){ui.fpace=e.target.value;render();return;}fitSelect(e.target);});
-document.addEventListener('pointerdown',function(e){if(e.target.closest&&e.target.closest('.mdbar'))e.preventDefault();}); // keep the keyboard up
+document.addEventListener('pointerdown',function(e){if(e.target.closest&&e.target.closest('.mdbar,.mdtags'))e.preventDefault();}); // keep the keyboard up
 document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&e.target.id==='diary'&&!e.isComposing&&e.keyCode!==229&&!e.shiftKey){mdEnter(e);return;}
   if(e.key==='Enter'&&e.target.id==='fcnew'){e.preventDefault();act('fcaddok',{dataset:{}});return;}
