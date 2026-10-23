@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-hHuOhGEWlaISUloXKFEqIPcwbZPtRHFJq3QBbuVQlXs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-bUArVykSDiL4TiUlRP7595bflFqu4evi/lwrOt/Fkaw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -191,11 +191,11 @@ button.hcard{padding-right:16px}
 .goalv{font-size:24px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums}
 
 .moods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.mood{min-height:70px;padding-top:10px!important;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:13px;padding:6px 0 4px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted)}
+.mood{min-height:64px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:13px;padding:6px 0 4px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted)}
 .mood .mface{transition:transform .15s,opacity .15s}.moods.picked .mood:not(.on) .mface{opacity:.45}
 .mood.on{border-color:var(--fg);color:var(--fg);font-weight:700}.mood.on .mface{transform:scale(1.12)}
-.mood span{padding:1px 5px;border-radius:9px;white-space:nowrap;font-size:11.5px;letter-spacing:-.2px}.mood.on span{color:#fff}.mood.on.m2 span{color:#2A1C1B}.mood.on.m0 span{background:#D9443F}.mood.on.m1 span{background:#EE7A2C}.mood.on.m2 span{background:#F6C93E}.mood.on.m3 span{background:#47A64A}.mood.on.m4 span{background:#1E8A47}
-.mface{display:inline-block;vertical-align:-3px;flex:0 0 auto}
+.mface{display:inline-block;vertical-align:-3px;flex:0 0 auto}.mf0>circle:first-child{fill:var(--bad)}.mf1>circle:first-child{fill:var(--bad-line)}.mf2>circle:first-child{fill:var(--line)}.mf3>circle:first-child{fill:var(--h2)}.mf4>circle:first-child{fill:var(--good)}
+.mfi{fill:var(--fg)}.mfm{fill:none;stroke:var(--fg);stroke-width:5;stroke-linecap:round}.mf0 .mfi{fill:var(--on-bad)}.mf0 .mfm{stroke:var(--on-bad)}.mf4 .mfi{fill:var(--on-good)}.mf4 .mfm{stroke:var(--on-good)}
 .mchip .mface{margin-right:6px}
 .lbl{font-size:13px;color:var(--muted)}
 input[type=search]{-webkit-appearance:none;appearance:none;box-sizing:border-box;width:100%;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);padding:0 14px;height:48px;font-size:16px}
@@ -825,21 +825,10 @@ document.documentElement.lang='zh-Hant';
 var DEMO_M=location.search.match(/[?&]demo(?:=([^&]*))?(?:&|$)/),DEMO=!!DEMO_M,DEMO_NEW=DEMO&&DEMO_M[1]==='new';
 var KEY=DEMO_NEW?'habit-preview-demo-new':DEMO?'habit-preview-demo':'habit-preview-v1';
 var WD=['日','一','二','三','四','五','六'];
-var MOODS=['非常不好','不好','還好','開心','非常開心'];
-/* mood faces (emoji style): crying → worried → neutral → smiling → laughing; fixed colors in every skin */
-var MF_COL=['#F26A6A','#F7974B','#F8CF4A','#A9DD62','#86D25A'],MF_INK='#2A1C1B';
-function moodFace(m,sz){var k=MF_INK,eye=function(d){return '<path d="'+d+'" fill="none" stroke="'+k+'" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>';},
-  blush='<circle cx="-25" cy="12" r="7" fill="#F2907E" opacity=".75"/><circle cx="25" cy="12" r="7" fill="#F2907E" opacity=".75"/>',f='';
-  if(m===0)f=eye('M-25 -24 Q-17 -28 -9 -21')+eye('M25 -24 Q17 -28 9 -21')+eye('M-24 -14 L-11 -8 L-24 -2')+eye('M24 -14 L11 -8 L24 -2')+
-    '<path d="M-15 24 Q-14 6 0 6 Q14 6 15 24 Q0 20 -15 24Z" fill="#7A2F2C" stroke="'+k+'" stroke-width="4" stroke-linejoin="round"/>'+
-    '<path d="M-27 2 C-33 14 -31 22 -26 22 C-21 22 -19 14 -27 2Z M27 2 C33 14 31 22 26 22 C21 22 19 14 27 2Z" fill="#5BB6E6"/>';
-  else if(m===1)f=eye('M-26 -17 L-11 -23')+eye('M26 -17 L11 -23')+'<ellipse cx="-15" cy="-5" rx="4.2" ry="5.6" fill="'+k+'"/><ellipse cx="15" cy="-5" rx="4.2" ry="5.6" fill="'+k+'"/>'+blush+eye('M-14 23 Q0 9 14 23');
-  else if(m===2)f='<ellipse cx="-16" cy="-6" rx="4.4" ry="7" fill="'+k+'"/><ellipse cx="16" cy="-6" rx="4.4" ry="7" fill="'+k+'"/>'+blush+eye('M-12 17 L12 17');
-  else if(m===3)f=eye('M-24 -3 Q-16 -15 -8 -3')+eye('M24 -3 Q16 -15 8 -3')+blush+eye('M-16 11 Q0 28 16 11');
-  else f=eye('M-24 -5 Q-16 -17 -8 -5')+eye('M24 -5 Q16 -17 8 -5')+blush+'<path d="M-18 6 L18 6 Q17 31 0 31 Q-17 31 -18 6Z" fill="'+k+'"/><path d="M-9 25 Q0 18 9 25 Q5 30 0 30 Q-5 30 -9 25Z" fill="#F07C8B"/>'+
-    '<path d="M0 -57 V-49 M-24 -51 L-20 -44 M24 -51 L20 -44" stroke="#F2B33D" stroke-width="5" stroke-linecap="round"/>';
-  return '<svg class="mface mf'+m+'" width="'+sz+'" height="'+sz+'" viewBox="-50 -50 100 100" aria-hidden="true" style="overflow:visible"><circle r="42" fill="'+MF_COL[m]+'" stroke="'+k+'" stroke-width="4"/>'+
-    '<ellipse cx="-19" cy="-25" rx="10" ry="5.5" fill="#fff" opacity=".45" transform="rotate(-32 -19 -25)"/>'+f+'</svg>';}
+var MOODS=['很差','差','普通','好','很好'];
+/* mood faces, same as the 我的這一週 report: red → green, mouth from frown to smile */
+function moodFace(m,sz){var c=(m-2)*7;return '<svg class="mface mf'+m+'" width="'+sz+'" height="'+sz+'" viewBox="-46 -46 92 92" aria-hidden="true"><circle r="44"/>'+
+  '<circle class="mfi" cx="-14" cy="-9" r="5.5"/><circle class="mfi" cx="14" cy="-9" r="5.5"/><path class="mfm" d="M-16 '+(12-c/2)+' Q0 '+(12+c*1.5)+' 16 '+(12-c/2)+'"/></svg>';}
 var ICONS={
   flag:['通用','<path d="M5.5 21V4M5.5 4.5h11.5l-2.5 4 2.5 4H5.5"/>'],
   fitness:['健身','<path d="M6.5 7.5v9M17.5 7.5v9M4 10v4M20 10v4M6.5 12h11"/>'],
@@ -2807,7 +2796,7 @@ function vToday(){
     s+='<p class="small muted pre-more">還有 '+pres.length+' 個習慣這天還沒開始（要補記，請到「設定」把它的開始日期往前改）</p>';}
   if(pOn)s+=pnlSection(k);
   s+='<section class="sec"><h2 class="sec-t">心情</h2><div class="moods'+(log.mood!=null?' picked':'')+'">'+
-    MOODS.map(function(m,i){var on=log.mood===i;return '<button class="mood m'+i+(on?' on':'')+'" data-act="mood" data-i="'+i+'" aria-pressed="'+on+'" aria-label="心情'+m+'">'+moodFace(i,34)+'<span>'+m+'</span></button>';}).join('')+
+    MOODS.map(function(m,i){var on=log.mood===i;return '<button class="mood'+(on?' on':'')+'" data-act="mood" data-i="'+i+'" aria-pressed="'+on+'" aria-label="心情'+m+'">'+moodFace(i,34)+'<span>'+m+'</span></button>';}).join('')+
     '</div>'+noteBox(k,log)+'</section>'+(dOn()?diaryCard(k):'');
   return s+'</div>';
 }
