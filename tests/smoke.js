@@ -889,7 +889,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(/腿 40 天沒練/.test(await p.innerText('.bmfoot')), 'body map: stale part warning kept');
     await p.click('[data-act=fbgran][data-v=y]');
     ok((await db(p)).settings.fitGran === 'y', 'body map: 年 remembered');
-    for (const [id, nm] of [['mel', '南蜜瓜'], ['pp', '屁屁'], ['man', '小人'], ['kaka', '咖咖']]) {
+    for (const [id, nm] of [['mel', '南蜜瓜'], ['pp', '屁屁'], ['man', '男生'], ['woman', '女生'], ['kaka', '咖咖']]) {
       await p.click(`[data-act=fbchar][data-v=${id}]`);
       ok((await p.getAttribute('svg.bear', 'aria-label')).startsWith(nm) && (await p.$$('.bear-lbl')).length === 9, 'body map: switch to ' + nm);
     }
