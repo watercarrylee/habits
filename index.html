@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-unNUKSYBXRKJGDCkL5zoT+AzJvMaowChTV2FlmcJskQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-IkqgGTZ+s5jnbewfn37ddEqEDk9RNPe9E/LI68OVSmY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -466,7 +466,9 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .qlist{display:flex;flex-direction:column;gap:8px;margin:6px 0 12px}.qopt{text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;font:inherit;color:var(--fg);display:flex;flex-direction:column;gap:2px;cursor:pointer}.qopt small{color:var(--muted);font-size:12px}
 .lv{display:inline-block;font-size:11px;font-weight:800;line-height:1;padding:3px 6px;border-radius:7px;vertical-align:2px;margin-left:4px;color:var(--good);background:linear-gradient(90deg,color-mix(in srgb,var(--good) 26%,var(--surface)) var(--p),color-mix(in srgb,var(--good) 10%,var(--surface)) var(--p));font-variant-numeric:tabular-nums}
 .b-on .lv,.g-on .lv{color:inherit}
-.fchips.sub,.fchips.eq{margin-top:-4px}.fchips.sub .fchip{font-size:13px}.fchips.eq .fchip{font-size:13px;display:inline-flex;align-items:center;gap:4px}.fchips.eq .fchip svg{width:14px;height:14px}
+.fpbox{display:flex;flex-direction:column;gap:8px}.fprw{display:flex;align-items:center;gap:8px}.fprw .fchips{flex:1 1 auto;min-width:0}.frl{flex:0 0 auto;width:2.4em;font-size:12px;font-weight:700;color:var(--muted)}
+.subtip{display:flex;gap:12px;align-items:center;margin:0;padding:10px 12px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line)}.subtip>div{display:flex;flex-direction:column;gap:2px;min-width:0}.subtip svg{flex:0 0 auto}.subtip .mp.bl5{fill:var(--good)}
+.fchips.sub,.fchips.eq{margin-top:0}.fchips.sub .fchip{font-size:13px}.fchips.eq .fchip{font-size:13px;display:inline-flex;align-items:center;gap:4px}.fchips.eq .fchip svg{width:14px;height:14px}
 .mdbar{display:flex;gap:3px;margin:0 0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}.mdbar button{flex:1 1 0;min-width:30px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:15px;font-family:inherit;padding:0 6px}
 .dstat{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .dcal .cell{background:none;flex-direction:column;font-size:14px}
@@ -1298,8 +1300,8 @@ function vFPick(){
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="fpback">'+(ui.fl&&ui.fl.changing?'返回':'取消')+'</button><h1 class="edit-t">'+(ed?'管理動作':'選動作')+'</h1>'+
     '<button class="textbtn'+(ed?' strong':'')+'" data-act="fpedit">'+(ed?'完成':'編輯')+'</button></header>'+
     '<label class="sr" for="fq">搜尋動作</label><input id="fq" type="search" placeholder="搜尋動作，也可以打英文" value="'+esc(ui.fq||'')+'" autocomplete="off">'+
-    '<div class="fchips">'+PARTS.map(function(x){return '<button class="fchip'+(x===p?' on':'')+'" data-act="fpart" data-v="'+x+'" aria-pressed="'+(x===p)+'">'+x+'</button>';}).join('')+'</div>'+
-    '<div id="fpfil">'+fpFilters()+'</div>'+
+    '<div class="fpbox"><div class="fprw"><span class="frl">部位</span><div class="fchips">'+PARTS.map(function(x){return '<button class="fchip'+(x===p?' on':'')+'" data-act="fpart" data-v="'+x+'" aria-pressed="'+(x===p)+'">'+x+'</button>';}).join('')+'</div></div>'+
+    '<div id="fpfil" class="fpbox">'+fpFilters()+'</div></div>'+
     (ed?'<div class="row-btn" style="background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>隱藏沒用過的內建動作</span><span class="row-sub">清單只留練過的和自訂的，搜尋還是找得到全部</span></span>'+
       '<button class="switch" role="switch" aria-checked="'+!!db.settings.fitHideUnused+'" aria-label="隱藏沒用過的內建動作" data-act="fphide"><span class="knob"></span></button></div>':'')+
     '<div id="fplist" style="display:flex;flex-direction:column;gap:16px">'+fpList()+'</div></div>';
@@ -1316,10 +1318,20 @@ function fpEq(){var v=db.settings.fpEq;return EQ_LIST.indexOf(v)>=0?v:'';}
 function fpBase(){var p=ui.fpart,sb=fpSub(),hide=!!db.settings.fitHideUnused;
   return db.fit.ex.filter(function(e){return !e.archived&&e.part===p&&(!sb||e.sub===sb)&&(!hide||!/^p\d+$/.test(e.id)||exUsed(e.id));});}
 function fpFilters(){if((ui.fq||'').trim())return '';var p=ui.fpart,sb=fpSub(),eq=fpEq(),subs=SUBS[p]||[],s='';
-  if(subs.length)s+='<div class="fchips sub">'+[''].concat(subs).map(function(x){var on=x===sb;return '<button class="fchip'+(on?' on':'')+'" data-act="fpsub" data-v="'+x+'" aria-pressed="'+on+'">'+(x||'全部')+'</button>';}).join('')+'</div>';
+  if(subs.length)s+='<div class="fprw"><span class="frl">肌群</span><div class="fchips sub">'+[''].concat(subs).map(function(x){var on=x===sb;return '<button class="fchip'+(on?' on':'')+'" data-act="fpsub" data-v="'+x+'" aria-pressed="'+on+'">'+(x||'全部')+'</button>';}).join('')+'</div></div>'+(sb?subTip(p,sb):'');
   var base=fpBase(),eqs=EQ_LIST.filter(function(q){return base.some(function(e){return e.eq===q||ALSO_EQ[e.id]===q;});});
-  if(eqs.length>1||eq)s+='<div class="fchips eq">'+[''].concat(eqs.indexOf(eq)<0&&eq?eqs.concat([eq]):eqs).map(function(x){var on=x===eq;return '<button class="fchip'+(on?' on':'')+'" data-act="fpeq" data-v="'+x+'" aria-pressed="'+on+'">'+(x?fIco(EQI[x],14):'')+(x||'全部器材')+'</button>';}).join('')+'</div>';
+  if(eqs.length>1||eq)s+='<div class="fprw"><span class="frl">器材</span><div class="fchips eq">'+[''].concat(eqs.indexOf(eq)<0&&eq?eqs.concat([eq]):eqs).map(function(x){var on=x===eq;return '<button class="fchip'+(on?' on':'')+'" data-act="fpeq" data-v="'+x+'" aria-pressed="'+on+'">'+(x?fIco(EQI[x],14):'')+(x||'全部')+'</button>';}).join('')+'</div></div>';
   return s;}
+/* 肌群小教室: the 男生 figure with the part lit (back view for back-side muscles) + one line on where it is and what trains it */
+var SUB_TIP={'上胸':'胸肌靠近鎖骨的上半部。上斜臥推、低位滑輪夾胸最有感。','中胸':'胸肌中間最厚的部分。平板臥推、夾胸機。','下胸':'胸肌的下緣。下斜臥推、高位滑輪夾胸、雙槓撐體。',
+  '上背':'兩片肩胛骨之間（斜方肌、菱形肌）。各種划船、反向飛鳥。','背闊':'腋下延伸到腰側的大片肌肉，練了背會變寬。引體向上、滑輪下拉。','下背':'脊椎兩側（豎脊肌），撐住身體挺直。硬舉、背部伸展。',
+  '前束':'肩膀前側。各種肩推、推舉。','中束':'肩膀外側，練了肩膀看起來比較寬。側平舉。','後束':'肩膀後側，常被忽略。臉拉、反向飛鳥。',
+  '二頭':'上臂前側，彎手肘用的肌肉。各種彎舉。','前臂':'手肘到手腕，跟握力有關。錘式彎舉。',
+  '股四頭':'大腿前側。深蹲、腿推、腿伸屈。','腿後':'大腿後側（膕繩肌）。腿彎舉、羅馬尼亞硬舉。','內收':'大腿內側。髖內收機。',
+  '臀大肌':'屁股最大塊的肌肉。臀推、深蹲、硬舉。','臀中肌':'臀部外上側，穩定骨盆。髖外展機、側抬腿。','腹直肌':'肚子正面的「六塊肌」。捲腹、舉腿、棒式。','腹斜肌':'腰的兩側。轉體、滑輪木樁砍。'};
+var SUB_BACK=['上背','背闊','下背','後束','腿後','臀大肌','臀中肌'];
+function subTip(p,sb){var C=CHARS.man,back=SUB_BACK.indexOf(sb)>=0,hp=sb==='前臂'?'':p,art=(back?C.b:C.f).replace(/\{([^}]+)\}/g,function(_,x){return x===hp?'bl5':'';});
+  return '<div class="subtip"><svg viewBox="270 10 460 990" width="44" height="95" aria-hidden="true">'+art+'</svg><div><b>'+esc(sb)+'</b><span class="small muted">'+(back?'背面 · ':'')+esc(SUB_TIP[sb]||'')+'</span></div></div>';}
 function fpList(){
   var p=ui.fpart,q=(ui.fq||'').trim().toLowerCase(),ed=!!ui.fpEdit,s='',t=todayKey();
   var act=db.fit.ex.filter(function(e){return !e.archived;});
@@ -1337,7 +1349,7 @@ function fpList(){
     EQ_LIST.forEach(function(eq){if(feq&&eq!==feq)return;var its=items.filter(function(e){return e.eq===eq||ALSO_EQ[e.id]===eq;});if(!its.length)return;groups++;
       s+='<section class="sec"><h2 class="fgrp">'+fIco(EQI[eq],16)+eq+'<span>· '+its.length+'</span></h2><div class="list">'+its.map(function(e){return fpItem(e);}).join('')+'</div></section>';});
     if(fpSub()){var ns=act.filter(function(e){return e.part===p&&!e.sub&&(!feq||e.eq===feq||ALSO_EQ[e.id]===feq);});
-      if(ns.length){groups++;s+='<section class="sec"><h2 class="fgrp">沒標子部位<span>· '+ns.length+'</span></h2><div class="list">'+ns.map(function(e){return fpItem(e,{icon:true,sub:e.eq+(e.en?' · '+e.en:'')});}).join('')+'</div></section>';}}
+      if(ns.length){groups++;s+='<section class="sec"><h2 class="fgrp">沒標肌群<span>· '+ns.length+'</span></h2><div class="list">'+ns.map(function(e){return fpItem(e,{icon:true,sub:e.eq+(e.en?' · '+e.en:'')});}).join('')+'</div></section>';}}
     if(!groups)s+='<p class="small muted">'+(fpSub()||feq?'沒有符合的動作，換個條件，或自己新增一個。':hide?'這個部位還沒練過任何動作。關掉上面的開關，或用搜尋找。':'這個部位還沒有動作，可以自己新增一個。')+'</p>';
   }
   s+='<button class="addset" data-act="fexnew">＋ 自訂'+(q?'':esc(fpSub()||p))+'動作</button>';
@@ -1427,7 +1439,7 @@ function vFEx(){
   var x=ui.fx,showEn=x.eq==='器械'||x.eq==='滑輪';
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="fxcancel">取消</button><h1 class="edit-t">'+(x.id?'編輯動作':'自訂動作')+'</h1><button class="textbtn strong" data-act="fxsave">儲存</button></header>'+
     '<div class="field"><label class="lbl" for="fxpart">1　部位</label><select id="fxpart" class="fsel">'+PARTS.map(function(v){return '<option'+(v===x.part?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>'+
-    (SUBS[x.part]?'<div class="field"><label class="lbl" for="fxsub">子部位（選填）</label><select id="fxsub" class="fsel"><option value="">不指定</option>'+SUBS[x.part].map(function(v){return '<option'+(v===x.sub?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>':'')+
+    (SUBS[x.part]?'<div class="field"><label class="lbl" for="fxsub">肌群（選填）</label><select id="fxsub" class="fsel"><option value="">不指定</option>'+SUBS[x.part].map(function(v){return '<option'+(v===x.sub?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>':'')+
     '<div class="field"><label class="lbl" for="fxeq">2　器材</label><div class="selrow"><span id="fxico" class="fico big">'+fIco(EQI[x.eq],24)+'</span><select id="fxeq" class="fsel">'+EQ_LIST.map(function(v){return '<option'+(v===x.eq?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>'+
       (EQ_HINT[x.eq]?'<p class="hint">'+EQ_HINT[x.eq]+'</p>':'')+'</div>'+
     '<div class="field"><label class="lbl" for="fxname">3　名稱</label><input id="fxname" type="text" maxlength="30" placeholder="例如：坐姿划船機（公司樓下）" value="'+esc(x.name)+'" autocomplete="off">'+
@@ -1686,7 +1698,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.24-2';
+var APP_VER='2026.10.24-3';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
