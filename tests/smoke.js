@@ -940,6 +940,26 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'body map');
   }
 
+  // 個人化 + 習慣等級
+  {
+    const logs = {}; for (let i = 1; i <= 8; i++) logs[daysAgo(i)] = { h: { g1: 1 } };
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true }, rewards: [], redeemed: [], logs,
+      habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(20) }, { id: 'b1', name: '不喝含糖飲料', kind: 'bad', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(22) }] } });
+    ok(!(await p.$('.hello')), 'profile: no greeting until something is set');
+    ok(await p.$eval('[data-id=g1] .lv', e => e.textContent) === 'Lv2', 'level: 8 days done → Lv2');
+    ok(await p.$eval('[data-id=b1] .lv', e => e.textContent) === 'Lv3', 'level: bad habit counts clean days (22 → Lv3)');
+    await p.click('[data-act=toggle][data-id=g1]'); await p.waitForTimeout(400);
+    ok(/升級了/.test(await p.$eval('#toast', e => e.innerText)) === false, 'level: no level-up toast when not crossing');
+    await p.click('[data-tab=settings]'); await p.fill('#uname', 'Aaron'); await p.fill('#motto', '慢慢來，比較快');
+    await p.click('[data-act=avpick]'); await p.click('[data-act=avset][data-v=mel]');
+    await p.click('[data-act=quotes]'); ok((await p.$$('.qopt')).length === 6, 'profile: six quotes to pick from');
+    await p.click('.qopt >> nth=0'); const mt = (await db(p)).settings.motto; ok(!!mt && mt !== '慢慢來，比較快', 'profile: picking a quote sets the motto');
+    await p.click('[data-tab=today]');
+    ok(/Aaron/.test(await p.innerText('.hello')) && !!(await p.$('.hello .av.ch svg')), 'profile: greeting with name and character avatar');
+    const d = (await db(p)).settings; ok(d.uname === 'Aaron' && d.avatar === 'mel', 'profile: saved');
+    await done(p, 'profile');
+  }
+
   // 日記 #標籤
   {
     const k1 = daysAgo(1), k2 = daysAgo(5);
