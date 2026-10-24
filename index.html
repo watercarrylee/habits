@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-5W9Hf4P2IcSKsMyHHXOFdFxtrtUvClVKoX4chgS8ews='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-prcTBrmFux/zD0kUN0lgnV+yT4SVLZ5qIEgEUTUaGPI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -459,6 +459,13 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .dtag{display:inline-flex;align-items:center;gap:3px;border:0;border-radius:999px;padding:1px 9px;margin:0 1px;font:inherit;font-size:.86em;line-height:1.6;cursor:pointer;vertical-align:1px;background:color-mix(in srgb,var(--tc) 16%,var(--surface));color:var(--tc)}.dtag small{opacity:.7;font-size:.85em}.tc0{--tc:#C8962C}.tc1{--tc:#4F7FB0}.tc2{--tc:#B4533C}.tc3{--tc:#5E8F5A}.tc4{--tc:#8A63B5}.tc5{--tc:#C2607E}.tc6{--tc:#2E8C8C}.tc7{--tc:#7A7468}
 .mdtags{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.mdtags .dtag{font-size:14px;padding:4px 10px}.tagcloud{display:flex;flex-wrap:wrap;gap:8px}.tagcloud .dtag{font-size:15px;padding:5px 12px}
 .tagline{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.tagline .dtag{font-size:12px}.tagline .dtag.on{font-weight:800}
+.hello{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:4px 0 10px;text-align:left;color:var(--fg);font:inherit;cursor:pointer}.hello-t{display:flex;flex-direction:column;min-width:0}.hello-t b{font-size:18px}.hello-t small{color:var(--muted);font-size:13px;line-height:1.4}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;flex:0 0 auto;background:var(--chip);border:2px solid var(--surface);box-shadow:0 0 0 1.5px var(--line)}.av img{width:100%;height:100%;object-fit:cover}.av.ch{background:var(--good-soft)}.av.none svg{width:45%;height:45%;color:var(--muted)}.av svg.avchar{width:100%;height:100%}
+.prof{display:flex;gap:14px;align-items:flex-end}.prof-av{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:0;color:var(--muted);font:inherit;cursor:pointer}.prof-av small{font-size:12px}.prof-f{flex:1 1 auto;min-width:0}
+.avgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:6px 0 14px}.avopt{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:2px solid transparent;border-radius:14px;padding:6px 0;font:inherit;font-size:12px;color:var(--muted);cursor:pointer}.avopt.on{border-color:var(--good);color:var(--fg)}
+.qlist{display:flex;flex-direction:column;gap:8px;margin:6px 0 12px}.qopt{text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;font:inherit;color:var(--fg);display:flex;flex-direction:column;gap:2px;cursor:pointer}.qopt small{color:var(--muted);font-size:12px}
+.lv{display:inline-block;font-size:11px;font-weight:800;line-height:1;padding:3px 6px;border-radius:7px;vertical-align:2px;margin-left:4px;color:var(--good);background:linear-gradient(90deg,color-mix(in srgb,var(--good) 26%,var(--surface)) var(--p),color-mix(in srgb,var(--good) 10%,var(--surface)) var(--p));font-variant-numeric:tabular-nums}
+.b-on .lv,.g-on .lv{color:inherit}
 .mdbar{display:flex;gap:3px;margin:0 0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}.mdbar button{flex:1 1 0;min-width:30px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:15px;font-family:inherit;padding:0 6px}
 .dstat{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .dcal .cell{background:none;flex-direction:column;font-size:14px}
@@ -1464,7 +1471,7 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,onboarded:!!st.onboarded,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,onboarded:!!st.onboarded,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,60):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k)&&k!=='photos')R[k]=d[k];});
@@ -1897,7 +1904,7 @@ function phMB(b){return b<1048576?Math.max(1,Math.round(b/1024))+' KB':(Math.rou
 function blobToData(b){return new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=function(){res('');};r.readAsDataURL(b);});}
 function dataToBlob(u){var m=/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+\/=]+)$/.exec(u||'');if(!m)return null;var bin=atob(m[2]),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:m[1]});}
 /* backups: photos ride along as data URLs under "photos" (only ids referenced by the logs), restored into IndexedDB */
-function phRefs(d){var r={};Object.keys(d.logs||{}).forEach(function(k){var l=d.logs[k];if(l.np)r[l.np]=1;if(l.dp)r[l.dp]=1;});return r;}
+function phRefs(d){var r={};if(d.settings&&d.settings.avPh)r[d.settings.avPh]=1;Object.keys(d.logs||{}).forEach(function(k){var l=d.logs[k];if(l.np)r[l.np]=1;if(l.dp)r[l.dp]=1;});return r;}
 function payloadText(cb){if(ui.bkNoPh||!window.indexedDB){cb(backupPayload());return;}var refs=phRefs(db);if(!Object.keys(refs).length){cb(backupPayload());return;}
   phAll().then(function(m){var ids=Object.keys(m).filter(function(id){return refs[id];});return Promise.all(ids.map(function(id){return blobToData(m[id]);})).then(function(us){
     var o=JSON.parse(backupPayload()),ph={};ids.forEach(function(id,i){if(us[i])ph[id]=us[i];});if(Object.keys(ph).length)o.photos=ph;cb(JSON.stringify(o));});}).catch(function(){cb(backupPayload());});}
@@ -2800,7 +2807,7 @@ function goodCard(h,k){
   else if(pg){sub=progLine(pg,st);bar=progBar(pg);}
   else{sub=st>0?'連續 '+st+' 天':'完成就是連續第 1 天';var svd=savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);}
   if(pre)cardOn=false;
-  var txt='<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub'+(cardOn?' good-t':'')+'">'+sub+'</div>'+bar+'</div>';
+  var txt='<div class="hc-text"><div class="hc-name">'+esc(h.name)+lvBadge(h)+'</div><div class="hc-sub'+(cardOn?' good-t':'')+'">'+sub+'</div>'+bar+'</div>';
   if(h.method==='count')return '<div class="hcard'+(cardOn?' g-on':'')+(pre?' pre':'')+'" data-id="'+h.id+'"><div class="hc-lead">'+cardIco(h)+txt+'</div>'+counter(h.id,v,'good',hUnit(h))+'</div>';
   return '<button class="hcard'+(cardOn?' g-on':'')+(pre?' pre':'')+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+txt+'</div>'+(isWk(h)?'<span class="chkday"><span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span><small>今天</small></span>':'<span class="check'+(on?' on':'')+'" aria-hidden="true">'+(on?I.check:'')+'</span>')+'</button>';
 }
@@ -2810,9 +2817,9 @@ function badCard(h,k){
   var sub=pre?'這天還沒開始這個習慣':on?(h.method==='count'?'今天犯了 '+v+' 次':'今天有犯'):'已 '+cleanDays(h,k)+' 天沒犯';
   var svd=pre?0:savedFor(h,k);if(svd)sub+=' · 省下 NT$'+fmtN(svd);
   if(h.method==='check'){
-    return '<button class="hcard'+(on?' b-on':'')+pc+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div></div><span class="check bad'+(on?' on':'')+'" aria-hidden="true">'+(on?I.x:'')+'</span></button>';
+    return '<button class="hcard'+(on?' b-on':'')+pc+'" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+on+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+lvBadge(h)+'</div><div class="hc-sub">'+sub+'</div></div></div><span class="check bad'+(on?' on':'')+'" aria-hidden="true">'+(on?I.x:'')+'</span></button>';
   }
-  return '<div class="hcard'+(on?' b-on':'')+pc+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+'</div><div class="hc-sub">'+sub+'</div></div></div>'+counter(h.id,v,'bad')+'</div>';
+  return '<div class="hcard'+(on?' b-on':'')+pc+'"><div class="hc-lead">'+cardIco(h)+'<div class="hc-text"><div class="hc-name">'+esc(h.name)+lvBadge(h)+'</div><div class="hc-sub">'+sub+'</div></div></div>'+counter(h.id,v,'bad')+'</div>';
 }
 
 /* ---------- add to home screen hint ---------- */
@@ -2861,6 +2868,39 @@ function celebrate(id){
   if(MILESTONES.indexOf(st)>=0){ui.sheet={type:'milestone',n:st};return;}
   var c=CHEERS[Math.floor(Math.random()*CHEERS.length)];toast(c+(st>1?' 連續 '+st+' 天了':''),2600);
 }
+/* ---------- 個人化: name, avatar (photo or a character), motto ---------- */
+var AV_BOX={kaka:'395 195 430 430',mel:'330 70 540 540',pp:'330 215 540 540',man:'385 14 232 232',woman:'375 10 270 270'};
+function avSvg(c,sz){var C=CHARS[c];if(!C)return '';var art=(C.f||'').replace(/\{[^}]+\}/g,'');
+  return '<svg class="avchar" width="'+sz+'" height="'+sz+'" viewBox="'+AV_BOX[c]+'" aria-hidden="true">'+BEAR_GRAD+art+'</svg>';}
+function avHTML(sz,cls){var st=db.settings,c=st.avatar;
+  if(c==='photo'&&st.avPh)return '<span class="av '+(cls||'')+'" style="width:'+sz+'px;height:'+sz+'px"><img data-ph="'+st.avPh+'" alt="頭像"></span>';
+  if(c&&CHARS[c])return '<span class="av ch '+(cls||'')+'" style="width:'+sz+'px;height:'+sz+'px">'+avSvg(c,sz)+'</span>';
+  return '<span class="av none '+(cls||'')+'" style="width:'+sz+'px;height:'+sz+'px">'+I.plus+'</span>';}
+function hello(){var h=new Date().getHours();return h>=5&&h<11?'早安':h>=11&&h<17?'午安':h>=17&&h<23?'晚安':'夜深了';}
+function helloHTML(){var st=db.settings;if(!st.uname&&!st.avatar&&!st.motto)return '';
+  return '<button class="hello" data-act="profile">'+avHTML(44)+'<span class="hello-t"><b>'+hello()+(st.uname?'，'+esc(st.uname):'')+'</b>'+(st.motto?'<small>'+esc(st.motto)+'</small>':'')+'</span></button>';}
+var QUOTES=[['千里之行，始於足下。','老子《道德經》'],['不積跬步，無以至千里；不積小流，無以成江海。','《荀子・勸學》'],['鍥而不捨，金石可鏤。','《荀子・勸學》'],['業精於勤，荒於嬉；行成於思，毀於隨。','韓愈《進學解》'],
+  ['水滴石穿。','成語'],['九層之臺，起於累土。','老子《道德經》'],['合抱之木，生於毫末。','老子《道德經》'],['苟日新，日日新，又日新。','《禮記・大學》'],['學而時習之，不亦說乎？','《論語》'],
+  ['一日之計在於晨。','俗諺'],['慢慢來，比較快。',''],['今天的一小步，是明天的一大步。',''],['不用完美，只要繼續。',''],['做了，就比沒做好。',''],['習慣是每天投給未來自己的一票。',''],
+  ['累了就休息，但別放棄。',''],['比昨天的自己好一點點就夠了。',''],['先求有，再求好。',''],['小事做久了，就是大事。',''],['你不需要很厲害才開始，但需要開始才會很厲害。','']];
+function avShrink(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file),im=new Image();
+  im.onload=function(){var w=im.naturalWidth,h=im.naturalHeight,m=Math.min(w,h),cv=document.createElement('canvas');cv.width=cv.height=256;
+    cv.getContext('2d').drawImage(im,(w-m)/2,(h-m)/2,m,m,0,0,256,256);URL.revokeObjectURL(u);cv.toBlob(function(b){b?res(b):rej(new Error('encode'));},'image/jpeg',0.85);};
+  im.onerror=function(){URL.revokeObjectURL(u);rej(new Error('read'));};im.src=u;});}
+function avPick(){var f=document.createElement('input');f.type='file';f.accept='image/*';f.style.display='none';document.body.appendChild(f);
+  f.onchange=function(){var file=f.files&&f.files[0];f.remove();if(!file)return;
+    avShrink(file).then(function(b){var id=uid();return phPut(id,b).then(function(){var old=db.settings.avPh;db.settings.avPh=id;db.settings.avatar='photo';save();if(old&&old!==id)phDel(old);ui.sheet=null;render();toast('頭像已更新');});})
+      .catch(function(){toast('這張照片無法讀取，請換一張試試',3000);});};f.click();}
+/* ---------- 習慣等級: cumulative days done (bad habits: days kept clean, before today); never goes down ---------- */
+var LV_AT=[1,7,21,50,100,200,365,500,730,1000];
+function hDays(h){var t=todayKey(),n=0;
+  if(h.kind==='bad'){for(var d=h.created;d<t;d=addDays(d,1))if(!val(d,h.id))n++;return n;}
+  Object.keys(db.logs).forEach(function(k){if(k<=t&&db.logs[k].h&&db.logs[k].h[h.id]!=null&&isDone(h,k))n++;});return n;}
+function hLevel(h){var n=hDays(h),lv=0;while(lv<LV_AT.length&&n>=LV_AT[lv])lv++;var nx=LV_AT[lv],pv=lv?LV_AT[lv-1]:0;return {n:n,lv:lv,next:nx||null,p:nx?(n-pv)/(nx-pv):1};}
+function lvBadge(h){var L=hLevel(h);if(!L.lv)return '';return ' <span class="lv" style="--p:'+Math.round(L.p*100)+'%" title="累積 '+L.n+' 天'+(L.next?'，再 '+(L.next-L.n)+' 天升到 Lv'+(L.lv+1):'')+'">Lv'+L.lv+'</span>';}
+function lvWatch(){var c=ui.lvCache||{},first=!ui.lvCache,up=null;ui.lvCache={};
+  db.habits.forEach(function(h){if(h.archived)return;var lv=hLevel(h).lv;ui.lvCache[h.id]=lv;if(!first&&c[h.id]!=null&&lv>c[h.id])up=[h,lv];});
+  if(up)setTimeout(function(){toast('升級了！'+up[0].name+' 到了 Lv'+up[1]+'（累積 '+LV_AT[up[1]-1]+' 天）',3200);},250);}
 function vToday(){
   var k=ui.date,t=todayKey();
   var wks=active('good').filter(isWk),goods=active('good').filter(function(h){return !isWk(h);}),bads=active('bad');
@@ -2868,7 +2908,8 @@ function vToday(){
   var done=gs.filter(function(h){return isDone(h,k);}).length,live=gs.filter(function(h){return k>=h.created||isDone(h,k);}).length;
   var badSum=bads.reduce(function(a,h){return a+val(k,h.id);},0);
   var log=db.logs[k]||{};
-  var s='<div class="page'+(dayLocked(k)?' locked':'')+'"><header class="datebar">'+
+  if(k===t)lvWatch();
+  var s='<div class="page'+(dayLocked(k)?' locked':'')+'">'+(k===t?helloHTML():'')+'<header class="datebar">'+
     '<button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天"'+(ui.date<=useStart()?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="datebar-mid"><div class="sub">'+dateSub(k)+'</div><h1 class="h1">'+dateLabel(k)+'</h1></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></header>';
@@ -2962,6 +3003,11 @@ function meta(h){
 }
 function vSettings(){
   var s='<div class="page"><header class="titlebar"><h1 class="h1">設定</h1><button class="addbtn" data-act="new" aria-label="新增習慣">'+I.plus+'</button></header>';
+  var pst=db.settings;
+  s+='<section class="sec" id="profile"><h2 class="sec-t">個人化</h2><div class="prof"><button class="prof-av" data-act="avpick" aria-label="更換頭像">'+avHTML(64)+'<small>更換</small></button><div class="prof-f">'+
+    '<label class="lbl" for="uname">名字</label><input id="uname" type="text" maxlength="20" placeholder="今天頁會跟你打招呼" value="'+esc(pst.uname||'')+'" autocomplete="nickname" enterkeyhint="done"></div></div>'+
+    '<label class="lbl" for="motto" style="margin-top:12px">座右銘</label><input id="motto" type="text" maxlength="60" placeholder="例如：慢慢來，比較快" value="'+esc(pst.motto||'')+'" enterkeyhint="done">'+
+    '<button class="ghost" data-act="quotes" style="margin-top:6px">從名言金句挑一句</button></section>';
   ['good','bad'].forEach(function(kind){
     var list=active(kind),nm=kind==='good'?'好習慣':'壞習慣';
     s+='<section class="sec"><div class="sec-row"><h2 class="sec-t '+kind+'-t">'+nm+'</h2>'+(list.length>1?'<span class="small muted">按住左邊拖曳排序</span>':'')+'</div>';
@@ -3351,6 +3397,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.23-10','10/23',['日記可以加 #標籤：彩色標籤、常用標籤按鈕，點標籤就看到所有相關日記，統計裡有標籤總覽','日記支援排版（粗體、斜體、刪除線、引用、清單、縮排）和超連結，編輯時上方有格式按鈕','日記可以分享成圖片或 HTML 檔，並會記下撰寫時間，補寫的日記會標出來','重訓可以「開始計時」，練完按結束自動填入重訓時間；動作可以用英文或「器材＋動作」搜尋','練了哪些部位新增「男生」「女生」角色，練到的肌肉直接上色；角色改用下拉選單','心情改成表情圖示']],
  ['2026.10.22-3','10/22',['運動「練了哪些部位」換成可愛角色：咖咖、南蜜瓜、屁屁，正面和背面都標出每個部位練了幾天，可以切換週／月／季／年','投資可以記錄「賣出」和已實現損益；走勢改看總損益（已實現＋未實現），多一條已實現虛線，點賣出那天會拆開顯示','修正冰島藍和黑白螢光外觀下，每週習慣的進度條會顯示成全滿']],
  ['2026.10.21-5','10/21',['新獎勵類型「投資」：本週或本月未實現損益增加多少、帳面突破多少、報酬率達到多少，就可以兌換','備註和日記可以各放一張照片，會自動壓縮並拿掉位置資訊；匯出備份可以一起帶走照片','損益走勢可以切換「日／週／月」，週和月用 K 棒顯示，點一下看開高低收','新使用者會看到引導；設定多了「用範本加入習慣」','「我的這一週」分享圖跟著外觀換色；「冰島」改名「冰島藍」']],
  ['2026.10.20-6','10/20',['回看過去時，還沒開始的習慣會收成一行；習慣可以設定「開始日期」，要補記就把日期往前改','新增「自動備份」：每次更新前和每天第一次打開時自動存一份，可以在設定裡挑時間還原','名稱有「不、別、戒」等字的習慣，圖示會加上禁止斜線','投資頁可以「重新整理」收盤價；編輯持股可以選成交日','損益走勢多了「本週變動／最高／最低」，報酬率 % 移到數字下一行','修正：打勾再取消不會再弄斷連續天數；黑白螢光外觀的圖示看不清楚']],
@@ -3471,7 +3518,13 @@ function renderSheet(){
       '<button class="secondary" data-act="phreplace">換一張</button><button class="secondary bad-t" data-act="phremove">'+(sh.conf?'再按一次，刪除這張照片':'刪除照片')+'</button>'+
       '<button class="primary" data-act="closesheet">關閉</button></div></div>';el.hidden=false;phHydrate();return;
   }
-  if(sh.type==='dshare'){var dl0=db.logs[sh.k]||{};
+  if(sh.type==='avpick'){
+    h='<h2>選頭像</h2><div class="avgrid">'+['kaka','mel','pp','man','woman'].map(function(c){var on=db.settings.avatar===c;return '<button class="avopt'+(on?' on':'')+'" data-act="avset" data-v="'+c+'" aria-pressed="'+on+'"><span class="av ch" style="width:64px;height:64px">'+avSvg(c,64)+'</span><small>'+CHARS[c].name+'</small></button>';}).join('')+'</div>'+
+      '<div class="stack"><button class="primary" data-act="avphoto">上傳照片</button>'+(db.settings.avatar?'<button class="secondary bad-t" data-act="avset" data-v="">拿掉頭像</button>':'')+'</div><p class="small muted">照片會裁成正方形、縮小後存在這支手機，匯出備份時會一起帶走。</p>';
+  }else if(sh.type==='quotes'){
+    h='<h2>挑一句座右銘</h2><div class="qlist">'+sh.list.map(function(i){var q=QUOTES[i];return '<button class="qopt" data-act="qpick" data-i="'+i+'"><span>'+esc(q[0])+'</span>'+(q[1]?'<small>— '+esc(q[1])+'</small>':'')+'</button>';}).join('')+'</div>'+
+      '<div class="stack"><button class="secondary" data-act="quotes">換一批</button></div>';
+  }else if(sh.type==='dshare'){var dl0=db.logs[sh.k]||{};
     h='<h2>分享日記</h2><p>分享後，日記內容會離開這支手機，請確認對象。</p>'+
       (dl0.dp?'<button class="row-btn phopt" data-act="dsopt" data-v="ph"><span class="row-l"><span>包含照片</span></span><span class="switch" role="switch" aria-checked="'+!sh.noPh+'"><span class="knob"></span></span></button>':'')+
       (dl0.mood!=null?'<button class="row-btn phopt" data-act="dsopt" data-v="mood"><span class="row-l"><span>包含心情</span></span><span class="switch" role="switch" aria-checked="'+!sh.noMood+'"><span class="knob"></span></span></button>':'')+
@@ -3899,6 +3952,12 @@ function act(a,b){
     case 'confirmimport': autoSnap('restore');var iph=ui.sheet.photos;if(iph&&Object.keys(iph).length&&window.indexedDB)phRestore(iph).then(function(){render();});db=ui.sheet.data;save();ui.sheet=null;ui.date=t;ui.follow=true;go('today');toast('已還原備份');break;
     case 'copy': copyText(ui.sheet.text);return;
     case 'download': downloadText(ui.sheet.text,ui.sheet.name);return;
+    case 'profile': go('settings');ui.top=false;render();var pf=document.getElementById('profile');if(pf)pf.scrollIntoView({block:'start'});return;
+    case 'avpick': ui.sheet={type:'avpick'};break;
+    case 'avphoto': avPick();return;
+    case 'avset': var oav=db.settings.avPh;if(b.dataset.v){db.settings.avatar=b.dataset.v;}else delete db.settings.avatar;if(b.dataset.v!=='photo'&&oav){delete db.settings.avPh;phDel(oav);}save();ui.sheet=null;toast(b.dataset.v?'頭像已更新':'已拿掉頭像');break;
+    case 'quotes': var ql=[],qi=QUOTES.map(function(_,i){return i;});while(ql.length<6&&qi.length)ql.push(qi.splice(Math.floor(Math.random()*qi.length),1)[0]);ui.sheet={type:'quotes',list:ql};break;
+    case 'qpick': var qq=QUOTES[+b.dataset.i];db.settings.motto=qq[0]+(qq[1]?' —'+qq[1]:'');save();ui.sheet=null;toast('座右銘已更新');break;
     case 'dshare': ui.sheet={type:'dshare',k:ui.date};break;
     case 'dsopt': if(b.dataset.v==='ph')ui.sheet.noPh=!ui.sheet.noPh;else ui.sheet.noMood=!ui.sheet.noMood;break;
     case 'dsimg': dsImage(ui.sheet);return;
@@ -3938,6 +3997,8 @@ document.addEventListener('input',function(e){
   else if(ui.sd&&(el.id==='sellsh'||el.id==='sellpx')){ui.sd[el.id==='sellsh'?'shares':'px']=el.value;sellSync();}
   else if(ui.sd&&el.id==='sellamt'){ui.sd.amt=el.value.replace(/[^0-9]/g,'');ui.sd.touched=true;}
   else if(ui.sd&&el.id==='selld'){var tk3=todayKey();if(isKey(el.value))ui.sd.d=el.value>tk3?tk3:el.value;}
+  else if(el.id==='uname'){var un=el.value.trim().slice(0,20);if(un)db.settings.uname=un;else delete db.settings.uname;save();}
+  else if(el.id==='motto'){var mo=el.value.trim().slice(0,60);if(mo)db.settings.motto=mo;else delete db.settings.motto;save();}
   else if(el.id==='hdate'){var tk2=todayKey();if(isKey(el.value))ui.hdate=el.value>tk2?tk2:el.value;}
   else if(el.id==='hstart'&&ui.draft){var tk1=todayKey();if(isKey(el.value))ui.draft.start=el.value>tk1?tk1:el.value;}
   else if(el.id==='hsavefrom'&&ui.draft){var tk=todayKey();if(isKey(el.value)){ui.draft.saveFrom=el.value>tk?tk:el.value;render();}}
