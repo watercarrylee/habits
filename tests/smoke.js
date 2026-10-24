@@ -940,6 +940,25 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'body map');
   }
 
+  // 子部位 + 器材篩選
+  {
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
+    await p.click('#fitTab'); await p.click('[data-act=fpick]'); await p.click('[data-act=fpart][data-v=胸]');
+    ok((await p.$$eval('.fchips.sub .fchip', e => e.map(x => x.textContent))).join() === '全部,上胸,中胸,下胸', 'sub-parts: 胸 offers 上胸／中胸／下胸');
+    await p.click('[data-act=fpsub][data-v=上胸]');
+    let names = await p.$$eval('#fplist .fprow .fp-n > span', e => e.map(x => x.textContent));
+    ok(names.includes('上斜啞鈴臥推') && names.includes('上斜槓鈴臥推') && names.includes('低位滑輪夾胸') && !names.includes('槓鈴臥推'), 'sub-parts: 上胸 lists only upper-chest exercises');
+    await p.click('[data-act=fpeq][data-v=槓鈴]'); names = await p.$$eval('#fplist .fprow .fp-n > span', e => e.map(x => x.textContent));
+    ok(names.join() === '上斜槓鈴臥推', 'equipment filter narrows to 槓鈴');
+    await p.click('[data-act=fpsub][data-v=下胸]'); names = await p.$$eval('#fplist .fprow .fp-n > span', e => e.map(x => x.textContent));
+    ok(names.join() === '下斜槓鈴臥推', 'sub-parts: new 下胸 presets');
+    ok((await db(p)).settings.fpSub === '下胸' && (await db(p)).settings.fpEq === '槓鈴', 'filters remembered');
+    await p.click('[data-act=fpedit]'); await p.click('[data-act=fexedit]'); ok(await p.inputValue('#fxsub') === '下胸', 'editor shows the sub-part');
+    await p.selectOption('#fxsub', '中胸'); await p.click('[data-act=fxsave]');
+    ok((await db(p)).fit.ex.find(e => e.name === '下斜槓鈴臥推').sub === '中胸', 'sub-part can be changed');
+    await done(p, 'sub-parts');
+  }
+
   // 個人化 + 習慣等級
   {
     const logs = {}; for (let i = 1; i <= 8; i++) logs[daysAgo(i)] = { h: { g1: 1 } };
