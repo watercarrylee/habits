@@ -955,6 +955,18 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'fit add');
   }
 
+  // 這週訓練表
+  {
+    const ex = [['p1', '槓鈴臥推', '槓鈴', '胸'], ['p18', '槓鈴深蹲', '槓鈴', '腿'], ['p52', '壺鈴擺盪', '壺鈴', '全身']].map(([id, name, eq, part]) => ({ id, name, eq, part }));
+    const logs = { [daysAgo(0)]: { s: [{ id: 'a', ex: 'p1', sets: [[40, 10]] }] }, [daysAgo(7)]: { s: [{ id: 'b', ex: 'p18', sets: [[60, 5]] }], c: [{ id: 'c', type: '跑步', min: 30 }] } };
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex, logs, ctypes: [] } } });
+    await p.click('#fitTab');
+    ok((await p.$$('.cyd')).length === 7 && await p.$eval('.cyd.today .cyp', e => e.textContent) === '胸', 'week table: today shows the part trained');
+    await p.click('[data-act=cyoff][data-n="1"]');
+    ok(/上週/.test(await p.innerText('.cyh')) && (await p.$$eval('.cyp', e => e.map(x => x.textContent))).join() === '腿,有氧', 'week table: ‹ shows last week with 有氧');
+    await done(p, 'week table');
+  }
+
   // 子部位 + 器材篩選
   {
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
