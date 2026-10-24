@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-QrjEnIdXGxdUDs5995jSnTvNDfbxlQD3LS8oOPFTGaU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-unNUKSYBXRKJGDCkL5zoT+AzJvMaowChTV2FlmcJskQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -466,6 +466,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .qlist{display:flex;flex-direction:column;gap:8px;margin:6px 0 12px}.qopt{text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;font:inherit;color:var(--fg);display:flex;flex-direction:column;gap:2px;cursor:pointer}.qopt small{color:var(--muted);font-size:12px}
 .lv{display:inline-block;font-size:11px;font-weight:800;line-height:1;padding:3px 6px;border-radius:7px;vertical-align:2px;margin-left:4px;color:var(--good);background:linear-gradient(90deg,color-mix(in srgb,var(--good) 26%,var(--surface)) var(--p),color-mix(in srgb,var(--good) 10%,var(--surface)) var(--p));font-variant-numeric:tabular-nums}
 .b-on .lv,.g-on .lv{color:inherit}
+.fchips.sub,.fchips.eq{margin-top:-4px}.fchips.sub .fchip{font-size:13px}.fchips.eq .fchip{font-size:13px;display:inline-flex;align-items:center;gap:4px}.fchips.eq .fchip svg{width:14px;height:14px}
 .mdbar{display:flex;gap:3px;margin:0 0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}.mdbar button{flex:1 1 0;min-width:30px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:15px;font-family:inherit;padding:0 6px}
 .dstat{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .dcal .cell{background:none;flex-direction:column;font-size:14px}
@@ -1004,7 +1005,7 @@ function distTxt(d,kind){return kind==='swim'||kind==='row'?fmtN(Math.round(d*10
 var EQI={'槓鈴':'M2 12h20M5 8.5v7M8 6.5v11M16 6.5v11M19 8.5v7','啞鈴':'M7.5 12h9M5.5 7v10M3 9.5v5M18.5 7v10M21 9.5v5','壺鈴':'M9 9.2V7.5a3 3 0 0 1 6 0v1.7M7 14.5a5 5 0 1 0 10 0a5 5 0 1 0-10 0','器械':'M5 21V3h9v4M11 7h6v5h-6zM11 14.5h6M3 21h18','滑輪':'M9.5 4.5a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M12 7v10M7.5 17h9M8.5 17v3.5M15.5 17v3.5','史密斯機':'M5 3v18M19 3v18M3 10h18M7.5 7.5v5M16.5 7.5v5','徒手':'M10 3.8a2 2 0 1 0 4 0a2 2 0 1 0-4 0M12 6.5v8M5.5 10l6.5-2.5 6.5 2.5M8.5 21.5l3.5-7 3.5 7','彈力帶':'M5 9c0-7 14-7 14 0v6c0 7-14 7-14 0zM8.5 9c0-3 7-3 7 0v6c0 3-7 3-7 0z'};
 var CAI={'跑步機':'M3 18h14l3.5-3M6 18v2.5M16 18v2.5M14 15V6l4-2','飛輪':'M3.5 17a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0M7 17l5-8h5M12 9l-1-3H8M17 9v8.5M15 17.5h4','划船機':'M3 18h18M6 18v-3h4.5M17 18V8M15 8h4M10.5 15l6.5-4.5','橢圓機':'M5 17c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3zM8.5 16l2.5-10M15.5 16L13 6M9.5 6h5','爬梯機':'M4 20h4v-4h4v-4h4V8h4V4','戶外跑步':'M13 4.5a2 2 0 1 0 4 0a2 2 0 1 0-4 0M7 21l3.5-6 3 2.5V21M5 11.5l4-3 4.5 1 2 3 3.5 1M10.5 15l2-6','游泳':'M14 7a2 2 0 1 0 4 0a2 2 0 1 0-4 0M3 15.5c2 1.5 4 1.5 6 0s4-1.5 6 0 4 1.5 6 0M3 19.5c2 1.5 4 1.5 6 0s4-1.5 6 0 4 1.5 6 0M6 12.5l5-3 3 3','跳繩':'M5 3v7M19 3v7M5 10c0 13 14 13 14 0'};
 var CA_OTHER='M3 12h4l2-5 4 10 2-5h6',ADD_PATH='M12 5v14M5 12h14';
-var PRESETS=[["槓鈴臥推", "槓鈴", "胸", "Barbell Bench Press", ""], ["啞鈴臥推", "啞鈴", "胸", "Dumbbell Bench Press", ""], ["上斜啞鈴臥推", "啞鈴", "胸", "Incline Dumbbell Press", ""], ["蝴蝶機夾胸", "器械", "胸", "Pec Fly", ""], ["伏地挺身", "徒手", "胸", "Push-up", ""], ["滑輪下拉", "滑輪", "背", "Lat Pulldown", ""], ["滑輪坐姿划船", "滑輪", "背", "Seated Cable Row", ""], ["槓鈴划船", "槓鈴", "背", "Barbell Row", ""], ["引體向上", "徒手", "背", "Pull-up", ""], ["硬舉", "槓鈴", "背", "Barbell Deadlift", ""], ["啞鈴肩推", "啞鈴", "肩", "Dumbbell Shoulder Press", ""], ["側平舉", "啞鈴", "肩", "Lateral Raise", ""], ["臉拉", "滑輪", "肩", "Face Pull", ""], ["啞鈴彎舉", "啞鈴", "二頭", "Dumbbell Curl", ""], ["槓鈴彎舉", "槓鈴", "二頭", "Barbell Curl", ""], ["滑輪三頭下壓", "滑輪", "三頭", "Triceps Pushdown", ""], ["雙槓撐體", "徒手", "三頭", "Dips", ""], ["槓鈴深蹲", "槓鈴", "腿", "Barbell Back Squat", ""], ["腿推機", "器械", "腿", "Leg Press", ""], ["腿伸屈機", "器械", "腿", "Leg Extension", ""], ["羅馬尼亞硬舉", "槓鈴", "臀", "Romanian Deadlift", ""], ["臀推", "槓鈴", "臀", "Hip Thrust", ""], ["棒式", "徒手", "核心", "Plank", "s"], ["懸垂舉腿", "徒手", "核心", "Hanging Leg Raise", ""], ["反向蝴蝶機", "器械", "背", "Rear Delt", ""], ["坐姿推胸機", "器械", "胸", "Chest Press", ""], ["上斜槓鈴臥推", "槓鈴", "胸", "Incline Barbell Bench Press", ""], ["滑輪夾胸", "滑輪", "胸", "Cable Fly", ""], ["單臂啞鈴划船", "啞鈴", "背", "One-arm Dumbbell Row", ""], ["坐姿划船機", "器械", "背", "Seated Row", ""], ["坐姿划船機（單邊）", "器械", "背", "Seated Row · 單邊", ""], ["輔助引體向上機", "器械", "背", "Assisted Pull-up", ""], ["背部伸展", "徒手", "背", "Back Extension", ""], ["肩推機", "器械", "肩", "Shoulder Press", ""], ["槓鈴肩推", "槓鈴", "肩", "Overhead Press", ""], ["滑輪側平舉", "滑輪", "肩", "Cable Lateral Raise", ""], ["聳肩", "啞鈴", "肩", "Shrug", ""], ["錘式彎舉", "啞鈴", "二頭", "Hammer Curl", ""], ["滑輪彎舉", "滑輪", "二頭", "Cable Curl", ""], ["過頭三頭伸展", "啞鈴", "三頭", "Overhead Triceps Extension", ""], ["窄握臥推", "槓鈴", "三頭", "Close-grip Bench Press", ""], ["坐姿腿彎舉機", "器械", "腿", "Seated Leg Curl", ""], ["保加利亞分腿蹲", "啞鈴", "腿", "Bulgarian Split Squat", ""], ["高腳杯深蹲", "壺鈴", "腿", "Goblet Squat", ""], ["史密斯深蹲", "史密斯機", "腿", "Smith Machine Squat", ""], ["髖外展機", "器械", "臀", "Hip Abduction", ""], ["髖內收機", "器械", "臀", "Hip Adduction", ""], ["捲腹", "徒手", "核心", "Crunch", ""], ["健腹輪", "徒手", "核心", "Ab Wheel Rollout", ""], ["滑輪捲腹", "滑輪", "核心", "Cable Crunch", ""], ["站姿提踵機", "器械", "小腿", "Standing Calf Raise", ""], ["壺鈴擺盪", "壺鈴", "全身", "Kettlebell Swing", ""], ["啞鈴夾胸", "啞鈴", "胸", "Dumbbell Fly", ""], ["二頭彎舉機", "器械", "二頭", "Biceps Curl Machine", ""], ["三頭伸展機", "器械", "三頭", "Triceps Extension", ""], ["側平舉機", "器械", "肩", "Lateral Raise Machine", ""], ["輔助雙槓撐體機", "器械", "三頭", "Assisted Dip", ""], ["俯臥腿彎舉機", "器械", "腿", "Prone Leg Curl", ""], ["臀部後踢機", "器械", "臀", "Glute Kickback Machine", ""], ["多向髖部訓練機", "器械", "臀", "Multi-Hip", ""], ["背伸展機", "器械", "背", "Back Extension Machine", ""], ["腹部捲腹機", "器械", "核心", "Abdominal Crunch", ""], ["轉體機", "器械", "核心", "Torso Rotation", ""], ["滑輪後踢", "滑輪", "臀", "Cable Kickback", ""], ["滑輪過頭三頭伸展", "滑輪", "三頭", "Overhead Cable Extension", ""], ["滑輪木樁砍", "滑輪", "核心", "Cable Woodchop", ""]];
+var PRESETS=[["槓鈴臥推", "槓鈴", "胸", "Barbell Bench Press", ""], ["啞鈴臥推", "啞鈴", "胸", "Dumbbell Bench Press", ""], ["上斜啞鈴臥推", "啞鈴", "胸", "Incline Dumbbell Press", ""], ["蝴蝶機夾胸", "器械", "胸", "Pec Fly", ""], ["伏地挺身", "徒手", "胸", "Push-up", ""], ["滑輪下拉", "滑輪", "背", "Lat Pulldown", ""], ["滑輪坐姿划船", "滑輪", "背", "Seated Cable Row", ""], ["槓鈴划船", "槓鈴", "背", "Barbell Row", ""], ["引體向上", "徒手", "背", "Pull-up", ""], ["硬舉", "槓鈴", "背", "Barbell Deadlift", ""], ["啞鈴肩推", "啞鈴", "肩", "Dumbbell Shoulder Press", ""], ["側平舉", "啞鈴", "肩", "Lateral Raise", ""], ["臉拉", "滑輪", "肩", "Face Pull", ""], ["啞鈴彎舉", "啞鈴", "二頭", "Dumbbell Curl", ""], ["槓鈴彎舉", "槓鈴", "二頭", "Barbell Curl", ""], ["滑輪三頭下壓", "滑輪", "三頭", "Triceps Pushdown", ""], ["雙槓撐體", "徒手", "三頭", "Dips", ""], ["槓鈴深蹲", "槓鈴", "腿", "Barbell Back Squat", ""], ["腿推機", "器械", "腿", "Leg Press", ""], ["腿伸屈機", "器械", "腿", "Leg Extension", ""], ["羅馬尼亞硬舉", "槓鈴", "臀", "Romanian Deadlift", ""], ["臀推", "槓鈴", "臀", "Hip Thrust", ""], ["棒式", "徒手", "核心", "Plank", "s"], ["懸垂舉腿", "徒手", "核心", "Hanging Leg Raise", ""], ["反向蝴蝶機", "器械", "背", "Rear Delt", ""], ["坐姿推胸機", "器械", "胸", "Chest Press", ""], ["上斜槓鈴臥推", "槓鈴", "胸", "Incline Barbell Bench Press", ""], ["滑輪夾胸", "滑輪", "胸", "Cable Fly", ""], ["單臂啞鈴划船", "啞鈴", "背", "One-arm Dumbbell Row", ""], ["坐姿划船機", "器械", "背", "Seated Row", ""], ["坐姿划船機（單邊）", "器械", "背", "Seated Row · 單邊", ""], ["輔助引體向上機", "器械", "背", "Assisted Pull-up", ""], ["背部伸展", "徒手", "背", "Back Extension", ""], ["肩推機", "器械", "肩", "Shoulder Press", ""], ["槓鈴肩推", "槓鈴", "肩", "Overhead Press", ""], ["滑輪側平舉", "滑輪", "肩", "Cable Lateral Raise", ""], ["聳肩", "啞鈴", "肩", "Shrug", ""], ["錘式彎舉", "啞鈴", "二頭", "Hammer Curl", ""], ["滑輪彎舉", "滑輪", "二頭", "Cable Curl", ""], ["過頭三頭伸展", "啞鈴", "三頭", "Overhead Triceps Extension", ""], ["窄握臥推", "槓鈴", "三頭", "Close-grip Bench Press", ""], ["坐姿腿彎舉機", "器械", "腿", "Seated Leg Curl", ""], ["保加利亞分腿蹲", "啞鈴", "腿", "Bulgarian Split Squat", ""], ["高腳杯深蹲", "壺鈴", "腿", "Goblet Squat", ""], ["史密斯深蹲", "史密斯機", "腿", "Smith Machine Squat", ""], ["髖外展機", "器械", "臀", "Hip Abduction", ""], ["髖內收機", "器械", "臀", "Hip Adduction", ""], ["捲腹", "徒手", "核心", "Crunch", ""], ["健腹輪", "徒手", "核心", "Ab Wheel Rollout", ""], ["滑輪捲腹", "滑輪", "核心", "Cable Crunch", ""], ["站姿提踵機", "器械", "小腿", "Standing Calf Raise", ""], ["壺鈴擺盪", "壺鈴", "全身", "Kettlebell Swing", ""], ["啞鈴夾胸", "啞鈴", "胸", "Dumbbell Fly", ""], ["二頭彎舉機", "器械", "二頭", "Biceps Curl Machine", ""], ["三頭伸展機", "器械", "三頭", "Triceps Extension", ""], ["側平舉機", "器械", "肩", "Lateral Raise Machine", ""], ["輔助雙槓撐體機", "器械", "三頭", "Assisted Dip", ""], ["俯臥腿彎舉機", "器械", "腿", "Prone Leg Curl", ""], ["臀部後踢機", "器械", "臀", "Glute Kickback Machine", ""], ["多向髖部訓練機", "器械", "臀", "Multi-Hip", ""], ["背伸展機", "器械", "背", "Back Extension Machine", ""], ["腹部捲腹機", "器械", "核心", "Abdominal Crunch", ""], ["轉體機", "器械", "核心", "Torso Rotation", ""], ["滑輪後踢", "滑輪", "臀", "Cable Kickback", ""], ["滑輪過頭三頭伸展", "滑輪", "三頭", "Overhead Cable Extension", ""], ["滑輪木樁砍", "滑輪", "核心", "Cable Woodchop", ""], ["下斜槓鈴臥推", "槓鈴", "胸", "Decline Bench Press", ""], ["高位滑輪夾胸", "滑輪", "胸", "High-to-Low Cable Fly", ""], ["低位滑輪夾胸", "滑輪", "胸", "Low-to-High Cable Fly", ""]];
 /* presets that people also look for under another equipment group (shown in both; one exercise, one history) */
 var ALSO_EQ={p6:'器械'};
 var PRESET_OLD={p7:'坐姿划船',p16:'繩索下壓',p20:'腿伸屈',p42:'腿彎舉機'};
@@ -1023,10 +1024,14 @@ function caIco(t){return CAI[t]||CA_OTHER;}
 function fLog(k){return db.fit.logs[k];}
 function fLogMk(k){return db.fit.logs[k]||(db.fit.logs[k]={});}
 function fTidy(k){var l=db.fit.logs[k];if(!l)return;if(l.s&&!l.s.length)delete l.s;if(l.c&&!l.c.length)delete l.c;if(!l.min)delete l.min;if(!Object.keys(l).length)delete db.fit.logs[k];}
+/* 子部位: each exercise may name one main sub-part of its 部位 (上胸／中胸／下胸 …); built-ins come pre-labelled */
+var SUBS={'胸':['上胸','中胸','下胸'],'背':['上背','背闊','下背'],'肩':['前束','中束','後束'],'二頭':['二頭','前臂'],'腿':['股四頭','腿後','內收'],'臀':['臀大肌','臀中肌'],'核心':['腹直肌','腹斜肌']};
+var PRESET_SUB={p1:'中胸',p2:'中胸',p3:'上胸',p4:'中胸',p5:'中胸',p6:'背闊',p7:'上背',p8:'背闊',p9:'背闊',p10:'下背',p11:'前束',p12:'中束',p13:'後束',p14:'二頭',p15:'二頭',p18:'股四頭',p19:'股四頭',p20:'股四頭',p21:'臀大肌',p22:'臀大肌',p23:'腹直肌',p24:'腹直肌',p25:'上背',p26:'中胸',p27:'上胸',p28:'中胸',p29:'背闊',p30:'上背',p31:'上背',p32:'背闊',p33:'下背',p34:'前束',p35:'前束',p36:'中束',p38:'前臂',p39:'二頭',p42:'腿後',p43:'股四頭',p44:'股四頭',p45:'股四頭',p46:'臀中肌',p48:'腹直肌',p49:'腹直肌',p50:'腹直肌',p53:'中胸',p54:'二頭',p56:'中束',p58:'腿後',p59:'臀大肌',p60:'臀中肌',p61:'下背',p62:'腹直肌',p63:'腹斜肌',p64:'臀大肌',p66:'腹斜肌',p67:'下胸',p68:'下胸',p69:'上胸'};
+function subOk(part,sub){return !!(SUBS[part]&&SUBS[part].indexOf(sub)>=0);}
 function fSeed(){var u=db.settings.fitUnit==='lbs'?'lbs':'kg',n=0;PRESETS.forEach(function(p,i){var id='p'+(i+1),e=exById(id);
-  if(e){if(PRESET_OLD[id]&&e.name===PRESET_OLD[id]){e.name=p[0];if(p[3])e.en=p[3];n++;}if(!e.en&&p[3]&&e.name===p[0]){e.en=p[3];n++;}return;}
+  if(e){if(e.sub===undefined&&PRESET_SUB[id]&&e.part===p[2]&&subOk(e.part,PRESET_SUB[id])){e.sub=PRESET_SUB[id];n++;}if(PRESET_OLD[id]&&e.name===PRESET_OLD[id]){e.name=p[0];if(p[3])e.en=p[3];n++;}if(!e.en&&p[3]&&e.name===p[0]){e.en=p[3];n++;}return;}
   if(db.fit.ex.some(function(x){return x.name===p[0];}))return;
-  var m=p[4]||(p[1]==='徒手'?'r':'wr');db.fit.ex.push({id:id,name:p[0],eq:p[1],part:p[2],en:p[3]||'',mode:m,unit:m==='wr'?u:''});n++;});return n;}
+  var m=p[4]||(p[1]==='徒手'?'r':'wr');db.fit.ex.push({id:id,name:p[0],eq:p[1],part:p[2],en:p[3]||'',mode:m,unit:m==='wr'?u:'',sub:PRESET_SUB[id]||''});n++;});return n;}
 function presetMode(id,name,eq){var i=/^p(\d+)$/.test(id)?+id.slice(1)-1:-1,pr=PRESETS[i];
   if(pr&&(name===pr[0]||name===PRESET_OLD[id]))return pr[4]||(pr[1]==='徒手'?'r':'wr');return eq==='徒手'?'r':'wr';}
 function r1(v){return Math.round(v*10)/10;}
@@ -1294,6 +1299,7 @@ function vFPick(){
     '<button class="textbtn'+(ed?' strong':'')+'" data-act="fpedit">'+(ed?'完成':'編輯')+'</button></header>'+
     '<label class="sr" for="fq">搜尋動作</label><input id="fq" type="search" placeholder="搜尋動作，也可以打英文" value="'+esc(ui.fq||'')+'" autocomplete="off">'+
     '<div class="fchips">'+PARTS.map(function(x){return '<button class="fchip'+(x===p?' on':'')+'" data-act="fpart" data-v="'+x+'" aria-pressed="'+(x===p)+'">'+x+'</button>';}).join('')+'</div>'+
+    '<div id="fpfil">'+fpFilters()+'</div>'+
     (ed?'<div class="row-btn" style="background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>隱藏沒用過的內建動作</span><span class="row-sub">清單只留練過的和自訂的，搜尋還是找得到全部</span></span>'+
       '<button class="switch" role="switch" aria-checked="'+!!db.settings.fitHideUnused+'" aria-label="隱藏沒用過的內建動作" data-act="fphide"><span class="knob"></span></button></div>':'')+
     '<div id="fplist" style="display:flex;flex-direction:column;gap:16px">'+fpList()+'</div></div>';
@@ -1305,25 +1311,36 @@ function fpItem(e,o){o=o||{};
   return '<button class="fprow" data-act="'+(o.restore?'fexrestore':ui.fpEdit?'fexedit':'fpickex')+'" data-id="'+e.id+'">'+(o.icon?fBox(EQI[e.eq],'sm'):'')+
     '<span class="fp-n"><span>'+esc(e.name)+'</span>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span>'+right+'</button>';
 }
+function fpSub(){var v=db.settings.fpSub;return subOk(ui.fpart,v)?v:'';}
+function fpEq(){var v=db.settings.fpEq;return EQ_LIST.indexOf(v)>=0?v:'';}
+function fpBase(){var p=ui.fpart,sb=fpSub(),hide=!!db.settings.fitHideUnused;
+  return db.fit.ex.filter(function(e){return !e.archived&&e.part===p&&(!sb||e.sub===sb)&&(!hide||!/^p\d+$/.test(e.id)||exUsed(e.id));});}
+function fpFilters(){if((ui.fq||'').trim())return '';var p=ui.fpart,sb=fpSub(),eq=fpEq(),subs=SUBS[p]||[],s='';
+  if(subs.length)s+='<div class="fchips sub">'+[''].concat(subs).map(function(x){var on=x===sb;return '<button class="fchip'+(on?' on':'')+'" data-act="fpsub" data-v="'+x+'" aria-pressed="'+on+'">'+(x||'全部')+'</button>';}).join('')+'</div>';
+  var base=fpBase(),eqs=EQ_LIST.filter(function(q){return base.some(function(e){return e.eq===q||ALSO_EQ[e.id]===q;});});
+  if(eqs.length>1||eq)s+='<div class="fchips eq">'+[''].concat(eqs.indexOf(eq)<0&&eq?eqs.concat([eq]):eqs).map(function(x){var on=x===eq;return '<button class="fchip'+(on?' on':'')+'" data-act="fpeq" data-v="'+x+'" aria-pressed="'+on+'">'+(x?fIco(EQI[x],14):'')+(x||'全部器材')+'</button>';}).join('')+'</div>';
+  return s;}
 function fpList(){
   var p=ui.fpart,q=(ui.fq||'').trim().toLowerCase(),ed=!!ui.fpEdit,s='',t=todayKey();
   var act=db.fit.ex.filter(function(e){return !e.archived;});
   if(q){
     var qn=q.replace(/\s+/g,''),hits=act.filter(function(e){var en=(e.en||'').toLowerCase();return e.name.toLowerCase().indexOf(q)>=0||en.indexOf(q)>=0||en.replace(/[\s-]+/g,'').indexOf(qn.replace(/-/g,''))>=0||(e.eq+e.name).toLowerCase().indexOf(qn)>=0;});
-    s+='<section class="sec"><h2 class="lbl">搜尋結果 · '+hits.length+'</h2>'+(hits.length?'<div class="list">'+hits.map(function(e){return fpItem(e,{icon:true,sub:e.part+' · '+e.eq+(e.en?' · '+e.en:'')});}).join('')+'</div>':'<p class="small muted">找不到，可以自己新增一個。</p>')+'</section>';
+    s+='<section class="sec"><h2 class="lbl">搜尋結果 · '+hits.length+'</h2>'+(hits.length?'<div class="list">'+hits.map(function(e){return fpItem(e,{icon:true,sub:e.part+(e.sub?'（'+e.sub+'）':'')+' · '+e.eq+(e.en?' · '+e.en:'')});}).join('')+'</div>':'<p class="small muted">找不到，可以自己新增一個。</p>')+'</section>';
   }else{
     if(!ed){
-      var rec=act.filter(function(e){return e.part===p;}).map(function(e){return {e:e,lb:lastBefore(e.id,addDays(t,1))};}).filter(function(x){return x.lb;})
+      var rec=act.filter(function(e){return e.part===p&&(!fpSub()||e.sub===fpSub())&&(!fpEq()||e.eq===fpEq()||ALSO_EQ[e.id]===fpEq());}).map(function(e){return {e:e,lb:lastBefore(e.id,addDays(t,1))};}).filter(function(x){return x.lb;})
         .sort(function(a,b){return a.lb.k<b.lb.k?1:-1;}).slice(0,3);
       if(rec.length)s+='<section class="sec"><h2 class="lbl">最近練過</h2><div class="list">'+rec.map(function(x){var ls=x.lb.sets[x.lb.sets.length-1];
         return fpItem(x.e,{icon:true,sub:x.e.en||x.e.eq,side:shortMD(x.lb.k)+' · '+setsShort(x.e,[ls])+(isBW(x.e)?' '+mUnit(x.e):'')});}).join('')+'</div></section>';
     }
-    var hide=!!db.settings.fitHideUnused,items=act.filter(function(e){return e.part===p&&(!hide||!/^p\d+$/.test(e.id)||exUsed(e.id));}),groups=0;
-    EQ_LIST.forEach(function(eq){var its=items.filter(function(e){return e.eq===eq||ALSO_EQ[e.id]===eq;});if(!its.length)return;groups++;
+    var hide=!!db.settings.fitHideUnused,items=fpBase(),groups=0,feq=fpEq();
+    EQ_LIST.forEach(function(eq){if(feq&&eq!==feq)return;var its=items.filter(function(e){return e.eq===eq||ALSO_EQ[e.id]===eq;});if(!its.length)return;groups++;
       s+='<section class="sec"><h2 class="fgrp">'+fIco(EQI[eq],16)+eq+'<span>· '+its.length+'</span></h2><div class="list">'+its.map(function(e){return fpItem(e);}).join('')+'</div></section>';});
-    if(!groups)s+='<p class="small muted">'+(hide?'這個部位還沒練過任何動作。關掉上面的開關，或用搜尋找。':'這個部位還沒有動作，可以自己新增一個。')+'</p>';
+    if(fpSub()){var ns=act.filter(function(e){return e.part===p&&!e.sub&&(!feq||e.eq===feq||ALSO_EQ[e.id]===feq);});
+      if(ns.length){groups++;s+='<section class="sec"><h2 class="fgrp">沒標子部位<span>· '+ns.length+'</span></h2><div class="list">'+ns.map(function(e){return fpItem(e,{icon:true,sub:e.eq+(e.en?' · '+e.en:'')});}).join('')+'</div></section>';}}
+    if(!groups)s+='<p class="small muted">'+(fpSub()||feq?'沒有符合的動作，換個條件，或自己新增一個。':hide?'這個部位還沒練過任何動作。關掉上面的開關，或用搜尋找。':'這個部位還沒有動作，可以自己新增一個。')+'</p>';
   }
-  s+='<button class="addset" data-act="fexnew">＋ 自訂'+(q?'':esc(p))+'動作</button>';
+  s+='<button class="addset" data-act="fexnew">＋ 自訂'+(q?'':esc(fpSub()||p))+'動作</button>';
   if(ed){var ar=db.fit.ex.filter(function(e){return e.archived;});
     if(ar.length)s+='<section class="sec"><h2 class="lbl">已封存（紀錄都還在）</h2><div class="list">'+ar.map(function(e){return fpItem(e,{icon:true,restore:true,sub:e.part+' · '+e.eq});}).join('')+'</div></section>';}
   return s;
@@ -1410,6 +1427,7 @@ function vFEx(){
   var x=ui.fx,showEn=x.eq==='器械'||x.eq==='滑輪';
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="fxcancel">取消</button><h1 class="edit-t">'+(x.id?'編輯動作':'自訂動作')+'</h1><button class="textbtn strong" data-act="fxsave">儲存</button></header>'+
     '<div class="field"><label class="lbl" for="fxpart">1　部位</label><select id="fxpart" class="fsel">'+PARTS.map(function(v){return '<option'+(v===x.part?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>'+
+    (SUBS[x.part]?'<div class="field"><label class="lbl" for="fxsub">子部位（選填）</label><select id="fxsub" class="fsel"><option value="">不指定</option>'+SUBS[x.part].map(function(v){return '<option'+(v===x.sub?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>':'')+
     '<div class="field"><label class="lbl" for="fxeq">2　器材</label><div class="selrow"><span id="fxico" class="fico big">'+fIco(EQI[x.eq],24)+'</span><select id="fxeq" class="fsel">'+EQ_LIST.map(function(v){return '<option'+(v===x.eq?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div>'+
       (EQ_HINT[x.eq]?'<p class="hint">'+EQ_HINT[x.eq]+'</p>':'')+'</div>'+
     '<div class="field"><label class="lbl" for="fxname">3　名稱</label><input id="fxname" type="text" maxlength="30" placeholder="例如：坐姿划船機（公司樓下）" value="'+esc(x.name)+'" autocomplete="off">'+
@@ -1460,7 +1478,7 @@ function normalize(d){
   var fd=d.fit&&typeof d.fit==='object'?d.fit:{},fex=[],seen={};
   (Array.isArray(fd.ex)?fd.ex:[]).forEach(function(e){if(!e||!cid(e.id)||!e.name||seen[cid(e.id)])return;var id=cid(e.id),eq=EQ_ALIAS[e.eq]||e.eq;eq=EQ_LIST.indexOf(eq)>=0?eq:'槓鈴';seen[id]=1;
     var nm=String(e.name).slice(0,30),md=e.mode==='wr'||e.mode==='r'||e.mode==='s'?e.mode:presetMode(id,nm,eq);
-    fex.push({id:id,name:nm,en:typeof e.en==='string'?e.en.slice(0,40):'',eq:eq,part:PARTS.indexOf(e.part)>=0?e.part:'胸',mode:md,unit:md==='wr'?(e.unit==='lbs'?'lbs':(e.unit==='kg'?'kg':(st.fitUnit==='lbs'?'lbs':'kg'))):'',archived:!!e.archived});});
+    fex.push({id:id,name:nm,en:typeof e.en==='string'?e.en.slice(0,40):'',eq:eq,part:PARTS.indexOf(e.part)>=0?e.part:'胸',sub:typeof e.sub==='string'?(subOk(e.part,e.sub)?e.sub:''):undefined,mode:md,unit:md==='wr'?(e.unit==='lbs'?'lbs':(e.unit==='kg'?'kg':(st.fitUnit==='lbs'?'lbs':'kg'))):'',archived:!!e.archived});});
   var flogs={};
   if(fd.logs&&typeof fd.logs==='object'&&!Array.isArray(fd.logs))Object.keys(fd.logs).forEach(function(k){if(!isKey(k))return;var l=fd.logs[k]||{},o={};
     if(Array.isArray(l.s)){o.s=l.s.filter(function(en){return en&&cid(en.id)&&seen[cid(en.ex)]&&Array.isArray(en.sets);}).slice(0,100).map(function(en){
@@ -1668,7 +1686,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.24-1';
+var APP_VER='2026.10.24-2';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -3751,12 +3769,14 @@ function act(a,b){
     case 'fpick': ui.fl=null;ui.fpEdit=false;ui.fq='';go('fpick');break;
     case 'fpback': if(ui.fl&&ui.fl.changing){ui.fl.changing=false;go('flog');}else go('fit');break;
     case 'fpedit': ui.fpEdit=!ui.fpEdit;break;
-    case 'fpart': ui.fpart=b.dataset.v;break;
+    case 'fpart': if(ui.fpart!==b.dataset.v){ui.fpart=b.dataset.v;delete db.settings.fpSub;save();}break;
+    case 'fpsub': if(b.dataset.v)db.settings.fpSub=b.dataset.v;else delete db.settings.fpSub;save();break;
+    case 'fpeq': if(b.dataset.v)db.settings.fpEq=b.dataset.v;else delete db.settings.fpEq;save();break;
     case 'fpickex': if(ui.fl&&ui.fl.changing){n=newEntry(id,ui.fl.k);n.id=ui.fl.id;ui.fl=n;}else ui.fl=newEntry(id,ui.date);ui.flHelp=false;ui.confirmDel=false;go('flog');break;
-    case 'fexnew': ui.fx={id:null,name:(ui.fq||'').trim().slice(0,30),en:'',eq:'器械',part:PARTS.indexOf(ui.fpart)>=0?ui.fpart:'胸',mode:'wr',unit:db.settings.fitUnit==='lbs'?'lbs':'kg'};go('fex');break;
+    case 'fexnew': ui.fx={id:null,name:(ui.fq||'').trim().slice(0,30),en:'',eq:'器械',part:PARTS.indexOf(ui.fpart)>=0?ui.fpart:'胸',sub:fpSub(),mode:'wr',unit:db.settings.fitUnit==='lbs'?'lbs':'kg'};if(fpEq())ui.fx.eq=fpEq();go('fex');break;
     case 'fphide': db.settings.fitHideUnused=!db.settings.fitHideUnused;save();break;
     case 'fxmode': ui.fx.mode=b.dataset.v;break;
-    case 'fexedit': h=exById(id);if(!h)return;ui.fx={id:h.id,name:h.name,en:h.en||'',eq:h.eq,part:h.part,mode:fMode(h),origMode:fMode(h),unit:exU(h)||db.settings.fitUnit||'kg',orig:exU(h)};go('fex');break;
+    case 'fexedit': h=exById(id);if(!h)return;ui.fx={id:h.id,name:h.name,en:h.en||'',eq:h.eq,part:h.part,sub:h.sub||'',mode:fMode(h),origMode:fMode(h),unit:exU(h)||db.settings.fitUnit||'kg',orig:exU(h)};go('fex');break;
     case 'fexrestore': h=exById(id);if(h){h.archived=false;save();toast('已恢復「'+h.name+'」');}break;
     case 'fxcancel': go('fpick');break;
     case 'fxunit': ui.fx.unit=b.dataset.v;break;
@@ -3765,10 +3785,11 @@ function act(a,b){
       if(!n){ui.fx.err='請輸入動作名稱。';break;}
       if(db.fit.ex.some(function(e){return !e.archived&&e.id!==ui.fx.id&&e.name===n;})){ui.fx.err='已經有同名的動作了。';break;}
       var fen=(ui.fx.eq==='器械'||ui.fx.eq==='滑輪')?(ui.fx.en||'').trim().slice(0,40):'';
-      if(ui.fx.id){h=exById(ui.fx.id);h.name=n;h.en=fen;h.part=ui.fx.part;h.eq=ui.fx.eq;
+      var fsb=subOk(ui.fx.part,ui.fx.sub)?ui.fx.sub:'';
+      if(ui.fx.id){h=exById(ui.fx.id);h.name=n;h.en=fen;h.part=ui.fx.part;h.sub=fsb;h.eq=ui.fx.eq;
         if(ui.fx.mode==='wr'){if(fMode(h)==='wr')convertEx(h,ui.fx.unit);else h.unit=ui.fx.unit;}else h.unit='';
         h.mode=ui.fx.mode;save();go('fpick');toast('已更新動作');break;}
-      h={id:uid(),name:n,en:fen,eq:ui.fx.eq,part:ui.fx.part,mode:ui.fx.mode,unit:ui.fx.mode==='wr'?ui.fx.unit:''};db.fit.ex.push(h);save();
+      h={id:uid(),name:n,en:fen,eq:ui.fx.eq,part:ui.fx.part,sub:fsb,mode:ui.fx.mode,unit:ui.fx.mode==='wr'?ui.fx.unit:''};db.fit.ex.push(h);save();
       if(ui.fl&&ui.fl.changing){k=ui.fl.id;ui.fl=newEntry(h.id,ui.fl.k);ui.fl.id=k;}else ui.fl=newEntry(h.id,ui.date);
       go('flog');toast('已新增「'+n+'」');break;
     case 'fxarchive': h=exById(ui.fx.id);if(h){h.archived=true;save();toast('已封存，紀錄會保留');}go('fpick');break;
@@ -3903,8 +3924,10 @@ function act(a,b){
     case 'fbchar': if(CHARS[b.dataset.v]){if(b.dataset.v==='kaka')delete db.settings.fitChar;else db.settings.fitChar=b.dataset.v;save();}break;
     case 'fboff': ui.fbOff=Math.max(0,(ui.fbOff||0)+(+b.dataset.n));break;
     case 'fbpart': var bp=b.dataset.v,bg=/^[wqy]$/.test(db.settings.fitGran||'')?db.settings.fitGran:'m',br=bmRange(bg,ui.fbOff||0),bn=0,bl=null;
-      Object.keys(db.fit.logs).forEach(function(k){if((db.fit.logs[k].s||[]).some(function(en){var e=exById(en.ex);return e&&e.part===bp;})){if(k>=br.a&&k<=br.b)bn++;if(!bl||k>bl)bl=k;}});
-      toast(bp+' · '+br.lab+' 練了 '+bn+' 天'+(bl?' · 上次 '+shortMD(bl):' · 還沒練過'),2600);return;
+      var bsub={};Object.keys(db.fit.logs).forEach(function(k){var es=(db.fit.logs[k].s||[]).map(function(en){return exById(en.ex);}).filter(function(e){return e&&e.part===bp;});
+        if(es.length){if(k>=br.a&&k<=br.b){bn++;var sd={};es.forEach(function(e){if(e.sub&&!sd[e.sub]){sd[e.sub]=1;bsub[e.sub]=(bsub[e.sub]||0)+1;}});}if(!bl||k>bl)bl=k;}});
+      var bsl=(SUBS[bp]||[]).filter(function(x){return bsub[x];}).map(function(x){return x+' '+bsub[x];});
+      toast(bp+' · '+br.lab+' 練了 '+bn+' 天'+(bsl.length?'（'+bsl.join('、')+'）':'')+(bl?' · 上次 '+shortMD(bl):' · 還沒練過'),3200);return;
     case 'pnlpt': ui.pnlSel=b.dataset.k;break;
     case 'pgran': db.settings.pnlGran=b.dataset.v==='d'?undefined:b.dataset.v;if(!db.settings.pnlGran)delete db.settings.pnlGran;ui.pnlSel=null;save();break;
     case 'stab': ui.statTab=b.dataset.v;break;
@@ -4009,7 +4032,7 @@ document.addEventListener('input',function(e){
   else if(el.classList&&el.classList.contains('fnum')&&ui.fl){var fi=el.dataset.i,ff=+el.dataset.f,fv=parseFloat(String(el.value).replace(',','.'));
     var nv=ff?Math.min(Math.max(Math.floor(fv)||0,0),fMode(exById(ui.fl.ex))==='s'?3600:999):Math.min(Math.max(isFinite(fv)?fv:0,0),2000);
     ui.fl.sets.forEach(function(x,i){if(fi==='all'||+fi===i)x[ff]=nv;});var fsm=$('#flsum');if(fsm)fsm.innerHTML=flSumHTML();}
-  else if(el.id==='fq'){ui.fq=el.value;var fpl=$('#fplist');if(fpl)fpl.innerHTML=fpList();}
+  else if(el.id==='fq'){ui.fq=el.value;var fpl=$('#fplist');if(fpl)fpl.innerHTML=fpList();var fpf=$('#fpfil');if(fpf)fpf.innerHTML=fpFilters();}
   else if(el.classList&&el.classList.contains('obin')&&ui.ob&&ui.ob.picks){var obp=ui.ob.picks[+el.dataset.i];if(obp)obp.name=el.value;var obn=document.querySelector('[data-act=obnext]');if(obn)obn.disabled=!ui.ob.picks.some(function(p){return p.on&&p.name.trim();});}
   else if(el.id==='fxname'&&ui.fx){ui.fx.name=el.value;}
   else if(el.id==='fxen'&&ui.fx){ui.fx.en=el.value;}
@@ -4019,7 +4042,8 @@ function fitSelect(el){
   if(el.id==='fpx'){ui.fpx=el.value;render();return true;}
   if(el.id==='fbchar'&&CHARS[el.value]){if(el.value==='kaka')delete db.settings.fitChar;else db.settings.fitChar=el.value;save();render();return true;}
   if(el.id==='fxeq'&&ui.fx){if(ui.fx.eq!==el.value){ui.fx.eq=el.value;if(!ui.fx.id)ui.fx.mode=el.value==='徒手'?'r':'wr';render();}return true;}
-  if(el.id==='fxpart'&&ui.fx){ui.fx.part=el.value;return true;}
+  if(el.id==='fxpart'&&ui.fx){ui.fx.part=el.value;if(!subOk(el.value,ui.fx.sub))ui.fx.sub='';render();return true;}
+  if(el.id==='fxsub'&&ui.fx){ui.fx.sub=el.value;return true;}
   return false;
 }
 document.addEventListener('change',function(e){if(e.target.id==='fpace'){ui.fpace=e.target.value;render();return;}fitSelect(e.target);});
