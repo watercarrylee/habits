@@ -16,6 +16,7 @@ async function page(b, seed, url) {
   await p.goto(url || BASE);
   return p;
 }
+const fitAdd = async (p, kind) => { if (await p.$('.fab')) await p.click('.fab'); await p.click('[data-act=' + kind + ']'); };
 const db = (p, key) => p.evaluate(k => JSON.parse(localStorage.getItem(k) || 'null'), key || 'habit-tracker-v1');
 const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' + p.errs.join(' | ')); ok(!p.csp.length, name + ': no CSP violations'); await p.context().close(); };
 
@@ -100,7 +101,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   d = await db(p); ok(d.fit.ex.length >= 52, 'presets seeded (' + d.fit.ex.length + ')');
   ok(d.fit.ex.some(e => e.id === 'p53' && e.name === '啞鈴夾胸') && d.fit.ex.some(e => e.id === 'p54' && e.eq === '器械' && e.part === '二頭'), 'new presets 啞鈴夾胸 and 二頭彎舉機');
   ok(d.fit.ex.length >= 66 && d.fit.ex.some(e => e.id === 'p66' && e.name === '滑輪木樁砍') && d.fit.ex.some(e => e.id === 'p42' && e.name === '坐姿腿彎舉機'), 'Spirit machines added; 腿彎舉機 renamed');
-  await p.click('[data-tab=fit]'); await p.click('[data-act=fpick]'); await p.click('[data-act=fpart][data-v="背"]');
+  await p.click('[data-tab=fit]'); await fitAdd(p, 'fpick'); await p.click('[data-act=fpart][data-v="背"]');
   ok((await p.$$eval('.fgrp', x => x.map(e => e.textContent))).some(t => t.includes('器械')), 'picker grouped by equipment');
   ok(await p.$$eval('section', xs => xs.some(x => (x.querySelector('.fgrp') || {}).textContent && x.querySelector('.fgrp').textContent.includes('器械') && x.innerText.includes('滑輪下拉'))), '滑輪下拉 also listed under 器械');
   await p.click('[data-act=fpickex][data-id=p25]');
@@ -403,7 +404,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   console.log('• cardio pace + 今天 tab');
   p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true, onboarded: true }, rewards: [], redeemed: [], logs: {}, habits: [], fit: { ex: [], ctypes: ['拳擊有氧', '健走課'], cdist: [], logs: {
     [daysAgo(9)]: { c: [{ id: 'r1', type: '戶外跑步', min: 30, dist: 5 }] }, [daysAgo(2)]: { c: [{ id: 'r2', type: '戶外跑步', min: 31, sec: 15, dist: 5.2 }] } } } } });
-  await p.click('[data-tab=fit]'); await p.click('[data-act=fcnew]');
+  await p.click('[data-tab=fit]'); await fitAdd(p, 'fcnew');
   await p.click('[data-act=fctype][data-v=戶外跑步]');
   await p.fill('#fcminin', '32'); await p.fill('#fcsec', '15'); await p.fill('#fcdist', '5.2');
   ok(!(await p.$('[data-act=fcset].on')), 'quick-minute chip not highlighted after typing 32:15');
@@ -412,7 +413,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   const rc = d.fit.logs[T].c[0];
   ok(rc.min === 32 && rc.sec === 15 && rc.dist === 5.2, 'saved minutes, seconds and distance');
   ok((await p.$eval('#main', e => e.innerText)).includes(`5.2 km · 6:12 /km`) && (await p.$eval('#main', e => e.innerText)).includes('32:15'), 'day card shows distance, pace and time');
-  await p.click('[data-act=fcnew]'); await p.click('[data-act=fctype][data-v=游泳]');
+  await fitAdd(p, 'fcnew'); await p.click('[data-act=fctype][data-v=游泳]');
   ok((await p.$eval('.fcx', e => e.innerText)).includes('公尺'), 'swimming distance in meters');
   await p.fill('#fcminin', '30'); await p.fill('#fcsec', ''); await p.fill('#fcdist', '1500');
   ok((await p.$eval('#fcpace', e => e.innerText)).includes(`2:00 /100m`), 'swim pace per 100 m');
@@ -434,7 +435,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await done(p, 'pace');
   p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true }, rewards: [], redeemed: [], logs: {}, fit: { ex: [], ctypes: [], logs: {} }, habits: [
     { id: 'g1', name: '運動 30 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(10), fitLink: true }] } });
-  await p.click('[data-tab=fit]'); await p.click('[data-act=fcnew]'); await p.fill('#fcminin', '29'); await p.fill('#fcsec', '45'); await p.click('[data-act=fcsave]');
+  await p.click('[data-tab=fit]'); await fitAdd(p, 'fcnew'); await p.fill('#fcminin', '29'); await p.fill('#fcsec', '45'); await p.click('[data-act=fcsave]');
   d = await db(p); ok(!(d.logs[T] && d.logs[T].h && d.logs[T].h.g1), '29:45 does not meet a 30-minute target (no rounding)');
   await p.click('[data-act=cedit]'); await p.fill('#fcminin', '30'); await p.fill('#fcsec', ''); await p.click('[data-act=fcsave]');
   d = await db(p); ok(d.logs[T] && d.logs[T].h && d.logs[T].h.g1 === 1, '30:00 meets it');
@@ -940,10 +941,24 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'body map');
   }
 
+  // 運動頁：右下角 ＋、部位旁 ＋、計時條在上方
+  {
+    const T0 = daysAgo(0);
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true, ftStart: Date.now() - 20 * 60000, ftDay: T0 }, habits: [], logs: {}, rewards: [], redeemed: [],
+      fit: { ex: [{ id: 'p1', name: '槓鈴臥推', eq: '槓鈴', part: '胸' }, { id: 'p11', name: '啞鈴肩推', eq: '啞鈴', part: '肩' }], logs: { [T0]: { s: [{ id: 'a1', ex: 'p1', sets: [[40, 10]] }, { id: 'a2', ex: 'p11', sets: [[10, 10]] }] } }, ctypes: [] } } });
+    await p.click('#fitTab');
+    ok(!!(await p.$('.fab')) && !(await p.$('.fbtns')), 'fit: floating ＋ replaces the bottom buttons once there are records');
+    ok(!!(await p.$('.fttop .ftbox')) && !(await p.$('.fmin .ftbox')), 'fit: running timer shown at the top');
+    await p.click('.secplus[data-v=肩]'); ok(await p.$eval('.fchip.on[data-act=fpart]', e => e.textContent) === '肩', 'fit: section ＋ opens the picker on that part');
+    await p.click('[data-act=fpback]'); await p.click('.fab'); ok(!!(await p.$('.fadd')), 'fit: ＋ asks 重訓 or 有氧');
+    await p.click('.fadd [data-act=fcnew]'); ok(!(await p.$('#sheet .sheet')), 'fit: menu closes after choosing');
+    await done(p, 'fit add');
+  }
+
   // 子部位 + 器材篩選
   {
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
-    await p.click('#fitTab'); await p.click('[data-act=fpick]'); await p.click('[data-act=fpart][data-v=胸]');
+    await p.click('#fitTab'); await fitAdd(p, 'fpick'); await p.click('[data-act=fpart][data-v=胸]');
     ok((await p.$$eval('.fchips.sub .fchip', e => e.map(x => x.textContent))).join() === '全部,上胸,中胸,下胸', 'sub-parts: 胸 offers 上胸／中胸／下胸');
     await p.click('[data-act=fpsub][data-v=上胸]');
     let names = await p.$$eval('#fplist .fprow .fp-n > span', e => e.map(x => x.textContent));
@@ -1011,7 +1026,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=ftstart]'); d = await db(p);
     ok(d.settings.ftStart > now - 1000 && d.settings.ftDay === T0 && !!(await p.$('.ftbox')), 'timer: start saves the time');
     await p.click('[data-act=ftcancel]'); ok(!(await db(p)).settings.ftStart, 'timer: cancel');
-    await p.click('[data-act=fpick]'); await p.fill('#fq', '槓鈴硬舉');
+    await fitAdd(p, 'fpick'); await p.fill('#fq', '槓鈴硬舉');
     ok(/硬舉/.test(await p.innerText('#fplist')), 'search: 器材＋動作 finds 硬舉');
     await p.fill('#fq', 'deadlift'); ok((await p.innerText('#fplist')).includes('羅馬尼亞硬舉') && /搜尋結果 · 2/.test(await p.innerText('#fplist')), 'search: English name');
     await done(p, 'timer');
