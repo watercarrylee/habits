@@ -769,6 +769,35 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'sell');
   }
 
+  console.log('• 除權息');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    const ex = daysAgo(2), soon = daysAgo(-5);
+    await hp.route('**/prices.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: T, t: 'x', p: { '2330': [1100, 10, '台積電'], '0056': [36, 0, '元大高股息'] } }) }));
+    await hp.route('**/prices-30.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: [], c: {} }) }));
+    await hp.route('**/dividends.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ t: 'x', e: [['2330', ex, 4.5, 0.05], ['0056', ex, 1.72, 0], ['2330', soon, 5, 0], ['9999', ex, 1, 0]] }) }));
+    await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); } },
+      { v: 1, settings: { pnl: true, onboarded: true, holdSince: daysAgo(30) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], logs: {},
+        hold: [{ id: 'h1', code: '2330', shares: 1000, cost: 1000 }, { id: 'h2', code: '0056', shares: 2000, cost: 30 }] });
+    await hp.goto(BASE); await hp.waitForTimeout(500);
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]'); await hp.waitForTimeout(300);
+    ok((await hp.$$('.divbn')).length === 2 && /即將除權息：台積電/.test(await hp.innerText('main')), 'dividends: due ex-dates asked, upcoming listed');
+    await hp.click('.divbn [data-act=divskip][data-v^="0056"]'); ok((await hp.$$('.divbn')).length === 1, 'dividends: 略過 hides it');
+    await hp.click('[data-act=divrec]');
+    ok(await hp.inputValue('#divcash') === '4.5' && await hp.inputValue('#divstk') === '0.5' && await hp.inputValue('#divamt') === '4500', 'dividends: form prefilled from the announcement');
+    await hp.fill('#divamt', '4405'); await hp.click('[data-act=divsave]'); await hp.waitForTimeout(300);
+    let d = await db(hp);
+    ok(d.divs.length === 1 && d.divs[0].amt === 4405 && d.divs[0].add === 50 && d.divs[0].d === ex && !d.divs[0].paid, 'dividends: record saved (amount as typed, 50 shares added)');
+    const h1 = d.hold.find(h => h.id === 'h1'); ok(h1.shares === 1050 && Math.abs(h1.shares * h1.cost - 1000000) < 1, 'dividends: stock dividend adds shares, total cost unchanged');
+    ok(!(await hp.$('.divbn')) && /股利/.test(await hp.innerText('.pnl-split')), 'dividends: banner gone; 已實現 shows 股利');
+    await hp.click('.sold-row'); await hp.click('[data-act=divpaid]'); await hp.click('[data-act=divsave]'); ok((await db(hp)).divs[0].paid === true, 'dividends: mark 已入帳');
+    await hp.click('.sold-row'); await hp.click('[data-act=divdel]'); await hp.click('[data-act=divdel]'); d = await db(hp);
+    ok(d.divs.length === 0 && d.hold.find(h => h.id === 'h1').shares === 1000, 'dividends: delete takes the added shares back');
+    await done(hp, 'dividends');
+  }
+
   console.log('• 持股 back-fill from 30-day closes');
   {
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
