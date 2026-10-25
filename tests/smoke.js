@@ -1033,6 +1033,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=fpedit]'); await p.click('[data-act=fexedit]'); ok(await p.inputValue('#fxsub') === '下胸', 'editor shows the sub-part');
     await p.selectOption('#fxsub', '中胸'); await p.click('[data-act=fxsave]');
     ok((await db(p)).fit.ex.find(e => e.name === '下斜槓鈴臥推').sub === '中胸', 'sub-part can be changed');
+    { const ex = (await db(p)).fit.ex; const lr = ex.find(e => e.name === '低位划船機'), pc = ex.find(e => e.name === '槓片式推胸機');
+      ok(lr && lr.part === '背' && lr.sub === '背闊' && lr.en === 'Low Row' && pc && pc.part === '胸' && pc.sub === '中胸' && pc.eq === '器械', 'machine presets: 低位划船機 + 槓片式推胸機'); }
     await done(p, 'sub-parts');
   }
 
