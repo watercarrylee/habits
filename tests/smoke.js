@@ -1003,6 +1003,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-tab=today]');
     ok(/Aaron/.test(await p.innerText('.hello')) && !!(await p.$('.hello .av.ch svg')), 'profile: greeting with name and character avatar');
     const d = (await db(p)).settings; ok(d.uname === 'Aaron' && d.avatar === 'mel', 'profile: saved');
+    await p.click('[data-tab=settings]'); const lm = 'You need to develop conviction in a set of beliefs that nobody else agrees with'; await p.fill('#motto', lm);
+    ok((await db(p)).settings.motto === lm, 'profile: long motto (79 chars) kept whole');
+    ok(/自動備份／還原/.test(await p.innerText('main')), 'settings: 自動備份／還原 label');
     await done(p, 'profile');
   }
 
