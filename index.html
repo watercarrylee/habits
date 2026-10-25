@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-aYeDdULWkt9q1dQ9pDr8dSUdqO/GGEo8MjZGsMyL6E4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-GnRL9jfeV12SJ9fXv0N6wLb/i+2l7bF6DIYxsMnydig='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -477,7 +477,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .tb-r:has([data-act=divnew]){gap:4px}.tb-r:has([data-act=divnew]) .ghost{padding-inline:10px}
 .divsoon{margin:0 0 10px}.divtag{font-size:11px;font-weight:700;padding:1px 6px;border-radius:7px;background:var(--good-soft);color:var(--good);vertical-align:2px}.pnl-split small{font-size:12px}
 .cyq{width:22px;height:22px;border-radius:11px;border:1.5px solid var(--faint);background:none;color:var(--muted);font-size:12px;font-weight:800;line-height:1;margin-right:auto;margin-left:6px;cursor:pointer;padding:0}
-.cyp.dash{background:var(--surface);border:1.5px dashed var(--c);padding:0 3px}.cysg{font-size:10px;color:var(--muted);margin-top:2px}
+.cyp.dash{background:var(--surface);border:1.5px dotted var(--c);padding:0 3px}.cysg{display:block;width:55%;border-top:1.5px solid var(--faint);margin:3px 0 1px}
 .cyft{font-size:13px;margin:8px 4px 2px}.cyok{color:var(--muted);font-weight:600}.cyft b{color:var(--good)}.cyft small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.cyhelp{margin:0 0 6px;padding-left:20px;font-size:14px;line-height:1.7}.cyhelp li{margin:4px 0}
 .fab{position:fixed;z-index:5;right:calc(max(0px,(100vw - 560px)/2) + 18px);bottom:calc(78px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:28px;border:0;background:var(--good);color:var(--on-good);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}.fab svg{width:26px;height:26px}.fabpad{height:56px}body:has(#sheet:not([hidden])) .fab{display:none}
 .secplus{width:32px;height:32px;border-radius:16px;border:1.5px solid var(--good);background:var(--surface);color:var(--good);font-size:18px;font-weight:800;line-height:1;cursor:pointer}
@@ -1160,7 +1160,7 @@ function cyWeekHTML(){if(!Object.keys(db.fit.logs).length)return '';var t=todayK
     ps.sort(function(a,b){return PARTS.indexOf(a)-PARTS.indexOf(b);});if((l.c||[]).length)ps.push('有氧');
     s+='<button class="cyd'+(d===t?' today':'')+(d>t?' fut':'')+(d===ui.date&&d!==t?' sel':'')+'" data-act="cyday" data-k="'+d+'"'+(d>t?' disabled':'')+'><span class="cyn">'+WD[parseKey(d).getDay()]+'</span><span class="cyd2">'+parseKey(d).getDate()+'</span>'+
       (ps.length?ps.map(function(p){return '<span class="cyp" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(''):(d===t&&SG&&!SG.done&&SG.big.concat(SG.small).length?'':'<span class="cy0">·</span>'))+
-      (d===t&&SG&&!SG.done&&SG.big.concat(SG.small).length?'<span class="cysg">建議</span>'+SG.big.concat(SG.small).filter(function(p){return !SG.today[p];}).map(function(p){return '<span class="cyp dash" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(''):'')+'</button>';}
+      (d===t&&SG&&!SG.done&&SG.big.concat(SG.small).length?'<span class="cysg" role="separator" aria-label="建議"></span>'+SG.big.concat(SG.small).filter(function(p){return !SG.today[p];}).map(function(p){return '<span class="cyp dash" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(''):'')+'</button>';}
   s+='</div>';
   var mk=function(a){return a.map(function(p){return SG.today[p]?'<span class="cyok">'+p+' ✓</span>':p;}).join('、');};
   if(SG&&SG.done)s+='<p class="cyft">今天的建議都練完了 👍<small>（'+SG.big.concat(SG.small).join('、')+'）</small></p>';
@@ -1753,7 +1753,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.25-4';
+var APP_VER='2026.10.25-5';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
