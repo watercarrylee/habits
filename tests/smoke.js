@@ -996,6 +996,19 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'week table');
   }
 
+  // 今天建議練什麼
+  {
+    const ex = [['p1', '臥推', '槓鈴', '胸'], ['p11', '肩推', '啞鈴', '肩'], ['p14', '彎舉', '啞鈴', '二頭'], ['p16', '下壓', '滑輪', '三頭'], ['p18', '深蹲', '槓鈴', '腿'], ['p22', '臀推', '槓鈴', '臀'], ['p23', '棒式', '徒手', '核心']].map(([id, name, eq, part]) => ({ id, name, eq, part }));
+    const S = (ids) => ({ s: ids.map((x, i) => ({ id: x + i, ex: x, sets: [[10, 10]] })) });
+    const logs = { [daysAgo(3)]: S(['p18']), [daysAgo(2)]: S(['p18', 'p22', 'p23']), [daysAgo(1)]: S(['p1', 'p11', 'p14', 'p16', 'p22']), [daysAgo(0)]: { c: [{ id: 'r', type: '跑步', min: 30 }] } };
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex, logs, ctypes: [] } } });
+    await p.click('#fitTab');
+    ok((await p.$$eval('.cyd.today .cyp.dash', e => e.map(x => x.textContent))).join() === '背,腿,核心', 'suggest: 背 (never), 腿 (2 days), plus 核心');
+    ok(/建議今天練：背、腿，可以搭核心/.test(await p.innerText('.cyft')) && /胸、肩、臀、二頭、三頭昨天剛練/.test(await p.innerText('.cyft')), 'suggest: reason line');
+    await p.click('[data-act=cyhelp]'); ok(/48 小時/.test(await p.innerText('#sheet')), 'suggest: ? explains the rule');
+    await done(p, 'suggest');
+  }
+
   // 子部位 + 器材篩選
   {
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
