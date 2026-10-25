@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-dLZ4B5a8DvQBNJ40GhfdKB2a2Ii2RI8Fgs5/hANMNgc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-LxRoUeeoSkTL/yd6qDS+m56tMdSG/m7slzWBVUyRqbg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -473,6 +473,9 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .cyg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.cyd{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0 7px;min-height:78px;border-radius:12px;border:1.5px solid transparent;background:none;font:inherit;color:var(--fg);cursor:pointer}
 .cyd.today{background:var(--good-soft);border-color:var(--good)}.cyd.sel{border-color:var(--faint)}.cyd.fut{opacity:.4;cursor:default}.cyn{font-size:11px;color:var(--muted)}.cyd2{font-size:14px;font-weight:700}.cy0{color:var(--faint)}
 .cyp{font-size:11px;font-weight:700;line-height:1.3;padding:1px 4px;border-radius:7px;color:color-mix(in srgb,var(--c) 75%,var(--fg));background:color-mix(in srgb,var(--c) 15%,var(--surface));white-space:nowrap}
+.divbn{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;margin-bottom:10px;border-radius:16px;background:var(--good-soft);border:1.5px solid var(--good-line)}.divbn>div:first-child{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 200px}.divbn-a{display:flex;gap:8px}.divbn-a button{min-height:36px;padding:0 14px}
+.tb-r:has([data-act=divnew]){gap:4px}.tb-r:has([data-act=divnew]) .ghost{padding-inline:10px}
+.divsoon{margin:0 0 10px}.divtag{font-size:11px;font-weight:700;padding:1px 6px;border-radius:7px;background:var(--good-soft);color:var(--good);vertical-align:2px}.pnl-split small{font-size:12px}
 .fab{position:fixed;z-index:5;right:calc(max(0px,(100vw - 560px)/2) + 18px);bottom:calc(78px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:28px;border:0;background:var(--good);color:var(--on-good);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}.fab svg{width:26px;height:26px}.fabpad{height:56px}body:has(#sheet:not([hidden])) .fab{display:none}
 .secplus{width:32px;height:32px;border-radius:16px;border:1.5px solid var(--good);background:var(--surface);color:var(--good);font-size:18px;font-weight:800;line-height:1;cursor:pointer}
 .fttop .ftbox{margin-top:0}.fadd .row-btn{font-size:17px}
@@ -933,6 +936,12 @@ function normStep(a){a=(Array.isArray(a)?a:[]).filter(function(e){return e&&isKe
 function normHold(a){return (Array.isArray(a)?a:[]).filter(function(h){return h&&cid(h.id)&&/^[0-9A-Z]{4,6}$/.test(String(h.code||''))&&+h.shares>0&&+h.cost>0;}).slice(0,100)
   .map(function(h){return {id:cid(h.id),code:String(h.code),name:typeof h.name==='string'?h.name.replace(/[<>&"']/g,'').slice(0,20):'',shares:Math.min(1e9,Math.floor(+h.shares)),cost:Math.round(Math.min(1e6,+h.cost)*10000)/10000};});}
 /* 賣出紀錄 (已實現損益): amt = what the user says was realized (fees as they choose); c = cost of the shares sold, for 報酬 % */
+/* 除權息紀錄: d = ex-date; cash = per share, amt = cash received (editable, e.g. 二代健保), ratio = stock dividend shares per share,
+   add = shares added to the holding; paid = 已入帳 (cash arrives weeks after the ex-date; the amount still counts from the ex-date) */
+function normDivs(a){return (Array.isArray(a)?a:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.d)&&/^[0-9A-Z]{4,6}$/.test(String(x.code||''))&&isFinite(+x.amt)&&+x.shares>0;}).slice(0,3000)
+  .map(function(x){return {id:cid(x.id),d:x.d,code:String(x.code),name:typeof x.name==='string'?x.name.replace(/[<>&"']/g,'').slice(0,20):'',shares:Math.min(1e9,Math.floor(+x.shares)),
+    cash:Math.max(0,Math.min(1e5,+x.cash||0)),amt:Math.round(Math.max(0,Math.min(1e12,+x.amt))),ratio:Math.max(0,Math.min(10,+x.ratio||0)),add:Math.max(0,Math.min(1e9,Math.floor(+x.add||0))),paid:!!x.paid};})
+  .sort(function(x,y){return x.d<y.d?-1:x.d>y.d?1:0;});}
 function normSold(a){return (Array.isArray(a)?a:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.d)&&/^[0-9A-Z]{4,6}$/.test(String(x.code||''))&&+x.shares>0&&isFinite(+x.amt)&&isFinite(+x.px)&&+x.px>=0&&isFinite(+x.c)&&+x.c>=0;}).slice(0,3000)
   .map(function(x){return {id:cid(x.id),d:x.d,code:String(x.code),name:typeof x.name==='string'?x.name.replace(/[<>&"']/g,'').slice(0,20):'',shares:Math.min(1e9,Math.floor(+x.shares)),px:Math.round(Math.min(1e6,+x.px)*10000)/10000,amt:Math.round(Math.max(-1e12,Math.min(1e12,+x.amt))),c:Math.round(Math.min(1e13,+x.c))};})
   .sort(function(x,y){return x.d<y.d?-1:x.d>y.d?1:0;});}
@@ -1521,7 +1530,7 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,onboarded:!!st.onboarded,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,onboarded:!!st.onboarded,divSkip:typeof st.divSkip==='string'&&/^[0-9A-Z|,\-]*$/.test(st.divSkip)?st.divSkip.slice(-4000)||undefined:undefined,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),divs:normDivs(d.divs),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k)&&k!=='photos')R[k]=d[k];});
@@ -1540,6 +1549,7 @@ if(!db.rewards)db.rewards=[];
 if(!db.redeemed)db.redeemed=[];
 if(!db.hold)db.hold=[];
 if(!db.sold)db.sold=[];
+if(!db.divs)db.divs=[];
 if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};if(!db.fit.cdist)db.fit.cdist=[];
 if(db.settings.fit&&fSeed())save();
 if(!DEMO&&!isKey(db.settings.firstUse)){db.settings.firstUse=todayKey();save();}
@@ -1718,7 +1728,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.25-1';
+var APP_VER='2026.10.25-2';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2353,9 +2363,11 @@ var MASK='••••••';
 function hasP(k){var l=db.logs[k];return !!l&&typeof l.pnl==='number';}
 function pnlKeys(){return Object.keys(db.logs).filter(hasP).sort();}
 function unAt(k){return db.logs[k].pnl;} // 未實現 as recorded that day
-function realAt(k){var v=0;(db.sold||[]).forEach(function(x){if(x.d<=k)v+=x.amt;});return v;} // 已實現 booked up to that day
+function divAt(k){var v=0;(db.divs||[]).forEach(function(x){if(x.d<=k)v+=x.amt;});return v;} // 股利收入 up to that day (counted from the ex-date)
+function sellAt(k){var v=0;(db.sold||[]).forEach(function(x){if(x.d<=k)v+=x.amt;});return v;}
+function realAt(k){return sellAt(k)+divAt(k);} // 已實現 booked up to that day
 function soldCostAt(k){var v=0;(db.sold||[]).forEach(function(x){if(x.d<=k)v+=x.c;});return v;}
-function anySold(){return !!(db.sold&&db.sold.length);}
+function anySold(){return !!((db.sold&&db.sold.length)||(db.divs&&db.divs.length));} // anything realized (賣出 or 股利)
 function pnlAt(k){return db.logs[k].pnl+realAt(k);} // 總損益 = 已實現 + 未實現 (just 未實現 until something is sold)
 function pnlName(){return anySold()?'總損益':'未實現損益';}
 function prevPnlKey(k){var ks=pnlKeys(),r=null;for(var i=0;i<ks.length&&ks[i]<k;i++)r=ks[i];return r;}
@@ -2388,7 +2400,11 @@ function monthChange(y,m,endKey){
 }
 /* ---------- 持股: closing prices from prices.json (whole market; holdings never leave the phone) ---------- */
 var PX=null,pxAt=0;
-function pxLoad(cb){var now=Date.now();if(now-pxAt<60000||!db.hold.length)return;pxAt=now;
+var DIVS=null,divAt0=0;
+function divLoad(){var now=Date.now();if(now-divAt0<3*3600e3||!db.hold.length)return;divAt0=now;
+  fetch('dividends.json?t='+now,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!Array.isArray(j.e))return;
+    DIVS=j.e.filter(function(e){return Array.isArray(e)&&e.length===4&&/^[0-9A-Z]{4,6}$/.test(String(e[0]))&&isKey(e[1])&&+e[2]>=0&&+e[3]>=0;});if(/^(stats|today)$/.test(ui.view)&&!ui.sheet)render();}).catch(function(){});}
+function pxLoad(cb){divLoad();var now=Date.now();if(now-pxAt<60000||!db.hold.length)return;pxAt=now;
   fetch('../prices.json?t='+now,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
     if(!j||!isKey(j.d)||!j.p||typeof j.p!=='object')return;var old=PX&&PX.d,ot=PX&&PX.t;PX={d:j.d,p:j.p,t:typeof j.t==='string'?j.t:''};
     if((old!==PX.d||ot!==PX.t||cb)&&/^(today|stats|hold)$/.test(ui.view)&&!ui.sheet)render();holdAuto();if(cb)cb(true);}).catch(function(){if(cb)cb(false);});}
@@ -2457,8 +2473,9 @@ function holdSuggest(k){if(!db.hold.length||k<holdSince())return '';var h=hid(),
     '<button class="secondary hsug-b" data-act="pauto" data-k="'+k+'">改回自動</button></div>';
   if(l&&l.pa&&l.pnl===r.un)return '<div class="hsug ok">✓ 已依 '+shortMD(k)+' 收盤價自動記錄'+(c&&c.d===k?' · 今日 <b class="'+(h?'':pcls(c.day))+'">'+(h?'••••':chg(c.day))+'</b>':'')+'</div>';
   return '';}
-function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class="sec-row"><h2 class="sec-t">我的持股</h2><span class="tb-r">'+(db.hold.length?'<button class="ghost" data-act="sellnew">賣出</button>':'')+'<button class="ghost" data-act="holdedit">'+(db.hold.length?'編輯持股':'新增持股')+'</button>'+pGrip('hold')+'</span></div>';
+function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class="sec-row"><h2 class="sec-t">我的持股</h2><span class="tb-r">'+(db.hold.length?'<button class="ghost" data-act="sellnew">賣出</button><button class="ghost" data-act="divnew">除權息</button>':'')+'<button class="ghost" data-act="holdedit">'+(db.hold.length?'編輯持股':'新增持股')+'</button>'+pGrip('hold')+'</span></div>';
   if(!db.hold.length)return s+'<p class="small muted">輸入持股的代號、股數和平均成本，每天收盤後 App 會用收盤價自動算好並記錄未實現損益。持股只存在這支手機。</p>'+soldHTML()+'</section>';
+  s+=divBanner();
   var srt=hSort(),mode=srt.replace('-',''),rev=srt.slice(-1)==='-';
   var list=db.hold.map(function(x){return {x:x,r:c&&c.rows.filter(function(q){return q.h.id===x.id;})[0]};});
   if(c){var f=function(o){return o.r?(mode==='day'?o.r.day:mode==='mv'?o.r.v:o.r.un):null;};
@@ -2480,11 +2497,62 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
       (isT?'':'<p class="small muted">上面的價格和漲跌都是 '+dl+' 的收盤資料。交易日約下午 2 點半會更新成當天的收盤價（偶爾會晚一些）。</p>');}
   else s+='<p class="small muted">收盤價在交易日約下午 2 點半更新（偶爾會晚一些），之後打開 App 就會自動記錄。</p>';
   return s+soldHTML()+'</section>';}
-function soldHTML(){if(!anySold())return '';var h=hid(),t=todayKey(),tot=realAt(t),yr=0,y0=t.slice(0,4);db.sold.forEach(function(x){if(x.d.slice(0,4)===y0)yr+=x.amt;});
-  var list=db.sold.slice().reverse(),n=ui.soldAll?list.length:Math.min(5,list.length);
+/* 除權息: announced ex-dates for stocks you hold → ask once (記錄／略過); upcoming ones are just shown */
+function divKey(code,d){return code+'|'+d;}
+function divSkipped(code,d){return (','+(db.settings.divSkip||'')+',').indexOf(','+divKey(code,d)+',')>=0;}
+function divDue(){if(!DIVS||!db.hold.length)return {due:[],soon:[]};var t=todayKey(),soon=addDays(t,21),out={due:[],soon:[]};
+  db.hold.forEach(function(h){DIVS.forEach(function(e){if(e[0]!==h.code)return;var d=e[1];
+    if(db.divs.some(function(x){return x.code===h.code&&x.d===d;})||divSkipped(h.code,d))return;
+    if(d<=t&&d>=(h.since||addDays(t,-120)))out.due.push({h:h,d:d,cash:+e[2],ratio:+e[3]});else if(d>t&&d<=soon)out.soon.push({h:h,d:d,cash:+e[2],ratio:+e[3]});});});
+  return out;}
+function divDesc(cash,ratio){return [cash>0?'每股配息 '+r1x(cash)+' 元':'',ratio>0?'每千股配 '+fmtN(Math.round(ratio*1000))+' 股':''].filter(Boolean).join('、');}
+function r1x(v){return String(Math.round(v*10000)/10000);}
+function divBanner(){var D=divDue(),h=hid(),s='';
+  D.due.forEach(function(x){var p=pxOf(x.h.code),nm=esc(x.h.name||(p&&p.name)||x.h.code),est=Math.round(x.h.shares*x.cash),add=Math.floor(x.h.shares*x.ratio);
+    s+='<div class="divbn"><div><b>'+nm+' '+shortMD(x.d)+' 除'+(x.ratio>0&&x.cash>0?'權息':x.ratio>0?'權':'息')+'</b><span class="small muted">'+divDesc(x.cash,x.ratio)+' · 你有 '+lots(x.h.shares)+(est?' → 股利約 '+(h?MASK:sgn(est)):'')+(add?' · 配 '+fmtN(add)+' 股':'')+'</span></div>'+
+      '<div class="divbn-a"><button class="ghost" data-act="divskip" data-v="'+divKey(x.h.code,x.d)+'">略過</button><button class="primary" data-act="divrec" data-id="'+x.h.id+'" data-d="'+x.d+'" data-c="'+x.cash+'" data-r="'+x.ratio+'">記錄</button></div></div>';});
+  if(D.soon.length)s+='<p class="small muted divsoon">即將除權息：'+D.soon.map(function(x){var p=pxOf(x.h.code);return esc(x.h.name||(p&&p.name)||x.h.code)+' '+shortMD(x.d)+'（'+divDesc(x.cash,x.ratio)+'）';}).join('、')+'</p>';
+  return s;}
+function divOpen(h,d,cash,ratio){ui.dv={hid:h.id,d:d||todayKey(),cash:cash?r1x(cash):'',stk:ratio?r1x(ratio*10):'',amt:'',touched:false,paid:false};divSync0();}
+function divCalc(dv){var h=dv.hid&&db.hold.filter(function(x){return x.id===dv.hid;})[0],o=dv.id&&db.divs.filter(function(x){return x.id===dv.id;})[0],sh=o?o.shares:h?h.shares:0,
+  cash=+String(dv.cash).replace(/,/g,'')||0,ratio=(+String(dv.stk).replace(/,/g,'')||0)/10;return {sh:sh,cash:cash,ratio:ratio,est:Math.round(sh*cash),add:o?o.add:Math.floor(sh*ratio)};}
+function divSync0(){var c=divCalc(ui.dv);if(!ui.dv.touched)ui.dv.amt=c.est?String(c.est):'';}
+function divSync(){var dv=ui.dv;if(!dv)return;var c=divCalc(dv),e=$('#divest');if(!dv.touched){dv.amt=c.est?String(c.est):'';var a=$('#divamt');if(a)a.value=dv.amt;}
+  if(e)e.innerHTML=divEstTxt(c);}
+function divEstTxt(c){return (c.cash>0?'現金股利 '+lots(c.sh)+' × '+r1x(c.cash)+' 元 ＝ '+fmtN(c.est)+' 元':'')+(c.ratio>0?(c.cash>0?'；':'')+'配股 '+fmtN(c.add)+' 股（不足一股的零股，公司通常會發現金）':'')||'輸入每股現金股利或股票股利。';}
+function vDiv(){var dv=ui.dv,ed=!!dv.id,o=ed&&db.divs.filter(function(x){return x.id===dv.id;})[0],h=dv.hid&&db.hold.filter(function(x){return x.id===dv.hid;})[0],c=divCalc(dv);
+  var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="divcancel">取消</button><h1 class="edit-t">'+(ed?'修改除權息':'除權息')+'</h1><button class="textbtn strong" data-act="divsave">儲存</button></header>'+(ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'');
+  if(ed)s+='<div class="field"><div class="lbl">股票</div><b>'+esc(o.name||o.code)+'</b> <span class="small muted">'+esc(o.code)+' · 除權息時持有 '+lots(o.shares)+'</span></div>';
+  else s+='<div class="field"><div class="lbl">哪一檔</div><div class="chips sellpick">'+db.hold.map(function(x){var p=pxOf(x.code),on=x.id===dv.hid;return '<button class="chip'+(on?' on':'')+'" data-act="divpick" data-id="'+x.id+'" aria-pressed="'+on+'">'+esc(x.name||(p&&p.name)||x.code)+'</button>';}).join('')+'</div>'+(h?'<p class="hint">持有 '+lots(h.shares)+' · 平均成本 '+r1(h.cost)+'</p>':'')+'</div>';
+  if(ed||h){
+    s+='<div class="hedit-f sell-f">'+(ed?'':'<label>每股現金股利（元）<input id="divcash" type="text" inputmode="decimal" value="'+esc(dv.cash)+'" placeholder="例如 4.5"></label><label>每股股票股利（元）<input id="divstk" type="text" inputmode="decimal" value="'+esc(dv.stk)+'" placeholder="沒有就留空"></label>')+
+      '<label>除權息日<input id="divd" class="datein" type="date" max="'+addDays(todayKey(),60)+'" value="'+dv.d+'"></label></div>';
+    s+='<p class="hint" id="divest">'+divEstTxt(c)+'</p>';
+    s+='<div class="field"><label class="lbl" for="divamt">實際股利金額（元）</label><input id="divamt" class="sell-amt" type="text" inputmode="numeric" value="'+esc(dv.amt)+'" placeholder="0">'+
+      '<p class="hint">單筆 2 萬元以上會先扣 2.11% 二代健保補充保費，可以改成存摺或對帳單上的實際金額。</p></div>';
+    s+='<div class="row-btn" style="background:var(--surface);border:1.5px solid var(--line);border-radius:16px"><span class="row-l"><span>已入帳</span><span class="row-sub">股利通常在除息後幾週才發放；不管入帳了沒，從除息日起就算進已實現</span></span>'+
+      '<button class="switch" role="switch" aria-checked="'+!!dv.paid+'" aria-label="已入帳" data-act="divpaid"><span class="knob"></span></button></div>';
+    if(ed)s+='<button class="ghost bad-t" data-act="divdel" style="width:100%">刪除這筆'+(o.add?'（配的 '+fmtN(o.add)+' 股會從持股扣回）':'')+'</button>';
+    else s+='<p class="small muted">股利從除息日起算進「已實現」，所以除息當天股價下跌，總損益不會跟著掉；配股會自動加進持股，總成本不變、平均成本變低。</p>';}
+  return s+'</div>';}
+function divSave(){var dv=ui.dv,c=divCalc(dv),td=todayKey(),d=isKey(dv.d)?dv.d:td,amt=parseInt(String(dv.amt).replace(/[^0-9]/g,''),10);if(isNaN(amt))amt=c.est;
+  if(dv.id){var o=db.divs.filter(function(x){return x.id===dv.id;})[0];if(!o)return;o.amt=amt;o.paid=!!dv.paid;o.d=d;db.divs=normDivs(db.divs);save();ui.dv=null;ui.err='';go('stats');ui.statTab='pnl';render();toast('已更新');return;}
+  var h=db.hold.filter(function(x){return x.id===dv.hid;})[0];if(!h){ui.err='請選擇股票。';render();return;}
+  if(!(c.cash>0)&&!(c.ratio>0)){ui.err='請輸入每股現金股利或股票股利。';render();return;}
+  if(db.divs.some(function(x){return x.code===h.code&&x.d===d;})){ui.err='這檔在這天已經有一筆除權息紀錄了。';render();return;}
+  var p=pxOf(h.code);db.divs.push({id:uid(),d:d,code:h.code,name:h.name||(p&&p.name)||'',shares:h.shares,cash:c.cash,amt:c.cash>0?amt:0,ratio:c.ratio,add:c.add,paid:!!dv.paid});db.divs=normDivs(db.divs);
+  if(c.add>0){h.cost=Math.round(h.cost*h.shares/(h.shares+c.add)*10000)/10000;h.shares+=c.add;if(d<=td)sellRecalc(d);}
+  save();ui.dv=null;ui.err='';go('stats');ui.statTab='pnl';render();toast('已記錄除權息'+(c.cash>0&&!hid()?' '+sgn(amt):''));}
+function divDel(){var dv=ui.dv,o=dv&&db.divs.filter(function(x){return x.id===dv.id;})[0];if(!o)return;
+  if(o.add>0){var h=db.hold.filter(function(x){return x.code===o.code;})[0];if(h){var ns=Math.max(0,h.shares-o.add);if(ns>0){h.cost=Math.round(h.cost*h.shares/ns*10000)/10000;h.shares=ns;}else db.hold=db.hold.filter(function(x){return x!==h;});}sellRecalc(o.d<=todayKey()?o.d:todayKey());}
+  db.divs=db.divs.filter(function(x){return x!==o;});save();ui.dv=null;go('stats');ui.statTab='pnl';render();toast('已刪除');}
+function soldHTML(){if(!anySold())return '';var h=hid(),t=todayKey(),tot=realAt(t),yr=0,y0=t.slice(0,4),dvt=divAt(t);db.sold.concat(db.divs||[]).forEach(function(x){if(x.d.slice(0,4)===y0&&x.d<=t)yr+=x.amt;});
+  var list=db.sold.concat(db.divs||[]).sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0;}).reverse(),n=ui.soldAll?list.length:Math.min(5,list.length);
   var s='<h3 class="sold-t">已實現損益</h3><div class="tiles"><div class="tile"><div class="tile-l">累計</div><div class="tile-v sm '+(h?'':pcls(tot))+'">'+(h?'••••':csgn(tot))+'</div></div>'+
-    '<div class="tile"><div class="tile-l">'+y0+' 年</div><div class="tile-v sm '+(h?'':pcls(yr))+'">'+(h?'••••':csgn(yr))+'</div></div><div class="tile"><div class="tile-l">賣出</div><div class="tile-v sm">'+db.sold.length+' 筆</div></div></div><div class="list">';
+    '<div class="tile"><div class="tile-l">'+y0+' 年</div><div class="tile-v sm '+(h?'':pcls(yr))+'">'+(h?'••••':csgn(yr))+'</div></div><div class="tile"><div class="tile-l">其中股利</div><div class="tile-v sm '+(h?'':pcls(dvt))+'">'+(h?'••••':csgn(dvt))+'</div></div></div><div class="list">';
   list.slice(0,n).forEach(function(x){var p=pxOf(x.code);
+    if(x.cash!=null){s+='<button class="hrow sold-row" data-act="divedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag">股利</span></b><span class="small muted">'+shortMD(x.d)+(x.d.slice(0,4)!==y0?' '+x.d.slice(0,4):'')+' 除權息 · '+divDesc(x.cash,x.ratio)+(x.add?' · 配 '+fmtN(x.add)+' 股':'')+'</span></div>'+
+      '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(x.amt?(h?MASK:sgn(x.amt)):'—')+'</b><span class="small '+(x.paid?'muted':'warn-t')+'">'+(x.cash>0?(x.paid?'已入帳':x.d>t?'未除息':'待入帳'):'配股')+'</span></div></button>';return;}
     s+='<button class="hrow sold-row" data-act="selledit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+shortMD(x.d)+(x.d.slice(0,4)!==y0?' '+x.d.slice(0,4):'')+' · 賣 '+lots(x.shares)+(x.px?' @ '+x.px:'')+'</span></div>'+
       '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(h?MASK:sgn(x.amt))+'</b>'+(x.c>0?'<span class="small '+(h?'muted':pcls(x.amt))+'">'+(h?'••%':pctS(x.amt/x.c))+'</span>':'')+'</div></button>';});
   s+='</div>';if(list.length>5)s+='<button class="ghost" data-act="soldall">'+(ui.soldAll?'收起':'顯示全部 '+list.length+' 筆')+'</button>';
@@ -2697,13 +2765,13 @@ function pnlStats(y,m){
   var s=gseg+'<div class="panel"><div class="pnl-read"><div><div class="pnl-l">'+pl+'</div>'+
     '<div class="pnl-v sm '+(h?'':pcls(sv))+'">'+(h?MASK:sgn(sv))+pctTag(pnlPct(sk),h)+'</div></div>'+
     '<div class="pnl-l" style="text-align:right">'+rl+'<br><b style="font-size:14px" class="'+(h||sd==null?'':pcls(sd))+'">'+(sd==null?'—':h?'••••':chg(sd))+'</b>'+(pk&&dayPct(sk,pk)!=null?'<br><span class="'+(h?'':pcls(sd))+'" style="font-size:12px">'+(h?'••%':pctS(dayPct(sk,pk)))+'</span>':'')+'</div></div>'+
-    (function(){if(!rv||pk==null)return '';var dR=realAt(sk)-realAt(pk);if(!dR)return '';var dU=unAt(sk)-unAt(pk),sl=db.sold.filter(function(x){return x.d>pk&&x.d<=sk;});
-      var nm=sl.map(function(x){var p=pxOf(x.code);return esc(x.name||(p&&p.name)||x.code)+' '+lots(x.shares);});
-      return '<div class="pnl-brk"><div><span>未實現</span><b class="'+(h?'':pcls(dU))+'">'+(h?'••••':chg(dU))+'</b></div><div><span>已實現</span><b class="'+(h?'':pcls(dR))+'">'+(h?'••••':chg(dR))+'</b><em>賣出 '+(nm.length>2?nm.slice(0,2).join('、')+' 等 '+nm.length+' 筆':nm.join('、'))+'</em></div></div>';})()+
-    (anySold()?'<div class="pnl-split small muted">累計：已實現 <b class="'+(h?'':pcls(realAt(sk)))+'">'+(h?'••••':sgn(realAt(sk)))+'</b>　未實現 <b class="'+(h?'':pcls(unAt(sk)))+'">'+(h?'••••':sgn(unAt(sk)))+'</b></div>':'')+
+    (function(){if(!rv||pk==null)return '';var dR=realAt(sk)-realAt(pk);if(!dR)return '';var dU=unAt(sk)-unAt(pk),sl=db.sold.filter(function(x){return x.d>pk&&x.d<=sk;}),dl=(db.divs||[]).filter(function(x){return x.d>pk&&x.d<=sk;});
+      var nm=sl.map(function(x){var p=pxOf(x.code);return '賣出 '+esc(x.name||(p&&p.name)||x.code)+' '+lots(x.shares);}).concat(dl.map(function(x){var p=pxOf(x.code);return '股利 '+esc(x.name||(p&&p.name)||x.code);}));
+      return '<div class="pnl-brk"><div><span>未實現</span><b class="'+(h?'':pcls(dU))+'">'+(h?'••••':chg(dU))+'</b></div><div><span>已實現</span><b class="'+(h?'':pcls(dR))+'">'+(h?'••••':chg(dR))+'</b><em>'+(nm.length>2?nm.slice(0,2).join('、')+' 等 '+nm.length+' 筆':nm.join('、'))+'</em></div></div>';})()+
+    (anySold()?'<div class="pnl-split small muted">累計：已實現 <b class="'+(h?'':pcls(realAt(sk)))+'">'+(h?'••••':sgn(realAt(sk)))+'</b>'+(divAt(sk)?'<small>（股利 '+(h?'••••':sgn(divAt(sk)))+'）</small>':'')+'　未實現 <b class="'+(h?'':pcls(unAt(sk)))+'">'+(h?'••••':sgn(unAt(sk)))+'</b></div>':'')+
     (K?'<div class="ohlc">'+[['開',K[sel].o],['高',K[sel].h],['低',K[sel].l],['收',K[sel].c]].map(function(q){return '<span><small>'+q[0]+'</small><b class="'+(h?'':pcls(q[1]))+'">'+(h?'••••':sgn(q[1]))+'</b></span>';}).join('')+'</div>':'')+
     svg+ticks+(rv?'<div class="pnl-lg"><span><i class="lg-tot"></i>總損益</span><span><i class="lg-real"></i>已實現</span></div>':'')+
-    '<p class="small muted">'+(anySold()?'總損益＝已實現（賣出落袋）＋未實現（還在手上的帳面損益）。':'')+(gr==='d'?(anySold()?'每個點是那天收盤後的總損益':'每個點是你那天記下的未實現損益')+'（不是即時股價），只畫有記錄的日子，點圓點看那一天。':gr==='w'?'每根 K 棒是一週（最近 26 週）：開＝上週最後一筆，收＝這週最後一筆，高低是這週紀錄的最高和最低。點 K 棒看那一週。':'每根 K 棒是一個月（最近 12 個月）：開＝上個月最後一筆，收＝這個月最後一筆，高低是這個月紀錄的最高和最低。點 K 棒看那個月。')+'</p></div>';
+    '<p class="small muted">'+(anySold()?'總損益＝已實現（賣出落袋＋股利）＋未實現（還在手上的帳面損益）。':'')+(gr==='d'?(anySold()?'每個點是那天收盤後的總損益':'每個點是你那天記下的未實現損益')+'（不是即時股價），只畫有記錄的日子，點圓點看那一天。':gr==='w'?'每根 K 棒是一週（最近 26 週）：開＝上週最後一筆，收＝這週最後一筆，高低是這週紀錄的最高和最低。點 K 棒看那一週。':'每根 K 棒是一個月（最近 12 個月）：開＝上個月最後一筆，收＝這個月最後一筆，高低是這個月紀錄的最高和最低。點 K 棒看那個月。')+'</p></div>';
   /* the week of the selected point (本週 when it is this week); change is against the last record before that Monday */
   var ws=weekStartKey(sk),we=wkEnd(ws);if(we>t)we=t;var wk=pnlKeys().filter(function(k){return k>=ws&&k<=we;}),wbk=prevPnlKey(ws);
   var wl=ws===weekStartKey(t)?'本週':shortMD(ws)+' 那週',wv=wk.map(pnlAt),wch=wk.length?pnlAt(wk[wk.length-1])-(wbk?pnlAt(wbk):wv[0]):0,wshow=!!wbk||wk.length>1;
@@ -3640,7 +3708,7 @@ function render(){
   if(ui.view==='flog'&&(!ui.fl||!exById(ui.fl.ex)))ui.view='fit';
   var main=$('#main'),v=ui.view;
   $('#fitTab').hidden=!fOn();$('#tabs').classList.toggle('five',fOn());
-  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='report'?vReport():v==='hold'?vHold():v==='tag'?vTag():v==='sell'?vSell():v==='faq'?vFaq():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
+  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='report'?vReport():v==='hold'?vHold():v==='tag'?vTag():v==='sell'?vSell():v==='div'?vDiv():v==='faq'?vFaq():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
   $('#tabs').hidden=(v==='faq'&&ui.faqBack&&ui.faqBack.view==='edit')||v==='edit'||v==='hold'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
   var tabv=v==='archived'||v==='changelog'||v==='faq'?'settings':v==='search'||v==='report'||v==='hold'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
@@ -3944,6 +4012,15 @@ function act(a,b){
     case 'holdadd': ui.hd.push({code:'',shares:'',cost:''});break;
     case 'holddel': ui.hd.splice(+b.dataset.i,1);break;
     case 'holdcancel': ui.err='';go('stats');break;
+    case 'divnew': ui.err='';ui.dv={d:todayKey(),cash:'',stk:'',amt:'',touched:false,paid:false};if(db.hold.length===1)divOpen(db.hold[0],todayKey());go('div');break;
+    case 'divrec': var dh=db.hold.filter(function(x){return x.id===b.dataset.id;})[0];if(!dh)return;ui.err='';divOpen(dh,b.dataset.d,+b.dataset.c,+b.dataset.r);go('div');break;
+    case 'divpick': var dph=db.hold.filter(function(x){return x.id===b.dataset.id;})[0];if(dph){var odd=ui.dv&&ui.dv.d,oc=ui.dv&&ui.dv.cash,os=ui.dv&&ui.dv.stk;divOpen(dph,odd);ui.dv.cash=oc||'';ui.dv.stk=os||'';divSync0();}break;
+    case 'divskip': db.settings.divSkip=((db.settings.divSkip?db.settings.divSkip+',':'')+b.dataset.v).slice(-4000);save();toast('已略過這次除權息');break;
+    case 'divpaid': ui.dv.paid=!ui.dv.paid;break;
+    case 'divcancel': ui.err='';ui.dv=null;go('stats');break;
+    case 'divsave': divSave();return;
+    case 'divdel': if(ui.confirmDel!=='div'){ui.confirmDel='div';toast('再按一次刪除');return;}ui.confirmDel=false;divDel();return;
+    case 'divedit': var deo=db.divs.filter(function(x){return x.id===b.dataset.id;})[0];if(!deo)return;ui.err='';ui.dv={id:deo.id,d:deo.d,cash:r1x(deo.cash),stk:r1x(deo.ratio*10),amt:String(deo.amt),touched:true,paid:deo.paid};go('div');break;
     case 'sellnew': ui.err='';ui.sd={d:todayKey(),shares:'',px:'',amt:'',neg:false,touched:false};if(db.hold.length===1)sellOpen(db.hold[0]);go('sell');break;
     case 'sellpick': var shx=db.hold.filter(function(x){return x.id===b.dataset.id;})[0];if(shx){var sdd=ui.sd&&ui.sd.d;sellOpen(shx);if(sdd)ui.sd.d=sdd;}break;
     case 'sellsign': ui.sd.neg=b.dataset.v==='1';ui.sd.touched=true;break;
@@ -4057,6 +4134,9 @@ document.addEventListener('input',function(e){
     else if(el.id==='fcsec'){var se=parseInt(el.value.replace(/[^0-9]/g,''),10);ui.fc.sec=se>0?Math.min(59,se):0;Array.prototype.forEach.call(document.querySelectorAll('[data-act=fcset]'),function(x){x.classList.toggle('on',+x.dataset.v===ui.fc.min&&!ui.fc.sec);});}
     else{var dv=parseFloat(el.value.replace(/[^0-9.]/g,''));var kd2=cKind(ui.fc.type);ui.fc.dist=dv>0?Math.min(1000,kd2==='swim'||kd2==='row'?dv/1000:dv):0;}
     var pe=$('#fcpace');if(pe)pe.innerHTML=fcPaceTxt(ui.fc);}
+  else if(ui.dv&&(el.id==='divcash'||el.id==='divstk')){ui.dv[el.id==='divcash'?'cash':'stk']=el.value;divSync();}
+  else if(ui.dv&&el.id==='divamt'){ui.dv.amt=el.value.replace(/[^0-9]/g,'');ui.dv.touched=true;}
+  else if(ui.dv&&el.id==='divd'){if(isKey(el.value))ui.dv.d=el.value;}
   else if(ui.sd&&(el.id==='sellsh'||el.id==='sellpx')){ui.sd[el.id==='sellsh'?'shares':'px']=el.value;sellSync();}
   else if(ui.sd&&el.id==='sellamt'){ui.sd.amt=el.value.replace(/[^0-9]/g,'');ui.sd.touched=true;}
   else if(ui.sd&&el.id==='selld'){var tk3=todayKey();if(isKey(el.value))ui.sd.d=el.value>tk3?tk3:el.value;}

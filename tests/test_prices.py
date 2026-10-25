@@ -25,3 +25,11 @@ for i in range(35):
     h = fp.add_history(h, '2026-11-%02d' % (i % 28 + 1) if i < 28 else '2026-12-%02d' % (i - 27), {'2330': [i, 0, 'x']})
 assert len(h['d']) == 30 and len(h['c']['2330']) == 30 and h['d'] == sorted(h['d']) and '0050' not in h['c'], h['d']
 print('prices parser ok')
+import fetch_divs as fd, datetime as _dt
+dv = fd.parse(json.loads((F / 'divs_twse.json').read_text()))
+dv.update(fd.parse(json.loads((F / 'divs_tpex.json').read_text())))
+assert dv[('0056', '2026-10-22')] == [1.72, 0.0] and dv[('2330', '2026-11-12')] == [4.5, 0.05] and dv[('6488', '2026-10-30')] == [3.5, 0.0], dv
+assert not any(k[0] in ('00400A', '2025', '01007T') for k in dv), dv  # nothing announced yet / rights issue only / not a stock code we keep
+m = fd.merge([['2330', '2026-05-01', 4.0, 0.0], ['1101', '2026-01-01', 1.0, 0.0]], dv, _dt.date(2026, 7, 1))
+assert ['2330', '2026-05-01', 4.0, 0.0] in m and not any(e[0] == '1101' for e in m) and m == sorted(m, key=lambda e: (e[1], e[0])), m
+print('dividends parser ok')
