@@ -1,0 +1,21 @@
+name: probe dividends (temporary)
+on:
+  push:
+    branches: [probe-div]
+permissions:
+  contents: write
+jobs:
+  probe:
+    if: "!contains(github.event.head_commit.message, 'probe results')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - run: |
+          mkdir -p probe
+          curl -sS -m 60 -A 'Mozilla/5.0' 'https://openapi.twse.com.tw/v1/exchangeReport/TWT48U_ALL' -o probe/twse_48u.json || true
+          curl -sS -m 60 -A 'Mozilla/5.0' 'https://openapi.twse.com.tw/v1/swagger.json' -o probe/twse_swagger.json || true
+          curl -sS -m 60 -A 'Mozilla/5.0' 'https://www.tpex.org.tw/openapi/swagger.json' -o probe/tpex_swagger.json || true
+          curl -sS -m 60 -A 'Mozilla/5.0' 'https://www.twse.com.tw/rwd/zh/exRight/TWT48U?response=json' -o probe/twse_48u_web.json || true
+          ls -la probe
+          git config user.name "probe bot"; git config user.email "actions@users.noreply.github.com"
+          git add probe; git commit -m "probe results" || true; git push
