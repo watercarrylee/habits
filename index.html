@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-7A4qGtjc+6Ayt3M2XehGpnlUtRHrK/Wtt4Rmp7wT85s='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Wzns/5tqB5c1CdEOh4i+35ijKA5axpjMhDB/1m2YMxs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -650,7 +650,8 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .hist-a{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .tb-r{display:flex;align-items:center;gap:6px}
 .repbtn{display:inline-flex;align-items:center;gap:6px;color:var(--good);border-color:var(--good-line);font-weight:700}
-.rep-sub{padding-left:32px}
+.rep-sub{padding-left:32px}.rep-hrow{min-height:48px;padding-top:8px;padding-bottom:8px}.rep-hn{font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rep-hn.off{color:var(--muted)}
+.rep-hide{flex:0 0 auto;font-size:13px;font-weight:700;border-radius:10px;padding:6px 11px;border:1.5px solid var(--line);color:var(--muted);background:var(--surface)}.rep-hide.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .page input.rep-note{width:100%;box-sizing:border-box;margin:8px 0 4px;height:48px;padding:0 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:16px;color:var(--fg)}
 .rep-prev{margin:16px 0 12px;min-height:200px;border-radius:18px;background:var(--chip)}
 .rep-prev img{display:block;width:100%;border-radius:18px;border:1.5px solid var(--line)}
@@ -3208,7 +3209,10 @@ var SPROUT_PX=["..........KKKKK...",".........KLLLLLK..","........KLLLLLlK..",".
 var SPROUT_PAL={G:'#5fc45c',K:'#16261b',L:'#9be28b',O:'#c8693d',R:'#f2958c',d:'#3b8a3c',g:'#45a548',l:'#72cc66',o:'#9c4b28'};
 function repOpts(){var o={};try{o=JSON.parse(localStorage.getItem(REPKEY)||'{}')||{};}catch(e){}
   return {h:o.h!==false,bad:o.bad===true,fit:o.fit!==false,pnl:o.pnl!==false,amt:o.amt===true,mood:o.mood!==false};}
-function repSetOpt(k){var o=repOpts();if(!(k in o))return;o[k]=!o[k];try{localStorage.setItem(REPKEY,JSON.stringify(o));}catch(e){}}
+function repHide(){try{var o=JSON.parse(localStorage.getItem(REPKEY)||'{}')||{};return Array.isArray(o.hide)?o.hide.filter(function(x){return typeof x==='string';}):[];}catch(e){return [];}}
+function repToggleHide(id){var o={};try{o=JSON.parse(localStorage.getItem(REPKEY)||'{}')||{};}catch(e){}var a=repHide(),i=a.indexOf(id);if(i<0)a.push(id);else a.splice(i,1);
+  a=a.filter(function(x){return !!byId(x);});o.hide=a;try{localStorage.setItem(REPKEY,JSON.stringify(o));}catch(e){}}
+function repSetOpt(k){var o=repOpts();if(!(k in o))return;o[k]=!o[k];o.hide=repHide();try{localStorage.setItem(REPKEY,JSON.stringify(o));}catch(e){}}
 function repInc(o){var p=!!db.settings.pnl;return {h:o.h,bad:o.h&&o.bad,fit:o.fit&&fOn(),pnl:o.pnl&&p,amt:o.pnl&&p&&o.amt,mood:o.mood};}
 function repAny(inc){return inc.h||inc.fit||inc.pnl||inc.mood;}
 /* on Sunday the current week is the one worth sharing; otherwise last full week */
@@ -3223,14 +3227,14 @@ function bestSet(e,sets){var b=sets[0];sets.forEach(function(x){if(isBW(e)?x[1]>
   return isBW(e)?b[1]+' '+mUnit(e):fmtW(b[0],exU(e))+' × '+b[1];}
 function repData(ws){
   var we=addDays(ws,6),t=todayKey(),end=we<t?we:t,days=[],i;for(i=0;i<7;i++)days.push(addDays(ws,i));
-  var R={ws:ws,we:we,end:end,days:days,partial:end<we},S=0,D=0,fresh=ws>repMinWs();
+  var R={ws:ws,we:we,end:end,days:days,partial:end<we},S=0,D=0,fresh=ws>repMinWs(),HID=repHide();
   R.hab=active('good').filter(function(h){return h.created<=end;}).map(function(h){
     var wk=isWk(h),dots=days.map(function(d){if(d<h.created)return -3;if(d>end)return -1;if(wk)return isDone(h,d)?1:-2;return !scheduled(h,d)?-1:isDone(h,d)?1:0;});
-    if(wk){var c=wkCount(h,ws,end),g=h.perWeek||3;return {name:h.name,isNew:fresh&&h.created>=ws,wk:true,n:c,goal:g,met:c>=g,dots:dots,st:wkStreak(h,end).n};}
+    if(wk){var c=wkCount(h,ws,end),g=h.perWeek||3;return {name:h.name,priv:HID.indexOf(h.id)>=0,isNew:fresh&&h.created>=ws,wk:true,n:c,goal:g,met:c>=g,dots:dots,st:wkStreak(h,end).n};}
     var sc=0,dn=0;dots.forEach(function(x){if(x>=0){sc++;if(x)dn++;}});S+=sc;D+=dn;
-    return {name:h.name,isNew:fresh&&h.created>=ws,dn:dn,sc:sc,dots:dots,st:goodStreak(h,end)};});
+    return {name:h.name,priv:HID.indexOf(h.id)>=0,isNew:fresh&&h.created>=ws,dn:dn,sc:sc,dots:dots,st:goodStreak(h,end)};});
   R.rate=S?Math.round(D/S*100):null;
-  R.bad=active('bad').filter(function(h){return h.created<=end;}).map(function(h){var n=0;days.forEach(function(d){if(d<=end)n+=val(d,h.id);});var td=0,cd=0,dots=days.map(function(d){if(d<h.created)return -3;if(d>end)return -1;td++;var c=!val(d,h.id);if(c)cd++;return c?1:0;});return {name:h.name,isNew:fresh&&h.created>=ws,n:n,td:td,cd:cd,dots:dots};});
+  R.bad=active('bad').filter(function(h){return h.created<=end;}).map(function(h){var n=0;days.forEach(function(d){if(d<=end)n+=val(d,h.id);});var td=0,cd=0,dots=days.map(function(d){if(d<h.created)return -3;if(d>end)return -1;td++;var c=!val(d,h.id);if(c)cd++;return c?1:0;});return {name:h.name,priv:HID.indexOf(h.id)>=0,isNew:fresh&&h.created>=ws,n:n,td:td,cd:cd,dots:dots};});
   var F={days:0,s:0,c:0,km:0,pr:[],first:[],byDay:days.map(function(d){if(d>end)return null;var fm=fitMinutes(d);return {s:fm.s,c:fm.c};})},seen={};
   days.forEach(function(d){if(d>end)return;var fm=fitMinutes(d),l=fLog(d);if(fm.any)F.days++;F.s+=fm.s;F.c+=fm.c;if(!l)return;
     (l.c||[]).forEach(function(c){var kd=cKind(c.type);if(kd==='pace'&&c.dist>0)F.km+=c.dist;
@@ -3265,9 +3269,10 @@ var WK_MILE={2:'第二週，慢慢找到自己的節奏了。',4:'第 4 週，�
 function repHL(R,inc){var out=[];
   out.push(R.wkN<=1?'這是你使用習慣紀錄的第一週，一切都是好的開始！':WK_MILE[R.wkN]||'這是你使用習慣紀錄的第 '+R.wkN+' 週。');
   var nw=(inc.h?R.hab.concat(inc.bad?R.bad:[]):[]).filter(function(e){return e.isNew;});
-  if(R.wkN>1&&nw.length)out.push('這週新增了 '+nw.length+' 個習慣：'+nw.map(function(e){return e.name;}).join('、'));
+  var nwp=nw.filter(function(e){return !e.priv;}).map(function(e){return e.name;}),nwh=nw.length-nwp.length;
+  if(R.wkN>1&&nw.length)out.push('這週新增了 '+nw.length+' 個習慣'+(nwp.length?'：'+nwp.join('、')+(nwh?' 和 '+nwh+' 個不公開的習慣':''):''));
   if(inc.h&&R.rate===100&&R.hab.some(function(e){return !e.wk;}))out.push('好習慣全部達成，完美的一週！');
-  var top=inc.h?R.hab.filter(function(e){return !e.wk&&e.st>=7;}).sort(function(a,b){return b.st-a.st;})[0]:null;
+  var top=inc.h?R.hab.filter(function(e){return !e.wk&&!e.priv&&e.st>=7;}).sort(function(a,b){return b.st-a.st;})[0]:null;
   if(top)out.push(top.name+' 已經連續 '+top.st+' 天了！');
   else if(inc.h&&R.rate!==null&&R.prevRate!==null&&R.rate-R.prevRate>=5)out.push('完成率比上週提升了 '+(R.rate-R.prevRate)+'%，進步看得見！');
   if(inc.fit&&R.fit.pr.length)out.push('這週刷新了 '+R.fit.pr.length+' 項運動紀錄！');
@@ -3291,11 +3296,11 @@ function rWrap(x,s,w){var out=[],cur='',NOHEAD='，。、！？；：）」』�
 function rMin(m){m=Math.round(m);if(m<60)return m+' 分';return Math.floor(m/60)+' 小時'+(m%60?' '+m%60+' 分':'');}
 function rSprout(x,X,Y,s){rPix(x,SPROUT_PX,SPROUT_PAL,X,Y,s);}
 function rName(x,e,X,Y,maxw,streak){var st=streak&&e.st>=2?e.st+(e.wk?'週':''):'';rFont(x,26,700);var sw=st?x.measureText(st).width+38:0;
-  rFont(x,34,400);x.fillStyle=RC.fg;var pill=e.isNew?64:0,n=rFit(x,e.name,maxw-pill-sw);x.fillText(n,X,Y);var w=X+x.measureText(n).width;
+  rFont(x,34,400);x.fillStyle=e.priv?RC.muted:RC.fg;var pill=e.isNew?64:0,n=rFit(x,e.priv?REP_PRIV:e.name,maxw-pill-sw);x.fillText(n,X,Y);var w=X+x.measureText(n).width;
   if(st){rPix(x,FLAME_PX,ICON_PAL,w+12,Y-27,3);rText(x,st,w+38,Y-2,26,700,'#C2502F');rFont(x,26,700);w+=sw;}
   if(pill){rRound(x,w+12,Y-32,48,40,12,RC.goodSoft);rText(x,'新',w+36,Y-3,26,700,RC.good,'center');}}
 function rTitle(x,y,dr,t,right,rcol){if(dr){rText(x,t,RX0,y+44,42,700);if(right)rText(x,right,RX1,y+42,32,700,rcol||RC.muted,'right');}return 76;}
-var REP_STREAK='none';
+var REP_STREAK='none',REP_PRIV='🔒 不公開';
 function rMark(x,ok,X,Y){if(ok)rText(x,'✓',X,Y,34,800,RC.good,'center');else rText(x,'–',X,Y,34,700,RC.faint,'center');}
 function rDots(x,dots,cx,DX,Y,bad){dots.forEach(function(v,i){var X=cx+DX*i+DX/2;x.beginPath();
   if(v===1){x.arc(X,Y,15,0,7);x.fillStyle=RC.good;x.fill();}
@@ -3478,6 +3483,8 @@ function dsHtml(o){ui.sheet={type:'busy',msg:'正在產生 HTML⋯'};render();
     if(!blob){fin('');return;}var r=new FileReader();r.onload=function(){fin(/^data:image\/(jpeg|png|webp);base64,/.test(r.result)?r.result:'');};r.onerror=function(){fin('');};r.readAsDataURL(blob);});}
 function repRow(k,label,sub,on,indent){return '<div class="row-btn'+(indent?' rep-sub':'')+'"><span class="row-l"><span>'+label+'</span>'+(sub?'<span class="row-sub">'+sub+'</span>':'')+'</span>'+
   '<button class="switch" role="switch" aria-checked="'+on+'" aria-label="'+label+'" data-act="ropt" data-v="'+k+'"><span class="knob"></span></button></div>';}
+function repHideRows(list){var hid=repHide();return list.map(function(h){var on=hid.indexOf(h.id)>=0;
+  return '<div class="row-btn rep-sub rep-hrow"><span class="rep-hn'+(on?' off':'')+'">'+(on?'🔒 ':'')+esc(h.name)+'</span><button class="rep-hide'+(on?' on':'')+'" data-act="rhide" data-id="'+h.id+'" aria-pressed="'+on+'">'+(on?'✓ 不公開':'不公開')+'</button></div>';}).join('');}
 function vReport(){
   var t=todayKey(),cw=weekStartKey(t);if(!ui.repWs||ui.repWs>cw||ui.repWs<repMinWs())ui.repWs=repDefWs(t);
   var ws=ui.repWs,o=repOpts(),inc=repInc(o),any=repAny(inc);
@@ -3487,8 +3494,8 @@ function vReport(){
     '<button class="iconbtn" data-act="rweek" data-n="1" aria-label="下一週"'+(ws>=cw?' disabled':'')+'>'+I.right+'</button></div>';
   s+='<section class="sec"><label class="sec-t" for="repnote">想說的一句話</label><input id="repnote" type="text" class="rep-note" maxlength="40" placeholder="例如：這週好累，但還是有喝水（選填）" value="'+esc(ui.repNote||'')+'" autocomplete="off" enterkeyhint="done"><p class="small muted">只會出現在圖片上，不會存起來。</p></section>';
   s+='<section class="sec"><h2 class="sec-t">包含哪些內容</h2><div class="list">'+
-    repRow('h','習慣','完成率和每天的打勾',o.h)+
-    (o.h&&active('bad').length?repRow('bad','包含壞習慣','預設不放',o.bad,true):'')+
+    repRow('h','習慣','完成率和每天的打勾',o.h)+(o.h?repHideRows(active('good')):'')+
+    (o.h&&active('bad').length?repRow('bad','包含壞習慣','預設不放',o.bad,true):'')+(o.h&&o.bad?repHideRows(active('bad')):'')+
     (fOn()?repRow('fit','運動','運動天數、時間、距離和新紀錄',o.fit):'')+
     (db.settings.pnl?repRow('pnl','投資','這週未實現損益的走勢',o.pnl)+(o.pnl?repRow('amt','顯示金額','關閉時只顯示漲跌，不顯示數字',o.amt,true):''):'')+
     repRow('mood','心情','每種心情各幾天，加上一段給你的話',o.mood)+'</div></section>';
@@ -4081,6 +4088,7 @@ function act(a,b){
     case 'rback': go('stats');break;
     case 'rweek': k=addDays(ui.repWs,7*(+b.dataset.n));if(k>weekStartKey(t)||k<repMinWs())return;ui.repWs=k;break;
     case 'ropt': repSetOpt(b.dataset.v);break;
+    case 'rhide': if(!byId(id))return;repToggleHide(id);break;
     case 'rshare': repShare();return;
     case 'userest': if(ui.date>=t||diffDays(t,ui.date)>7||restUsed(ui.date)>=REST_PER_MONTH)return;l=db.logs[ui.date]||(db.logs[ui.date]={});l.rest=true;save();toast('已用休息卡');break;
     case 'unrest': l=db.logs[ui.date];if(l){delete l.rest;tidy(ui.date);save();}toast('已取消，休息卡退回');break;

@@ -565,6 +565,15 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=ropt][data-v=bad]'); await p.waitForFunction(s => document.getElementById('repimg').src !== s, src);
     let [, ih2, src2] = await img(); ok(ih2 > ih, 'adding bad habits makes the report longer');
     ok(JSON.parse(await p.evaluate(() => localStorage.getItem('habit-tracker-v1-rep'))).bad === true, 'choices remembered');
+    ok(await p.$eval('[data-act=rhide][data-id=g1]', e => e.textContent) === '不公開' && !!(await p.$('[data-act=rhide][data-id=b1]')), '不公開 buttons for good and (when included) bad habits');
+    { const s0 = await p.$eval('#repimg', i => i.src); await p.click('[data-act=rhide][data-id=g1]'); await p.waitForFunction(s => document.getElementById('repimg').src !== s, s0);
+      ok(await p.$eval('[data-act=rhide][data-id=g1]', e => e.getAttribute('aria-pressed') === 'true' && e.textContent === '✓ 不公開'), 'habit marked 不公開');
+      const st = JSON.parse(await p.evaluate(() => localStorage.getItem('habit-tracker-v1-rep')));
+      ok(Array.isArray(st.hide) && st.hide.join() === 'g1' && st.bad === true, '不公開 remembered with the other choices');
+      ok(!JSON.stringify(await db(p)).includes('"hide"'), '不公開 is not stored in the habit data');
+      await p.click('[data-act=ropt][data-v=bad]'); await p.click('[data-act=ropt][data-v=bad]');
+      ok(JSON.parse(await p.evaluate(() => localStorage.getItem('habit-tracker-v1-rep'))).hide.join() === 'g1', 'toggling another option keeps 不公開');
+      await p.click('[data-act=rhide][data-id=g1]'); await p.click('[data-act=rhide][data-id=g1]'); }
     await p.click('[data-act=ropt][data-v=pnl]'); ok(!(await p.$('[data-v=amt]')), 'amount option hides when 投資 is off');
     await p.click('[data-act=rweek][data-n="-1"]'); await p.click('[data-act=rweek][data-n="-1"]');
     ok(await p.$eval('[data-act=rweek][data-n="-1"]', e => e.disabled), 'cannot go before the first week of use (' + await lbl() + ')');
