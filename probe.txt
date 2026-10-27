@@ -1,0 +1,28 @@
+== taipei 20261027
+== twse web
+http=200 size=247814
+{"tables":[{"title":"115年10月27日 價格指數(臺灣證券交易所)","fields":["指數","收盤指數","漲跌(+/-)","漲跌點數","漲跌百分比(%)","特殊處理註記"],"data":[["寶島股價指數","50,941.99","<p style ='color:red'>+<\u002fp>","34.55","0.07",""],["發行量加權股價
+== tpex web
+http=200 size=147072
+{"tables":[{"title":"上櫃股票每日收盤行情(不含定價)","date":"115/10/27","category":"所有證券(不含權證、牛熊證)","totalCount":1020,"fields":["代號","名稱","收盤 ","漲跌","開盤 ","最高 ","最低","成交股數  "," 成交金額(元)"," 成交筆數 ","最後買價
+== twse api
+http=200 size=320388
+[
+{"Date":"1151022","Code":"00400A","Name":"主動國泰動能高息","TradeVolume":"48178471","TradeValue":"705168819","OpeningPrice":"15.00","HighestPrice":"15.06","LowestPrice":"14.41","ClosingPric
+== tpex api
+curl: (92) HTTP/2 stream 1 was not closed cleanly: INTERNAL_ERROR (err 2)
+http=200 size=999017
+[
+{"Date":"1151027","SecuritiesCompanyCode":"00411A","CompanyName":"主動統一前沿科技","Close":"9.91","Change":"-0.02 ","Open":"10.10","High":"10.10","Low":"9.88","Average":"9.95","TradingShare
+== script
+/home/runner/work/habits/habits/tools/fetch_prices.py:151: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  now = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).date()
+/home/runner/work/habits/habits/tools/fetch_prices.py:166: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  tw_today = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).date().isoformat()
+/home/runner/work/habits/habits/tools/fetch_prices.py:168: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  out = {'d': d, 't': datetime.datetime.utcnow().replace(microsecond=0).isoformat() + 'Z', 'p': dict(sorted(p.items()))}
+TWSE 2026-10-27 1353 
+TPEx 2026-10-27 989 
+wrote 2026-10-27 2342 prices 
+exit=0
+{"d":"2026-10-27","t":"2026-10-27T08:10:16Z","p":{"00400A":[
