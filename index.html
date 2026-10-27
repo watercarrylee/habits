@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-PRlgRavM/68N1nB0/kmsLb9j8j0wJX9fb3iNV94zc8M='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-1zwr5VrfFOydYxPPhjM/kiQoIrTifa7LPvUU7P80rp8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -463,7 +463,8 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .mdtags{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.mdtags .dtag{font-size:14px;padding:4px 10px}.tagcloud{display:flex;flex-wrap:wrap;gap:8px}.tagcloud .dtag{font-size:15px;padding:5px 12px}
 .tagline{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.tagline .dtag{font-size:12px}.tagline .dtag.on{font-weight:800}
 .hello{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:4px 0 10px;text-align:left;color:var(--fg);font:inherit;cursor:pointer}.hello-t{display:flex;flex-direction:column;min-width:0}.hello-t b{font-size:18px}.hello-t small{color:var(--muted);font-size:13px;line-height:1.4}.hello-t .motto{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}.hello-t .motto.full{display:block;-webkit-line-clamp:unset}
-.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;flex:0 0 auto;background:var(--chip);border:2px solid var(--surface);box-shadow:0 0 0 1.5px var(--line)}.av img{width:100%;height:100%;object-fit:cover}.av.ch{background:var(--good-soft)}.av .avimg{width:100%;height:100%;object-fit:cover;display:block}.av.none svg{width:45%;height:45%;color:var(--muted)}.av svg.avchar{width:100%;height:100%}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;flex:0 0 auto;background:var(--chip);border:2px solid var(--surface);box-shadow:0 0 0 1.5px var(--line)}.av img{width:100%;height:100%;object-fit:cover}.av.ch{background:var(--good-soft)}
+.avcrop{position:fixed;inset:0;z-index:50;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 8px) 16px calc(env(safe-area-inset-bottom) + 16px);gap:18px}.avc-top{width:100%;max-width:420px;display:flex;align-items:center;justify-content:space-between}.avc-top b{font-size:17px}.avcrop .textbtn{color:#fff}.avcrop .textbtn.strong{color:#9be2b8}.avc-stage{position:relative;overflow:hidden;touch-action:none;margin-top:auto;cursor:grab;user-select:none;-webkit-user-select:none}.avc-img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none}.avc-ring{position:absolute;box-sizing:border-box;border-radius:50%;box-shadow:0 0 0 9999px rgba(0,0,0,.6);border:2px solid rgba(255,255,255,.9);pointer-events:none}.avc-zoom{width:min(380px,100%);accent-color:#9be2b8}.avc-hint{margin:0 0 auto;font-size:13px;color:#bbb}.av .avimg{width:100%;height:100%;object-fit:cover;display:block}.av.none svg{width:45%;height:45%;color:var(--muted)}.av svg.avchar{width:100%;height:100%}
 .prof{display:flex;gap:14px;align-items:flex-end}.prof-av{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:0;color:var(--muted);font:inherit;cursor:pointer}.prof-av small{font-size:12px}.prof-f{flex:1 1 auto;min-width:0}
 .avgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:6px 0 14px}.avopt{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:2px solid transparent;border-radius:14px;padding:6px 0;font:inherit;font-size:12px;color:var(--muted);cursor:pointer}.avopt.on{border-color:var(--good);color:var(--fg)}
 .qlist{display:flex;flex-direction:column;gap:8px;margin:6px 0 12px}.qopt{text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;font:inherit;color:var(--fg);display:flex;flex-direction:column;gap:2px;cursor:pointer}.qopt small{color:var(--muted);font-size:12px}
@@ -3108,14 +3109,44 @@ var QUOTES=[['千里之行，始於足下。','老子《道德經》'],['不積�
   ['水滴石穿。','成語'],['九層之臺，起於累土。','老子《道德經》'],['合抱之木，生於毫末。','老子《道德經》'],['苟日新，日日新，又日新。','《禮記・大學》'],['學而時習之，不亦說乎？','《論語》'],
   ['一日之計在於晨。','俗諺'],['慢慢來，比較快。',''],['今天的一小步，是明天的一大步。',''],['不用完美，只要繼續。',''],['做了，就比沒做好。',''],['習慣是每天投給未來自己的一票。',''],
   ['累了就休息，但別放棄。',''],['比昨天的自己好一點點就夠了。',''],['先求有，再求好。',''],['小事做久了，就是大事。',''],['你不需要很厲害才開始，但需要開始才會很厲害。','']];
-function avShrink(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file),im=new Image();
-  im.onload=function(){var w=im.naturalWidth,h=im.naturalHeight,m=Math.min(w,h),cv=document.createElement('canvas');cv.width=cv.height=256;
-    cv.getContext('2d').drawImage(im,(w-m)/2,(h-m)/2,m,m,0,0,256,256);URL.revokeObjectURL(u);cv.toBlob(function(b){b?res(b):rej(new Error('encode'));},'image/jpeg',0.85);};
-  im.onerror=function(){URL.revokeObjectURL(u);rej(new Error('read'));};im.src=u;});}
+function avSavePhoto(b){var id=uid();return phPut(id,b).then(function(){var old=db.settings.avPh;db.settings.avPh=id;db.settings.avatar='photo';save();if(old&&old!==id)phDel(old);ui.sheet=null;render();toast('頭像已更新');});}
 function avPick(){var f=document.createElement('input');f.type='file';f.accept='image/*';f.style.display='none';document.body.appendChild(f);
-  f.onchange=function(){var file=f.files&&f.files[0];f.remove();if(!file)return;
-    avShrink(file).then(function(b){var id=uid();return phPut(id,b).then(function(){var old=db.settings.avPh;db.settings.avPh=id;db.settings.avatar='photo';save();if(old&&old!==id)phDel(old);ui.sheet=null;render();toast('頭像已更新');});})
-      .catch(function(){toast('這張照片無法讀取，請換一張試試',3000);});};f.click();}
+  f.onchange=function(){var file=f.files&&f.files[0];f.remove();if(!file)return;avCrop(file);};f.click();}
+/* 調整頭像: the photo under a round frame (the shape the avatar is shown in). Drag to move, pinch / slider / wheel to zoom;
+   the photo always covers the frame. 使用 saves the framed part as a 256×256 JPEG, like before. */
+function avCrop(file){var u=URL.createObjectURL(file),im=new Image();
+  im.onerror=function(){URL.revokeObjectURL(u);toast('這張照片無法讀取，請換一張試試',3000);};
+  im.onload=function(){var W=im.naturalWidth,H=im.naturalHeight;if(!W||!H){im.onerror();return;}
+    var el=function(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x)e.textContent=x;return e;};
+    var ov=el('div','avcrop'),top=el('div','avc-top'),cx=el('button','textbtn','取消'),tt=el('b','','調整頭像'),ok=el('button','textbtn strong','使用'),
+      st=el('div','avc-stage'),pic=el('img','avc-img'),ring=el('div','avc-ring'),zm=el('input','avc-zoom'),hint=el('p','avc-hint','拖曳移動，兩指或滑桿縮放');
+    ov.setAttribute('role','dialog');ov.setAttribute('aria-label','調整頭像');cx.type=ok.type='button';zm.type='range';zm.min='0';zm.max='1000';zm.value='0';zm.setAttribute('aria-label','縮放');
+    pic.alt='';pic.src=u;pic.draggable=false;top.appendChild(cx);top.appendChild(tt);top.appendChild(ok);st.appendChild(pic);st.appendChild(ring);
+    ov.appendChild(top);ov.appendChild(st);ov.appendChild(zm);ov.appendChild(hint);document.body.appendChild(ov);
+    var S=Math.min(window.innerWidth-32,380),D=Math.round(S*0.86),C0=(S-D)/2;st.style.width=st.style.height=S+'px';ring.style.left=ring.style.top=C0+'px';ring.style.width=ring.style.height=D+'px';
+    pic.style.width=W+'px';pic.style.height=H+'px';
+    var smin=D/Math.min(W,H),smax=smin*6,s=smin,tx=(S-W*s)/2,ty=(S-H*s)/2;
+    var clamp=function(){s=Math.max(smin,Math.min(smax,s));tx=Math.min(C0,Math.max(C0+D-W*s,tx));ty=Math.min(C0,Math.max(C0+D-H*s,ty));};
+    var draw=function(){clamp();pic.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')';zm.value=String(Math.round(Math.log(s/smin)/Math.log(smax/smin)*1000));};
+    var zoomAt=function(ns,px,py){ns=Math.max(smin,Math.min(smax,ns));tx=px-(px-tx)*ns/s;ty=py-(py-ty)*ns/s;s=ns;draw();};
+    draw();
+    var pts={},last=null;
+    var pos=function(e){var r=st.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
+    var snap=function(){var k=Object.keys(pts);if(k.length>=2){var a=pts[k[0]],b=pts[k[1]];last={d:Math.hypot(a[0]-b[0],a[1]-b[1]),m:[(a[0]+b[0])/2,(a[1]+b[1])/2]};}else if(k.length===1)last={p:pts[k[0]].slice()};else last=null;};
+    st.addEventListener('pointerdown',function(e){e.preventDefault();try{st.setPointerCapture(e.pointerId);}catch(x){}pts[e.pointerId]=pos(e);snap();});
+    st.addEventListener('pointermove',function(e){if(!pts[e.pointerId])return;e.preventDefault();pts[e.pointerId]=pos(e);var k=Object.keys(pts);
+      if(k.length>=2&&last&&last.d){var a=pts[k[0]],b=pts[k[1]],d=Math.hypot(a[0]-b[0],a[1]-b[1]),m=[(a[0]+b[0])/2,(a[1]+b[1])/2];tx+=m[0]-last.m[0];ty+=m[1]-last.m[1];if(d>0)zoomAt(s*d/last.d,m[0],m[1]);else draw();last={d:d,m:m};}
+      else if(k.length===1&&last&&last.p){var p=pts[k[0]];tx+=p[0]-last.p[0];ty+=p[1]-last.p[1];last={p:p.slice()};draw();}});
+    var up=function(e){delete pts[e.pointerId];snap();};st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
+    st.addEventListener('wheel',function(e){e.preventDefault();var p=pos(e);zoomAt(s*Math.exp(-e.deltaY/400),p[0],p[1]);},{passive:false});
+    zm.addEventListener('input',function(){zoomAt(smin*Math.pow(smax/smin,(+zm.value)/1000),S/2,S/2);});
+    var close=function(){ov.remove();URL.revokeObjectURL(u);};
+    cx.addEventListener('click',close);
+    ok.addEventListener('click',function(){if(ok.disabled)return;ok.disabled=true;clamp();var cv=document.createElement('canvas');cv.width=cv.height=256;
+      try{cv.getContext('2d').drawImage(im,(C0-tx)/s,(C0-ty)/s,D/s,D/s,0,0,256,256);}catch(x){close();toast('這張照片無法讀取，請換一張試試',3000);return;}
+      cv.toBlob(function(b){close();if(!b){toast('這張照片無法讀取，請換一張試試',3000);return;}avSavePhoto(b).catch(function(){toast('頭像存不進去，請再試一次',3000);});},'image/jpeg',0.85);});
+    ov.__crop={get:function(){return {s:s,tx:tx,ty:ty,smin:smin,C0:C0,D:D};}};};
+  im.src=u;}
 /* ---------- 習慣等級: cumulative days done (bad habits: days kept clean, before today); never goes down ---------- */
 var LV_AT=[1,7,21,50,100,200,365,500,730,1000];
 function hDays(h){var t=todayKey(),n=0;
@@ -3758,7 +3789,7 @@ function renderSheet(){
       '<button class="row-btn" data-act="fcnew"><span class="row-l"><span>有氧</span><span class="row-sub">跑步、單車、游泳⋯</span></span>'+I.right+'</button></div>';
   }else if(sh.type==='avpick'){
     h='<h2>選頭像</h2><div class="avgrid">'+AV_IDS.map(function(c){var on=db.settings.avatar===c;return '<button class="avopt'+(on?' on':'')+'" data-act="avset" data-v="'+c+'" aria-pressed="'+on+'"><span class="av ch" style="width:64px;height:64px">'+avSvg(c,64)+'</span><small>'+avName(c)+'</small></button>';}).join('')+'</div>'+
-      '<div class="stack"><button class="primary" data-act="avphoto">上傳照片</button>'+(db.settings.avatar?'<button class="secondary bad-t" data-act="avset" data-v="">拿掉頭像</button>':'')+'</div><p class="small muted">照片會裁成正方形、縮小後存在這支手機，匯出備份時會一起帶走。</p>';
+      '<div class="stack"><button class="primary" data-act="avphoto">上傳照片</button>'+(db.settings.avatar?'<button class="secondary bad-t" data-act="avset" data-v="">拿掉頭像</button>':'')+'</div><p class="small muted">選好照片後可以拖曳、縮放調整範圍；照片會縮小後存在這支手機，匯出備份時會一起帶走。</p>';
   }else if(sh.type==='quotes'){
     h='<h2>挑一句座右銘</h2><div class="qlist">'+sh.list.map(function(i){var q=QUOTES[i];return '<button class="qopt" data-act="qpick" data-i="'+i+'"><span>'+esc(q[0])+'</span>'+(q[1]?'<small>— '+esc(q[1])+'</small>':'')+'</button>';}).join('')+'</div>'+
       '<div class="stack"><button class="secondary" data-act="quotes">換一批</button></div>';

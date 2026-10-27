@@ -1113,6 +1113,20 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=avset][data-v=cat]'); await p.click('[data-tab=today]');
     ok(!!(await p.$('.hello .av.ch img.avimg')) && (await db(p)).settings.avatar === 'cat', 'profile: picture avatar shown and saved');
     await p.click('[data-tab=settings]'); await p.click('[data-act=avpick]'); await p.click('[data-act=avset][data-v=mel]');
+    { const png = Buffer.from((await p.evaluate(() => { const c = document.createElement('canvas'); c.width = 800; c.height = 400; const x = c.getContext('2d'); x.fillStyle = '#c33'; x.fillRect(0, 0, 400, 400); x.fillStyle = '#33c'; x.fillRect(400, 0, 400, 400); return c.toDataURL('image/png'); })).split(',')[1], 'base64');
+      const pick = async (open) => { if (open) { await p.click('[data-tab=settings]'); await p.click('[data-act=avpick]'); } const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.click('[data-act=avphoto]')]); await fc.setFiles({ name: 'a.png', mimeType: 'image/png', buffer: png }); await p.waitForSelector('.avcrop'); };
+      await pick(true); ok(!!(await p.$('.avc-ring')) && !!(await p.$('.avc-zoom')), 'avatar crop: frame and zoom slider shown');
+      await p.click('.avcrop .textbtn >> text=取消'); ok(!(await p.$('.avcrop')) && (await db(p)).settings.avatar === 'mel', 'avatar crop: cancel keeps the old avatar');
+      ok(!!(await p.$('[data-act=avphoto]')), 'avatar crop: cancel returns to the avatar picker');
+      await pick(false); const st = await p.$('.avc-stage'), bb = await st.boundingBox(), tf0 = await p.$eval('.avc-img', e => e.style.transform);
+      await p.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.mouse.down(); await p.mouse.move(bb.x + bb.width / 2 + 400, bb.y + bb.height / 2, { steps: 5 }); await p.mouse.up();
+      const tf = await p.$eval('.avc-img', e => e.style.transform); ok(tf !== tf0, 'avatar crop: dragging moves the photo');
+      const lim = await p.evaluate(() => { const r = document.querySelector('.avc-ring').getBoundingClientRect(), i = document.querySelector('.avc-img').getBoundingClientRect(); return i.left <= r.left + 0.5 && i.right >= r.right - 0.5 && i.top <= r.top + 0.5 && i.bottom >= r.bottom - 0.5; });
+      ok(lim, 'avatar crop: photo always covers the frame');
+      await p.$eval('.avc-zoom', e => { e.value = '600'; e.dispatchEvent(new Event('input')); }); ok((await p.$eval('.avc-zoom', e => +e.value)) > 500, 'avatar crop: slider zooms');
+      await p.click('.avcrop .textbtn >> text=使用'); await p.waitForFunction(() => !document.querySelector('.avcrop')); await p.waitForTimeout(400);
+      const sd = (await db(p)).settings; ok(sd.avatar === 'photo' && !!sd.avPh, 'avatar crop: 使用 saves the photo avatar');
+      await p.click('[data-tab=settings]'); await p.click('[data-act=avpick]'); await p.click('[data-act=avset][data-v=mel]'); }
     await p.click('[data-tab=settings]'); const lm = 'You need to develop conviction in a set of beliefs that nobody else agrees with'; await p.fill('#motto', lm);
     ok((await db(p)).settings.motto === lm, 'profile: long motto (79 chars) kept whole');
     ok(/自動備份／還原/.test(await p.innerText('main')), 'settings: 自動備份／還原 label');
