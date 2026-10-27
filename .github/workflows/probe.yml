@@ -1,21 +1,14 @@
 name: probe
 on: { push: { branches: [probe-px2] } }
-permissions: { contents: write }
+permissions: { contents: write, actions: read }
 jobs:
   p:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - run: |
+      - env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
           set +e
-          D=$(TZ=Asia/Taipei date +%Y%m%d); Y=$(TZ=Asia/Taipei date +%Y/%m/%d)
-          {
-          echo "== taipei $D"
-          echo "== twse web"; curl -sS -m 40 -A 'Mozilla/5.0 (habits-prices)' "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=$D&type=ALLBUT0999&response=json" -o w.json -w 'http=%{http_code} size=%{size_download}\n'; head -c 300 w.json; echo
-          echo "== tpex web"; curl -sS -m 40 -A 'Mozilla/5.0 (habits-prices)' "https://www.tpex.org.tw/www/zh-tw/afterTrading/otc?date=$Y&type=EW&response=json" -o t.json -w 'http=%{http_code} size=%{size_download}\n'; head -c 300 t.json; echo
-          echo "== twse api"; curl -sS -m 60 "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL" -o a.json -w 'http=%{http_code} size=%{size_download}\n'; head -c 200 a.json; echo
-          echo "== tpex api"; curl -sS -m 60 "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes" -o b.json -w 'http=%{http_code} size=%{size_download}\n'; head -c 200 b.json; echo
-          echo "== script"; python3 tools/fetch_prices.py; echo "exit=$?"; head -c 60 prices.json; echo
-          } > probe.txt 2>&1
+          { for r in 40315970769 40331301931 40378029512 39989261533; do echo "######## $r"; gh run view $r -R ${{ github.repository }} --log | grep -E "fetch_prices|TWSE|TPEx|wrote|unchanged|keeping|Error|error|prices.json|nothing|commit|push" | cut -c1-300 | head -40; done; } > probe2.txt 2>&1
           git config user.name probe; git config user.email probe@users.noreply.github.com
-          git add probe.txt; git commit -qm probe; git push -q origin HEAD:probe-px2
+          git add probe2.txt; git commit -qm probe2; git push -q origin HEAD:probe-px2
