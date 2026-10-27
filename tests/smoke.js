@@ -1108,6 +1108,11 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-tab=today]');
     ok(/Aaron/.test(await p.innerText('.hello')) && !!(await p.$('.hello .av.ch svg')), 'profile: greeting with name and character avatar');
     const d = (await db(p)).settings; ok(d.uname === 'Aaron' && d.avatar === 'mel', 'profile: saved');
+    await p.click('[data-tab=settings]'); await p.click('[data-act=avpick]');
+    ok((await p.$$('.avopt')).length === 7 && /軟軟/.test(await p.innerText('.avgrid')) && /帕丁/.test(await p.innerText('.avgrid')), 'profile: seven avatars incl. 軟軟 and 帕丁');
+    await p.click('[data-act=avset][data-v=cat]'); await p.click('[data-tab=today]');
+    ok(!!(await p.$('.hello .av.ch img.avimg')) && (await db(p)).settings.avatar === 'cat', 'profile: picture avatar shown and saved');
+    await p.click('[data-tab=settings]'); await p.click('[data-act=avpick]'); await p.click('[data-act=avset][data-v=mel]');
     await p.click('[data-tab=settings]'); const lm = 'You need to develop conviction in a set of beliefs that nobody else agrees with'; await p.fill('#motto', lm);
     ok((await db(p)).settings.motto === lm, 'profile: long motto (79 chars) kept whole');
     ok(/自動備份／還原/.test(await p.innerText('main')), 'settings: 自動備份／還原 label');
