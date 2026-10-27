@@ -764,7 +764,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(/\+239,500/.test(await hp.innerText('.pnl-read')), 'sell: chart shows 總損益 = 已實現 + 未實現');
     ok(/已實現 \+99,500/.test(await hp.innerText('.pnl-split')), 'sell: split line shows 已實現');
     ok(!!(await hp.$('.real-ln')) && !!(await hp.$('.pnl-lg')), 'sell: chart draws the 已實現 dashed line with a legend');
-    ok(/已實現損益/.test(await hp.innerText('main')) && (await hp.$$('.sold-row')).length === 1, 'sell: 已實現損益 list');
+    ok(/交易紀錄/.test(await hp.innerText('main')) && (await hp.$$('.sold-row')).length === 1, 'sell: 交易紀錄 list');
     await hp.click('[data-act=sellnew]'); await hp.click('[data-act=sellpick][data-id=h2]'); await hp.click('[data-act=sellsign][data-v="1"]'); await hp.fill('#sellamt', '500');
     await hp.click('[data-act=sellsave]'); await hp.waitForTimeout(300); d = await db(hp);
     ok(!d.hold.find(h => h.id === 'h2') && d.sold.some(x => x.code === '0050' && x.amt === -500), 'sell: selling all removes the holding; loss saved as negative');
@@ -776,6 +776,50 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.waitForTimeout(200); const tm = await hp.innerText('main'); if (!/投資損益/.test(tm)) console.log(tm.slice(0, 900));
     ok(/投資損益/.test(tm) && /已實現/.test(await hp.innerText('.pnl-meta')), 'today card shows 總損益 with 已實現');
     await done(hp, 'sell');
+  }
+
+  console.log('• 買入');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    await hp.route('**/prices.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: T, t: 'x', p: { '2330': [1100, 10, '台積電'], '0050': [190, 1, '元大台灣50'], '2412': [132, 0, '中華電'] } }) }));
+    await hp.route('**/prices-30.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: [], c: {} }) }));
+    await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); } },
+      { v: 1, settings: { pnl: true, onboarded: true, holdSince: daysAgo(3) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], logs: {},
+        hold: [{ id: 'h1', code: '2330', shares: 2000, cost: 1000 }, { id: 'h2', code: '0050', shares: 1000, cost: 150 }] });
+    await hp.goto(BASE); await hp.waitForTimeout(400);
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-act=buynew]'); await hp.click('[data-act=buypick][data-id=h1]');
+    ok(await hp.inputValue('#buypx') === '1100', 'buy: price defaults to the latest close');
+    await hp.fill('#buysh', '1000');
+    ok(await hp.inputValue('#buyamt') === '1101567', 'buy: 實付 = price × shares + 0.1425% fee');
+    ok(/2,000 股 → 3,000 股/.test(await hp.innerText('#buyprev')) && /1000 → 1033\.9/.test(await hp.innerText('#buyprev')), 'buy: preview shows shares and new average cost');
+    await hp.fill('#buyamt', '1100500'); await hp.click('[data-act=buysave]'); await hp.waitForTimeout(300);
+    let d = await db(hp), h1 = d.hold.find(h => h.id === 'h1');
+    ok(h1.shares === 3000 && h1.cost === 1033.5, 'buy: holding shares and average cost updated with the typed amount');
+    ok(d.buys.length === 1 && d.buys[0].amt === 1100500 && d.buys[0].ps === 2000 && d.buys[0].pc === 1000 && d.buys[0].d === T, 'buy: record saved');
+    ok(d.logs[T] && d.logs[T].pnl === Math.round(3000 * 1100 - 3000 * 1033.5 + 1000 * 190 - 150000), '未實現 recalculated after buying');
+    await hp.click('[data-act=buynew]'); await hp.click('[data-act=buypick][data-id=new]'); await hp.fill('#buycode', '2412');
+    ok(/中華電/.test(await hp.innerText('#buyname')) && await hp.inputValue('#buypx') === '132', 'buy: new code shows the name and fills the price');
+    await hp.fill('#buysh', '500');
+    ok(await hp.inputValue('#buyamt') === '66094', 'buy: 零股 fee estimate');
+    await hp.click('[data-act=buysave]'); await hp.waitForTimeout(300); d = await db(hp);
+    const nh = d.hold.find(h => h.code === '2412');
+    ok(nh && nh.shares === 500 && nh.cost === 132.188 && nh.name === '中華電', 'buy: new stock added to holdings');
+    ok((await hp.$$('.sold-row')).length === 2 && /交易紀錄/.test(await hp.innerText('main')), 'buy: 交易紀錄 lists buys');
+    await hp.click('[data-act=txf][data-v=sell]'); ok(/還沒有賣出紀錄/.test(await hp.innerText('main')), 'buy: filter by 賣出');
+    await hp.click('[data-act=txf][data-v=buy]'); ok((await hp.$$('.sold-row')).length === 2, 'buy: filter by 買入');
+    await hp.click('[data-act=buynew]'); await hp.click('[data-act=buypick][data-id=new]'); await hp.fill('#buycode', '0050'); await hp.fill('#buysh', '10'); await hp.fill('#buypx', '190');
+    await hp.click('[data-act=buysave]'); await hp.waitForTimeout(300); d = await db(hp);
+    ok(d.hold.filter(h => h.code === '0050').length === 1 && d.hold.find(h => h.code === '0050').shares === 1010, 'buy: typing a held code adds to that holding');
+    await hp.click('.sold-row >> nth=0'); ok(!(await hp.$('#buysh')) && /買入紀錄/.test(await hp.innerText('main')), 'buy: tapping a record opens it read-only');
+    await hp.click('[data-act=buydel]'); await hp.click('[data-act=buydel]'); await hp.waitForTimeout(300); d = await db(hp);
+    ok(d.hold.find(h => h.code === '0050').shares === 1000 && d.hold.find(h => h.code === '0050').cost === 150, 'buy: delete restores shares and cost');
+    await hp.click('[data-act=txf][data-v=all]'); await hp.click('[data-act=buyedit] >> text=中華電');
+    await hp.click('[data-act=buydel]'); await hp.click('[data-act=buydel]'); await hp.waitForTimeout(300); d = await db(hp);
+    ok(!d.hold.find(h => h.code === '2412') && d.buys.length === 1, 'buy: deleting the only buy of a stock removes the holding');
+    await done(hp, 'buy');
   }
 
   console.log('• 除權息');

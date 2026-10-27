@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Rxya2CZaH1d5PKLfJyIltmebsNh5kMrSA9nz+MrTwcQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-eMmXT2w9cAro8jd3pjPDcoAANC9GMVBzYMGwSt8Ab/w='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -90,7 +90,10 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .goal-p.inv{color:var(--fg)}.goal-p .gtgt{color:var(--muted);font-weight:500}
 .sold-t{font-size:15px;margin:18px 0 8px}.sold-row{width:100%;background:none;border:0;border-bottom:1px solid var(--line-soft);text-align:left;color:var(--fg);font:inherit;cursor:pointer}
 .sell-f{grid-template-columns:1fr 1fr;margin:12px 0 4px}.sell-f label:last-child:nth-child(3){grid-column:1/-1}.sell-f input{box-sizing:border-box;width:100%;height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 12px;font-size:16px;color:var(--fg);font-family:inherit}
-.sellpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.sell-sign{margin:6px 0 8px}.sell-amt{box-sizing:border-box;width:100%;height:52px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 14px;font-size:24px;font-weight:800;color:var(--fg);font-family:inherit;font-variant-numeric:tabular-nums}
+.sellpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.chip-add{border-style:dashed}.chip-add.on{border-style:solid}
+.buycode{display:flex;align-items:center;gap:10px}.buycode input{box-sizing:border-box;width:120px;height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 12px;font-size:16px;color:var(--fg);font-family:inherit;text-transform:uppercase}
+.buy-f{grid-template-columns:1fr 1fr 1.3fr}.buy-f label:last-child:nth-child(3){grid-column:auto}.buyprev{background:var(--good-soft);border-radius:16px;padding:12px 14px;margin:4px 0 12px;font-size:15px;line-height:1.7}.buyprev[hidden]{display:none}
+.divtag.buytag{background:color-mix(in srgb,#3C6E9E 14%,var(--surface));color:#3C6E9E}.divtag.selltag{background:color-mix(in srgb,var(--up) 12%,var(--surface));color:var(--up)}.txseg{margin:0 0 10px}.hbtns{flex-wrap:wrap;justify-content:flex-end}.sell-sign{margin:6px 0 8px}.sell-amt{box-sizing:border-box;width:100%;height:52px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 14px;font-size:24px;font-weight:800;color:var(--fg);font-family:inherit;font-variant-numeric:tabular-nums}
 .pnl-split{margin:4px 0 2px}
 .pnl-brk{margin:10px 0 4px;border-left:3px solid var(--line);padding-left:10px;font-size:13px}.pnl-brk div{display:flex;gap:8px;align-items:baseline;margin:3px 0;flex-wrap:wrap}.pnl-brk span{color:var(--muted);width:44px}.pnl-brk b{min-width:76px;text-align:right;font-variant-numeric:tabular-nums}.pnl-brk em{font-style:normal;color:var(--muted);font-size:12px}
 .pnl-lg{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px}.pnl-lg i{display:inline-block;width:20px;height:0;vertical-align:middle;margin-right:5px}.lg-tot{border-top:2px solid var(--fg)}.lg-real{border-top:2px dashed var(--good)}
@@ -946,6 +949,11 @@ function normDivs(a){return (Array.isArray(a)?a:[]).filter(function(x){return x&
   .map(function(x){return {id:cid(x.id),d:x.d,code:String(x.code),name:typeof x.name==='string'?x.name.replace(/[<>&"']/g,'').slice(0,20):'',shares:Math.min(1e9,Math.floor(+x.shares)),
     cash:Math.max(0,Math.min(1e5,+x.cash||0)),amt:Math.round(Math.max(0,Math.min(1e12,+x.amt))),ratio:Math.max(0,Math.min(10,+x.ratio||0)),add:Math.max(0,Math.min(1e9,Math.floor(+x.add||0))),paid:!!x.paid};})
   .sort(function(x,y){return x.d<y.d?-1:x.d>y.d?1:0;});}
+/* 買入紀錄: amt = what was paid (price × shares + fee); ps/pc = shares and average cost before the buy, nc = average cost after (for 均價 → and undo) */
+function normBuys(a){return (Array.isArray(a)?a:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.d)&&/^[0-9A-Z]{4,6}$/.test(String(x.code||''))&&+x.shares>0&&+x.px>0&&+x.amt>0;}).slice(0,3000)
+  .map(function(x){return {id:cid(x.id),d:x.d,code:String(x.code),name:typeof x.name==='string'?x.name.replace(/[<>&"']/g,'').slice(0,20):'',shares:Math.min(1e9,Math.floor(+x.shares)),px:Math.round(Math.min(1e6,+x.px)*10000)/10000,
+    amt:Math.round(Math.min(1e13,+x.amt)),ps:Math.max(0,Math.min(1e9,Math.floor(+x.ps||0))),pc:Math.max(0,Math.round(Math.min(1e6,+x.pc||0)*10000)/10000),nc:Math.max(0,Math.round(Math.min(1e6,+x.nc||0)*10000)/10000)};})
+  .sort(function(x,y){return x.d<y.d?-1:x.d>y.d?1:0;});}
 function normSold(a){return (Array.isArray(a)?a:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.d)&&/^[0-9A-Z]{4,6}$/.test(String(x.code||''))&&+x.shares>0&&isFinite(+x.amt)&&isFinite(+x.px)&&+x.px>=0&&isFinite(+x.c)&&+x.c>=0;}).slice(0,3000)
   .map(function(x){return {id:cid(x.id),d:x.d,code:String(x.code),name:typeof x.name==='string'?x.name.replace(/[<>&"']/g,'').slice(0,20):'',shares:Math.min(1e9,Math.floor(+x.shares)),px:Math.round(Math.min(1e6,+x.px)*10000)/10000,amt:Math.round(Math.max(-1e12,Math.min(1e12,+x.amt))),c:Math.round(Math.min(1e13,+x.c))};})
   .sort(function(x,y){return x.d<y.d?-1:x.d>y.d?1:0;});}
@@ -1556,7 +1564,7 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,onboarded:!!st.onboarded,divSkip:typeof st.divSkip==='string'&&/^[0-9A-Z|,\-]*$/.test(st.divSkip)?st.divSkip.slice(-4000)||undefined:undefined,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),divs:normDivs(d.divs),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,onboarded:!!st.onboarded,divSkip:typeof st.divSkip==='string'&&/^[0-9A-Z|,\-]*$/.test(st.divSkip)?st.divSkip.slice(-4000)||undefined:undefined,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),divs:normDivs(d.divs),buys:normBuys(d.buys),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k)&&k!=='photos')R[k]=d[k];});
@@ -1576,6 +1584,7 @@ if(!db.redeemed)db.redeemed=[];
 if(!db.hold)db.hold=[];
 if(!db.sold)db.sold=[];
 if(!db.divs)db.divs=[];
+if(!db.buys)db.buys=[];
 if(!db.fit)db.fit={ex:[],logs:{},ctypes:[]};if(!db.fit.cdist)db.fit.cdist=[];
 if(db.settings.fit&&fSeed())save();
 if(!DEMO&&!isKey(db.settings.firstUse)){db.settings.firstUse=todayKey();save();}
@@ -1754,7 +1763,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.26-1';
+var APP_VER='2026.10.27-1';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2499,7 +2508,7 @@ function holdSuggest(k){if(!db.hold.length||k<holdSince())return '';var h=hid(),
     '<button class="secondary hsug-b" data-act="pauto" data-k="'+k+'">改回自動</button></div>';
   if(l&&l.pa&&l.pnl===r.un)return '<div class="hsug ok">✓ 已依 '+shortMD(k)+' 收盤價自動記錄'+(c&&c.d===k?' · 今日 <b class="'+(h?'':pcls(c.day))+'">'+(h?'••••':chg(c.day))+'</b>':'')+'</div>';
   return '';}
-function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class="sec-row"><h2 class="sec-t">我的持股</h2><span class="tb-r">'+(db.hold.length?'<button class="ghost" data-act="sellnew">賣出</button><button class="ghost" data-act="divnew">除權息</button>':'')+'<button class="ghost" data-act="holdedit">'+(db.hold.length?'編輯持股':'新增持股')+'</button>'+pGrip('hold')+'</span></div>';
+function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class="sec-row"><h2 class="sec-t">我的持股</h2><span class="tb-r hbtns"><button class="ghost" data-act="buynew">買入</button>'+(db.hold.length?'<button class="ghost" data-act="sellnew">賣出</button><button class="ghost" data-act="divnew">除權息</button>':'')+'<button class="ghost" data-act="holdedit">'+(db.hold.length?'編輯':'新增持股')+'</button>'+pGrip('hold')+'</span></div>';
   if(!db.hold.length)return s+'<p class="small muted">輸入持股的代號、股數和平均成本，每天收盤後 App 會用收盤價自動算好並記錄未實現損益。持股只存在這支手機。</p>'+soldHTML()+'</section>';
   s+=divBanner();
   var srt=hSort(),mode=srt.replace('-',''),rev=srt.slice(-1)==='-';
@@ -2572,17 +2581,86 @@ function divSave(){var dv=ui.dv,c=divCalc(dv),td=todayKey(),d=isKey(dv.d)?dv.d:t
 function divDel(){var dv=ui.dv,o=dv&&db.divs.filter(function(x){return x.id===dv.id;})[0];if(!o)return;
   if(o.add>0){var h=db.hold.filter(function(x){return x.code===o.code;})[0];if(h){var ns=Math.max(0,h.shares-o.add);if(ns>0){h.cost=Math.round(h.cost*h.shares/ns*10000)/10000;h.shares=ns;}else db.hold=db.hold.filter(function(x){return x!==h;});}sellRecalc(o.d<=todayKey()?o.d:todayKey());}
   db.divs=db.divs.filter(function(x){return x!==o;});save();ui.dv=null;go('stats');ui.statTab='pnl';render();toast('已刪除');}
-function soldHTML(){if(!anySold())return '';var h=hid(),t=todayKey(),tot=realAt(t),yr=0,y0=t.slice(0,4),dvt=divAt(t);db.sold.concat(db.divs||[]).forEach(function(x){if(x.d.slice(0,4)===y0&&x.d<=t)yr+=x.amt;});
-  var list=db.sold.concat(db.divs||[]).sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0;}).reverse(),n=ui.soldAll?list.length:Math.min(5,list.length);
-  var s='<h3 class="sold-t">已實現損益</h3><div class="tiles"><div class="tile"><div class="tile-l">累計</div><div class="tile-v sm '+(h?'':pcls(tot))+'">'+(h?'••••':csgn(tot))+'</div></div>'+
-    '<div class="tile"><div class="tile-l">'+y0+' 年</div><div class="tile-v sm '+(h?'':pcls(yr))+'">'+(h?'••••':csgn(yr))+'</div></div><div class="tile"><div class="tile-l">其中股利</div><div class="tile-v sm '+(h?'':pcls(dvt))+'">'+(h?'••••':csgn(dvt))+'</div></div></div><div class="list">';
-  list.slice(0,n).forEach(function(x){var p=pxOf(x.code);
-    if(x.cash!=null){s+='<button class="hrow sold-row" data-act="divedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag">股利</span></b><span class="small muted">'+shortMD(x.d)+(x.d.slice(0,4)!==y0?' '+x.d.slice(0,4):'')+' 除權息 · '+divDesc(x.cash,x.ratio)+(x.add?' · 配 '+fmtN(x.add)+' 股':'')+'</span></div>'+
+function soldHTML(){var nb=(db.buys||[]).length;if(!anySold()&&!nb)return '';var h=hid(),t=todayKey(),tot=realAt(t),yr=0,y0=t.slice(0,4),dvt=divAt(t);db.sold.concat(db.divs||[]).forEach(function(x){if(x.d.slice(0,4)===y0&&x.d<=t)yr+=x.amt;});
+  var F=/^(buy|sell|div)$/.test(ui.txF||'')?ui.txF:'all',src=F==='buy'?db.buys:F==='sell'?db.sold:F==='div'?(db.divs||[]):db.sold.concat(db.divs||[],db.buys||[]);
+  var list=src.slice().sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0;}).reverse(),n=ui.soldAll?list.length:Math.min(5,list.length);
+  var s='<h3 class="sold-t">交易紀錄</h3>';
+  if(nb)s+='<div class="seg four txseg">'+[['all','全部'],['buy','買入'],['sell','賣出'],['div','股利']].map(function(o){var on=o[0]===F;return '<button class="'+(on?'on':'')+'" data-act="txf" data-v="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+'</button>';}).join('')+'</div>';
+  if(anySold())s+='<div class="tiles"><div class="tile"><div class="tile-l">已實現累計</div><div class="tile-v sm '+(h?'':pcls(tot))+'">'+(h?'••••':csgn(tot))+'</div></div>'+
+    '<div class="tile"><div class="tile-l">'+y0+' 年</div><div class="tile-v sm '+(h?'':pcls(yr))+'">'+(h?'••••':csgn(yr))+'</div></div><div class="tile"><div class="tile-l">其中股利</div><div class="tile-v sm '+(h?'':pcls(dvt))+'">'+(h?'••••':csgn(dvt))+'</div></div></div>';
+  if(!list.length)return s+'<p class="small muted">還沒有'+(F==='buy'?'買入':F==='sell'?'賣出':'股利')+'紀錄。</p>';
+  s+='<div class="list">';
+  list.slice(0,n).forEach(function(x){var p=pxOf(x.code),dd=shortMD(x.d)+(x.d.slice(0,4)!==y0?' '+x.d.slice(0,4):'');
+    if(x.nc!=null){s+='<button class="hrow sold-row" data-act="buyedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag buytag">買入</span></b><span class="small muted">'+dd+' · 買 '+lots(x.shares)+' @ '+x.px+'</span></div>'+
+      '<div class="hrow-r"><b class="muted">'+(h?MASK:'−'+fmtN(x.amt))+'</b><span class="small muted">'+(x.ps?'均價 → '+r1(x.nc):'新持股')+'</span></div></button>';return;}
+    if(x.cash!=null){s+='<button class="hrow sold-row" data-act="divedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag">股利</span></b><span class="small muted">'+dd+' 除權息 · '+divDesc(x.cash,x.ratio)+(x.add?' · 配 '+fmtN(x.add)+' 股':'')+'</span></div>'+
       '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(x.amt?(h?MASK:sgn(x.amt)):'—')+'</b><span class="small '+(x.paid?'muted':'warn-t')+'">'+(x.cash>0?(x.paid?'已入帳':x.d>t?'未除息':'待入帳'):'配股')+'</span></div></button>';return;}
-    s+='<button class="hrow sold-row" data-act="selledit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+shortMD(x.d)+(x.d.slice(0,4)!==y0?' '+x.d.slice(0,4):'')+' · 賣 '+lots(x.shares)+(x.px?' @ '+x.px:'')+'</span></div>'+
+    s+='<button class="hrow sold-row" data-act="selledit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag selltag">賣出</span></b><span class="small muted">'+dd+' · 賣 '+lots(x.shares)+(x.px?' @ '+x.px:'')+'</span></div>'+
       '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(h?MASK:sgn(x.amt))+'</b>'+(x.c>0?'<span class="small '+(h?'muted':pcls(x.amt))+'">'+(h?'••%':pctS(x.amt/x.c))+'</span>':'')+'</div></button>';});
   s+='</div>';if(list.length>5)s+='<button class="ghost" data-act="soldall">'+(ui.soldAll?'收起':'顯示全部 '+list.length+' 筆')+'</button>';
   return s;}
+/* 買入: pick a holding (or a new code), shares, price (default latest close), date; 實付 is prefilled with price × shares + fee
+   (0.1425%, at least 20 for 整股 / 1 for 零股) and can be changed to the broker's number. The average cost becomes (old total + paid) ÷ new shares. */
+var BUY_FEE=0.001425;
+function buyNum(v){return +String(v==null?'':v).replace(/,/g,'');}
+function buyHold(bd){if(bd.hid)return db.hold.filter(function(x){return x.id===bd.hid;})[0]||null;var c=String(bd.code||'').trim().toUpperCase();return c?db.hold.filter(function(x){return x.code===c;})[0]||null:null;}
+function buyEst(bd){var sh=Math.floor(buyNum(bd.shares)),px=buyNum(bd.px);if(!(sh>0&&px>0))return null;var g=px*sh,fee=Math.max(sh>=1000?20:1,Math.floor(g*BUY_FEE));return {g:Math.round(g),fee:fee,amt:Math.round(g)+fee};}
+function buyPaid(bd){var a=parseInt(String(bd.amt||'').replace(/[^0-9]/g,''),10);if(a>0)return a;var e=buyEst(bd);return e?e.amt:null;}
+function buyEstTxt(bd){var e=buyEst(bd);return e?'成交 '+fmtN(e.g)+'＋手續費約 '+fmtN(e.fee)+'（0.1425%）。可以改成券商對帳單上的金額。':'輸入股數和成交價後，會自動帶入估算金額。';}
+function buyPrevTxt(bd){var h=buyHold(bd),sh=Math.floor(buyNum(bd.shares)),a=buyPaid(bd);if(!(sh>0)||!a)return '';
+  if(h){var nc=(h.shares*h.cost+a)/(h.shares+sh);return '買入後<br>持有 <b>'+lots(h.shares)+' → '+lots(h.shares+sh)+'</b><br>平均成本 <b>'+r1(h.cost)+' → <span class="good-t">'+r1(nc)+'</span></b>';}
+  var c=String(bd.code||'').trim().toUpperCase(),p=pxOf(c);if(!/^[0-9A-Z]{4,6}$/.test(c))return '';
+  return '新增持股<br><b>'+esc((p&&p.name)||c)+' '+lots(sh)+'</b><br>平均成本 <b class="good-t">'+r1(a/sh)+'</b>';}
+function buyCodeTxt(c){c=String(c||'').trim().toUpperCase();if(!c)return '';if(!/^[0-9A-Z]{4,6}$/.test(c))return '<span class="warn-t">代號是 4～6 碼數字或英文</span>';
+  var h=db.hold.filter(function(x){return x.code===c;})[0],p=pxOf(c);if(h)return '<b>'+esc(h.name||(p&&p.name)||c)+'</b> <span class="small muted">已經持有，會加到這檔</span>';
+  return p?'<b>'+esc(p.name||c)+'</b> <span class="small good-t">✓ 找到了</span>':(PX?'<span class="small muted">找不到這個代號的收盤價，確認一下有沒有打錯</span>':'');}
+function vBuy(){var bd=ui.bd,ed=!!bd.id,o=ed&&db.buys.filter(function(x){return x.id===bd.id;})[0],h=!ed&&buyHold(bd),hm=hid();
+  var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="buycancel">'+(ed?'返回':'取消')+'</button><h1 class="edit-t">'+(ed?'買入紀錄':'買入')+'</h1>'+(ed?'<span style="width:44px"></span>':'<button class="textbtn strong" data-act="buysave">儲存</button>')+'</header>'+
+    (ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'');
+  if(ed){var p0=pxOf(o.code);
+    s+='<div class="field"><div class="lbl">股票</div><b>'+esc(o.name||(p0&&p0.name)||o.code)+'</b> <span class="small muted">'+esc(o.code)+'</span></div>'+
+      '<div class="list"><div class="row-btn"><span>成交日</span><b>'+o.d.replace(/-/g,'/')+'</b></div><div class="row-btn"><span>股數</span><b>'+lots(o.shares)+'</b></div><div class="row-btn"><span>成交價</span><b>'+o.px+'</b></div>'+
+      '<div class="row-btn"><span>實付金額</span><b>'+(hm?MASK:fmtN(o.amt))+'</b></div><div class="row-btn"><span>平均成本</span><b>'+(o.ps?r1(o.pc)+' → '+r1(o.nc):'新持股 '+r1(o.nc))+'</b></div></div>'+
+      '<button class="ghost bad-t" data-act="buydel" style="width:100%;margin-top:16px">'+(ui.confirm==='buydel'?'再按一次刪除':'刪除這筆並從持股扣回')+'</button>'+
+      (buyLater(o)?'<p class="small muted">這筆之後同一檔還有其他交易，刪除後的平均成本會用目前的數字倒推，可能和當初不完全一樣，必要時用「編輯」修正。</p>':'');
+    return s+'</div>';}
+  s+='<div class="field"><div class="lbl">買哪一檔</div><div class="chips sellpick">'+db.hold.map(function(x){var p=pxOf(x.code),on=x.id===bd.hid;
+      return '<button class="chip'+(on?' on':'')+'" data-act="buypick" data-id="'+x.id+'" aria-pressed="'+on+'">'+esc(x.name||(p&&p.name)||x.code)+'</button>';}).join('')+
+    '<button class="chip chip-add'+(bd.isNew?' on':'')+'" data-act="buypick" data-id="new" aria-pressed="'+!!bd.isNew+'">＋ 新股票</button></div>'+
+    (h&&!bd.isNew?'<p class="hint">持有 '+lots(h.shares)+' · 平均成本 '+r1(h.cost)+'</p>':'')+'</div>';
+  if(bd.isNew)s+='<div class="field"><label class="lbl" for="buycode">股票代號</label><div class="buycode"><input id="buycode" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" maxlength="6" placeholder="例如 2412" value="'+esc(bd.code||'')+'"><span id="buyname">'+buyCodeTxt(bd.code)+'</span></div></div>';
+  if(h||bd.isNew){
+    s+='<div class="hedit-f sell-f buy-f"><label>股數<input id="buysh" type="text" inputmode="numeric" value="'+esc(bd.shares)+'"></label>'+
+      '<label>成交價<input id="buypx" type="text" inputmode="decimal" value="'+esc(bd.px)+'"></label>'+
+      '<label>成交日<input id="buyd" class="datein" type="date" min="'+addDays(todayKey(),-42)+'" max="'+todayKey()+'" value="'+bd.d+'"></label></div>'+
+      '<p class="hint">零股和整張一起買，填總股數就好。</p>';
+    s+='<div class="field"><label class="lbl" for="buyamt">實付金額</label><input id="buyamt" class="sell-amt" type="text" inputmode="numeric" value="'+esc(bd.amt)+'" placeholder="0">'+
+      '<p class="hint" id="buyest">'+buyEstTxt(bd)+'</p></div>'+
+      '<div class="buyprev" id="buyprev"'+(buyPrevTxt(bd)?'':' hidden')+'>'+buyPrevTxt(bd)+'</div>'+
+      '<p class="small muted">儲存後從成交日起重新計算未實現損益，已實現損益不受影響。</p>';}
+  return s+'</div>';}
+function buySync(){var bd=ui.bd;if(!bd)return;var e=buyEst(bd),t=$('#buyest');if(t)t.textContent=buyEstTxt(bd);
+  if(!bd.touched){bd.amt=e?String(e.amt):'';var a=$('#buyamt');if(a)a.value=bd.amt;}
+  var pv=$('#buyprev');if(pv){var q=buyPrevTxt(bd);pv.innerHTML=q;pv.hidden=!q;}var nm=$('#buyname');if(nm)nm.innerHTML=buyCodeTxt(bd.code);}
+function buyOpen(x){var p=pxOf(x.code),d=ui.bd&&ui.bd.d;ui.bd={hid:x.id,isNew:false,code:'',shares:'',px:p?String(p.close):'',d:d||todayKey(),amt:'',touched:false};}
+function buyLater(o){return db.sold.concat(db.divs||[],db.buys).some(function(x){return x!==o&&x.code===o.code&&(x.d>o.d||(x.d===o.d&&db.buys.indexOf(x)>db.buys.indexOf(o)));});}
+function buySave(){var bd=ui.bd,td=todayKey(),d=isKey(bd.d)&&bd.d<=td?bd.d:td,sh=Math.floor(buyNum(bd.shares)),px=buyNum(bd.px),h=buyHold(bd),c=h?h.code:String(bd.code||'').trim().toUpperCase();
+  if(!h&&!bd.isNew){ui.err='請選擇要買的股票。';render();return;}
+  if(!h&&!/^[0-9A-Z]{4,6}$/.test(c)){ui.err='請輸入股票代號（4～6 碼）。';render();return;}
+  if(!(sh>0)||sh>1e9){ui.err='請輸入股數。';render();return;}
+  if(!(px>0)||px>1e6){ui.err='請輸入成交價。';render();return;}
+  var amt=buyPaid(bd);if(!(amt>0)){ui.err='請輸入實付金額。';render();return;}
+  var p=pxOf(c),ps=h?h.shares:0,pc=h?h.cost:0,nc=Math.round((ps*pc+amt)/(ps+sh)*10000)/10000;
+  if(h){h.cost=nc;h.shares=ps+sh;if(!h.name&&p&&p.name)h.name=p.name;}else db.hold.push({id:uid(),code:c,name:(p&&p.name)||'',shares:sh,cost:nc});
+  db.hold=normHold(db.hold);db.buys.push({id:uid(),d:d,code:c,name:(h&&h.name)||(p&&p.name)||'',shares:sh,px:px,amt:amt,ps:ps,pc:pc,nc:nc});db.buys=normBuys(db.buys);
+  sellRecalc(d);save();ui.err='';ui.bd=null;go('stats');ui.statTab='pnl';render();toast('已記錄買入 '+lots(sh));}
+function buyDel(){var bd=ui.bd,o=bd&&db.buys.filter(function(x){return x.id===bd.id;})[0];if(!o)return;
+  var h=db.hold.filter(function(x){return x.code===o.code;})[0];
+  if(!h||h.shares<o.shares){ui.err='目前持股不夠扣回這筆（可能已經賣掉了），請用「編輯」直接修正持股。';ui.confirm=null;render();return;}
+  var ns=h.shares-o.shares;
+  if(!ns)db.hold=db.hold.filter(function(x){return x!==h;});
+  else{var back=!buyLater(o)&&h.shares===o.ps+o.shares&&o.pc>0?o.pc:(h.shares*h.cost-o.amt)/ns;h.cost=Math.round((back>0?back:o.pc||h.cost)*10000)/10000;h.shares=ns;}
+  db.hold=normHold(db.hold);db.buys=db.buys.filter(function(x){return x!==o;});sellRecalc(o.d);save();ui.bd=null;ui.err='';ui.confirm=null;go('stats');ui.statTab='pnl';render();toast('已刪除，'+lots(o.shares)+' 從持股扣回');}
 /* 賣出: pick a holding, shares (default all), price (default latest close), date, and the realized amount (prefilled with
    (price − cost) × shares, no fees; type the broker's number to override). Saving reduces the holding and recalculates from that day. */
 function sellEst(sd){var h=sd.hid&&db.hold.filter(function(x){return x.id===sd.hid;})[0],sh=Math.floor(+String(sd.shares).replace(/,/g,'')),px=+String(sd.px).replace(/,/g,'');
@@ -3547,6 +3625,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.26-1','10/26',['分享「我的這一週」時，可以把習慣設成「不公開」，圖上只會顯示 🔒 不公開，重點也不會提到名稱']],
  ['2026.10.25-7','10/25',['新功能「除權息」：現金股利從除息日算進已實現損益（另外標成股利收入），配股會自動增加股數；持股要除權息時會提醒你記錄','重訓頁「這週訓練」會建議今天練哪些部位：休息最久的大肌群加一個小肌群，點「?」看建議怎麼來的；開始練後已練的部位會打勾','座右銘可以寫到 120 字，「自動備份」改名「自動備份／還原」並加上說明','新增內建動作：低位划船機、槓片式推胸機']],
  ['2026.10.24-5','10/24',['可以設定頭像、名字和座右銘（也能挑名言），今天頁會跟你打招呼','每個習慣有等級 Lv1–Lv10，累積越多天等級越高，升級會提醒','選動作可以依部位、肌群（例如上胸／中胸／下胸）、器材篩選，選了肌群會用小人圖說明位置；新增 3 個胸部動作','運動頁右下角多了 ＋，部位旁的 ＋ 可以直接加同部位動作，計時條移到最上面','運動頁最上面有「這週訓練」表，看得到每天練了哪些部位']],
  ['2026.10.23-10','10/23',['日記可以加 #標籤：彩色標籤、常用標籤按鈕，點標籤就看到所有相關日記，統計裡有標籤總覽','日記支援排版（粗體、斜體、刪除線、引用、清單、縮排）和超連結，編輯時上方有格式按鈕','日記可以分享成圖片或 HTML 檔，並會記下撰寫時間，補寫的日記會標出來','重訓可以「開始計時」，練完按結束自動填入重訓時間；動作可以用英文或「器材＋動作」搜尋','練了哪些部位新增「男生」「女生」角色，練到的肌肉直接上色；角色改用下拉選單','心情改成表情圖示']],
@@ -3742,7 +3821,7 @@ function render(){
   if(ui.view==='flog'&&(!ui.fl||!exById(ui.fl.ex)))ui.view='fit';
   var main=$('#main'),v=ui.view;
   $('#fitTab').hidden=!fOn();$('#tabs').classList.toggle('five',fOn());
-  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='report'?vReport():v==='hold'?vHold():v==='tag'?vTag():v==='sell'?vSell():v==='div'?vDiv():v==='faq'?vFaq():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
+  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='report'?vReport():v==='hold'?vHold():v==='tag'?vTag():v==='buy'?vBuy():v==='sell'?vSell():v==='div'?vDiv():v==='faq'?vFaq():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
   $('#tabs').hidden=(v==='faq'&&ui.faqBack&&ui.faqBack.view==='edit')||v==='edit'||v==='hold'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
   var tabv=v==='archived'||v==='changelog'||v==='faq'?'settings':v==='search'||v==='report'||v==='hold'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
@@ -4056,6 +4135,13 @@ function act(a,b){
     case 'divsave': divSave();return;
     case 'divdel': if(ui.confirmDel!=='div'){ui.confirmDel='div';toast('再按一次刪除');return;}ui.confirmDel=false;divDel();return;
     case 'divedit': var deo=db.divs.filter(function(x){return x.id===b.dataset.id;})[0];if(!deo)return;ui.err='';ui.dv={id:deo.id,d:deo.d,cash:r1x(deo.cash),stk:r1x(deo.ratio*10),amt:String(deo.amt),touched:true,paid:deo.paid};go('div');break;
+    case 'buynew': ui.err='';ui.confirm=null;ui.bd={d:todayKey(),isNew:!db.hold.length,code:'',shares:'',px:'',amt:'',touched:false};if(db.hold.length===1)buyOpen(db.hold[0]);go('buy');break;
+    case 'buypick': if(b.dataset.id==='new'){var bd0=ui.bd;ui.bd={d:bd0.d,isNew:true,code:'',shares:'',px:'',amt:'',touched:false};}else{var bx=db.hold.filter(function(x){return x.id===b.dataset.id;})[0];if(bx)buyOpen(bx);}ui.err='';break;
+    case 'buycancel': ui.err='';ui.bd=null;ui.confirm=null;go('stats');break;
+    case 'buysave': buySave();return;
+    case 'buyedit': var bo=db.buys.filter(function(x){return x.id===b.dataset.id;})[0];if(!bo)return;ui.err='';ui.confirm=null;ui.bd={id:bo.id};go('buy');break;
+    case 'buydel': if(ui.confirm!=='buydel'){ui.confirm='buydel';break;}buyDel();return;
+    case 'txf': ui.txF=b.dataset.v==='all'?null:b.dataset.v;ui.soldAll=false;break;
     case 'sellnew': ui.err='';ui.sd={d:todayKey(),shares:'',px:'',amt:'',neg:false,touched:false};if(db.hold.length===1)sellOpen(db.hold[0]);go('sell');break;
     case 'sellpick': var shx=db.hold.filter(function(x){return x.id===b.dataset.id;})[0];if(shx){var sdd=ui.sd&&ui.sd.d;sellOpen(shx);if(sdd)ui.sd.d=sdd;}break;
     case 'sellsign': ui.sd.neg=b.dataset.v==='1';ui.sd.touched=true;break;
@@ -4173,6 +4259,10 @@ document.addEventListener('input',function(e){
   else if(ui.dv&&(el.id==='divcash'||el.id==='divstk')){ui.dv[el.id==='divcash'?'cash':'stk']=el.value;divSync();}
   else if(ui.dv&&el.id==='divamt'){ui.dv.amt=el.value.replace(/[^0-9]/g,'');ui.dv.touched=true;}
   else if(ui.dv&&el.id==='divd'){if(isKey(el.value))ui.dv.d=el.value;}
+  else if(ui.bd&&(el.id==='buysh'||el.id==='buypx')){ui.bd[el.id==='buysh'?'shares':'px']=el.value;buySync();}
+  else if(ui.bd&&el.id==='buycode'){ui.bd.code=el.value.trim().toUpperCase();var pc0=pxOf(ui.bd.code),bpx=$('#buypx');if(pc0&&bpx&&!bpx.value){bpx.value=String(pc0.close);ui.bd.px=bpx.value;}buySync();}
+  else if(ui.bd&&el.id==='buyamt'){ui.bd.amt=el.value.replace(/[^0-9]/g,'');ui.bd.touched=!!ui.bd.amt;if(!ui.bd.touched)buySync();else{var pv2=$('#buyprev');if(pv2){var q2=buyPrevTxt(ui.bd);pv2.innerHTML=q2;pv2.hidden=!q2;}}}
+  else if(ui.bd&&el.id==='buyd'){var tk4=todayKey();if(isKey(el.value))ui.bd.d=el.value>tk4?tk4:el.value;}
   else if(ui.sd&&(el.id==='sellsh'||el.id==='sellpx')){ui.sd[el.id==='sellsh'?'shares':'px']=el.value;sellSync();}
   else if(ui.sd&&el.id==='sellamt'){ui.sd.amt=el.value.replace(/[^0-9]/g,'');ui.sd.touched=true;}
   else if(ui.sd&&el.id==='selld'){var tk3=todayKey();if(isKey(el.value))ui.sd.d=el.value>tk3?tk3:el.value;}
