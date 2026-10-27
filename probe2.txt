@@ -1,0 +1,65 @@
+######## 40315970769
+fetch	UNKNOWN STEP	2026-10-26T11:33:45.5963399Z TWSE 10
+fetch	UNKNOWN STEP	2026-10-26T11:33:45.5963813Z TPEx 63
+fetch	UNKNOWN STEP	2026-10-26T11:33:45.5964080Z unchanged 73 
+fetch	UNKNOWN STEP	2026-10-26T11:33:45.6116750Z ##[group]Run python3 tools/fetch_prices.py
+fetch	UNKNOWN STEP	2026-10-26T11:33:45.6117178Z ^[[36;1mpython3 tools/fetch_prices.py^[[0m
+fetch	UNKNOWN STEP	2026-10-26T11:33:45.6797977Z /home/runner/work/habits/habits/tools/fetch_prices.py:151: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0045978Z /home/runner/work/habits/habits/tools/fetch_prices.py:166: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0051752Z /home/runner/work/habits/habits/tools/fetch_prices.py:168: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0258806Z TWSE 2026-10-22 1344 site: no data yet
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0260459Z TPEx 2026-10-22 987 site: no data yet
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0261881Z unchanged 2026-10-22
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0520996Z ##[group]Run if [ -n "$(git status --porcelain prices.json prices-30.json dividends.json)" ]; then
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0522103Z ^[[36;1mif [ -n "$(git status --porcelain prices.json prices-30.json dividends.json)" ]; then^[[0m
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0524308Z ^[[36;1m  git add prices.json prices-30.json dividends.json 2>/dev/null || git add prices.json prices-30.json^[[0m
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0525374Z ^[[36;1m  git commit -m "prices: $(python3 -c 'import json;print(json.load(open("prices.json"))["d"])')"^[[0m
+fetch	UNKNOWN STEP	2026-10-26T11:34:00.0526098Z ^[[36;1m  git push^[[0m
+######## 40331301931
+fetch	UNKNOWN STEP	2026-10-26T13:31:27.8393549Z TWSE 10
+fetch	UNKNOWN STEP	2026-10-26T13:31:27.8393804Z TPEx 63
+fetch	UNKNOWN STEP	2026-10-26T13:31:27.8393968Z unchanged 73 
+fetch	UNKNOWN STEP	2026-10-26T13:31:27.8571338Z ##[group]Run python3 tools/fetch_prices.py
+fetch	UNKNOWN STEP	2026-10-26T13:31:27.8571559Z ^[[36;1mpython3 tools/fetch_prices.py^[[0m
+fetch	UNKNOWN STEP	2026-10-26T13:31:27.9183185Z /home/runner/work/habits/habits/tools/fetch_prices.py:151: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0442254Z /home/runner/work/habits/habits/tools/fetch_prices.py:166: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0443800Z /home/runner/work/habits/habits/tools/fetch_prices.py:168: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0512629Z TWSE 2026-10-22 1344 site: no data yet
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0513041Z TPEx 2026-10-22 987 site: no data yet
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0513283Z unchanged 2026-10-22
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0630284Z ##[group]Run if [ -n "$(git status --porcelain prices.json prices-30.json dividends.json)" ]; then
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0630665Z ^[[36;1mif [ -n "$(git status --porcelain prices.json prices-30.json dividends.json)" ]; then^[[0m
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0631385Z ^[[36;1m  git add prices.json prices-30.json dividends.json 2>/dev/null || git add prices.json prices-30.json^[[0m
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0631725Z ^[[36;1m  git commit -m "prices: $(python3 -c 'import json;print(json.load(open("prices.json"))["d"])')"^[[0m
+fetch	UNKNOWN STEP	2026-10-26T13:31:41.0631956Z ^[[36;1m  git push^[[0m
+######## 40378029512
+fetch	UNKNOWN STEP	2026-10-26T18:28:31.5002660Z TWSE 10
+fetch	UNKNOWN STEP	2026-10-26T18:28:31.5025026Z TPEx 63
+fetch	UNKNOWN STEP	2026-10-26T18:28:31.5025669Z unchanged 73 
+fetch	UNKNOWN STEP	2026-10-26T18:28:31.5166640Z ##[group]Run python3 tools/fetch_prices.py
+fetch	UNKNOWN STEP	2026-10-26T18:28:31.5167122Z ^[[36;1mpython3 tools/fetch_prices.py^[[0m
+fetch	UNKNOWN STEP	2026-10-26T18:28:31.5813922Z /home/runner/work/habits/habits/tools/fetch_prices.py:151: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.4854463Z /home/runner/work/habits/habits/tools/fetch_prices.py:166: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.4859711Z /home/runner/work/habits/habits/tools/fetch_prices.py:168: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.4956821Z TWSE 2026-10-22 1344 site: no data yet
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.4957408Z TPEx 2026-10-22 987 site: no data yet
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.4957896Z unchanged 2026-10-22
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.5092720Z ##[group]Run if [ -n "$(git status --porcelain prices.json prices-30.json dividends.json)" ]; then
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.5093571Z ^[[36;1mif [ -n "$(git status --porcelain prices.json prices-30.json dividends.json)" ]; then^[[0m
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.5095504Z ^[[36;1m  git add prices.json prices-30.json dividends.json 2>/dev/null || git add prices.json prices-30.json^[[0m
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.5096294Z ^[[36;1m  git commit -m "prices: $(python3 -c 'import json;print(json.load(open("prices.json"))["d"])')"^[[0m
+fetch	UNKNOWN STEP	2026-10-26T18:28:41.5096828Z ^[[36;1m  git push^[[0m
+######## 39989261533
+fetch	UNKNOWN STEP	2026-10-23T16:44:24.5501923Z ##[group]Run python3 tools/fetch_prices.py
+fetch	UNKNOWN STEP	2026-10-23T16:44:24.5502855Z ^[[36;1mpython3 tools/fetch_prices.py^[[0m
+fetch	UNKNOWN STEP	2026-10-23T16:44:24.6279740Z /home/runner/work/habits/habits/tools/fetch_prices.py:151: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4170869Z /home/runner/work/habits/habits/tools/fetch_prices.py:166: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4175058Z /home/runner/work/habits/habits/tools/fetch_prices.py:168: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datet
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4248903Z TWSE 2026-10-22 1344 site: no data yet
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4250176Z TPEx 2026-10-22 987 site: no data yet
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4251062Z unchanged 2026-10-22
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4462107Z ##[group]Run if [ -n "$(git status --porcelain prices.json prices-30.json)" ]; then
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4462878Z ^[[36;1mif [ -n "$(git status --porcelain prices.json prices-30.json)" ]; then^[[0m
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4464836Z ^[[36;1m  git add prices.json prices-30.json^[[0m
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4465391Z ^[[36;1m  git commit -m "prices: $(python3 -c 'import json;print(json.load(open("prices.json"))["d"])')"^[[0m
+fetch	UNKNOWN STEP	2026-10-23T16:44:47.4465975Z ^[[36;1m  git push^[[0m
