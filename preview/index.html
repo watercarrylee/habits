@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-E2aRhwr1VzKCsWp5q0SZOVnaaqJJ1RVoyn1FNiJ/E8Y='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-m95byAqOfIWm0LLz8GAzqZ9n12mLx6x0XLEcxvgKJ40='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -96,6 +96,7 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .sold-h{margin-top:18px}.sold-h .sold-t{margin:0}.bfseg{margin:4px 0 14px}.bfkind{margin-bottom:8px}.bf-f{grid-template-columns:1fr 1fr}.bf-f label:last-child:nth-child(3){grid-column:auto}
 .bf-row{width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;gap:10px;align-items:center}.bf-row.off{opacity:.55}.bf-row .hrow-l{flex:1;min-width:0}.bf-ck{flex:0 0 auto;width:22px;height:22px;border-radius:7px;background:var(--good);color:var(--on-good);font-size:14px;font-weight:900;display:inline-flex;align-items:center;justify-content:center}.bf-row.off .bf-ck{background:var(--surface);border:2px solid var(--line)}
 .bf-sum{display:flex;justify-content:space-between;align-items:baseline;margin:12px 2px}.bf-sum b{font-size:17px}
+.filltag{display:inline-flex;align-items:center;gap:6px;margin-top:3px;font-size:12px;font-weight:700;color:#8A6A1E;background:color-mix(in srgb,#C8962C 16%,var(--surface));border-radius:8px;padding:2px 7px;width:max-content;max-width:100%}.filltag.ok{color:var(--good);background:var(--good-soft)}.fillbar{flex:0 0 auto;width:40px;height:5px;border-radius:3px;background:color-mix(in srgb,#C8962C 30%,var(--surface));overflow:hidden}.fillbar i{display:block;height:100%;background:#C8962C}.fill-fill{color:var(--good);font-weight:700}.fill-prog{color:#B7791F;font-weight:700}.fill-exp{color:var(--muted)}.fillbox{margin:4px 0 14px}
 .divtag.buytag{background:color-mix(in srgb,#3C6E9E 14%,var(--surface));color:#3C6E9E}.divtag.selltag{background:color-mix(in srgb,var(--up) 12%,var(--surface));color:var(--up)}.txseg{margin:0 0 10px}.hbtns{flex-wrap:wrap;justify-content:flex-end}.sell-sign{margin:6px 0 8px}.sell-amt{box-sizing:border-box;width:100%;height:52px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 14px;font-size:24px;font-weight:800;color:var(--fg);font-family:inherit;font-variant-numeric:tabular-nums}
 .pnl-split{margin:4px 0 2px}
 .pnl-brk{margin:10px 0 4px;border-left:3px solid var(--line);padding-left:10px;font-size:13px}.pnl-brk div{display:flex;gap:8px;align-items:baseline;margin:3px 0;flex-wrap:wrap}.pnl-brk span{color:var(--muted);width:44px}.pnl-brk b{min-width:76px;text-align:right;font-variant-numeric:tabular-nums}.pnl-brk em{font-style:normal;color:var(--muted);font-size:12px}
@@ -951,7 +952,7 @@ function normHold(a){return (Array.isArray(a)?a:[]).filter(function(h){return h&
    add = shares added to the holding; paid = 已入帳 (cash arrives weeks after the ex-date; the amount still counts from the ex-date) */
 function normDivs(a){return (Array.isArray(a)?a:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.d)&&/^[0-9A-Z]{4,6}$/.test(String(x.code||''))&&isFinite(+x.amt)&&+x.shares>0;}).slice(0,3000)
   .map(function(x){return {id:cid(x.id),d:x.d,code:String(x.code),name:typeof x.name==='string'?x.name.replace(/[<>&"']/g,'').slice(0,20):'',shares:Math.min(1e9,Math.floor(+x.shares)),
-    cash:Math.max(0,Math.min(1e5,+x.cash||0)),amt:Math.round(Math.max(0,Math.min(1e12,+x.amt))),ratio:Math.max(0,Math.min(10,+x.ratio||0)),add:Math.max(0,Math.min(1e9,Math.floor(+x.add||0))),paid:!!x.paid,bf:x.bf===true?true:undefined};})
+    cash:Math.max(0,Math.min(1e5,+x.cash||0)),amt:Math.round(Math.max(0,Math.min(1e12,+x.amt))),ratio:Math.max(0,Math.min(10,+x.ratio||0)),add:Math.max(0,Math.min(1e9,Math.floor(+x.add||0))),paid:!!x.paid,bf:x.bf===true?true:undefined,pre:+x.pre>0?Math.round(Math.min(1e6,+x.pre)*10000)/10000:undefined,fill:isKey(x.fill)?x.fill:undefined,fd:+x.fd>0?Math.min(9999,Math.floor(+x.fd)):undefined,exp:x.exp===true?true:undefined};})
   .sort(function(x,y){return x.d<y.d?-1:x.d>y.d?1:0;});}
 /* 買入紀錄: amt = what was paid (price × shares + fee); ps/pc = shares and average cost before the buy, nc = average cost after (for 均價 → and undo) */
 function normBuys(a){return (Array.isArray(a)?a:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.d)&&/^[0-9A-Z]{4,6}$/.test(String(x.code||''))&&+x.shares>0&&+x.px>0&&+x.amt>0;}).slice(0,3000)
@@ -1767,7 +1768,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.28-2';
+var APP_VER='2026.10.28-3';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2446,7 +2447,7 @@ function divLoad(){var now=Date.now();if(now-divAt0<3*3600e3||!db.hold.length)re
 function pxLoad(cb){divLoad();var now=Date.now();if(now-pxAt<60000||!db.hold.length)return;pxAt=now;
   fetch('../prices.json?t='+now,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
     if(!j||!isKey(j.d)||!j.p||typeof j.p!=='object')return;var old=PX&&PX.d,ot=PX&&PX.t;PX={d:j.d,p:j.p,t:typeof j.t==='string'?j.t:''};
-    if((old!==PX.d||ot!==PX.t||cb)&&/^(today|stats|hold)$/.test(ui.view)&&!ui.sheet)render();holdAuto();if(cb)cb(true);}).catch(function(){if(cb)cb(false);});}
+    if((old!==PX.d||ot!==PX.t||cb)&&/^(today|stats|hold)$/.test(ui.view)&&!ui.sheet)render();holdAuto();fillTrack();if(cb)cb(true);}).catch(function(){if(cb)cb(false);});}
 function pxWhen(){var d=PX&&PX.t?new Date(PX.t):null;return d&&!isNaN(d)?(d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes()):'';}
 /* 自動優先: closes beat typed numbers. From the day holdings were last changed (settings.holdSince), every trading day
    with closes gets its P&L computed and saved, unless the day was edited by hand after its closes were out (pm).
@@ -2478,7 +2479,34 @@ function holdAuto(){if(!db.settings.pnl||!db.hold.length||!PX||ui.sheet)return;
   if(ui.histNeed&&hs<PX.d)gap=true;
   if(gap&&!PXH&&Date.now()-pxhAt>600000){pxhAt=Date.now();ui.histNeed=false;
     fetch('../prices-30.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
-      if(!j||!Array.isArray(j.d)||!j.c||typeof j.c!=='object'||!j.d.every(isKey))return;PXH={d:j.d,c:j.c};holdAuto();}).catch(function(){});}}
+      if(!j||!Array.isArray(j.d)||!j.c||typeof j.c!=='object'||!j.d.every(isKey))return;PXH={d:j.d,c:j.c};holdAuto();fillTrack();}).catch(function(){});}}
+/* 填息: for cash dividends with an ex-date on or after the day this feature started (settings.fillFrom), remember the close
+   before the ex-date (pre = the target) and the first day the close gets back to it (fill, fd = weekdays from the ex-date).
+   Not filled within a year → exp. Older dividends and 補登 ones (booked on the pay date) have no data. */
+function fillFrom(){var v=db.settings.fillFrom;return isKey(v)?v:'2026-10-28';} // the day 填息 tracking started
+function fillOn(x){return x&&x.cash>0&&!x.bf&&x.d>=fillFrom();}
+function fillWd(a,b){var n=0;for(var k=a;k<=b;k=addDays(k,1)){var w=parseKey(k).getDay();if(w>0&&w<6)n++;}return Math.max(1,n);}
+function fillTrack(){if(!PX||!db.divs||!db.divs.length)return;var t=todayKey(),ch=false,news=[],need=false;
+  db.divs.forEach(function(x){if(!fillOn(x)||x.fill||x.exp)return;
+    var m={},i;if(PXH){var r=PXH.c[x.code];if(r)PXH.d.forEach(function(d,j){if(+r[j]>0)m[d]=+r[j];});}var p=pxOf(x.code);if(p)m[PX.d]=p.close;
+    var ds=Object.keys(m).sort(),before=ds.filter(function(d){return d<x.d;}),after=ds.filter(function(d){return d>=x.d;});
+    if(before.length){var pv=m[before[before.length-1]];if(pv!==x.pre&&(PX.d<x.d||!x.pre)){x.pre=pv;ch=true;}}
+    else if(PX.d>=x.d&&!x.pre)need=true;
+    if(x.pre&&after.length){if(!PXH&&after[0]>addDays(x.d,4))need=true;
+      for(i=0;i<after.length;i++)if(m[after[i]]>=x.pre){x.fill=after[i];x.fd=fillWd(x.d,after[i]);ch=true;news.push(x);break;}}
+    if(!x.fill&&t>addDays(x.d,365)){x.exp=true;ch=true;}});
+  if(ch){save();if(/^(stats)$/.test(ui.view)&&!ui.sheet)render();}
+  var nw=news.filter(function(x){return diffDays(t,x.fill)<=3;})[0];if(nw)toast('🎉 '+(nw.name||nw.code)+' '+nw.fd+' 天填息',3500);
+  if(need&&!PXH&&Date.now()-pxhAt>600000){pxhAt=Date.now();fetch('../prices-30.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||!Array.isArray(j.d)||!j.c||typeof j.c!=='object'||!j.d.every(isKey))return;PXH={d:j.d,c:j.c};holdAuto();fillTrack();}).catch(function(){});}}
+/* what to show for one dividend: nodata / wait (not ex yet) / fill / exp / prog (pct 0–100, rem = 還差) */
+function fillInfo(x){if(!fillOn(x))return {st:'nodata'};if(x.fill)return {st:'fill',fd:x.fd||1,d:x.fill};if(x.exp)return {st:'exp'};
+  if(!PX||PX.d<x.d)return {st:'wait'};if(!x.pre)return {st:'nodata'};var p=pxOf(x.code);if(!p)return {st:'nodata'};
+  var pct=Math.max(0,Math.min(99,Math.floor((p.close-(x.pre-x.cash))/x.cash*100)));return {st:'prog',pct:pct,rem:Math.max(0,x.pre-p.close),close:p.close};}
+function fillTxt(f){return f.st==='fill'?f.fd+' 天填息':f.st==='exp'?'一年內未填息':f.st==='prog'?(f.pct>0?'填息中 '+f.pct+'%':'尚未填息'):f.st==='nodata'?'沒有資料':'';}
+function fillTag(code){var t=todayKey(),x=(db.divs||[]).filter(function(y){return y.code===code&&fillOn(y);}).sort(function(a,b){return a.d<b.d?1:-1;})[0];if(!x)return '';var f=fillInfo(x);
+  if(f.st==='fill'&&diffDays(t,f.d)<=3)return '<span class="filltag ok">✓ '+f.fd+' 天填息</span>';
+  if(f.st==='prog')return '<span class="filltag"><span class="fillbar"><i style="width:'+f.pct+'%"></i></span>'+(f.pct>0?'填息中 '+f.pct+'%':'尚未填息')+' · 還差 '+r1x(f.rem)+' 元</span>';return '';}
 function pxOf(code){var x=PX&&PX.p[code];return Array.isArray(x)&&+x[0]>0?{close:+x[0],ch:+x[1]||0,name:String(x[2]||'')}:null;}
 function holdCalc(){if(!PX||!db.hold.length)return null;var r={d:PX.d,mv:0,cost:0,day:0,rows:[],miss:[]};
   db.hold.forEach(function(h){var p=pxOf(h.code);if(!p){r.miss.push(h);return;}var v=h.shares*p.close,c=h.shares*h.cost;
@@ -2527,7 +2555,7 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
     if(r){big=mode==='day'?r.day:mode==='mv'?r.v:r.un;cls=mode==='mv'?'':pcls(big);big=mode==='mv'?fmtN(Math.round(big)):sgn(Math.round(big));}
     var cst=x.shares*x.cost,px=!r?'':mode==='un'?'<span class="muted">'+r.p.close+' · </span><span class="'+(h?'muted':pcls(r.un))+'">'+(h?'••%':cst>0?pctS(r.un/cst):'')+'</span>':
       '<span class="'+(h?'muted':pcls(r.p.ch))+'">'+r.p.close+' '+(r.p.ch>0?'▲':r.p.ch<0?'▼':'')+(r.p.close-r.p.ch>0?pctS(r.p.ch/(r.p.close-r.p.ch)).replace(/^[+−]/,''):'')+'</span>';
-    s+='<div class="hrow"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+esc(x.code)+' · '+lots(x.shares)+' · 成本 '+r1(x.cost)+(r&&c.mv?' · 佔 '+pct1(r.v/c.mv):'')+'</span>'+'</div>'+
+    s+='<div class="hrow"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+esc(x.code)+' · '+lots(x.shares)+' · 成本 '+r1(x.cost)+(r&&c.mv?' · 佔 '+pct1(r.v/c.mv):'')+'</span>'+fillTag(x.code)+'</div>'+
       (r?'<div class="hrow-r"><b class="'+(h?'':cls)+'">'+(h?MASK:big)+'</b>'+'<span class="small">'+px+'</span>'+'</div>':'<div class="hrow-r small muted">'+(PX?'找不到價格':'等待收盤價')+'</div>')+'</div>';});
   s+='</div>';
   s+='<div class="pxbar"><span class="small muted">'+(pxWhen()?'收盤價更新於 '+pxWhen():PX?shortMD(PX.d)+' 的收盤價':'還沒有收盤價')+'</span><button class="ghost pxre" data-act="pxrefresh">重新整理</button></div>';
@@ -2571,6 +2599,9 @@ function vDiv(){var dv=ui.dv,ed=!!dv.id,o=ed&&db.divs.filter(function(x){return 
       '<p class="hint">單筆 2 萬元以上會先扣 2.11% 二代健保補充保費，可以改成存摺或對帳單上的實際金額。</p></div>';
     s+='<div class="row-btn" style="background:var(--surface);border:1.5px solid var(--line);border-radius:16px"><span class="row-l"><span>已入帳</span><span class="row-sub">股利通常在除息後幾週才發放；不管入帳了沒，從除息日起就算進已實現</span></span>'+
       '<button class="switch" role="switch" aria-checked="'+!!dv.paid+'" aria-label="已入帳" data-act="divpaid"><span class="knob"></span></button></div>';
+    if(ed&&o.cash>0){var fi=fillInfo(o);if(fi.st!=='wait')s+='<div class="list fillbox"><div class="row-btn"><span>填息</span><b class="fill-'+fi.st+'">'+fillTxt(fi)+(fi.st==='prog'?'，還差 '+r1x(fi.rem)+' 元':'')+'</b></div>'+
+      (o.pre?'<div class="row-btn"><span>除息前收盤（目標價）</span><b>'+r1x(o.pre)+'</b></div>':'')+(fi.st==='prog'?'<div class="row-btn"><span>最新收盤</span><b>'+r1x(fi.close)+'</b></div>':'')+(o.fill?'<div class="row-btn"><span>填息日</span><b>'+o.fill.replace(/-/g,'/')+'</b></div>':'')+'</div>'+
+      (fi.st==='nodata'?'<p class="small muted">太早的除息或補登的股利，App 沒有當時的股價可以判斷有沒有填息。</p>':'');}
     if(ed)s+='<button class="ghost bad-t" data-act="divdel" style="width:100%">刪除這筆'+(o.add?'（配的 '+fmtN(o.add)+' 股會從持股扣回）':'')+'</button>';
     else s+='<p class="small muted">股利從除息日起算進「已實現」，所以除息當天股價下跌，總損益不會跟著掉；配股會自動加進持股，總成本不變、平均成本變低。</p>';}
   return s+'</div>';}
@@ -2598,7 +2629,7 @@ function soldHTML(){var nb=(db.buys||[]).length;if(!anySold()&&!nb)return '<div 
     if(x.nc!=null){s+='<button class="hrow sold-row" data-act="buyedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag buytag">買入</span></b><span class="small muted">'+dd+' · 買 '+lots(x.shares)+' @ '+x.px+'</span></div>'+
       '<div class="hrow-r"><b class="muted">'+(h?MASK:'−'+fmtN(x.amt))+'</b><span class="small muted">'+(x.ps?'均價 → '+r1(x.nc):'新持股')+'</span></div></button>';return;}
     if(x.cash!=null){s+='<button class="hrow sold-row" data-act="divedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag">股利</span></b><span class="small muted">'+dd+(x.bf?' 補登股利 · ':' 除權息 · ')+divDesc(x.cash,x.ratio)+(x.add?' · 配 '+fmtN(x.add)+' 股':'')+'</span></div>'+
-      '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(x.amt?(h?MASK:sgn(x.amt)):'—')+'</b><span class="small '+(x.paid?'muted':'warn-t')+'">'+(x.cash>0?(x.paid?'已入帳':x.d>t?'未除息':'待入帳'):'配股')+'</span></div></button>';return;}
+      '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(x.amt?(h?MASK:sgn(x.amt)):'—')+'</b><span class="small '+(x.paid?'muted':'warn-t')+'">'+(x.cash>0?(x.paid?'已入帳':x.d>t?'未除息':'待入帳'):'配股')+(x.cash>0&&fillTxt(fillInfo(x))?' · <span class="fill-'+fillInfo(x).st+'">'+fillTxt(fillInfo(x))+'</span>':'')+'</span></div></button>';return;}
     s+='<button class="hrow sold-row" data-act="selledit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag selltag">賣出</span></b><span class="small muted">'+dd+(x.shares?' · 賣 '+lots(x.shares)+(x.px?' @ '+x.px:''):' · 補登金額')+'</span></div>'+
       '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(h?MASK:sgn(x.amt))+'</b>'+(x.c>0?'<span class="small '+(h?'muted':pcls(x.amt))+'">'+(h?'••%':pctS(x.amt/x.c))+'</span>':'')+'</div></button>';});
   s+='</div>';if(list.length>5)s+='<button class="ghost" data-act="soldall">'+(ui.soldAll?'收起':'顯示全部 '+list.length+' 筆')+'</button>';
