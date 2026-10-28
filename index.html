@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-VXaaVCTIzyjy0b9hYF4kFJMsW12uFJU7vaZmpRmVV2c='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ueRUsMldrbHTbZk0PPGf8fPqJLhmVxZYnpG5oTwUhnw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -93,7 +93,7 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .sellpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.chip-add{border-style:dashed}.chip-add.on{border-style:solid}
 .buycode{display:flex;align-items:center;gap:10px}.buycode input{box-sizing:border-box;width:120px;height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 12px;font-size:16px;color:var(--fg);font-family:inherit;text-transform:uppercase}
 .buy-f{grid-template-columns:1fr 1fr 1.3fr}.buy-f label:last-child:nth-child(3){grid-column:auto}.buyprev{background:var(--good-soft);border-radius:16px;padding:12px 14px;margin:4px 0 12px;font-size:15px;line-height:1.7}.buyprev[hidden]{display:none}
-.sold-h{margin-top:18px}.sold-h .sold-t{margin:0}.bfseg{margin:4px 0 14px}.bf-f{grid-template-columns:1fr 1fr}.bf-f label:last-child:nth-child(3){grid-column:auto}
+.sold-h{margin-top:18px}.sold-h .sold-t{margin:0}.bfseg{margin:4px 0 14px}.bfkind{margin-bottom:8px}.bf-f{grid-template-columns:1fr 1fr}.bf-f label:last-child:nth-child(3){grid-column:auto}
 .bf-row{width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;gap:10px;align-items:center}.bf-row.off{opacity:.55}.bf-row .hrow-l{flex:1;min-width:0}.bf-ck{flex:0 0 auto;width:22px;height:22px;border-radius:7px;background:var(--good);color:var(--on-good);font-size:14px;font-weight:900;display:inline-flex;align-items:center;justify-content:center}.bf-row.off .bf-ck{background:var(--surface);border:2px solid var(--line)}
 .bf-sum{display:flex;justify-content:space-between;align-items:baseline;margin:12px 2px}.bf-sum b{font-size:17px}
 .divtag.buytag{background:color-mix(in srgb,#3C6E9E 14%,var(--surface));color:#3C6E9E}.divtag.selltag{background:color-mix(in srgb,var(--up) 12%,var(--surface));color:var(--up)}.txseg{margin:0 0 10px}.hbtns{flex-wrap:wrap;justify-content:flex-end}.sell-sign{margin:6px 0 8px}.sell-amt{box-sizing:border-box;width:100%;height:52px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 14px;font-size:24px;font-weight:800;color:var(--fg);font-family:inherit;font-variant-numeric:tabular-nums}
@@ -951,7 +951,7 @@ function normHold(a){return (Array.isArray(a)?a:[]).filter(function(h){return h&
    add = shares added to the holding; paid = 已入帳 (cash arrives weeks after the ex-date; the amount still counts from the ex-date) */
 function normDivs(a){return (Array.isArray(a)?a:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.d)&&/^[0-9A-Z]{4,6}$/.test(String(x.code||''))&&isFinite(+x.amt)&&+x.shares>0;}).slice(0,3000)
   .map(function(x){return {id:cid(x.id),d:x.d,code:String(x.code),name:typeof x.name==='string'?x.name.replace(/[<>&"']/g,'').slice(0,20):'',shares:Math.min(1e9,Math.floor(+x.shares)),
-    cash:Math.max(0,Math.min(1e5,+x.cash||0)),amt:Math.round(Math.max(0,Math.min(1e12,+x.amt))),ratio:Math.max(0,Math.min(10,+x.ratio||0)),add:Math.max(0,Math.min(1e9,Math.floor(+x.add||0))),paid:!!x.paid};})
+    cash:Math.max(0,Math.min(1e5,+x.cash||0)),amt:Math.round(Math.max(0,Math.min(1e12,+x.amt))),ratio:Math.max(0,Math.min(10,+x.ratio||0)),add:Math.max(0,Math.min(1e9,Math.floor(+x.add||0))),paid:!!x.paid,bf:x.bf===true?true:undefined};})
   .sort(function(x,y){return x.d<y.d?-1:x.d>y.d?1:0;});}
 /* 買入紀錄: amt = what was paid (price × shares + fee); ps/pc = shares and average cost before the buy, nc = average cost after (for 均價 → and undo) */
 function normBuys(a){return (Array.isArray(a)?a:[]).filter(function(x){return x&&cid(x.id)&&isKey(x.d)&&/^[0-9A-Z]{4,6}$/.test(String(x.code||''))&&+x.shares>0&&+x.px>0&&+x.amt>0;}).slice(0,3000)
@@ -1767,7 +1767,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.28-1';
+var APP_VER='2026.10.28-2';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2585,7 +2585,7 @@ function divSave(){var dv=ui.dv,c=divCalc(dv),td=todayKey(),d=isKey(dv.d)?dv.d:t
 function divDel(){var dv=ui.dv,o=dv&&db.divs.filter(function(x){return x.id===dv.id;})[0];if(!o)return;
   if(o.add>0){var h=db.hold.filter(function(x){return x.code===o.code;})[0];if(h){var ns=Math.max(0,h.shares-o.add);if(ns>0){h.cost=Math.round(h.cost*h.shares/ns*10000)/10000;h.shares=ns;}else db.hold=db.hold.filter(function(x){return x!==h;});}sellRecalc(o.d<=todayKey()?o.d:todayKey());}
   db.divs=db.divs.filter(function(x){return x!==o;});save();ui.dv=null;go('stats');ui.statTab='pnl';render();toast('已刪除');}
-function soldHTML(){var nb=(db.buys||[]).length;if(!anySold()&&!nb)return '<div class="sec-row sold-h"><h3 class="sold-t">交易紀錄</h3><button class="ghost" data-act="bfnew">＋ 補登</button></div><p class="small muted">以前賣掉的股票，可以用「補登」把已實現損益加進來。</p>';var h=hid(),t=todayKey(),tot=realAt(t),yr=0,y0=t.slice(0,4),dvt=divAt(t);db.sold.concat(db.divs||[]).forEach(function(x){if(x.d.slice(0,4)===y0&&x.d<=t)yr+=x.amt;});
+function soldHTML(){var nb=(db.buys||[]).length;if(!anySold()&&!nb)return '<div class="sec-row sold-h"><h3 class="sold-t">交易紀錄</h3><button class="ghost" data-act="bfnew">＋ 補登</button></div><p class="small muted">以前賣掉的股票或領過的股利，可以用「補登」把已實現損益加進來。</p>';var h=hid(),t=todayKey(),tot=realAt(t),yr=0,y0=t.slice(0,4),dvt=divAt(t);db.sold.concat(db.divs||[]).forEach(function(x){if(x.d.slice(0,4)===y0&&x.d<=t)yr+=x.amt;});
   var F=/^(buy|sell|div)$/.test(ui.txF||'')?ui.txF:'all',src=F==='buy'?db.buys:F==='sell'?db.sold:F==='div'?(db.divs||[]):db.sold.concat(db.divs||[],db.buys||[]);
   var list=src.slice().sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0;}).reverse(),n=ui.soldAll?list.length:Math.min(5,list.length);
   var s='<div class="sec-row sold-h"><h3 class="sold-t">交易紀錄</h3><button class="ghost" data-act="bfnew">＋ 補登</button></div>';
@@ -2597,7 +2597,7 @@ function soldHTML(){var nb=(db.buys||[]).length;if(!anySold()&&!nb)return '<div 
   list.slice(0,n).forEach(function(x){var p=pxOf(x.code),dd=shortMD(x.d)+(x.d.slice(0,4)!==y0?' '+x.d.slice(0,4):'');
     if(x.nc!=null){s+='<button class="hrow sold-row" data-act="buyedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag buytag">買入</span></b><span class="small muted">'+dd+' · 買 '+lots(x.shares)+' @ '+x.px+'</span></div>'+
       '<div class="hrow-r"><b class="muted">'+(h?MASK:'−'+fmtN(x.amt))+'</b><span class="small muted">'+(x.ps?'均價 → '+r1(x.nc):'新持股')+'</span></div></button>';return;}
-    if(x.cash!=null){s+='<button class="hrow sold-row" data-act="divedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag">股利</span></b><span class="small muted">'+dd+' 除權息 · '+divDesc(x.cash,x.ratio)+(x.add?' · 配 '+fmtN(x.add)+' 股':'')+'</span></div>'+
+    if(x.cash!=null){s+='<button class="hrow sold-row" data-act="divedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag">股利</span></b><span class="small muted">'+dd+(x.bf?' 補登股利 · ':' 除權息 · ')+divDesc(x.cash,x.ratio)+(x.add?' · 配 '+fmtN(x.add)+' 股':'')+'</span></div>'+
       '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(x.amt?(h?MASK:sgn(x.amt)):'—')+'</b><span class="small '+(x.paid?'muted':'warn-t')+'">'+(x.cash>0?(x.paid?'已入帳':x.d>t?'未除息':'待入帳'):'配股')+'</span></div></button>';return;}
     s+='<button class="hrow sold-row" data-act="selledit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag selltag">賣出</span></b><span class="small muted">'+dd+(x.shares?' · 賣 '+lots(x.shares)+(x.px?' @ '+x.px:''):' · 補登金額')+'</span></div>'+
       '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(h?MASK:sgn(x.amt))+'</b>'+(x.c>0?'<span class="small '+(h?'muted':pcls(x.amt))+'">'+(h?'••%':pctS(x.amt/x.c))+'</span>':'')+'</div></button>';});
@@ -2729,6 +2729,7 @@ function vHold(){var d=ui.hd;
   return s+'</div>';}
 /* 貼上匯入: any outside AI reads the broker screenshot with this prompt; the app only parses and checks the text */
 var BF_PROMPT='請看我附上的券商「已實現損益」截圖（可能有好幾張），把每一筆賣出整理成下面的格式，每筆一行，不要表頭、不要其他說明：\n賣出日期, 股票代號, 賣出股數, 成交價, 已實現損益\n\n規則：\n1. 日期寫成 YYYY-MM-DD，例如 2026-03-12。截圖沒有年份就用今年。\n2. 股票代號是 4–6 碼，例如 2330、0050、00679B。截圖只有名稱時，填你確定的代號；不確定就直接填股票名稱。\n3. 股數用「股」：1 張 = 1000 股。不要加千分位逗號。\n4. 已實現損益是券商算好的那個金額（已扣手續費和稅），虧損前面加負號，例如 -18600。不要加千分位逗號、$ 或「元」。\n5. 截圖沒有股數或成交價就留空，例如：2026-08-15, 2882, , , 4800\n6. 看不清楚的數字，在那一行最後加上「?」。\n\n範例：\n2026-03-12, 2330, 1000, 980, 52300\n2026-05-06, 2454, 200, 1420, -18600';
+var BFD_PROMPT='請看我附上的券商「股利／配息」截圖（可能有好幾張），把每一筆現金股利整理成下面的格式，每筆一行，不要表頭、不要其他說明：\n日期, 股票代號, 股數, 現金股利金額\n\n規則：\n1. 日期用截圖上的發放日（沒有就用除息日），寫成 YYYY-MM-DD，例如 2026-07-09。截圖沒有年份就用今年。\n2. 股票代號是 4–6 碼，例如 2330、0050、00679B。截圖只有名稱時，填你確定的代號；不確定就直接填股票名稱。\n3. 股數是領股利時持有的股數（除息股數），用「股」，不要加千分位逗號。\n4. 金額是這一筆領到的現金股利總額，不要加千分位逗號、$ 或「元」。只要現金股利，股票股利（配股）不要列。\n5. 看不清楚的數字，在那一行最後加上「?」。\n\n範例：\n2026-07-09, 2330, 1240, 7440\n2026-08-10, 0050, 23000, 13800';
 function bfNum(v){v=String(v==null?'':v).replace(/[,\s$元]/g,'').replace(/[−–—]/g,'-').replace(/^\+/,'');return v===''?null:/^-?\d+(\.\d+)?$/.test(v)?+v:NaN;}
 function bfDate(v){var t=todayKey(),m=String(v||'').trim().match(/^(?:(\d{4})[-\/.])?(\d{1,2})[-\/.](\d{1,2})$/);if(!m)return null;
   var k=(m[1]||t.slice(0,4))+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);return isKey(k)&&k<=t&&k>='2000-01-01'?k:null;}
@@ -2744,10 +2745,39 @@ function bfParse(text){var rows=[],seen={};String(text||'').split(/\r?\n/).forEa
   r.code=code;r.shares=sh>0?Math.floor(sh):0;r.px=px>0&&r.shares?px:0;r.amt=Math.round(amt);
   var k=r.d+'|'+code+'|'+r.amt;r.dup=db.sold.some(function(x){return x.d===r.d&&x.code===code&&(x.amt===r.amt||(r.shares&&x.shares===r.shares));})?'交易紀錄裡已經有同一天、同一檔的賣出':seen[k]?'跟上面某一行一樣':'';
   seen[k]=1;r.on=!r.dup;rows.push(r);});return rows;}
+function bfDivParse(text){var rows=[],seen={};String(text||'').split(/\r?\n/).forEach(function(raw,i){var ln=raw.trim();if(!ln)return;
+  var unsure=/[?？]\s*$/.test(ln);ln=ln.replace(/[?？]\s*$/,'');var f=ln.split(/\s*[,，\t]\s*/),r={line:i+1,raw:raw.trim(),unsure:unsure,div:true};
+  if(f.length!==4){r.err=f.length>4?'欄位太多（數字不要加千分位逗號）':'格式不對，要 4 個欄位';rows.push(r);return;}
+  r.d=bfDate(f[0]);var code=bfCode(f[1]),sh=bfNum(f[2]),amt=bfNum(f[3]);
+  if(!r.d){r.err='日期看不懂或是未來的日子';rows.push(r);return;}
+  if(!code){r.err='股票代號要 4～6 碼';rows.push(r);return;}
+  if(!(sh>0)){r.err='股數要大於 0';rows.push(r);return;}
+  if(!(amt>0)){r.err='股利金額要大於 0';rows.push(r);return;}
+  r.code=code;r.shares=Math.floor(sh);r.amt=Math.round(amt);
+  var k=code+'|'+r.amt+'|'+r.d;r.dup=(db.divs||[]).some(function(x){return x.code===code&&(x.amt===r.amt||Math.abs(diffDays(x.d,r.d))<=45);})?'交易紀錄裡這檔附近已經有一筆股利':seen[k]?'跟上面某一行一樣':'';
+  seen[k]=1;r.on=!r.dup;rows.push(r);});return rows;}
+function bfCode(v){var c=String(v||'').trim().toUpperCase();if(/^[0-9A-Z]{4,6}$/.test(c))return c;var n=String(v||'').trim();
+  return PX&&PX.p&&n?Object.keys(PX.p).filter(function(k){return PX.p[k][2]===n;})[0]||null:null;}
+function bfDivRec(r){var p=pxOf(r.code);return {id:uid(),d:r.d,code:r.code,name:(p&&p.name)||'',shares:r.shares,cash:Math.round(r.amt/r.shares*10000)/10000,amt:r.amt,ratio:0,add:0,paid:true,bf:true};}
 function bfRec(r){var p=pxOf(r.code),c=r.shares&&r.px?Math.round(r.px*r.shares-r.amt):0;return {id:uid(),d:r.d,code:r.code,name:(p&&p.name)||'',shares:r.shares,px:r.px,amt:r.amt,c:c>0?c:0,bf:true};}
+function bfSaveDiv(){var bf=ui.bf,d=bfDate(bf.d),code=bfCode(bf.code),sh=bfNum(bf.shares),a=bfNum(bf.amt);
+  if(!d){ui.err='請選擇發放日。';render();return;}
+  if(!code){ui.err='請輸入股票代號（4～6 碼）。';render();return;}
+  if(!(sh>0)){ui.err='請輸入除息股數。';render();return;}
+  if(!(a>0)){ui.err='請輸入股利金額。';render();return;}
+  db.divs.push(bfDivRec({d:d,code:code,shares:Math.floor(sh),amt:Math.round(a)}));db.divs=normDivs(db.divs);save();ui.bf=null;ui.err='';ui.txF=null;go('stats');ui.statTab='pnl';render();toast('已補登股利 '+sgn(Math.round(a)));}
 function vBackfill(){var bf=ui.bf,h=hid(),s='<div class="page"><header class="editbar"><button class="textbtn" data-act="bfcancel">取消</button><h1 class="edit-t">補登已實現損益</h1>'+
     (bf.mode==='one'?'<button class="textbtn strong" data-act="bfsave1">儲存</button>':'<span style="width:44px"></span>')+'</header>'+(ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'');
+  var DV=bf.kind==='div';
+  s+='<div class="seg bfseg bfkind">'+[['sell','賣出的損益'],['div','股利']].map(function(o){var on=(bf.kind||'sell')===o[0];return '<button class="'+(on?'on':'')+'" data-act="bfkind" data-v="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+'</button>';}).join('')+'</div>';
   s+='<div class="seg bfseg">'+[['paste','從截圖匯入'],['one','手動一筆']].map(function(o){var on=bf.mode===o[0];return '<button class="'+(on?'on':'')+'" data-act="bfmode" data-v="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+'</button>';}).join('')+'</div>';
+  if(bf.mode==='one'&&DV){var pd=pxOf(bf.code);
+    s+='<div class="hedit-f sell-f bf-f"><label>發放日<input id="bfd" class="datein" type="date" min="2000-01-01" max="'+todayKey()+'" value="'+bf.d+'"></label>'+
+      '<label>股票代號<input id="bfcode" type="text" autocapitalize="characters" autocomplete="off" maxlength="6" placeholder="例如 2330" value="'+esc(bf.code)+'"></label>'+
+      '<label>除息股數<input id="bfsh" type="text" inputmode="numeric" value="'+esc(bf.shares)+'"></label><label>股利金額<input id="bfamt" type="text" inputmode="numeric" value="'+esc(bf.amt)+'"></label></div>'+
+      '<p class="hint" id="bfname">'+(pd?esc(pd.name):'')+'</p>'+
+      '<p class="small muted">只記現金股利；配股（股票股利）的股數已經在你的持股裡，不用補。會算進已實現損益的「其中股利」，不會動到持股。</p>';
+    return s+'</div>';}
   if(bf.mode==='one'){var p=pxOf(bf.code);
     s+='<div class="hedit-f sell-f bf-f"><label>賣出日期<input id="bfd" class="datein" type="date" min="2000-01-01" max="'+todayKey()+'" value="'+bf.d+'"></label>'+
       '<label>股票代號<input id="bfcode" type="text" autocapitalize="characters" autocomplete="off" maxlength="6" placeholder="例如 2330" value="'+esc(bf.code)+'"></label>'+
@@ -2758,23 +2788,23 @@ function vBackfill(){var bf=ui.bf,h=hid(),s='<div class="page"><header class="ed
       '<input id="bfamt" class="sell-amt" type="text" inputmode="numeric" value="'+esc(bf.amt)+'" placeholder="0" aria-label="已實現損益金額"></div>'+
       '<p class="small muted">填券商算好的金額（已扣手續費和稅）。有填股數和成交價，交易紀錄會多顯示報酬率。不會動到目前的持股。</p>';
     return s+'</div>';}
-  s+='<ol class="small muted hp-steps"><li>按「複製提示詞」，連同券商「已實現損益」截圖一起丟給任何 AI（Claude、ChatGPT…）。</li><li>把 AI 回覆的文字貼到下面。</li><li>核對預覽，勾選要存的再存入。</li></ol>'+
-    '<button class="secondary hp-copy" data-act="bfcopy">複製提示詞</button><details class="hp-prompt"><summary class="small muted">看提示詞內容</summary><textarea id="bfprompt" readonly rows="9">'+esc(BF_PROMPT)+'</textarea></details>'+
-    '<label class="sr" for="bftext">貼上 AI 的回覆</label><textarea id="bftext" rows="7" placeholder="2026-03-12, 2330, 1000, 980, 52300&#10;2026-05-06, 2454, 200, 1420, -18600">'+esc(bf.text||'')+'</textarea>'+
+  s+='<ol class="small muted hp-steps"><li>按「複製提示詞」，連同券商'+(DV?'「股利／配息」':'「已實現損益」')+'截圖一起丟給任何 AI（Claude、ChatGPT…）。</li><li>把 AI 回覆的文字貼到下面。</li><li>核對預覽，勾選要存的再存入。</li></ol>'+
+    '<button class="secondary hp-copy" data-act="bfcopy">複製提示詞</button><details class="hp-prompt"><summary class="small muted">看提示詞內容</summary><textarea id="bfprompt" readonly rows="9">'+esc(DV?BFD_PROMPT:BF_PROMPT)+'</textarea></details>'+
+    '<label class="sr" for="bftext">貼上 AI 的回覆</label><textarea id="bftext" rows="7" placeholder="'+(DV?'2026-07-09, 2330, 1240, 7440&#10;2026-08-10, 0050, 23000, 13800':'2026-03-12, 2330, 1000, 980, 52300&#10;2026-05-06, 2454, 200, 1420, -18600')+'">'+esc(bf.text||'')+'</textarea>'+
     '<button class="primary" style="width:100%" data-act="bfcheck">預覽</button>';
   if(bf.rows){var good=bf.rows.filter(function(r){return !r.err;}),on=good.filter(function(r){return r.on;}),sum=on.reduce(function(a,r){return a+r.amt;},0),bad=bf.rows.length-good.length;
     s+='<div class="list hp-list bf-list">'+bf.rows.map(function(r,i){var p=r.code&&pxOf(r.code);
       if(r.err)return '<div class="hrow hp-bad"><div class="hrow-l"><b>第 '+r.line+' 行</b><span class="small muted">'+esc(r.raw)+'</span><span class="small bad-t">'+esc(r.err)+'，會略過</span></div></div>';
       var warn=[r.dup?r.dup+'，預設不勾':'',r.unsure?'AI 標記不確定，請核對':'',!p&&PX?'沒有這個代號的收盤價，請確認代號':''].filter(Boolean).join(' · '),pc=r.shares&&r.px&&r.px*r.shares-r.amt>0?r.amt/(r.px*r.shares-r.amt):null;
-      return '<button class="hrow bf-row'+(r.on?'':' off')+'" data-act="bftog" data-i="'+i+'" aria-pressed="'+r.on+'"><span class="bf-ck" aria-hidden="true">'+(r.on?'✓':'')+'</span><div class="hrow-l"><b>'+esc((p&&p.name)||r.code)+'</b><span class="small muted">'+shortMD(r.d)+(r.d.slice(0,4)!==todayKey().slice(0,4)?' '+r.d.slice(0,4):'')+' · '+(r.shares?'賣 '+lots(r.shares)+(r.px?' @ '+r.px:''):'只有金額')+'</span>'+(warn?'<span class="small warn-t">'+esc(warn)+'</span>':'')+'</div>'+
+      return '<button class="hrow bf-row'+(r.on?'':' off')+'" data-act="bftog" data-i="'+i+'" aria-pressed="'+r.on+'"><span class="bf-ck" aria-hidden="true">'+(r.on?'✓':'')+'</span><div class="hrow-l"><b>'+esc((p&&p.name)||r.code)+'</b><span class="small muted">'+shortMD(r.d)+(r.d.slice(0,4)!==todayKey().slice(0,4)?' '+r.d.slice(0,4):'')+' · '+(r.div?'股利 · '+lots(r.shares):r.shares?'賣 '+lots(r.shares)+(r.px?' @ '+r.px:''):'只有金額')+'</span>'+(warn?'<span class="small warn-t">'+esc(warn)+'</span>':'')+'</div>'+
         '<div class="hrow-r"><b class="'+(h?'':pcls(r.amt))+'">'+(h?MASK:sgn(r.amt))+'</b>'+(pc!==null?'<span class="small '+(h?'muted':pcls(r.amt))+'">'+(h?'••%':pctS(pc))+'</span>':'')+'</div></button>';}).join('')+'</div>';
     s+='<div class="bf-sum"><span>勾選 '+on.length+' 筆'+(bad?'（'+bad+' 行有問題會略過）':'')+'，合計</span><b class="'+(h?'':pcls(sum))+'">'+(h?MASK:sgn(sum))+'</b></div>'+
       '<button class="primary" style="width:100%" data-act="bfsave"'+(on.length?'':' disabled')+'>存入 '+on.length+' 筆</button>'+
-      '<p class="small muted">只會加進已實現損益，不會動到目前的持股和未實現。之後在交易紀錄點一筆可以修改或刪除。</p>';}
+      '<p class="small muted">'+(DV?'會算進已實現損益的「其中股利」，標成已入帳；':'只會加進已實現損益，')+'不會動到目前的持股和未實現。之後在交易紀錄點一筆可以修改或刪除。</p>';}
   return s+'</div>';}
 function bfSaveRows(){var bf=ui.bf,on=(bf.rows||[]).filter(function(r){return !r.err&&r.on;});if(!on.length)return;
-  on.forEach(function(r){db.sold.push(bfRec(r));});db.sold=normSold(db.sold);save();ui.bf=null;ui.err='';ui.txF=null;go('stats');ui.statTab='pnl';render();toast('已補登 '+on.length+' 筆');}
-function bfSaveOne(){var bf=ui.bf,d=bfDate(bf.d),code=String(bf.code||'').trim().toUpperCase(),sh=bfNum(bf.shares),px=bfNum(bf.px),a=bfNum(bf.amt);
+  on.forEach(function(r){if(r.div)db.divs.push(bfDivRec(r));else db.sold.push(bfRec(r));});db.sold=normSold(db.sold);db.divs=normDivs(db.divs);save();ui.bf=null;ui.err='';ui.txF=null;go('stats');ui.statTab='pnl';render();toast('已補登 '+on.length+' 筆');}
+function bfSaveOne(){if(ui.bf.kind==='div'){bfSaveDiv();return;}var bf=ui.bf,d=bfDate(bf.d),code=String(bf.code||'').trim().toUpperCase(),sh=bfNum(bf.shares),px=bfNum(bf.px),a=bfNum(bf.amt);
   if(!d){ui.err='請選擇賣出日期。';render();return;}
   if(!/^[0-9A-Z]{4,6}$/.test(code)){ui.err='請輸入股票代號（4～6 碼）。';render();return;}
   if(a===null||isNaN(a)||a<0){ui.err='請輸入已實現損益金額。';render();return;}
@@ -4230,8 +4260,9 @@ function act(a,b){
     case 'bfnew': ui.err='';ui.bf={mode:'paste',text:'',rows:null,d:todayKey(),code:'',shares:'',px:'',amt:'',neg:false};go('bf');break;
     case 'bfcancel': ui.err='';ui.bf=null;go('stats');break;
     case 'bfmode': if(ui.bf){ui.bf.mode=b.dataset.v==='one'?'one':'paste';ui.err='';}break;
-    case 'bfcopy': try{navigator.clipboard.writeText(BF_PROMPT).then(function(){toast('提示詞已複製');},function(){var d=$('.hp-prompt');if(d)d.open=true;var ta=$('#bfprompt');if(ta){ta.focus();ta.select();}toast('請長按選取提示詞後拷貝');});}catch(e){}return;
-    case 'bfcheck': var bt=$('#bftext');if(bt)ui.bf.text=bt.value;ui.bf.rows=bfParse(ui.bf.text);ui.err=ui.bf.rows.length?'':'請先貼上 AI 的回覆。';if(ui.bf.rows.length)setTimeout(function(){var l=$('.bf-list');if(l&&l.scrollIntoView)l.scrollIntoView({behavior:'smooth',block:'start'});},50);break;
+    case 'bfcopy': try{navigator.clipboard.writeText(ui.bf&&ui.bf.kind==='div'?BFD_PROMPT:BF_PROMPT).then(function(){toast('提示詞已複製');},function(){var d=$('.hp-prompt');if(d)d.open=true;var ta=$('#bfprompt');if(ta){ta.focus();ta.select();}toast('請長按選取提示詞後拷貝');});}catch(e){}return;
+    case 'bfkind': if(ui.bf){var nk=b.dataset.v==='div'?'div':'sell';if(nk!==(ui.bf.kind||'sell')){ui.bf.kind=nk;ui.bf.rows=null;ui.bf.text='';ui.err='';}}break;
+    case 'bfcheck': var bt=$('#bftext');if(bt)ui.bf.text=bt.value;ui.bf.rows=ui.bf.kind==='div'?bfDivParse(ui.bf.text):bfParse(ui.bf.text);ui.err=ui.bf.rows.length?'':'請先貼上 AI 的回覆。';if(ui.bf.rows.length)setTimeout(function(){var l=$('.bf-list');if(l&&l.scrollIntoView)l.scrollIntoView({behavior:'smooth',block:'start'});},50);break;
     case 'bftog': var br=ui.bf&&ui.bf.rows&&ui.bf.rows[+b.dataset.i];if(br&&!br.err)br.on=!br.on;break;
     case 'bfsave': bfSaveRows();return;
     case 'bfsave1': bfSaveOne();return;
