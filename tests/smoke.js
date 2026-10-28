@@ -855,6 +855,21 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(/元大台灣50/.test(await hp.innerText('#bfname')), 'backfill: code shows the name');
     await hp.fill('#bfamt', '5000'); await hp.click('[data-act=bfsign][data-v="1"]'); await hp.click('[data-act=bfsave1]'); await hp.waitForTimeout(300); d = await db(hp);
     ok(d.sold.some(x => x.bf && x.code === '0050' && x.amt === -5000 && x.d === daysAgo(40)), 'backfill: one sale entered by hand');
+    await hp.click('[data-act=bfnew]'); await hp.click('[data-act=bfkind][data-v=div]');
+    ok(/股利／配息/.test(await hp.innerText('main')), 'backfill dividends: own instructions');
+    await hp.fill('#bftext', [daysAgo(50) + ', 2330, 1240, 7440', daysAgo(60) + ', 元大台灣50, 23000, 13800', daysAgo(55) + ', 2330, 1240, 7440, 1', daysAgo(5) + ', 0050, , 100'].join('\n'));
+    await hp.click('[data-act=bfcheck]');
+    ok((await hp.$$('.bf-row')).length === 2 && (await hp.$$('.hp-bad')).length === 2 && /\+21,240/.test(await hp.innerText('.bf-sum')), 'backfill dividends: 2 rows (name → code), 2 bad lines, total');
+    await hp.click('[data-act=bfsave]'); await hp.waitForTimeout(300); d = await db(hp);
+    const dv = d.divs.filter(x => x.bf); ok(dv.length === 2 && dv.some(x => x.code === '0050' && x.amt === 13800 && x.shares === 23000 && x.paid && x.cash === 0.6), 'backfill dividends: saved as paid dividends');
+    ok(d.hold.length === 1 && d.hold[0].shares === 2000, 'backfill dividends: holdings untouched');
+    ok(/補登股利/.test(await hp.innerText('main')) && /其中股利\s*\+21,240/.test(await hp.innerText('main')), 'backfill dividends: listed and counted in 其中股利');
+    await hp.click('[data-act=bfnew]'); await hp.click('[data-act=bfkind][data-v=div]'); await hp.click('[data-act=bfmode][data-v=one]');
+    await hp.fill('#bfd', daysAgo(70)); await hp.fill('#bfcode', '2330'); await hp.fill('#bfsh', '1000'); await hp.fill('#bfamt', '4500'); await hp.click('[data-act=bfsave1]'); await hp.waitForTimeout(300); d = await db(hp);
+    ok(d.divs.some(x => x.bf && x.amt === 4500 && x.d === daysAgo(70)), 'backfill dividends: one entered by hand');
+    await hp.click('[data-act=bfnew]'); await hp.click('[data-act=bfkind][data-v=div]'); await hp.fill('#bftext', daysAgo(69) + ', 2330, 1000, 4500'); await hp.click('[data-act=bfcheck]');
+    ok(await hp.$eval('.bf-row', e => e.classList.contains('off')), 'backfill dividends: likely duplicate unticked');
+    await hp.click('[data-act=bfcancel]');
     await done(hp, 'backfill');
   }
 
