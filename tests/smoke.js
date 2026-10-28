@@ -822,6 +822,42 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'buy');
   }
 
+  console.log('• 補登已實現損益');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    await hp.route('**/prices.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: T, t: 'x', p: { '2330': [1100, 10, '台積電'], '0050': [190, 1, '元大台灣50'] } }) }));
+    await hp.route('**/prices-30.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: [], c: {} }) }));
+    await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); } },
+      { v: 1, settings: { pnl: true, onboarded: true, holdSince: daysAgo(3) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], logs: {},
+        hold: [{ id: 'h1', code: '2330', shares: 2000, cost: 1000 }], sold: [{ id: 's1', d: daysAgo(10), code: '2330', name: '台積電', shares: 500, px: 1000, amt: 3000, c: 497000 }] });
+    await hp.goto(BASE); await hp.waitForTimeout(400);
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-act=bfnew]'); ok(/補登已實現損益/.test(await hp.innerText('main')), 'backfill: page opens from 交易紀錄');
+    await hp.fill('#bftext', [daysAgo(30) + ', 2330, 1000, 980, 52300', daysAgo(20) + ', 0050, , , -1,200', daysAgo(20) + ', 0050, , , −1200 ?', daysAgo(10) + ', 2330, 500, 1000, 3000', 'hello'].join('\n'));
+    await hp.click('[data-act=bfcheck]');
+    ok((await hp.$$('.bf-row')).length === 3 && (await hp.$$('.hp-bad')).length === 2, 'backfill: 3 rows parsed, 2 bad lines shown');
+    ok(await hp.$eval('.bf-row >> nth=2', e => e.classList.contains('off')) && /已經有同一天/.test(await hp.innerText('.bf-list')), 'backfill: duplicate of an existing sale is unticked');
+    ok(/不確定/.test(await hp.innerText('.bf-list')), 'backfill: unsure lines flagged');
+    ok(/勾選 2 筆/.test(await hp.innerText('.bf-sum')) && /\+51,100/.test(await hp.innerText('.bf-sum')), 'backfill: count and total of ticked rows');
+    await hp.click('[data-act=bfsave]'); await hp.waitForTimeout(300); let d = await db(hp);
+    ok(d.sold.length === 3 && d.sold.filter(x => x.bf).length === 2, 'backfill: rows saved as backfilled sales');
+    const ao = d.sold.find(x => x.code === '0050');
+    ok(ao && ao.shares === 0 && ao.amt === -1200 && ao.d === daysAgo(20), 'backfill: amount-only sale kept');
+    const tw = d.sold.find(x => x.bf && x.code === '2330'); ok(tw.c === 980 * 1000 - 52300, 'backfill: cost derived from price and P&L for 報酬率');
+    ok(d.hold.length === 1 && d.hold[0].shares === 2000 && d.hold[0].cost === 1000, 'backfill: holdings untouched');
+    ok(/補登金額/.test(await hp.innerText('main')), 'backfill: amount-only row labelled');
+    await hp.click('[data-act=selledit] >> text=補登金額'); ok(/刪除這筆補登紀錄/.test(await hp.innerText('main')), 'backfill: edit page offers plain delete');
+    await hp.click('[data-act=selldel]'); await hp.waitForTimeout(300); d = await db(hp);
+    ok(d.sold.length === 2 && d.hold[0].shares === 2000, 'backfill: delete removes only the record');
+    await hp.click('[data-act=bfnew]'); await hp.click('[data-act=bfmode][data-v=one]'); await hp.fill('#bfd', daysAgo(40)); await hp.fill('#bfcode', '0050');
+    ok(/元大台灣50/.test(await hp.innerText('#bfname')), 'backfill: code shows the name');
+    await hp.fill('#bfamt', '5000'); await hp.click('[data-act=bfsign][data-v="1"]'); await hp.click('[data-act=bfsave1]'); await hp.waitForTimeout(300); d = await db(hp);
+    ok(d.sold.some(x => x.bf && x.code === '0050' && x.amt === -5000 && x.d === daysAgo(40)), 'backfill: one sale entered by hand');
+    await done(hp, 'backfill');
+  }
+
   console.log('• 除權息');
   {
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
