@@ -822,6 +822,35 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'buy');
   }
 
+  console.log('• 填息');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    const H = [daysAgo(6), daysAgo(5), daysAgo(4), daysAgo(3), daysAgo(1)];
+    await hp.route('**/prices.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: T, t: 'x', p: { '2330': [1005, 4, '台積電'], '0050': [189, 0.5, '元大台灣50'], '2454': [1500, 0, '聯發科'] } }) }));
+    await hp.route('**/prices-30.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: H, c: { '2330': [1000, 992, 995, 998, 1001], '0050': [190, 188.2, 188.5, 188.4, 188.5] } }) }));
+    await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); } },
+      { v: 1, settings: { pnl: true, onboarded: true, holdSince: daysAgo(8), fillFrom: daysAgo(30) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], logs: {},
+        hold: [{ id: 'h1', code: '2330', shares: 1000, cost: 900 }, { id: 'h2', code: '0050', shares: 1000, cost: 150 }, { id: 'h3', code: '2454', shares: 100, cost: 1400 }],
+        divs: [{ id: 'd1', d: daysAgo(5), code: '2330', name: '台積電', shares: 1000, cash: 10, amt: 10000, ratio: 0, add: 0, paid: false },
+          { id: 'd2', d: daysAgo(5), code: '0050', name: '元大台灣50', shares: 1000, cash: 2, amt: 2000, ratio: 0, add: 0, paid: false },
+          { id: 'd3', d: daysAgo(60), code: '2454', name: '聯發科', shares: 100, cash: 20, amt: 2000, ratio: 0, add: 0, paid: true }] });
+    await hp.goto(BASE); await hp.waitForTimeout(400);
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]'); await hp.waitForTimeout(800);
+    let d = await db(hp), d1 = d.divs.find(x => x.id === 'd1'), d2 = d.divs.find(x => x.id === 'd2');
+    ok(d1.pre === 1000 && d1.fill === daysAgo(1) && d1.fd >= 1, 'fill: target is the close before the ex-date; first close back at it is the fill day');
+    ok(d2.pre === 190 && !d2.fill, 'fill: not filled yet');
+    ok(/填息/.test(await hp.$eval('#toast', e => e.innerText)), 'fill: toast on the first fill');
+    const rows = await hp.innerText('.list');
+    ok(/✓ \d+ 天填息/.test(rows) && /填息中 50% · 還差 1 元/.test(rows), 'fill: holdings show the fill and the progress (' + (rows.match(/填息中[^\n]*/) || [''])[0] + ')');
+    const tx = await hp.innerText('main');
+    ok(/已入帳 · 沒有資料/.test(tx) && /待入帳 · \d+ 天填息/.test(tx) && /填息中 50%/.test(tx), 'fill: 交易紀錄 shows fill results; old dividend has no data');
+    await hp.click('[data-act=divedit][data-id=d2]'); ok(/除息前收盤（目標價）\s*190/.test(await hp.innerText('main')) && /還差 1 元/.test(await hp.innerText('main')), 'fill: dividend page shows the target and progress');
+    await hp.click('[data-act=divcancel]');
+    await done(hp, 'fill');
+  }
+
   console.log('• 補登已實現損益');
   {
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
