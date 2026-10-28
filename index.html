@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-2BuWzuMPIiz660c/ek8/LlNyNknmMXQK7jcMOSoTyOs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-VXaaVCTIzyjy0b9hYF4kFJMsW12uFJU7vaZmpRmVV2c='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1767,7 +1767,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.27-2';
+var APP_VER='2026.10.28-1';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -3716,6 +3716,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.10.27-2','10/27',['持股新增「買入」：填股數和成交價，實付金額和平均成本自動算好，也可以買新股票','「已實現損益」改成「交易紀錄」，可以只看買入、賣出或股利','新頭像「軟軟」和「帕丁」，角色頭像改成臉在正中間']],
  ['2026.10.26-1','10/26',['分享「我的這一週」時，可以把習慣設成「不公開」，圖上只會顯示 🔒 不公開，重點也不會提到名稱']],
  ['2026.10.25-7','10/25',['新功能「除權息」：現金股利從除息日算進已實現損益（另外標成股利收入），配股會自動增加股數；持股要除權息時會提醒你記錄','重訓頁「這週訓練」會建議今天練哪些部位：休息最久的大肌群加一個小肌群，點「?」看建議怎麼來的；開始練後已練的部位會打勾','座右銘可以寫到 120 字，「自動備份」改名「自動備份／還原」並加上說明','新增內建動作：低位划船機、槓片式推胸機']],
  ['2026.10.24-5','10/24',['可以設定頭像、名字和座右銘（也能挑名言），今天頁會跟你打招呼','每個習慣有等級 Lv1–Lv10，累積越多天等級越高，升級會提醒','選動作可以依部位、肌群（例如上胸／中胸／下胸）、器材篩選，選了肌群會用小人圖說明位置；新增 3 個胸部動作','運動頁右下角多了 ＋，部位旁的 ＋ 可以直接加同部位動作，計時條移到最上面','運動頁最上面有「這週訓練」表，看得到每天練了哪些部位']],

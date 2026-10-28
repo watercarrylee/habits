@@ -157,9 +157,11 @@ def main():
             continue
         p.update(got)
         dates.append(d)
-    # both markets must be on the same day, or holdings in one market would get a stale price
+    # both markets must be on the same day, or holdings in one market would get a stale price.
+    # This is normal before the day's closes are out everywhere (e.g. a run just after midnight): keep the old file quietly.
     if not errs and len(set(dates)) > 1:
-        errs.append('markets on different days: ' + ', '.join(str(x) for x in dates))
+        print('keeping the old file: markets on different days (' + ', '.join(str(x) for x in dates) + '); a later run will catch up')
+        return
     # a half-updated file would show some holdings as "price not found", so keep the old one and let the next run retry
     if errs or len(p) < 100:
         sys.exit('keeping the old file: ' + (' | '.join(errs) or 'too few prices'))
