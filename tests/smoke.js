@@ -899,6 +899,30 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.click('[data-act=bfnew]'); await hp.click('[data-act=bfkind][data-v=div]'); await hp.fill('#bftext', daysAgo(69) + ', 2330, 1000, 4500'); await hp.click('[data-act=bfcheck]');
     ok(await hp.$eval('.bf-row', e => e.classList.contains('off')), 'backfill dividends: likely duplicate unticked');
     await hp.click('[data-act=bfcancel]');
+    // 分潤
+    const r0 = (await db(hp)).sold.concat((await db(hp)).divs).reduce((a, x) => a + x.amt, 0);
+    await hp.click('[data-act=bfnew]'); await hp.click('[data-act=bfkind][data-v=prof]');
+    ok(!!(await hp.$('#pfwho')) && await hp.inputValue('#pfrate') === '50', 'profit share: first person typed, rate defaults to 50%');
+    await hp.fill('#pfwho', '媽媽'); await hp.fill('#pfd', daysAgo(3)); await hp.fill('#pfamt', '120000'); await hp.fill('#pfpct', '18.5');
+    ok(await hp.inputValue('#pfmine') === '60000' && /120,000 × 50% ＝ 60,000/.test(await hp.innerText('#pfcalc')), 'profit share: my share computed');
+    await hp.click('[data-act=pfsave]'); await hp.waitForTimeout(300); let pd = await db(hp);
+    ok(pd.prof.length === 1 && pd.prof[0].who === '媽媽' && pd.prof[0].amt === 120000 && pd.prof[0].pct === 18.5 && pd.prof[0].mine === 60000, 'profit share: saved');
+    await hp.click('[data-act=bfnew]'); await hp.click('[data-act=bfkind][data-v=prof]');
+    ok(await hp.$eval('[data-act=pfwho][data-v=媽媽]', e => e.classList.contains('on')) && await hp.inputValue('#pfrate') === '50', 'profit share: person and rate remembered');
+    await hp.fill('#pfd', daysAgo(2)); await hp.click('[data-act=pfsign][data-v="1"]'); await hp.fill('#pfamt', '20000'); await hp.fill('#pfpct', '4');
+    ok(/你分到 0/.test(await hp.innerText('#pfcalc')), 'profit share: loss → nothing shared');
+    await hp.click('[data-act=pfsave]'); await hp.waitForTimeout(300);
+    await hp.click('[data-act=bfnew]'); await hp.click('[data-act=bfkind][data-v=prof]'); await hp.click('[data-act=pfwho][data-v=""]'); await hp.fill('#pfwho', '哥哥'); await hp.fill('#pfrate', '35');
+    await hp.fill('#pfd', daysAgo(1)); await hp.fill('#pfamt', '50000'); await hp.fill('#pfmine', '17000'); await hp.click('[data-act=pfsave]'); await hp.waitForTimeout(300); pd = await db(hp);
+    ok(pd.prof.length === 3 && pd.prof.find(x => x.who === '媽媽' && x.amt === -20000).mine === 0 && pd.prof.find(x => x.who === '媽媽' && x.amt === -20000).pct === -4 && pd.prof.find(x => x.who === '哥哥').mine === 17000, 'profit share: loss and typed amount saved');
+    const mt = await hp.innerText('main');
+    ok(/其中分潤 \+77,000/.test(mt) && new RegExp('不含分潤 \\+' + r0.toLocaleString('en-US')).test(mt), 'profit share: counted in 已實現 and shown separately');
+    ok(/媽媽 · 分 50%/.test(mt) && /已實現 \+100,000 · 報酬率 \+/.test(mt) && /2 筆 · 賺 1 賠 1 · 勝率 50%/.test(mt), 'profit share: per-person card with their results (' + (mt.match(/報酬率 [^\n]*/) || [''])[0] + ')');
+    ok(/虧損不分/.test(mt) && /× 35%/.test(mt), 'profit share: rows describe each share');
+    await hp.click('[data-act=profedit] >> text=哥哥'); await hp.fill('#pfmine', '17500'); await hp.click('[data-act=pfsave]'); await hp.waitForTimeout(300);
+    ok((await db(hp)).prof.find(x => x.who === '哥哥').mine === 17500 && (await db(hp)).prof.length === 3, 'profit share: edit keeps one record');
+    await hp.click('[data-act=profedit] >> text=哥哥'); await hp.click('[data-act=pfdel]'); await hp.click('[data-act=pfdel]'); await hp.waitForTimeout(300);
+    ok((await db(hp)).prof.length === 2, 'profit share: delete');
     await done(hp, 'backfill');
   }
 
