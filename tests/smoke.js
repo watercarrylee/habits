@@ -883,6 +883,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(ao && ao.shares === 0 && ao.amt === -1200 && ao.d === daysAgo(20), 'backfill: amount-only sale kept');
     const tw = d.sold.find(x => x.bf && x.code === '2330'); ok(tw.c === 980 * 1000 - 52300, 'backfill: cost derived from price and P&L for 報酬率');
     ok(d.hold.length === 1 && d.hold[0].shares === 2000 && d.hold[0].cost === 1000, 'backfill: holdings untouched');
+    await hp.click('[data-act=txp][data-v=y]'); { const sm = await hp.innerText('.txsum'), nx = await hp.innerText('main');
+      ok(/賣出\s*1 筆/.test(sm) && /另有 2 筆補登的賣出/.test(nx), 'periods: backfilled sales stay out of the buy/sell totals'); }
+    await hp.click('[data-act=txp][data-v=all]');
     ok(/補登金額/.test(await hp.innerText('main')), 'backfill: amount-only row labelled');
     await hp.click('[data-act=selledit] >> text=補登金額'); ok(/刪除這筆補登紀錄/.test(await hp.innerText('main')), 'backfill: edit page offers plain delete');
     await hp.click('[data-act=selldel]'); await hp.waitForTimeout(300); d = await db(hp);

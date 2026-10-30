@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-gHWat4GU0qbWHhWD7u+s18ELz/Zrm9fBskhf0I9Z4F0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-3Z9/6LSwnem8bRHtvcHIUfAokjTYEbBlOqi8dVzFCW0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1777,7 +1777,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.30-3';
+var APP_VER='2026.10.30-4';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2638,14 +2638,16 @@ function txPeriodHTML(RG){var P=RG?RG.P:'all',h=hid(),s='<div class="seg five tx
   if(P==='c')s+='<div class="txdates"><input id="txa" class="datein" type="date" max="'+todayKey()+'" value="'+RG.a+'" aria-label="開始日"><span>–</span><input id="txb" class="datein" type="date" max="'+todayKey()+'" value="'+RG.b+'" aria-label="結束日"></div>'+
     '<div class="seg four txquick">'+[['q','本季'],['pq','上季'],['y','今年'],['30','近 30 天']].map(function(o){return '<button data-act="txq" data-v="'+o[0]+'">'+o[1]+'</button>';}).join('')+'</div>';
   else s+='<div class="monthnav txnav"><button class="iconbtn sm" data-act="txoff" data-n="1" aria-label="上一期">'+I.left+'</button><div class="month-l">'+RG.lab+'</div><button class="iconbtn sm" data-act="txoff" data-n="-1" aria-label="下一期"'+(ui.txOff?'':' disabled')+'>'+I.right+'</button></div>';
-  var bs=(db.buys||[]).filter(function(x){return x.d>=RG.a&&x.d<=RG.b;}),ss=db.sold.filter(function(x){return x.d>=RG.a&&x.d<=RG.b;}),
+  var bs=(db.buys||[]).filter(function(x){return x.d>=RG.a&&x.d<=RG.b;}),ss=db.sold.filter(function(x){return x.d>=RG.a&&x.d<=RG.b&&!x.bf;}),nbf=db.sold.filter(function(x){return x.d>=RG.a&&x.d<=RG.b&&x.bf;}).length,
     bi=bs.reduce(function(a,x){return a+x.amt;},0),so=ss.reduce(function(a,x){return a+(x.shares>0&&x.px>0?Math.round(x.px*x.shares):0);},0),ra=ss.reduce(function(a,x){return a+x.amt;},0),
-    noPx=ss.filter(function(x){return !(x.shares>0&&x.px>0);}).length,net=so-bi,M=function(v){return h?MASK:fmtN(v);};
+    net=so-bi,M=function(v){return h?MASK:fmtN(v);};
   s+='<div class="txsum"><div class="txs-r"><span><b>買入</b><span class="small muted">'+bs.length+' 筆</span></span><b>'+M(bi)+'</b></div>'+
     '<div class="txs-r"><span><b>賣出</b><span class="small muted">'+ss.length+' 筆</span></span><span class="txs-v"><b>'+M(so)+'</b>'+(ss.length?'<span class="small '+(h?'muted':pcls(ra))+'">已實現 '+(h?'••••':sgn(ra))+'</span>':'')+'</span></div>'+
     '<div class="txs-net"><b>'+(!bs.length&&!so?'沒有買賣':net<0?'多投入 '+M(-net):net>0?'多拿回 '+M(net):'買賣打平')+'</b></div></div>'+
-    (noPx?'<p class="small muted">有 '+noPx+' 筆補登的賣出只有金額，沒有算進賣出金額。</p>':'');
+    (nbf?'<p class="small muted">另有 '+nbf+' 筆補登的賣出，只算進已實現損益，不算進這裡的買賣金額（App 裡沒有它們當初的買入）。</p>':'');
   return s;}
+/* 報酬率 only when the cost is meaningful (a cost of 0 — e.g. shares received for free — would show thousands of %) */
+function soldPctOk(x){var pr=x.shares>0&&x.px>0?x.px*x.shares:0;return x.c>0&&(!pr||x.c>=pr*0.05);}
 function soldHTML(){var nb=(db.buys||[]).length;if(!anySold()&&!nb)return '<div class="sec-row sold-h"><h3 class="sold-t">交易紀錄</h3><button class="ghost" data-act="bfnew">＋ 補登</button></div><p class="small muted">以前賣掉的股票或領過的股利，可以用「補登」把已實現損益加進來。</p>';var h=hid(),t=todayKey(),tot=realAt(t),yr=0,y0=t.slice(0,4),dvt=divAt(t);db.sold.concat(db.divs||[]).forEach(function(x){if(x.d.slice(0,4)===y0&&x.d<=t)yr+=x.amt;});(db.prof||[]).forEach(function(x){if(x.d.slice(0,4)===y0&&x.d<=t)yr+=x.mine;});
   var np=(db.prof||[]).length,F=/^(buy|sell|div|prof)$/.test(ui.txF||'')?ui.txF:'all',src=F==='buy'?db.buys:F==='sell'?db.sold:F==='div'?(db.divs||[]):F==='prof'?db.prof:db.sold.concat(db.divs||[],db.buys||[],db.prof||[]);
   var RG=txRange();if(RG)src=src.filter(function(x){return x.d>=RG.a&&x.d<=RG.b;});
@@ -2667,7 +2669,7 @@ function soldHTML(){var nb=(db.buys||[]).length;if(!anySold()&&!nb)return '<div 
     if(x.cash!=null){s+='<button class="hrow sold-row" data-act="divedit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag">股利</span></b><span class="small muted">'+dd+(x.bf?' 補登股利 · ':' 除權息 · ')+divDesc(x.cash,x.ratio)+(x.add?' · 配 '+fmtN(x.add)+' 股':'')+'</span></div>'+
       '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(x.amt?(h?MASK:sgn(x.amt)):'—')+'</b><span class="small '+(x.paid?'muted':'warn-t')+'">'+(x.cash>0?(x.paid?'已入帳':x.d>t?'未除息':'待入帳'):'配股')+(x.cash>0&&fillTxt(fillInfo(x))?' · <span class="fill-'+fillInfo(x).st+'">'+fillTxt(fillInfo(x))+'</span>':'')+'</span></div></button>';return;}
     s+='<button class="hrow sold-row" data-act="selledit" data-id="'+x.id+'"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+' <span class="divtag selltag">賣出</span></b><span class="small muted">'+dd+(x.shares?' · 賣 '+lots(x.shares)+(x.px?' @ '+x.px:''):' · 補登金額')+'</span></div>'+
-      '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(h?MASK:sgn(x.amt))+'</b>'+(x.c>0?'<span class="small '+(h?'muted':pcls(x.amt))+'">'+(h?'••%':pctS(x.amt/x.c))+'</span>':'')+'</div></button>';});
+      '<div class="hrow-r"><b class="'+(h?'':pcls(x.amt))+'">'+(h?MASK:sgn(x.amt))+'</b>'+(soldPctOk(x)?'<span class="small '+(h?'muted':pcls(x.amt))+'">'+(h?'••%':pctS(x.amt/x.c))+'</span>':'')+'</div></button>';});
   s+='</div>';if(list.length>5)s+='<button class="ghost" data-act="soldall">'+(ui.soldAll?'收起':'顯示全部 '+list.length+' 筆')+'</button>';
   return s;}
 /* 買入: pick a holding (or a new code), shares, price (default latest close), date; 實付 is prefilled with price × shares + fee
@@ -2900,7 +2902,7 @@ function vBackfill(){var bf=ui.bf,h=hid(),s='<div class="page"><header class="ed
   if(bf.rows){var good=bf.rows.filter(function(r){return !r.err;}),on=good.filter(function(r){return r.on;}),sum=on.reduce(function(a,r){return a+r.amt;},0),bad=bf.rows.length-good.length;
     s+='<div class="list hp-list bf-list">'+bf.rows.map(function(r,i){var p=r.code&&pxOf(r.code);
       if(r.err)return '<div class="hrow hp-bad"><div class="hrow-l"><b>第 '+r.line+' 行</b><span class="small muted">'+esc(r.raw)+'</span><span class="small bad-t">'+esc(r.err)+'，會略過</span></div></div>';
-      var warn=[r.dup?r.dup+'，預設不勾':'',r.unsure?'AI 標記不確定，請核對':'',!p&&PX?'沒有這個代號的收盤價，請確認代號':''].filter(Boolean).join(' · '),pc=r.shares&&r.px&&r.px*r.shares-r.amt>0?r.amt/(r.px*r.shares-r.amt):null;
+      var warn=[r.dup?r.dup+'，預設不勾':'',r.unsure?'AI 標記不確定，請核對':'',!p&&PX?'沒有這個代號的收盤價，請確認代號':''].filter(Boolean).join(' · '),pc=r.shares&&r.px&&r.px*r.shares-r.amt>=r.px*r.shares*0.05?r.amt/(r.px*r.shares-r.amt):null;
       return '<button class="hrow bf-row'+(r.on?'':' off')+'" data-act="bftog" data-i="'+i+'" aria-pressed="'+r.on+'"><span class="bf-ck" aria-hidden="true">'+(r.on?'✓':'')+'</span><div class="hrow-l"><b>'+esc((p&&p.name)||r.code)+'</b><span class="small muted">'+shortMD(r.d)+(r.d.slice(0,4)!==todayKey().slice(0,4)?' '+r.d.slice(0,4):'')+' · '+(r.div?'股利 · '+lots(r.shares):r.shares?'賣 '+lots(r.shares)+(r.px?' @ '+r.px:''):'只有金額')+'</span>'+(warn?'<span class="small warn-t">'+esc(warn)+'</span>':'')+'</div>'+
         '<div class="hrow-r"><b class="'+(h?'':pcls(r.amt))+'">'+(h?MASK:sgn(r.amt))+'</b>'+(pc!==null?'<span class="small '+(h?'muted':pcls(r.amt))+'">'+(h?'••%':pctS(pc))+'</span>':'')+'</div></button>';}).join('')+'</div>';
     s+='<div class="bf-sum"><span>勾選 '+on.length+' 筆'+(bad?'（'+bad+' 行有問題會略過）':'')+'，合計</span><b class="'+(h?'':pcls(sum))+'">'+(h?MASK:sgn(sum))+'</b></div>'+
