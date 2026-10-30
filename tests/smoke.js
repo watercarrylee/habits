@@ -808,7 +808,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const nh = d.hold.find(h => h.code === '2412');
     ok(nh && nh.shares === 500 && nh.cost === 132.188 && nh.name === '中華電', 'buy: new stock added to holdings');
     ok((await hp.$$('.sold-row')).length === 2 && /交易紀錄/.test(await hp.innerText('main')), 'buy: 交易紀錄 lists buys');
-    await hp.click('[data-act=txf][data-v=sell]'); ok(/還沒有賣出紀錄/.test(await hp.innerText('main')), 'buy: filter by 賣出');
+    await hp.click('[data-act=txf][data-v=sell]'); ok(/沒有賣出紀錄/.test(await hp.innerText('main')), 'buy: filter by 賣出');
     await hp.click('[data-act=txf][data-v=buy]'); ok((await hp.$$('.sold-row')).length === 2, 'buy: filter by 買入');
     await hp.click('[data-act=buynew]'); await hp.click('[data-act=buypick][data-id=new]'); await hp.fill('#buycode', '0050'); await hp.fill('#buysh', '10'); await hp.fill('#buypx', '190');
     await hp.click('[data-act=buysave]'); await hp.waitForTimeout(300); d = await db(hp);
@@ -819,6 +819,12 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.click('[data-act=txf][data-v=all]'); await hp.click('[data-act=buyedit] >> text=中華電');
     await hp.click('[data-act=buydel]'); await hp.click('[data-act=buydel]'); await hp.waitForTimeout(300); d = await db(hp);
     ok(!d.hold.find(h => h.code === '2412') && d.buys.length === 1, 'buy: deleting the only buy of a stock removes the holding');
+    await hp.click('[data-act=txf][data-v=all]'); await hp.click('[data-act=txp][data-v=w]');
+    { const sm = await hp.innerText('.txsum'); ok(/買入\s*1 筆\s*1,100,500/.test(sm) && /賣出\s*0 筆/.test(sm) && /多投入 1,100,500/.test(sm), 'periods: this week sums buys and sells (' + sm.replace(/\n/g, ' ') + ')'); }
+    ok(/這週/.test(await hp.innerText('.txnav')), 'periods: defaults to this week');
+    await hp.click('[data-act=txoff][data-n="1"]'); ok(/沒有買賣/.test(await hp.innerText('.txsum')), 'periods: last week has no trades');
+    await hp.click('[data-act=txp][data-v=c]'); await hp.click('[data-act=txq][data-v=y]'); ok(/多投入/.test(await hp.innerText('.txsum')) && !!(await hp.$('#txa')), 'periods: custom range with shortcuts');
+    await hp.click('[data-act=txp][data-v=all]'); ok(!(await hp.$('.txsum')), 'periods: 全部 shows no period total');
     await done(hp, 'buy');
   }
 
@@ -837,7 +843,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
           { id: 'd2', d: daysAgo(5), code: '0050', name: '元大台灣50', shares: 1000, cash: 2, amt: 2000, ratio: 0, add: 0, paid: false },
           { id: 'd3', d: daysAgo(60), code: '2454', name: '聯發科', shares: 100, cash: 20, amt: 2000, ratio: 0, add: 0, paid: true }] });
     await hp.goto(BASE); await hp.waitForTimeout(400);
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]'); await hp.waitForTimeout(800);
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]'); await hp.waitForTimeout(800); await hp.click('[data-act=txp][data-v=all]');
     let d = await db(hp), d1 = d.divs.find(x => x.id === 'd1'), d2 = d.divs.find(x => x.id === 'd2');
     ok(d1.pre === 1000 && d1.fill === daysAgo(1) && d1.fd >= 1, 'fill: target is the close before the ex-date; first close back at it is the fill day');
     ok(d2.pre === 190 && !d2.fill, 'fill: not filled yet');
@@ -863,6 +869,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
         hold: [{ id: 'h1', code: '2330', shares: 2000, cost: 1000 }], sold: [{ id: 's1', d: daysAgo(10), code: '2330', name: '台積電', shares: 500, px: 1000, amt: 3000, c: 497000 }] });
     await hp.goto(BASE); await hp.waitForTimeout(400);
     await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-act=txp][data-v=all]');
     await hp.click('[data-act=bfnew]'); ok(/補登已實現損益/.test(await hp.innerText('main')), 'backfill: page opens from 交易紀錄');
     await hp.fill('#bftext', [daysAgo(30) + ', 2330, 1000, 980, 52300', daysAgo(20) + ', 0050, , , -1,200', daysAgo(20) + ', 0050, , , −1200 ?', daysAgo(10) + ', 2330, 500, 1000, 3000', 'hello'].join('\n'));
     await hp.click('[data-act=bfcheck]');
