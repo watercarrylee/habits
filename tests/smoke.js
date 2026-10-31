@@ -860,11 +860,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="-1"]');
     await p.click('[data-act=fcopyday]'); await p.click('[data-act=fcopygo]'); await p.waitForTimeout(200); d = await db(p);
     ok(d.fit.logs[T].todo.length === 3 && /今天/.test(await p.innerText('.dnav-c')), 'copy: 用這天的課表 from a past day brings it to today');
-    { const ids0 = d.fit.logs[T].todo.map(x => x.id); ok(/調整順序/.test(await p.innerText('.fplan')) && (await p.$$eval('.tdno', x => x.map(e => e.textContent))).join() === '2,3,4', 'order: 待做 numbered after what is already done');
-      await p.click('[data-act=ford]'); ok(!!(await p.$('[data-act=fmv]')) && !(await p.$('[data-act=fswap]')), 'order: reorder mode shows arrows');
-      await p.click('[data-act=fmv][data-id="' + ids0[0] + '"][data-n="1"]'); d = await db(p);
-      const ids1 = d.fit.logs[T].todo.map(x => x.id); ok(ids1[0] !== ids0[0] && ids1.length === 3, 'order: moving a part changes the plan order');
-      await p.click('[data-act=ford]'); ok(!(await p.$('[data-act=fmv]')), 'order: done leaves reorder mode'); }
+    { ok((await p.$$eval('.tdno', x => x.map(e => e.textContent))).join() === '1,1,1', 'order: numbers restart in each part');
+      await p.click('[data-act=ford][data-v=胸]'); ok(!!(await p.$('.sec.sorting [data-act=fmvs]')) && !!(await p.$('.sec.sorting [data-act=fmv]')) && (await p.$$('.sec.sorting')).length === 1, 'order: sorting one part shows arrows on its done and 待做 cards');
+      await p.click('[data-act=ford][data-v=胸]'); ok(!(await p.$('[data-act=fmv]')) && !!(await p.$('[data-act=fswap]')), 'order: 完成 leaves sorting'); }
     { const x0 = d.fit.logs[T].todo.find(x => x.ex === 'e2'); await p.click('[data-act=fswap][data-id="' + x0.id + '"]');
       ok(/換掉划船/.test(await p.innerText('#sheet')), 'swap: sheet lists alternatives');
       await p.click('[data-act=fswapgo] >> nth=0'); await p.waitForTimeout(200); d = await db(p); const x1 = d.fit.logs[T].todo.find(x => x.id === x0.id);
