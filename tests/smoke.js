@@ -828,6 +828,16 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'buy');
   }
 
+  console.log('• 選動作：多關節／孤立');
+  {
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true, onboarded: true }, rewards: [], redeemed: [], logs: {}, habits: [], fit: { ex: [], ctypes: [], logs: {} } } });
+    await p.click('[data-tab=fit]'); await p.click('[data-act=ftab][data-v=log]').catch(() => {}); await fitAdd(p, 'fpick'); await p.click('[data-act=fpart][data-v="胸"]');
+    const names = await p.evaluate(() => { const h = [...document.querySelectorAll('h2.fgrp')].find(x => x.textContent.includes('器械')); return [...h.parentNode.querySelectorAll('.fprow .fp-n')].map(x => x.children[0].textContent + ' ' + x.querySelector('.fpkind').textContent); });
+    const iso = names.map(n => /孤立$/.test(n)), first = iso.indexOf(true);
+    ok(names.length > 2 && first > 0 && iso.slice(first).every(Boolean) && names.every(n => /(多關節|孤立)$/.test(n)), 'picker: tags shown, 多關節 before 孤立 (' + names.join('、') + ')');
+    await done(p, 'picker tags');
+  }
+
   console.log('• 複製課表');
   {
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true, onboarded: true }, rewards: [], redeemed: [], logs: {}, habits: [],
