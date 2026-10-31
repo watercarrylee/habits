@@ -838,6 +838,17 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'picker tags');
   }
 
+  console.log('• 有氧堆疊圖');
+  {
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true, onboarded: true }, rewards: [], redeemed: [], logs: {}, habits: [],
+      fit: { ex: [], ctypes: [], logs: { [daysAgo(1)]: { c: [{ id: 'c1', type: '跑步機', min: 20 }, { id: 'c2', type: '飛輪', min: 15 }] }, [T]: { c: [{ id: 'c3', type: '跑步機', min: 30 }] }, [daysAgo(20)]: { c: [{ id: 'c4', type: '游泳', min: 40 }] } } } } });
+    await p.click('[data-tab=fit]'); await p.click('[data-act=ftab][data-v=prog]');
+    ok((await p.$$('.cbars.n14 .cb')).length === 14 && (await p.$$('.cbars .cb:nth-child(13) .cstack i')).length === 2, 'cardio chart: 14 days, a day with two types stacks two colours');
+    const lg = await p.innerText('.clegend'); ok(/跑步機 50 分/.test(lg) && /飛輪 15 分/.test(lg) && !/游泳/.test(lg), 'cardio chart: legend totals per type in range');
+    await p.click('[data-act=fcg][data-v=w]'); ok((await p.$$('.cbars.n8 .cb')).length === 8 && /游泳 40 分/.test(await p.innerText('.clegend')), 'cardio chart: weekly view');
+    await done(p, 'cardio chart');
+  }
+
   console.log('• 複製課表');
   {
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true, onboarded: true }, rewards: [], redeemed: [], logs: {}, habits: [],
