@@ -1344,6 +1344,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await fitAdd(p, 'fpick'); await p.fill('#fq', '槓鈴硬舉');
     ok(/硬舉/.test(await p.innerText('#fplist')), 'search: 器材＋動作 finds 硬舉');
     await p.fill('#fq', 'deadlift'); ok((await p.innerText('#fplist')).includes('羅馬尼亞硬舉') && /搜尋結果 · 2/.test(await p.innerText('#fplist')), 'search: English name');
+    ok(await p.evaluate(() => { const r = [...document.querySelectorAll('#fplist .fprow')]; return r.length > 0 && r.every(x => x.querySelector('.fico.pose svg path')); }), 'pose: every picker row has a pose drawing');
+    await p.fill('#fq', '');
+    ok(await p.evaluate(() => { const r = [...document.querySelectorAll('#fplist .fprow .fico.pose')]; return r.length >= 10 && r.every(x => x.querySelectorAll('svg > *').length > 3) && new Set(r.map(x => x.dataset.pose)).size >= 4; }), 'pose: picker rows drawn with varied poses');
     await done(p, 'timer');
     p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true, ftStart: now - 5 * 3600e3, ftDay: T0, ftLast: now - 4 * 3600e3 }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
     await p.click('#fitTab');
