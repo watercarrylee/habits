@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-1xmvCN9AlKiW394w2S9hg1KEyZSP8v0FadXZUKmRqos='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ORFmz2hPmRQqjaYmDvX4gXw+jV0kQ0NZ8AyaEII5hjc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,6 +18,11 @@
 <title>習慣紀錄</title>
 <style>
 /* Layout: one-screen phone app — a scrolling content column above a three-tab bar; data lives in this browser only */
+/* Inter for numbers and Latin letters (bundled, works offline); Chinese stays on the system font (蘋方) */
+@font-face{font-family:'InterApp';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/inter-400.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'InterApp';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/inter-600.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'InterApp';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/inter-700.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'InterApp';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/inter-800.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 :root{
   --bg:#F5F2EC; --surface:#FFFFFF; --chip:#ECE7DE; --line:#E2DBCF; --line-soft:#EFEAE1;
   --fg:#1C1B19; --muted:#6B655C; --faint:#9A9388;
@@ -28,7 +33,7 @@
   --up:#C8283A; --down:#1F7A4A;
   --scrim:rgba(28,27,25,.45);
   --shadow:0 1px 3px rgba(0,0,0,.12);
-  --font:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --font:"InterApp",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
   --mono:ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){
@@ -484,8 +489,8 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .subtip{display:flex;gap:12px;align-items:center;margin:0;padding:10px 12px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line)}.subtip>div{display:flex;flex-direction:column;gap:2px;min-width:0}.subtip svg{flex:0 0 auto}.subtip .mp.bl5{fill:var(--good)}
 .fchips.sub,.fchips.eq{margin-top:0}.fchips.sub .fchip{font-size:13px}.fchips.eq .fchip{font-size:13px;display:inline-flex;align-items:center;gap:4px}.fchips.eq .fchip svg{width:14px;height:14px}
 .cyw{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:10px 10px 8px}.cyh{display:flex;align-items:center;justify-content:space-between;padding:0 4px 6px}.cyh b{font-size:15px}.cynav{display:flex;gap:6px}.iconbtn.sm{width:30px;height:30px}.iconbtn.sm svg{width:15px;height:15px}
-.cyg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.cyd{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0 7px;min-height:78px;border-radius:12px;border:1.5px solid transparent;background:none;font:inherit;color:var(--fg);cursor:pointer}
-.cyd.today{background:var(--good-soft);border-color:var(--good)}.cyd.sel{border-color:var(--faint)}.cyd.fut{opacity:.4;cursor:default}.cyn{font-size:11px;color:var(--muted)}.cyd2{font-size:14px;font-weight:700}.cy0{color:var(--faint)}
+.cyg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.cyd{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0 7px;min-height:78px;border-radius:12px;border:1.5px solid transparent;background:none;font:inherit;color:var(--fg);cursor:pointer}
+.cyd{background:color-mix(in srgb,var(--chip) 55%,var(--surface))}.cyd.rest{background:color-mix(in srgb,var(--chip) 22%,var(--surface))}.cyd.today{background:var(--good-soft);border-color:var(--good)}.cyd.sel{border-color:var(--faint)}.cyd.fut{opacity:.45;cursor:default;background:none;border-color:var(--line-soft)}.cyn{font-size:11px;color:var(--muted)}.cyd2{font-size:15px;font-weight:700;letter-spacing:-.2px}.cy0{color:var(--faint)}
 .cyp{font-size:11px;font-weight:700;line-height:1.3;padding:1px 4px;border-radius:7px;color:color-mix(in srgb,var(--c) 75%,var(--fg));background:color-mix(in srgb,var(--c) 15%,var(--surface));white-space:nowrap}
 .divbn{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;margin-bottom:10px;border-radius:16px;background:var(--good-soft);border:1.5px solid var(--good-line)}.divbn>div:first-child{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 200px}.divbn-a{display:flex;gap:8px}.divbn-a button{min-height:36px;padding:0 14px}
 .tb-r:has([data-act=divnew]){gap:4px}.tb-r:has([data-act=divnew]) .ghost{padding-inline:10px}
@@ -1184,7 +1189,7 @@ function cyWeekHTML(){if(!Object.keys(db.fit.logs).length)return '';var t=todayK
     '<button class="iconbtn sm" data-act="cyoff" data-n="-1" aria-label="下一週"'+(off?'':' disabled')+'>'+I.right+'</button></span></div><div class="cyg">';
   for(var i=0;i<7;i++){var d=addDays(ws,i),l=db.fit.logs[d]||{},ps=[];(l.s||[]).forEach(function(en){var e=exById(en.ex);if(e&&ps.indexOf(e.part)<0)ps.push(e.part);});
     ps.sort(function(a,b){return PARTS.indexOf(a)-PARTS.indexOf(b);});if((l.c||[]).length)ps.push('有氧');
-    s+='<button class="cyd'+(d===t?' today':'')+(d>t?' fut':'')+(d===ui.date&&d!==t?' sel':'')+'" data-act="cyday" data-k="'+d+'"'+(d>t?' disabled':'')+'><span class="cyn">'+WD[parseKey(d).getDay()]+'</span><span class="cyd2">'+parseKey(d).getDate()+'</span>'+
+    s+='<button class="cyd'+(d===t?' today':'')+(d>t?' fut':'')+(d<t&&!ps.length?' rest':'')+(d===ui.date&&d!==t?' sel':'')+'" data-act="cyday" data-k="'+d+'"'+(d>t?' disabled':'')+'><span class="cyn">'+WD[parseKey(d).getDay()]+'</span><span class="cyd2">'+parseKey(d).getDate()+'</span>'+
       (ps.length?ps.map(function(p){return '<span class="cyp" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(''):(d===t&&SG&&!SG.done&&SG.big.concat(SG.small).length?'':'<span class="cy0">·</span>'))+
       (d===t&&SG&&!SG.done&&SG.big.concat(SG.small).length?'<span class="cysg" role="separator" aria-label="建議"></span>'+SG.big.concat(SG.small).filter(function(p){return !SG.today[p];}).map(function(p){return '<span class="cyp dash" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(''):'')+'</button>';}
   s+='</div>';
@@ -1858,7 +1863,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.31-5';
+var APP_VER='2026.10.31-6';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';

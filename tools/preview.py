@@ -11,6 +11,7 @@ s = s.replace(old, "var KEY=DEMO_NEW?'habit-preview-demo-new':DEMO?'habit-previe
 s = s.replace("navigator.serviceWorker.register('sw.js')", "Promise.reject()")
 s = s.replace("fetch('prices.json?t='", "fetch('../prices.json?t='")  # prices.json lives at the site root
 s = s.replace("fetch('prices-30.json?t='", "fetch('../prices-30.json?t='")
+s = s.replace('src:url(fonts/', 'src:url(../fonts/')  # bundled fonts live at the site root
 if s.count('var PREVIEW=false;') != 1: sys.exit('PREVIEW flag not found')
 s = s.replace('var PREVIEW=false;', 'var PREVIEW=true;')
 s = s.replace("<title>", "<title>預覽 · ", 1)

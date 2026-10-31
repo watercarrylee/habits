@@ -835,6 +835,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const names = await p.evaluate(() => { const h = [...document.querySelectorAll('h2.fgrp')].find(x => x.textContent.includes('器械')); return [...h.parentNode.querySelectorAll('.fprow .fp-n')].map(x => x.children[0].textContent + ' ' + x.querySelector('.fpkind').textContent); });
     const iso = names.map(n => /孤立$/.test(n)), first = iso.indexOf(true);
     ok(names.length > 2 && first > 0 && iso.slice(first).every(Boolean) && names.every(n => /(多關節|孤立)$/.test(n)), 'picker: tags shown, 多關節 before 孤立 (' + names.join('、') + ')');
+    ok(await p.evaluate(async () => { await document.fonts.ready; return [...document.fonts].some(f => /InterApp/.test(f.family) && f.status === 'loaded'); }), 'Inter font bundled and loaded');
     await done(p, 'picker tags');
   }
 
