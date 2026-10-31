@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-vGvXr8srbYuISumgJ9Sw1nRRTP+t1kv2AgL439f1IMg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-LcYPBgoFEKr0Jj21rpFfZ0hsJNExegP79OP85mc4tg8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -397,6 +397,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .wk{display:flex;flex-direction:column;align-items:center;gap:4px;justify-content:flex-end;height:100%;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
 .wk i{display:block;width:100%;max-width:24px;border-radius:6px 6px 2px 2px;background:var(--good-line)}
 .wk i.cur{background:var(--good)}
+.cgseg{margin:0 0 12px}.cbars{height:116px;display:grid;gap:4px;align-items:end}.cbars.n14,.cbl.n14{grid-template-columns:repeat(14,minmax(0,1fr))}.cbars.n8,.cbl.n8{grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}.cb{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%;font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums}.cstack{width:100%;max-width:24px;display:flex;flex-direction:column-reverse;border-radius:5px 5px 2px 2px;overflow:hidden}.cstack i{display:block;min-height:1px}.cb.cur span{color:var(--fg);font-weight:700}.cbl{display:grid;gap:4px;font-size:9.5px;color:var(--faint);text-align:center;margin-top:4px;font-variant-numeric:tabular-nums}.cbl .cur{color:var(--fg);font-weight:700}.clegend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:12.5px;color:var(--muted)}.clegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}.clegend b{color:var(--fg)}
 .wkl{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;font-size:10px;color:var(--faint);text-align:center;font-variant-numeric:tabular-nums}
 .demobar{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--fg);color:var(--bg);font-size:12px}
 .own-host .demobar{padding-top:calc(8px + env(safe-area-inset-top,0px))}
@@ -1368,14 +1369,26 @@ function fitPaceHTML(){
     '<div><span class="small muted">本週距離</span><b>'+distTxt(g.wk,g.kind)+'</b><span class="small muted">上週 '+distTxt(g.pwk,g.kind)+'</span></div></div>';
   s+=g.pts.length>=2?paceChart(g.pts.slice(-20),g.kind==='speed'?'hi':'lo'):'<p class="small muted">再記一次 '+distTxt(PACE_MIN[g.kind],g.kind)+' 以上的紀錄，就會畫出趨勢圖。</p>';
   return s+'<p class="small muted">最快'+(g.kind==='speed'?'時速':'配速')+'和趨勢圖只算 '+distTxt(PACE_MIN[g.kind],g.kind)+' 以上的紀錄，避免短距離衝刺讓紀錄失真。</p></div></section>';}
+/* 有氧：stacked bars, one colour per 有氧 type — 天 (last 14 days) or 週 (last 8 weeks) */
+var CA_COL=['#3A8DB5','#5E8F5A','#C8962C','#8A63B5','#C2607E','#2E8C8C','#B4533C','#7A7468'];
 function fitCardioHTML(){
   var any=Object.keys(db.fit.logs).some(function(k){return (db.fit.logs[k].c||[]).length;});if(!any)return '';
-  var t=todayKey(),ws=weekStartKey(t),weeks=[];
-  for(var i=7;i>=0;i--){var a=addDays(ws,-7*i),b=addDays(a,6),m=0;Object.keys(db.fit.logs).forEach(function(k){if(k>=a&&k<=b)(db.fit.logs[k].c||[]).forEach(function(c){m+=cMin(c);});});weeks.push([a,m]);}
-  var mx=Math.max.apply(null,weeks.map(function(w){return w[1];}).concat([30]));
-  return '<section class="sec"><div class="sec-row"><h2 class="sec-t">有氧（每週分鐘）</h2><span class="small muted">本週 '+Math.floor(weeks[7][1])+' 分</span></div><div class="panel">'+
-    '<div class="wkbars">'+weeks.map(function(w,i){return '<div class="wk"><span>'+(Math.floor(w[1])||'')+'</span><i class="'+(i===7?'cur':'')+'" style="height:'+Math.max(2,w[1]/mx*80)+'px"></i></div>';}).join('')+'</div>'+
-    '<div class="wkl">'+weeks.map(function(w){return '<span>'+shortMD(w[0])+'</span>';}).join('')+'</div></div></section>';
+  var t=todayKey(),G=ui.fcg==='w'?'w':'d',cols=[],i;
+  if(G==='d')for(i=13;i>=0;i--){var d=addDays(t,-i);cols.push({a:d,b:d,lab:parseKey(d).getDate()+'',cur:!i});}
+  else{var ws=weekStartKey(t);for(i=7;i>=0;i--){var wa=addDays(ws,-7*i);cols.push({a:wa,b:addDays(wa,6),lab:shortMD(wa),cur:!i});}}
+  var tot={};cols.forEach(function(c){c.by={};c.m=0;Object.keys(db.fit.logs).forEach(function(k){if(k<c.a||k>c.b)return;(db.fit.logs[k].c||[]).forEach(function(x){var m=cMin(x);c.by[x.type]=(c.by[x.type]||0)+m;c.m+=m;tot[x.type]=(tot[x.type]||0)+m;});});});
+  var all={};Object.keys(db.fit.logs).forEach(function(k){(db.fit.logs[k].c||[]).forEach(function(x){all[x.type]=(all[x.type]||0)+cMin(x);});});
+  var types=Object.keys(tot).sort(function(a,b){return tot[b]-tot[a];}),col={};Object.keys(all).sort(function(a,b){return all[b]-all[a];}).forEach(function(x,j){col[x]=CA_COL[j%CA_COL.length];}); // same colour for a type in every view
+  var mx=Math.max.apply(null,cols.map(function(c){return c.m;}).concat([30])),H=96,sum=cols.reduce(function(a,c){return a+c.m;},0);
+  var s='<section class="sec"><div class="sec-row"><h2 class="sec-t">有氧</h2><span class="small muted">'+(G==='d'?'近 14 天 ':'近 8 週 ')+Math.round(sum)+' 分</span></div><div class="panel">'+
+    '<div class="seg cgseg">'+[['d','每天'],['w','每週']].map(function(o){var on=o[0]===G;return '<button class="'+(on?'on':'')+'" data-act="fcg" data-v="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+'</button>';}).join('')+'</div>';
+  if(!sum)return s+'<p class="small muted">這段期間沒有有氧紀錄。</p></div></section>';
+  s+='<div class="cbars n'+cols.length+'" role="img" aria-label="有氧時間，依類型堆疊">'+cols.map(function(c){
+    return '<div class="cb'+(c.cur?' cur':'')+'"><span>'+(c.m?Math.round(c.m):'')+'</span><div class="cstack" style="height:'+Math.max(c.m?3:0,c.m/mx*H)+'px">'+
+      types.filter(function(x){return c.by[x];}).map(function(x){return '<i style="flex:'+c.by[x]+' 1 0;background:'+col[x]+'" title="'+esc(x)+' '+Math.round(c.by[x])+' 分"></i>';}).join('')+'</div></div>';}).join('')+'</div>'+
+    '<div class="cbl n'+cols.length+'">'+cols.map(function(c,j){return '<span class="'+(c.cur?'cur':'')+'">'+(G==='d'&&j%2&&!c.cur?'':c.lab)+'</span>';}).join('')+'</div>'+
+    '<div class="clegend">'+types.map(function(x){return '<span><i style="background:'+col[x]+'"></i>'+esc(x)+' <b>'+Math.round(tot[x])+'</b> 分</span>';}).join('')+'</div>';
+  return s+'</div></section>';
 }
 
 /* picker */
@@ -1845,7 +1858,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.31-4';
+var APP_VER='2026.10.31-5';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4308,6 +4321,7 @@ function act(a,b){
     case 'fpartgo': if(!ui.sheet||!ui.sheet.on)return;var pids=Object.keys(ui.sheet.on).filter(function(i){return exById(i);});if(!pids.length)return;var lp=fLogMk(t);lp.todo=lp.todo||[];
       planAdd(lp,pids.map(function(i){return {id:uid(),ex:i};}),true);lp.pt=(lp.pt||0)+pids.length;save();ui.sheet=null;ui.date=t;go('fit');ui.fitTab='log';toast('已加入 '+pids.length+' 項待做');break;
     case 'fswap': ui.sheet={type:'fswap',id:id};break;
+    case 'fcg': ui.fcg=b.dataset.v==='w'?'w':'d';break;
     case 'ford': ui.fOrd=ui.fOrd===b.dataset.v?null:b.dataset.v;break;
     case 'fmvs': l=fLog(ui.date);if(!l||!l.s)return;doneMove(l.s,id,+b.dataset.n,function(a,c){var ea=exById(a.ex),ec=exById(c.ex);return ea&&ec&&ea.part===ec.part;});save();break;
     case 'fmvc': l=fLog(ui.date);if(!l||!l.c)return;doneMove(l.c,id,+b.dataset.n,function(){return true;});save();break;
