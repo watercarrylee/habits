@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-EKrscuIwz1mkKt8Em/BGjQwFLDrVTtE22RUyIhDkJ9g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-IC9Lfh/IBi6VXa8RG/GW9DbQXMGymMLRhgjARJxpQIs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -310,7 +310,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .fmins{flex:0 0 auto;font-size:15px;font-variant-numeric:tabular-nums}
 .prb{height:22px;padding:0 8px;border-radius:11px;background:var(--good);color:var(--on-good);font-weight:700;display:inline-flex;align-items:center;font-size:12px}
 .fbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fbtn-copy{grid-column:1/-1}.fusecopy{width:100%;margin:6px 0 10px}
-.cypt{border:0;background:none;padding:0;font:inherit;font-weight:800;color:var(--good);border-bottom:2px dotted var(--good);cursor:pointer}.cyok+.cypt,.cypt{margin:0 1px}.ftodo-w{position:relative}.ftodo-w .fcard{padding-right:84px}.fswap{position:absolute;right:12px;top:14px;font-size:12.5px;font-weight:800;color:var(--good);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:5px 9px}.fgrp{font-size:13px;font-weight:800;color:var(--muted);margin:12px 2px 6px}
+.cypt{border:0;background:none;padding:0;font:inherit;font-weight:800;color:var(--good);border-bottom:2px dotted var(--good);cursor:pointer}.cyok+.cypt,.cypt{margin:0 1px}.ftodo-w{position:relative}.tdno{flex:0 0 auto;width:26px;height:26px;border-radius:13px;border:1.8px solid var(--good);color:var(--good);font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;align-self:center}.tdkind{font-size:11px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px}.fcard.ftodo:disabled{opacity:1;color:inherit}.tdmv{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px}.tdmv button{width:36px;height:30px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--good);font-weight:900;font-size:15px}.fordbtn{margin-left:8px;font-size:12.5px;font-weight:800;color:var(--good);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:4px 9px}.fplan.ord{background:var(--good);color:var(--on-good);border-color:var(--good)}.fordok{font-size:13px;font-weight:800;background:var(--surface);color:var(--good);border:0;border-radius:9px;padding:4px 12px}.ftodo-w .fcard{padding-right:84px}.fswap{position:absolute;right:12px;top:14px;font-size:12.5px;font-weight:800;color:var(--good);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:5px 9px}.fgrp{font-size:13px;font-weight:800;color:var(--muted);margin:12px 2px 6px}
 .fcard.ftodo{background:color-mix(in srgb,var(--surface) 55%,var(--bg));border:1.8px dashed var(--faint)}.fcard.ftodo .fico{opacity:.55}.todopill{flex:0 0 auto;font-size:11px;font-weight:800;color:#8A6A1E;background:color-mix(in srgb,#C8962C 16%,var(--surface));border-radius:7px;padding:2px 7px;margin-left:auto}.fplan{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:9px 14px;margin:10px 0 0;font-size:14px}.fplan b{color:var(--good)}.fcopy-it{gap:12px;justify-content:flex-start}.fcopy-it.off{opacity:.5}.fcopy-it .bf-ck{margin-right:2px}.fcopy-it.off .bf-ck{background:var(--surface);border:2px solid var(--line)}.fcopy-days .cyp{margin-right:2px}
 .fmin .row-l,.frow .row-l{display:flex;flex-direction:column;gap:2px;min-width:0}
 .frow .row-l>span:first-child{font-size:15px}
@@ -1199,9 +1199,12 @@ function fitLogHTML(){
   if(ftOn()&&db.settings.ftDay===k)s+='<div class="fttop">'+ftHTML(k)+'</div>'; // running timer stays near the top
   s+=cyWeekHTML();
   var ss=(l.s||[]).filter(function(en){return exById(en.ex);}),cc=l.c||[],td=(l.todo||[]).filter(function(x){return !x.ex||exById(x.ex);}),tds=td.filter(function(x){return x.ex;}),tdc=td.filter(function(x){return !x.ex;});
-  var partsOrder=[];ss.forEach(function(en){var pt=exById(en.ex).part;if(partsOrder.indexOf(pt)<0)partsOrder.push(pt);});tds.forEach(function(x){var pt=exById(x.ex).part;if(partsOrder.indexOf(pt)<0)partsOrder.push(pt);});
-  if(td.length){var pt0=Math.max(l.pt||0,td.length);s+='<div class="fplan"><span>今天的課表</span><span><b>'+(pt0-td.length)+'</b> / '+pt0+' 完成</span></div>';}
-  partsOrder.forEach(function(pt){
+  var partsOrder=[];ss.forEach(function(en){var pt=exById(en.ex).part;if(partsOrder.indexOf(pt)<0)partsOrder.push(pt);});
+  var PG=planGroups(td);if(cc.length&&!PG.some(function(q){return q.key==='有氧';}))PG.push({key:'有氧',items:[]});PG.forEach(function(q){if(partsOrder.indexOf(q.key)<0)partsOrder.push(q.key);});
+  var tdNo=ss.length+cc.length,tdMap={};PG.forEach(function(q){});partsOrder.forEach(function(pk){(PG.filter(function(q){return q.key===pk;})[0]||{items:[]}).items.forEach(function(x){tdMap[x.id]=++tdNo;});});
+  if(td.length){var pt0=Math.max(l.pt||0,td.length);if(!ui.fOrd)s+='<div class="fplan"><span>今天的課表</span><span><b>'+(pt0-td.length)+'</b> / '+pt0+' 完成'+(td.length>1?'<button class="fordbtn" data-act="ford">調整順序</button>':'')+'</span></div>';
+    else s+='<div class="fplan ord"><span>調整順序</span><button class="fordok" data-act="ford">完成</button></div>';}
+  partsOrder.forEach(function(pt){if(pt==='有氧'){s+=cardioSec();return;}
     s+='<section class="sec"><div class="sec-row"><h2 class="sec-t">重訓 · '+pt+'</h2><button class="secplus" data-act="fpickp" data-v="'+pt+'" aria-label="再加一個'+pt+'的動作">＋</button></div>';
     ss.filter(function(en){return exById(en.ex).part===pt;}).forEach(function(en){
       var e=exById(en.ex),u=exU(e),m=setMetric(e,en.sets),b=bestBefore(e.id,k),pr=b!==null&&m>b,met;
@@ -1213,16 +1216,15 @@ function fitLogHTML(){
         '<span class="fsets">'+esc(setsCompact(e,en.sets))+'</span>'+
         '<span class="fmet"><span>'+met+'</span>'+(pr?'<span class="prb">新紀錄</span>':'')+'</span></span></button>';
     });
-    tds.filter(function(x){return exById(x.ex).part===pt;}).forEach(function(x){s+=ftodoCard(x,k);});
+    tds.filter(function(x){return exById(x.ex).part===pt;}).forEach(function(x){s+=ftodoCard(x,k,tdMap[x.id]);});
     s+='</section>';
   });
-  if(cc.length||tdc.length){
+  function cardioSec(){var s='';
     s+='<section class="sec"><h2 class="sec-t">有氧</h2>';
     cc.forEach(function(c){var kd=cKind(c.type),pc=cPace(c,kd),sub=c.dist>0?distTxt(c.dist,kd)+(pc?' · '+pc.txt:''):'';
       s+='<button class="fcard center" data-act="cedit" data-id="'+c.id+'">'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b>'+(sub?'<span class="small muted">'+sub+'</span>':'')+'</span><span class="fmins">'+durTxt(cSecs(c))+'</span></button>';});
-    tdc.forEach(function(x){s+=ftodoCard(x,k);});
-    s+='</section>';
-  }
+    tdc.forEach(function(x){s+=ftodoCard(x,k,tdMap[x.id]);});
+    s+='</section>';return s;}
   if(!ss.length&&!cc.length&&!td.length&&!(fLog(k)||{}).min){
     s+='<div class="empty" style="align-items:center;text-align:center"><div class="empty-t">這天沒有運動紀錄</div><p>'+(k<t?'補記一下，趨勢圖會比較完整。':'練完記下來，之後就能看到進步。')+'</p></div>';
   }
@@ -1234,7 +1236,7 @@ function fitLogHTML(){
   }
   if(k<t&&(ss.length||cc.length))s+='<button class="secondary fusecopy" data-act="fcopyday" data-k="'+k+'">用這天的課表（帶到今天）</button>';
   if(!ss.length&&!cc.length&&!td.length)s+='<div class="fbtns"><button class="primary" data-act="fpick">＋ 重訓</button><button class="secondary" data-act="fcnew">＋ 有氧</button>'+(fcopyDays(k).length?'<button class="secondary fbtn-copy" data-act="fcopy">複製之前的課表</button>':'')+'</div>';
-  else s+='<div class="fabpad"></div><button class="fab" data-act="fitadd" aria-label="新增運動紀錄">'+I.plus+'</button>';
+  else s+='<div class="fabpad"></div>'+(ui.fOrd&&td.length?'':'<button class="fab" data-act="fitadd" aria-label="新增運動紀錄">'+I.plus+'</button>');
   return s;
 }
 
@@ -1444,8 +1446,26 @@ function fcopyDays(skip){var t=todayKey(),from=addDays(t,-30);return Object.keys
 function fcopyItems(k){var l=fLog(k)||{},out=[];(l.s||[]).forEach(function(en){var e=exById(en.ex);if(e)out.push({k:'s'+en.id,ex:e.id,name:e.name,sub:setsCompact(e,en.sets)});});
   (l.c||[]).forEach(function(c){var kd=cKind(c.type);out.push({k:'c'+c.id,ct:c.type,min:c.min,sec:c.sec,dist:c.dist,name:c.type,sub:'有氧 · '+durTxt(cSecs(c))+(c.dist>0?' · '+distTxt(c.dist,kd):'')});});return out;}
 function fcopyParts(k){var l=fLog(k)||{},ps=[];(l.s||[]).forEach(function(en){var e=exById(en.ex);if(e&&ps.indexOf(e.part)<0)ps.push(e.part);});return ps;}
+/* 課表順序: 待做 are kept grouped by 部位 (有氧 is a group too). New ones go in as: big-muscle 多關節 → 孤立 → small muscles → 有氧;
+   the order can be changed by hand (↑↓ within a part; at the edge the whole part moves). */
+var ISO_RE=/夾胸|蝴蝶|飛鳥|彎舉|下壓|三頭伸展|過頭伸展|側平舉|前平舉|後束|腿伸屈|腿彎舉|內收|外展|後踢|捲腹|聳肩|提踵|小腿|仰臥起坐|抬腿|棒式|俄羅斯|Fly|Curl|Raise|Pushdown|Extension|Kickback|Crunch|Shrug|Abduction|Adduction|Pec Deck/i;
+var SMALL_P=['二頭','三頭','核心','小腿'];
+function exIso(e){return !!e&&(ISO_RE.test(e.name+' '+(e.en||''))||e.part==='二頭'||e.part==='三頭'||e.part==='小腿'||e.part==='核心');}
+function planKey(x){var e=x.ex&&exById(x.ex);return e?e.part:'有氧';}
+function planGroups(todo){var g=[],at={};(todo||[]).forEach(function(x){var k=planKey(x);if(at[k]==null){at[k]=g.length;g.push({key:k,items:[]});}g[at[k]].items.push(x);});return g;}
+function planSet(l,g){l.todo=[];g.forEach(function(q){l.todo=l.todo.concat(q.items);});}
+function planAdd(l,items,auto){var g=planGroups(l.todo);if(auto)items=items.slice().sort(function(a,b){var ea=a.ex&&exById(a.ex),eb=b.ex&&exById(b.ex);return (ea?0:1)-(eb?0:1)||(exIso(ea)?1:0)-(exIso(eb)?1:0);});
+  items.forEach(function(x){var k=planKey(x),q=g.filter(function(y){return y.key===k;})[0],e=x.ex&&exById(x.ex);
+    if(q){if(auto&&e&&!exIso(e)){var i=0;while(i<q.items.length&&q.items[i].ex&&!exIso(exById(q.items[i].ex)))i++;q.items.splice(i,0,x);}else q.items.push(x);return;}
+    q={key:k,items:[x]};var pos=g.length;
+    if(k!=='有氧'){var big=SMALL_P.indexOf(k)<0;for(var j=0;j<g.length;j++){if(g[j].key==='有氧'&&j===g.length-1){pos=j;break;}if(big&&SMALL_P.indexOf(g[j].key)>=0){pos=j;break;}}}
+    g.splice(pos,0,q);});
+  planSet(l,g);}
+function planMove(l,id,d){var g=planGroups(l.todo),gi=-1,ii=-1;g.forEach(function(q,a){q.items.forEach(function(x,b){if(x.id===id){gi=a;ii=b;}});});if(gi<0)return;
+  var q=g[gi],j=ii+d;if(j>=0&&j<q.items.length){var t0=q.items[ii];q.items[ii]=q.items[j];q.items[j]=t0;}
+  else{var gj=gi+d;if(gj<0||gj>=g.length)return;var t1=g[gi];g[gi]=g[gj];g[gj]=t1;}planSet(l,g);}
 function fcopyGo(src,to,off){var l=fLogMk(to),items=fcopyItems(src).filter(function(x){return !off[x.k];});if(!items.length)return 0;l.todo=l.todo||[];
-  items.forEach(function(x){l.todo.push(x.ex?{id:uid(),ex:x.ex}:{id:uid(),ct:x.ct,min:x.min,sec:x.sec,dist:x.dist});});l.pt=(l.pt||0)+items.length;save();return items.length;}
+  planAdd(l,items.map(function(x){return x.ex?{id:uid(),ex:x.ex}:{id:uid(),ct:x.ct,min:x.min,sec:x.sec,dist:x.dist};}),false);l.pt=(l.pt||0)+items.length;save();return items.length;}
 function ftodoDone(k,id){var l=fLog(k);if(!l||!l.todo)return;l.todo=l.todo.filter(function(x){return x.id!==id;});fTidy(k);}
 /* 依部位帶入: your usual exercises for a part (last 60 days, by days used) and 1–2 to try (long unused or never tried) */
 function fUse(){var t=todayKey(),from=addDays(t,-60),u={};Object.keys(db.fit.logs).forEach(function(k){if(k<from||k>t)return;var seen={};(db.fit.logs[k].s||[]).forEach(function(en){if(seen[en.ex])return;seen[en.ex]=1;var o=u[en.ex]||(u[en.ex]={n:0,last:k});o.n++;if(k>o.last)o.last=k;});});
@@ -1464,12 +1484,13 @@ function fSwapList(x){var t=todayKey(),e=exById(x.ex),u=fUse(),busy=fTodayEx(t),
   var list=db.fit.ex.filter(function(f){return same(f)&&e.sub&&f.sub===e.sub;});if(!list.length)list=db.fit.ex.filter(same);
   var done=list.filter(function(f){return u[f.id];}).sort(function(a,b){return (u[b.id].n-u[a.id].n)||(u[a.id].last<u[b.id].last?1:-1);}),never=list.filter(function(f){return !u[f.id];});
   return {done:done,never:never,u:u,bySub:!!(e.sub&&list.some(function(f){return f.sub===e.sub;}))};}
-function ftodoCard(x,k){if(x.ex){var e=exById(x.ex);if(!e)return '';var lb=lastBefore(e.id,addDays(k,1));
+function ftodoCard(x,k,no){var ord=!!ui.fOrd,nb='<span class="tdno">'+no+'</span>',mv='<span class="tdmv"><button data-act="fmv" data-id="'+x.id+'" data-n="-1" aria-label="往上">↑</button><button data-act="fmv" data-id="'+x.id+'" data-n="1" aria-label="往下">↓</button></span>';
+  if(x.ex){var e=exById(x.ex);if(!e)return '';var lb=lastBefore(e.id,addDays(k,1));
     var sw=x.sw&&exById(x.sw);
-    return '<div class="ftodo-w"><button class="fcard ftodo" data-act="ftodo" data-id="'+x.id+'">'+fBox(EQI[e.eq])+'<span class="fbody"><span class="fhead"><b>'+esc(e.name)+'</b></span>'+
+    return '<div class="ftodo-w"><button class="fcard ftodo" data-act="ftodo" data-id="'+x.id+'"'+(ord?' disabled':'')+'>'+nb+'<span class="fbody"><span class="fhead"><b>'+esc(e.name)+'</b><span class="tdkind">'+(exIso(e)?'孤立':'多關節')+'</span></span>'+
       '<span class="fsets">'+(lb?'上次 '+esc(setsCompact(e,lb.sets)):'還沒做過，第一次試試')+'</span><span class="small muted">'+(sw?'換自'+esc(sw.name)+' · ':'')+'點一下開始</span></span></button>'+
-      '<button class="fswap" data-act="fswap" data-id="'+x.id+'">換一個</button></div>';}
-  var kd=cKind(x.ct);return '<button class="fcard center ftodo" data-act="ftodoc" data-id="'+x.id+'">'+fBox(caIco(x.ct))+'<span class="fbody"><b style="font-size:16px">'+esc(x.ct)+'</b><span class="small muted">上次 '+durTxt(cSecs(x))+(x.dist>0?' · '+distTxt(x.dist,kd):'')+'</span></span><span class="todopill">待做</span></button>';}
+      (ord?mv:'<button class="fswap" data-act="fswap" data-id="'+x.id+'">換一個</button>')+'</div>';}
+  var kd=cKind(x.ct);return '<div class="ftodo-w"><button class="fcard center ftodo" data-act="ftodoc" data-id="'+x.id+'"'+(ord?' disabled':'')+'>'+nb+'<span class="fbody"><b style="font-size:16px">'+esc(x.ct)+'<span class="tdkind">有氧</span></b><span class="small muted">上次 '+durTxt(cSecs(x))+(x.dist>0?' · '+distTxt(x.dist,kd):'')+'</span></span>'+(ord?'':'<span class="todopill">待做</span>')+'</button>'+(ord?mv:'')+'</div>';}
 function newEntry(exId,k){
   var e=exById(exId),lb=lastBefore(exId,k),d0=[isBW(e)?0:(exU(e)==='lbs'?45:20),fMode(e)==='s'?30:8],sets=lb?lb.sets.map(function(x){return x.slice();}):[d0,d0.slice(),d0.slice()];
   return {id:null,ex:exId,k:k,sets:sets,changing:false,same:allSame(sets)};
@@ -1819,7 +1840,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.10.31-1';
+var APP_VER='2026.10.31-2';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4280,8 +4301,10 @@ function act(a,b){
     case 'fpartadd': var PL0=fPartList(b.dataset.v),on0={};PL0.usual.forEach(function(e){on0[e.id]=1;});ui.sheet={type:'fpartadd',p:b.dataset.v,on:on0};break;
     case 'fparttog': if(ui.sheet&&ui.sheet.on){var pv=b.dataset.v;if(ui.sheet.on[pv])delete ui.sheet.on[pv];else ui.sheet.on[pv]=1;}break;
     case 'fpartgo': if(!ui.sheet||!ui.sheet.on)return;var pids=Object.keys(ui.sheet.on).filter(function(i){return exById(i);});if(!pids.length)return;var lp=fLogMk(t);lp.todo=lp.todo||[];
-      pids.forEach(function(i){lp.todo.push({id:uid(),ex:i});});lp.pt=(lp.pt||0)+pids.length;save();ui.sheet=null;ui.date=t;go('fit');ui.fitTab='log';toast('已加入 '+pids.length+' 項待做');break;
+      planAdd(lp,pids.map(function(i){return {id:uid(),ex:i};}),true);lp.pt=(lp.pt||0)+pids.length;save();ui.sheet=null;ui.date=t;go('fit');ui.fitTab='log';toast('已加入 '+pids.length+' 項待做');break;
     case 'fswap': ui.sheet={type:'fswap',id:id};break;
+    case 'ford': ui.fOrd=!ui.fOrd;break;
+    case 'fmv': l=fLog(ui.date);if(!l||!l.todo)return;planMove(l,id,+b.dataset.n);save();break;
     case 'fswapgo': var ls=fLog(t),xs=ls&&(ls.todo||[]).filter(function(y){return y.id===ui.sheet.id;})[0];if(!xs||!exById(b.dataset.v))return;if(!xs.sw)xs.sw=xs.ex;xs.ex=b.dataset.v;if(xs.sw===xs.ex)delete xs.sw;save();ui.sheet=null;toast('已換成 '+exById(xs.ex).name);break;
     case 'fcopyday': var fk=b.dataset.k;if(!isKey(fk))return;ui.sheet={type:'fcopy',k:fk,off:{},to:fk<t&&ui.date===fk?t:ui.date};break;
     case 'fcopytog': if(ui.sheet&&ui.sheet.off){var fv=b.dataset.v;if(ui.sheet.off[fv])delete ui.sheet.off[fv];else ui.sheet.off[fv]=1;}break;
