@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-mE0DdwWOwfWoOnmRH7BeVGlT9v5c2inZLE2WmS6MIoM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-dP2P/HUbLRcF34wuMwd9WofJBtBrwsL+lYi9VCUx/LY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -309,7 +309,8 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .fmet{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .fmins{flex:0 0 auto;font-size:15px;font-variant-numeric:tabular-nums}
 .prb{height:22px;padding:0 8px;border-radius:11px;background:var(--good);color:var(--on-good);font-weight:700;display:inline-flex;align-items:center;font-size:12px}
-.fbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.fbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fbtn-copy{grid-column:1/-1}.fusecopy{width:100%;margin:6px 0 10px}
+.fcard.ftodo{background:color-mix(in srgb,var(--surface) 55%,var(--bg));border:1.8px dashed var(--faint)}.fcard.ftodo .fico{opacity:.55}.todopill{flex:0 0 auto;font-size:11px;font-weight:800;color:#8A6A1E;background:color-mix(in srgb,#C8962C 16%,var(--surface));border-radius:7px;padding:2px 7px;margin-left:auto}.fplan{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:9px 14px;margin:10px 0 0;font-size:14px}.fplan b{color:var(--good)}.fcopy-it{gap:12px;justify-content:flex-start}.fcopy-it.off{opacity:.5}.fcopy-it .bf-ck{margin-right:2px}.fcopy-it.off .bf-ck{background:var(--surface);border:2px solid var(--line)}.fcopy-days .cyp{margin-right:2px}
 .fmin .row-l,.frow .row-l{display:flex;flex-direction:column;gap:2px;min-width:0}
 .frow .row-l>span:first-child{font-size:15px}
 .fmin{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:12px 16px;display:flex;flex-direction:column;gap:8px}
@@ -1066,7 +1067,7 @@ function exTag(e){return e.eq+' · '+e.part+(e.eq==='啞鈴'?' · 單手':'');}
 function caIco(t){return CAI[t]||CA_OTHER;}
 function fLog(k){return db.fit.logs[k];}
 function fLogMk(k){return db.fit.logs[k]||(db.fit.logs[k]={});}
-function fTidy(k){var l=db.fit.logs[k];if(!l)return;if(l.s&&!l.s.length)delete l.s;if(l.c&&!l.c.length)delete l.c;if(!l.min)delete l.min;if(!Object.keys(l).length)delete db.fit.logs[k];}
+function fTidy(k){var l=db.fit.logs[k];if(!l)return;if(l.s&&!l.s.length)delete l.s;if(l.c&&!l.c.length)delete l.c;if(l.todo&&!l.todo.length){delete l.todo;delete l.pt;}if(!l.todo)delete l.pt;if(!l.min)delete l.min;if(!Object.keys(l).length)delete db.fit.logs[k];}
 /* 子部位: each exercise may name one main sub-part of its 部位 (上胸／中胸／下胸 …); built-ins come pre-labelled */
 var SUBS={'胸':['上胸','中胸','下胸'],'背':['上背','背闊','下背'],'肩':['前束','中束','後束'],'二頭':['二頭','前臂'],'腿':['股四頭','腿後','內收'],'臀':['臀大肌','臀中肌'],'核心':['腹直肌','腹斜肌']};
 var PRESET_SUB={p1:'中胸',p2:'中胸',p3:'上胸',p4:'中胸',p5:'中胸',p6:'背闊',p7:'上背',p8:'背闊',p9:'背闊',p10:'下背',p11:'前束',p12:'中束',p13:'後束',p14:'二頭',p15:'二頭',p18:'股四頭',p19:'股四頭',p20:'股四頭',p21:'臀大肌',p22:'臀大肌',p23:'腹直肌',p24:'腹直肌',p25:'上背',p26:'中胸',p27:'上胸',p28:'中胸',p29:'背闊',p30:'上背',p31:'上背',p32:'背闊',p33:'下背',p34:'前束',p35:'前束',p36:'中束',p38:'前臂',p39:'二頭',p42:'腿後',p43:'股四頭',p44:'股四頭',p45:'股四頭',p46:'臀中肌',p48:'腹直肌',p49:'腹直肌',p50:'腹直肌',p53:'中胸',p54:'二頭',p56:'中束',p58:'腿後',p59:'臀大肌',p60:'臀中肌',p61:'下背',p62:'腹直肌',p63:'腹斜肌',p64:'臀大肌',p66:'腹斜肌',p67:'下胸',p68:'下胸',p69:'上胸',p70:'背闊',p71:'中胸',p72:'中胸',p73:'上胸',p74:'下胸'};
@@ -1196,8 +1197,9 @@ function fitLogHTML(){
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></div>';
   if(ftOn()&&db.settings.ftDay===k)s+='<div class="fttop">'+ftHTML(k)+'</div>'; // running timer stays near the top
   s+=cyWeekHTML();
-  var ss=(l.s||[]).filter(function(en){return exById(en.ex);}),cc=l.c||[];
-  var partsOrder=[];ss.forEach(function(en){var pt=exById(en.ex).part;if(partsOrder.indexOf(pt)<0)partsOrder.push(pt);});
+  var ss=(l.s||[]).filter(function(en){return exById(en.ex);}),cc=l.c||[],td=(l.todo||[]).filter(function(x){return !x.ex||exById(x.ex);}),tds=td.filter(function(x){return x.ex;}),tdc=td.filter(function(x){return !x.ex;});
+  var partsOrder=[];ss.forEach(function(en){var pt=exById(en.ex).part;if(partsOrder.indexOf(pt)<0)partsOrder.push(pt);});tds.forEach(function(x){var pt=exById(x.ex).part;if(partsOrder.indexOf(pt)<0)partsOrder.push(pt);});
+  if(td.length){var pt0=Math.max(l.pt||0,td.length);s+='<div class="fplan"><span>今天的課表</span><span><b>'+(pt0-td.length)+'</b> / '+pt0+' 完成</span></div>';}
   partsOrder.forEach(function(pt){
     s+='<section class="sec"><div class="sec-row"><h2 class="sec-t">重訓 · '+pt+'</h2><button class="secplus" data-act="fpickp" data-v="'+pt+'" aria-label="再加一個'+pt+'的動作">＋</button></div>';
     ss.filter(function(en){return exById(en.ex).part===pt;}).forEach(function(en){
@@ -1210,15 +1212,17 @@ function fitLogHTML(){
         '<span class="fsets">'+esc(setsCompact(e,en.sets))+'</span>'+
         '<span class="fmet"><span>'+met+'</span>'+(pr?'<span class="prb">新紀錄</span>':'')+'</span></span></button>';
     });
+    tds.filter(function(x){return exById(x.ex).part===pt;}).forEach(function(x){s+=ftodoCard(x,k);});
     s+='</section>';
   });
-  if(cc.length){
+  if(cc.length||tdc.length){
     s+='<section class="sec"><h2 class="sec-t">有氧</h2>';
     cc.forEach(function(c){var kd=cKind(c.type),pc=cPace(c,kd),sub=c.dist>0?distTxt(c.dist,kd)+(pc?' · '+pc.txt:''):'';
       s+='<button class="fcard center" data-act="cedit" data-id="'+c.id+'">'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b>'+(sub?'<span class="small muted">'+sub+'</span>':'')+'</span><span class="fmins">'+durTxt(cSecs(c))+'</span></button>';});
+    tdc.forEach(function(x){s+=ftodoCard(x,k);});
     s+='</section>';
   }
-  if(!ss.length&&!cc.length&&!(fLog(k)||{}).min){
+  if(!ss.length&&!cc.length&&!td.length&&!(fLog(k)||{}).min){
     s+='<div class="empty" style="align-items:center;text-align:center"><div class="empty-t">這天沒有運動紀錄</div><p>'+(k<t?'補記一下，趨勢圖會比較完整。':'練完記下來，之後就能看到進步。')+'</p></div>';
   }
   var linked=fitLinked(),fm=fitMinutes(k);
@@ -1227,7 +1231,8 @@ function fitLogHTML(){
       '<span class="stepper"><button data-act="fmin" data-n="-5" aria-label="減 5 分鐘"'+(fm.s?'':' disabled')+'>−</button><span class="v">'+(fm.s?fm.s+' 分':'—')+'</span><button class="go" data-act="fmin" data-n="5" aria-label="加 5 分鐘">＋</button></span></div>'+
       (ftOn()?'':ftHTML(k))+linked.map(function(h){return '<div class="flink">'+fitLinkMsg(h,k)+'</div>';}).join('')+'</section>';
   }
-  if(!ss.length&&!cc.length)s+='<div class="fbtns"><button class="primary" data-act="fpick">＋ 重訓</button><button class="secondary" data-act="fcnew">＋ 有氧</button></div>';
+  if(k<t&&(ss.length||cc.length))s+='<button class="secondary fusecopy" data-act="fcopyday" data-k="'+k+'">用這天的課表（帶到今天）</button>';
+  if(!ss.length&&!cc.length&&!td.length)s+='<div class="fbtns"><button class="primary" data-act="fpick">＋ 重訓</button><button class="secondary" data-act="fcnew">＋ 有氧</button>'+(fcopyDays(k).length?'<button class="secondary fbtn-copy" data-act="fcopy">複製之前的課表</button>':'')+'</div>';
   else s+='<div class="fabpad"></div><button class="fab" data-act="fitadd" aria-label="新增運動紀錄">'+I.plus+'</button>';
   return s;
 }
@@ -1433,6 +1438,18 @@ function fpList(){
     if(ar.length)s+='<section class="sec"><h2 class="lbl">已封存（紀錄都還在）</h2><div class="list">'+ar.map(function(e){return fpItem(e,{icon:true,restore:true,sub:e.part+' · '+e.eq});}).join('')+'</div></section>';}
   return s;
 }
+/* 複製課表: days with training in the last 30 days (newest first), and copying one day's items into another day as 待做 */
+function fcopyDays(skip){var t=todayKey(),from=addDays(t,-30);return Object.keys(db.fit.logs).filter(function(k){var l=db.fit.logs[k];return k>=from&&k<=t&&k!==skip&&((l.s||[]).some(function(en){return exById(en.ex);})||(l.c||[]).length);}).sort().reverse();}
+function fcopyItems(k){var l=fLog(k)||{},out=[];(l.s||[]).forEach(function(en){var e=exById(en.ex);if(e)out.push({k:'s'+en.id,ex:e.id,name:e.name,sub:setsCompact(e,en.sets)});});
+  (l.c||[]).forEach(function(c){var kd=cKind(c.type);out.push({k:'c'+c.id,ct:c.type,min:c.min,sec:c.sec,dist:c.dist,name:c.type,sub:'有氧 · '+durTxt(cSecs(c))+(c.dist>0?' · '+distTxt(c.dist,kd):'')});});return out;}
+function fcopyParts(k){var l=fLog(k)||{},ps=[];(l.s||[]).forEach(function(en){var e=exById(en.ex);if(e&&ps.indexOf(e.part)<0)ps.push(e.part);});return ps;}
+function fcopyGo(src,to,off){var l=fLogMk(to),items=fcopyItems(src).filter(function(x){return !off[x.k];});if(!items.length)return 0;l.todo=l.todo||[];
+  items.forEach(function(x){l.todo.push(x.ex?{id:uid(),ex:x.ex}:{id:uid(),ct:x.ct,min:x.min,sec:x.sec,dist:x.dist});});l.pt=(l.pt||0)+items.length;save();return items.length;}
+function ftodoDone(k,id){var l=fLog(k);if(!l||!l.todo)return;l.todo=l.todo.filter(function(x){return x.id!==id;});fTidy(k);}
+function ftodoCard(x,k){if(x.ex){var e=exById(x.ex);if(!e)return '';var lb=lastBefore(e.id,addDays(k,1));
+    return '<button class="fcard ftodo" data-act="ftodo" data-id="'+x.id+'">'+fBox(EQI[e.eq])+'<span class="fbody"><span class="fhead"><b>'+esc(e.name)+'</b><span class="todopill">待做</span></span>'+
+      '<span class="fsets">'+(lb?'上次 '+esc(setsCompact(e,lb.sets)):'還沒有紀錄')+'</span><span class="small muted">點一下開始</span></span></button>';}
+  var kd=cKind(x.ct);return '<button class="fcard center ftodo" data-act="ftodoc" data-id="'+x.id+'">'+fBox(caIco(x.ct))+'<span class="fbody"><b style="font-size:16px">'+esc(x.ct)+'</b><span class="small muted">上次 '+durTxt(cSecs(x))+(x.dist>0?' · '+distTxt(x.dist,kd):'')+'</span></span><span class="todopill">待做</span></button>';}
 function newEntry(exId,k){
   var e=exById(exId),lb=lastBefore(exId,k),d0=[isBW(e)?0:(exU(e)==='lbs'?45:20),fMode(e)==='s'?30:8],sets=lb?lb.sets.map(function(x){return x.slice();}):[d0,d0.slice(),d0.slice()];
   return {id:null,ex:exId,k:k,sets:sets,changing:false,same:allSame(sets)};
@@ -1464,6 +1481,7 @@ function vFLog(){
   }
   s+='<p class="small muted" style="text-align:center">'+(sec?'每次 ＋／− 是 5 秒，點數字也可以直接輸入':bw?'只記次數，趨勢看單組最多次數':'點數字可以直接輸入 · 超過 12 下的組不算進 1RM')+'</p></div>'+
     '<div id="flsum">'+flSumHTML()+'</div>';
+  if(f.todo)s+='<div class="danger-zone"><button class="row-btn" data-act="ftododel">今天不做這項（從待做移除）</button></div>';
   if(f.id)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="fldel">'+(ui.confirmDel==='fl'?'再按一次，刪除這筆紀錄':'刪除這筆紀錄')+'</button></div>';
   return s+'</div>';
 }
@@ -1504,6 +1522,7 @@ function vFCardio(){
     '<div class="cbig-r"><button data-act="fcmin" data-n="-5" aria-label="減 5 分鐘">−</button><div class="cbig-v"><div class="cbig-t"><input id="fcminin" class="cbig-in" type="text" inputmode="numeric" maxlength="4" value="'+c.min+'" aria-label="分鐘"><b>:</b><input id="fcsec" class="cbig-in sec" type="text" inputmode="numeric" maxlength="2" placeholder="00" value="'+(c.sec?String(c.sec).padStart(2,'0'):'')+'" aria-label="秒"></div><span>分 : 秒</span></div><button class="go" data-act="fcmin" data-n="5" aria-label="加 5 分鐘">＋</button></div>'+
     '<div class="chiprow">'+[15,20,30,45,60].map(function(v){return '<button class="fchip sm'+(v===c.min&&!c.sec?' on':'')+'" data-act="fcset" data-v="'+v+'">'+v+' 分</button>';}).join('')+'</div></div>'+
     fcDistHTML(c);
+  if(c.todo)s+='<div class="danger-zone"><button class="row-btn" data-act="ftododel">今天不做這項（從待做移除）</button></div>';
   if(c.id)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="fcdel">'+(ui.confirmDel==='fc'?'再按一次，刪除這筆紀錄':'刪除這筆紀錄')+'</button></div>';
   return s+'</div>';
 }
@@ -1574,6 +1593,9 @@ function normalize(d){
     }).filter(function(en){return en.sets.length;});if(!o.s.length)delete o.s;}
     if(Array.isArray(l.c)){o.c=l.c.filter(function(c){return c&&cid(c.id)&&typeof c.type==='string'&&c.type.trim();}).slice(0,50).map(function(c){var m=Math.floor(+c.min),o={id:cid(c.id),type:c.type.trim().slice(0,12),min:isFinite(m)?Math.min(Math.max(m,0),1440):30},sc=Math.floor(+c.sec),di=+c.dist;if(isFinite(sc)&&sc>0)o.sec=Math.min(sc,59);if(isFinite(di)&&di>0)o.dist=Math.round(Math.min(di,1000)*1000)/1000;if(!o.min&&!o.sec)o.min=1;return o;});if(!o.c.length)delete o.c;}
     var mn=Math.floor(+l.min);if(isFinite(mn)&&mn>0)o.min=Math.min(mn,1440);
+    if(Array.isArray(l.todo)){o.todo=l.todo.filter(function(x){return x&&cid(x.id)&&((x.ex&&seen[cid(x.ex)])||(typeof x.ct==='string'&&x.ct.trim()));}).slice(0,50).map(function(x){
+      if(x.ex)return {id:cid(x.id),ex:cid(x.ex)};var m=Math.floor(+x.min),r={id:cid(x.id),ct:x.ct.trim().slice(0,12),min:isFinite(m)?Math.min(Math.max(m,0),1440):30},sc=Math.floor(+x.sec),di=+x.dist;if(isFinite(sc)&&sc>0)r.sec=Math.min(sc,59);if(isFinite(di)&&di>0)r.dist=Math.round(Math.min(di,1000)*1000)/1000;return r;});
+      if(!o.todo.length)delete o.todo;else{var pt=Math.floor(+l.pt);o.pt=isFinite(pt)&&pt>=o.todo.length?Math.min(pt,100):o.todo.length;}}
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
@@ -3981,8 +4003,14 @@ function renderSheet(){
   }
   if(sh.type==='cyhelp'){h=cyHelp();}
   else if(sh.type==='fitadd'){
-    h='<h2>新增運動紀錄</h2><div class="list fadd"><button class="row-btn" data-act="fpick"><span class="row-l"><span>重訓</span><span class="row-sub">選動作、記組數</span></span>'+I.right+'</button>'+
+    h='<h2>新增運動紀錄</h2><div class="list fadd">'+(fcopyDays(ui.date).length?'<button class="row-btn" data-act="fcopy"><span class="row-l"><span>複製之前的課表</span><span class="row-sub">帶入某一天的動作和有氧，先列成待做</span></span>'+I.right+'</button>':'')+'<button class="row-btn" data-act="fpick"><span class="row-l"><span>重訓</span><span class="row-sub">選動作、記組數</span></span>'+I.right+'</button>'+
       '<button class="row-btn" data-act="fcnew"><span class="row-l"><span>有氧</span><span class="row-sub">跑步、單車、游泳⋯</span></span>'+I.right+'</button></div>';
+  }else if(sh.type==='fcopy'&&!sh.k){
+    h='<h2>複製之前的課表</h2><div class="list fcopy-days">'+fcopyDays(ui.date).map(function(k){var ps=fcopyParts(k),l=fLog(k)||{},ns=(l.s||[]).filter(function(en){return exById(en.ex);}).length,nc=(l.c||[]).length;
+      return '<button class="row-btn" data-act="fcopyday" data-k="'+k+'"><span class="row-l"><span>'+mdw(k)+'</span><span class="row-sub">'+ps.map(function(p){return '<span class="cyp" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(' ')+' '+(ns?ns+' 個動作':'')+(nc?(ns?' · ':'')+'有氧 '+nc:'')+'</span></span>'+I.right+'</button>';}).join('')+'</div><p class="small muted">最近 30 天練過的日子，新的在上面。</p>';
+  }else if(sh.type==='fcopy'){var its=fcopyItems(sh.k),off=sh.off||{},non=its.filter(function(x){return !off[x.k];}).length,toK=sh.to||ui.date;
+    h='<h2>複製 '+shortMD(sh.k)+' 的課表</h2><div class="list fcopy-items">'+its.map(function(x){var on=!off[x.k];return '<button class="row-btn fcopy-it'+(on?'':' off')+'" data-act="fcopytog" data-v="'+x.k+'" aria-pressed="'+on+'"><span class="bf-ck" aria-hidden="true">'+(on?'✓':'')+'</span><span class="row-l"><span>'+esc(x.name)+'</span><span class="row-sub">'+(x.ex?'上次 ':'')+esc(x.sub)+'</span></span></button>';}).join('')+'</div>'+
+      '<p class="small muted">取消勾選'+(toK===todayKey()?'今天':'這天')+'不想做的。複製過來的先列成「待做」，練完點開確認才算數。</p><div class="stack"><button class="primary" data-act="fcopygo"'+(non?'':' disabled')+'>加入'+(toK===todayKey()?'今天':shortMD(toK))+'（'+non+' 項）</button></div>';
   }else if(sh.type==='avpick'){
     h='<h2>選頭像</h2><div class="avgrid">'+AV_IDS.map(function(c){var on=db.settings.avatar===c;return '<button class="avopt'+(on?' on':'')+'" data-act="avset" data-v="'+c+'" aria-pressed="'+on+'"><span class="av ch" style="width:64px;height:64px">'+avSvg(c,64)+'</span><small>'+avName(c)+'</small></button>';}).join('')+'</div>'+
       '<div class="stack"><button class="primary" data-act="avphoto">上傳照片</button>'+(db.settings.avatar?'<button class="secondary bad-t" data-act="avset" data-v="">拿掉頭像</button>':'')+'</div><p class="small muted">選好照片後可以拖曳、縮放調整範圍；照片會縮小後存在這支手機，匯出備份時會一起帶走。</p>';
@@ -4213,6 +4241,13 @@ function act(a,b){
     case 'ftend': if(!ftOn())break;var fst=db.settings,fend=b.dataset.v==='last'&&fst.ftLast>fst.ftStart?fst.ftLast:Date.now(),fm=b.dataset.v==='60'?60:ftMins(fst.ftStart,fend);
       l=fLogMk(fst.ftDay);l.min=Math.min(1440,(l.min||0)+fm);k=fst.ftDay;delete fst.ftStart;delete fst.ftDay;delete fst.ftLast;fTidy(k);fitSync(k);save();toast('記下重訓 '+fm+' 分鐘');break;
     case 'fmin': l=fLogMk(ui.date);l.min=Math.max(0,(l.min||0)+(+b.dataset.n));fTidy(ui.date);fitSync(ui.date);save();break;
+    case 'fcopy': ui.sheet={type:'fcopy'};break;
+    case 'fcopyday': var fk=b.dataset.k;if(!isKey(fk))return;ui.sheet={type:'fcopy',k:fk,off:{},to:fk<t&&ui.date===fk?t:ui.date};break;
+    case 'fcopytog': if(ui.sheet&&ui.sheet.off){var fv=b.dataset.v;if(ui.sheet.off[fv])delete ui.sheet.off[fv];else ui.sheet.off[fv]=1;}break;
+    case 'fcopygo': if(!ui.sheet||!ui.sheet.k)return;var fto=ui.sheet.to||ui.date,fn=fcopyGo(ui.sheet.k,fto,ui.sheet.off||{});ui.sheet=null;if(fn){ui.date=fto;go('fit');ui.fitTab='log';toast('已加入 '+fn+' 項待做');}break;
+    case 'ftodo': l=fLog(ui.date);n=l&&(l.todo||[]).filter(function(x){return x.id===id;})[0];if(!n||!exById(n.ex))return;ui.fl=newEntry(n.ex,ui.date);ui.fl.todo=n.id;ui.flHelp=false;ui.confirmDel=false;go('flog');break;
+    case 'ftodoc': l=fLog(ui.date);n=l&&(l.todo||[]).filter(function(x){return x.id===id;})[0];if(!n||n.ex)return;ui.fc={id:null,type:n.ct,min:n.min||30,sec:n.sec||0,dist:n.dist||0,k:ui.date,adding:false,todo:n.id};ui.confirmDel=false;go('fcardio');break;
+    case 'ftododel': k=ui.fl?ui.fl.k:ui.fc?ui.fc.k:null;n=ui.fl?ui.fl.todo:ui.fc?ui.fc.todo:null;if(!k||!n)return;ftodoDone(k,n);var lt=fLog(k);if(lt&&lt.pt)lt.pt=Math.max(lt.todo?lt.todo.length:0,lt.pt-1);fTidy(k);save();ui.fl=null;ui.fc=null;go('fit');toast('已從待做移除');break;
     case 'fpick': ui.sheet=null;ui.fl=null;ui.fpEdit=false;ui.fq='';go('fpick');break;
     case 'fpickp': if(PARTS.indexOf(b.dataset.v)>=0&&ui.fpart!==b.dataset.v){ui.fpart=b.dataset.v;delete db.settings.fpSub;save();}ui.fl=null;ui.fpEdit=false;ui.fq='';go('fpick');break;
     case 'cyhelp': ui.sheet={type:'cyhelp'};break;
@@ -4224,7 +4259,7 @@ function act(a,b){
     case 'fpart': if(ui.fpart!==b.dataset.v){ui.fpart=b.dataset.v;delete db.settings.fpSub;save();}break;
     case 'fpsub': if(b.dataset.v)db.settings.fpSub=b.dataset.v;else delete db.settings.fpSub;save();break;
     case 'fpeq': if(b.dataset.v)db.settings.fpEq=b.dataset.v;else delete db.settings.fpEq;save();break;
-    case 'fpickex': if(ui.fl&&ui.fl.changing){n=newEntry(id,ui.fl.k);n.id=ui.fl.id;ui.fl=n;}else ui.fl=newEntry(id,ui.date);ui.flHelp=false;ui.confirmDel=false;go('flog');break;
+    case 'fpickex': if(ui.fl&&ui.fl.changing){n=newEntry(id,ui.fl.k);n.id=ui.fl.id;n.todo=ui.fl.todo;ui.fl=n;}else ui.fl=newEntry(id,ui.date);ui.flHelp=false;ui.confirmDel=false;go('flog');break;
     case 'fexnew': ui.fx={id:null,name:(ui.fq||'').trim().slice(0,30),en:'',eq:'器械',part:PARTS.indexOf(ui.fpart)>=0?ui.fpart:'胸',sub:fpSub(),mode:'wr',unit:db.settings.fitUnit==='lbs'?'lbs':'kg'};if(fpEq())ui.fx.eq=fpEq();go('fex');break;
     case 'fphide': db.settings.fitHideUnused=!db.settings.fitHideUnused;save();break;
     case 'fxmode': ui.fx.mode=b.dataset.v;break;
@@ -4263,6 +4298,7 @@ function act(a,b){
       k=ui.fl.k;var mm=setMetric(h,sets),bb=bestBefore(h.id,k),isPr=bb!==null&&mm>bb;
       l=fLogMk(k);l.s=l.s||[];
       if(ui.fl.id){l.s=l.s.map(function(x){return x.id===ui.fl.id?{id:x.id,ex:h.id,sets:sets}:x;});}else l.s.push({id:uid(),ex:h.id,sets:sets});
+      if(ui.fl.todo)ftodoDone(k,ui.fl.todo);
       if(ftOn()&&db.settings.ftDay===k)db.settings.ftLast=Date.now();
       fTidy(k);fitSync(k);save();ui.fl=null;ui.date=k;go('fit');ui.fitTab='log';render();
       toast(isPr?'新紀錄！'+h.name+' '+fmtW(mm,mUnit(h)):'已儲存',isPr?3000:1800);return;
@@ -4280,6 +4316,7 @@ function act(a,b){
     case 'fccancel': ui.fc=null;go('fit');break;
     case 'fcsave': k=ui.fc.k;l=fLogMk(k);l.c=l.c||[];n={id:ui.fc.id||uid(),type:ui.fc.type,min:ui.fc.min};if(ui.fc.sec>0)n.sec=ui.fc.sec;if(ui.fc.dist>0&&cKind(n.type))n.dist=ui.fc.dist;
       if(ui.fc.id)l.c=l.c.map(function(x){return x.id===n.id?n:x;});else l.c.push(n);
+      if(ui.fc.todo)ftodoDone(k,ui.fc.todo);
       fTidy(k);fitSync(k);save();ui.fc=null;ui.date=k;go('fit');ui.fitTab='log';toast('已儲存');break;
     case 'fcdel': if(ui.confirmDel!=='fc'){ui.confirmDel='fc';break;}k=ui.fc.k;l=fLog(k);if(l&&l.c)l.c=l.c.filter(function(x){return x.id!==ui.fc.id;});fTidy(k);fitSync(k);save();ui.fc=null;ui.confirmDel=false;go('fit');toast('已刪除這筆紀錄');break;
     case 'demoreset': if(!DEMO)return;ui.date=t;ui.follow=true;ui.fpx=null;ui.ob=null;

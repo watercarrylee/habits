@@ -828,6 +828,31 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'buy');
   }
 
+  console.log('• 複製課表');
+  {
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true, onboarded: true }, rewards: [], redeemed: [], logs: {}, habits: [],
+      fit: { ex: [{ id: 'e1', name: '臥推', eq: '槓鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'e2', name: '划船', eq: '槓鈴', part: '背', mode: 'wr', unit: 'kg' }], ctypes: [],
+        logs: { [daysAgo(2)]: { s: [{ id: 'a1', ex: 'e1', sets: [[40, 10], [40, 10]] }, { id: 'a2', ex: 'e2', sets: [[30, 12]] }], c: [{ id: 'c1', type: '跑步機', min: 20, dist: 2.5 }] }, [daysAgo(5)]: { s: [{ id: 'b1', ex: 'e2', sets: [[25, 12]] }] } } } } });
+    await p.click('[data-tab=fit]'); await p.click('[data-act=ftab][data-v=log]').catch(() => {});
+    await p.click('[data-act=fcopy]'); ok((await p.$$('.fcopy-days .row-btn')).length === 2, 'copy: lists recent training days');
+    await p.click('.fcopy-days .row-btn >> nth=0'); ok((await p.$$('.fcopy-it')).length === 3 && /40 kg/.test(await p.innerText('.fcopy-items')), 'copy: preview lists that day\'s items');
+    await p.click('[data-act=fcopytog][data-v=sa2]'); ok(/加入今天（2 項）/.test(await p.innerText('[data-act=fcopygo]')), 'copy: untick one');
+    await p.click('[data-act=fcopygo]'); await p.waitForTimeout(200);
+    let d = await db(p), lt = d.fit.logs[T];
+    ok(lt && lt.todo.length === 2 && !lt.s && !lt.c && lt.pt === 2, 'copy: added as 待做 only (not counted as training)');
+    ok((await p.$$('.ftodo')).length === 2 && /0<\/b> \/ 2 完成|0 \/ 2 完成/.test(await p.innerText('.fplan')), 'copy: 待做 cards and progress shown');
+    await p.click('[data-act=ftodo]'); ok(/臥推/.test(await p.innerText('main')) && !!(await p.$('[data-act=ftododel]')), 'copy: opens the editor with a skip option');
+    await p.click('[data-act=flsave]'); await p.waitForTimeout(200); d = await db(p); lt = d.fit.logs[T];
+    ok(lt.s.length === 1 && lt.s[0].ex === 'e1' && JSON.stringify(lt.s[0].sets) === '[[40,10],[40,10]]' && lt.todo.length === 1, 'copy: saving a 待做 records it with last sets and clears it');
+    ok(/1<\/b> \/ 2|1 \/ 2 完成/.test(await p.innerText('.fplan')), 'copy: progress 1 / 2');
+    await p.click('[data-act=ftodoc]'); await p.click('[data-act=ftododel]'); await p.waitForTimeout(200); d = await db(p); lt = d.fit.logs[T];
+    ok(!lt.todo && !lt.pt && lt.s.length === 1 && !lt.c, 'copy: skipping removes the 待做');
+    await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="-1"]');
+    await p.click('[data-act=fcopyday]'); await p.click('[data-act=fcopygo]'); await p.waitForTimeout(200); d = await db(p);
+    ok(d.fit.logs[T].todo.length === 3 && /今天/.test(await p.innerText('.dnav-c')), 'copy: 用這天的課表 from a past day brings it to today');
+    await done(p, 'copy');
+  }
+
   console.log('• 填息');
   {
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
