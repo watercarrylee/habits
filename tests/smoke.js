@@ -850,6 +850,16 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="-1"]');
     await p.click('[data-act=fcopyday]'); await p.click('[data-act=fcopygo]'); await p.waitForTimeout(200); d = await db(p);
     ok(d.fit.logs[T].todo.length === 3 && /今天/.test(await p.innerText('.dnav-c')), 'copy: 用這天的課表 from a past day brings it to today');
+    { const x0 = d.fit.logs[T].todo.find(x => x.ex === 'e2'); await p.click('[data-act=fswap][data-id="' + x0.id + '"]');
+      ok(/換掉划船/.test(await p.innerText('#sheet')), 'swap: sheet lists alternatives');
+      await p.click('[data-act=fswapgo] >> nth=0'); await p.waitForTimeout(200); d = await db(p); const x1 = d.fit.logs[T].todo.find(x => x.id === x0.id);
+      ok(x1.ex !== 'e2' && x1.sw === 'e2' && /換自划船/.test(await p.innerText('main')), 'swap: 待做 replaced, origin shown'); }
+    { const cp = await p.$('.cypt'); if (cp) { const pt = await cp.getAttribute('data-v'); await cp.click();
+        ok(new RegExp('今天練' + pt).test(await p.innerText('#sheet')) && !!(await p.$('[data-act=fpartgo]')), 'part: tapping a suggested part opens its list (' + pt + ')');
+        const n0 = (await db(p)).fit.logs[T].todo.length, tick = await p.$('[data-act=fparttog].off'); if (tick) await tick.click();
+        const on = await p.$$eval('[data-act=fparttog][aria-pressed=true]', x => x.length); await p.click('[data-act=fpartgo]'); await p.waitForTimeout(200);
+        ok((await db(p)).fit.logs[T].todo.length === n0 + on && on > 0, 'part: chosen exercises added as 待做 (' + on + ')'); }
+      else ok(false, 'part: suggestion parts are tappable'); }
     await done(p, 'copy');
   }
 
