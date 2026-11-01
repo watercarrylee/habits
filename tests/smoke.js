@@ -1347,6 +1347,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(await p.evaluate(() => { const r = [...document.querySelectorAll('#fplist .fprow')]; return r.length > 0 && r.every(x => x.querySelector('.fico.pose svg path')); }), 'pose: every picker row has a pose drawing');
     await p.fill('#fq', '');
     ok(await p.evaluate(() => { const r = [...document.querySelectorAll('#fplist .fprow .fico.pose')]; return r.length >= 10 && r.every(x => x.querySelectorAll('svg > *').length > 3) && new Set(r.map(x => x.dataset.pose)).size >= 4; }), 'pose: picker rows drawn with varied poses');
+    await p.fill('#fq', '啞鈴臥推'); ok(await p.evaluate(() => document.querySelector('#fplist .fprow .fico.pose').dataset.pose === 'bench_db'), 'pose: dumbbell bench has its own drawing');
     await p.fill('#fq', '上斜槓鈴'); ok(await p.evaluate(() => document.querySelector('#fplist .fprow .fico.pose').dataset.pose === 'bench_inc'), 'pose: incline bench has its own drawing');
     await p.fill('#fq', '下斜槓鈴'); ok(await p.evaluate(() => document.querySelector('#fplist .fprow .fico.pose').dataset.pose === 'bench_dec'), 'pose: decline bench has its own drawing');
     await done(p, 'timer');
