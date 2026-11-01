@@ -1348,6 +1348,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.fill('#fq', '');
     ok(await p.evaluate(() => { const r = [...document.querySelectorAll('#fplist .fprow .fico.pose')]; return r.length >= 10 && r.every(x => x.querySelectorAll('svg > *').length > 3) && new Set(r.map(x => x.dataset.pose)).size >= 4; }), 'pose: picker rows drawn with varied poses');
     await p.fill('#fq', '啞鈴臥推'); ok(await p.evaluate(() => document.querySelector('#fplist .fprow .fico.pose').dataset.pose === 'bench_db'), 'pose: dumbbell bench has its own drawing');
+    await p.fill('#fq', '上斜啞鈴'); ok(await p.evaluate(() => document.querySelector('#fplist .fprow .fico.pose').dataset.pose === 'bench_inc_db'), 'pose: incline dumbbell bench');
+    await p.fill('#fq', '槓鈴彎舉'); ok(await p.evaluate(() => document.querySelector('#fplist .fprow .fico.pose').dataset.pose === 'curl_bb'), 'pose: barbell curl uses the barbell variant');
+    await p.fill('#fq', '啞鈴夾胸'); ok(await p.evaluate(() => document.querySelector('#fplist .fprow .fico.pose').dataset.pose === 'dbfly'), 'pose: dumbbell fly lies on a bench');
     await p.fill('#fq', '上斜槓鈴'); ok(await p.evaluate(() => document.querySelector('#fplist .fprow .fico.pose').dataset.pose === 'bench_inc'), 'pose: incline bench has its own drawing');
     await p.fill('#fq', '下斜槓鈴'); ok(await p.evaluate(() => document.querySelector('#fplist .fprow .fico.pose').dataset.pose === 'bench_dec'), 'pose: decline bench has its own drawing');
     await done(p, 'timer');
