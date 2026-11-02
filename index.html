@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-0eukf2i/1mpMsV3EtuWAwgIRQm3NS4cb49CF2KfDKs4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-WUJ50jD3IZdV3Ig3neCkdXEfDE9hhcMwJOfMiLScsdc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1084,7 +1084,7 @@ function exTag(e){return e.eq+' · '+e.part+(e.eq==='啞鈴'?' · 單手':'');}
 function caIco(t){return CAI[t]||CA_OTHER;}
 function fLog(k){return db.fit.logs[k];}
 function fLogMk(k){return db.fit.logs[k]||(db.fit.logs[k]={});}
-function fTidy(k){var l=db.fit.logs[k];if(!l)return;if(l.s&&!l.s.length)delete l.s;if(l.c&&!l.c.length)delete l.c;if(l.todo&&!l.todo.length){delete l.todo;delete l.pt;}if(!l.todo)delete l.pt;if(!l.min)delete l.min;if(!Object.keys(l).length)delete db.fit.logs[k];}
+function fTidy(k){var l=db.fit.logs[k];if(!l)return;if(l.s&&!l.s.length)delete l.s;if(l.c&&!l.c.length)delete l.c;if(l.todo&&!l.todo.length){delete l.todo;delete l.pt;}if(!l.todo)delete l.pt;if(!l.min)delete l.min;if(!l.st)delete l.st;if(!Object.keys(l).length)delete db.fit.logs[k];}
 /* 子部位: each exercise may name one main sub-part of its 部位 (上胸／中胸／下胸 …); built-ins come pre-labelled */
 var SUBS={'胸':['上胸','中胸','下胸'],'背':['上背','背闊','下背'],'肩':['前束','中束','後束'],'二頭':['二頭','前臂'],'腿':['股四頭','腿後','內收'],'臀':['臀大肌','臀中肌'],'核心':['腹直肌','腹斜肌']};
 var PRESET_SUB={p1:'中胸',p2:'中胸',p3:'上胸',p4:'中胸',p5:'中胸',p6:'背闊',p7:'上背',p8:'背闊',p9:'背闊',p10:'下背',p11:'前束',p12:'中束',p13:'後束',p14:'二頭',p15:'二頭',p18:'股四頭',p19:'股四頭',p20:'股四頭',p21:'臀大肌',p22:'臀大肌',p23:'腹直肌',p24:'腹直肌',p25:'上背',p26:'中胸',p27:'上胸',p28:'中胸',p29:'背闊',p30:'上背',p31:'上背',p32:'背闊',p33:'下背',p34:'前束',p35:'前束',p36:'中束',p38:'前臂',p39:'二頭',p42:'腿後',p43:'股四頭',p44:'股四頭',p45:'股四頭',p46:'臀中肌',p48:'腹直肌',p49:'腹直肌',p50:'腹直肌',p53:'中胸',p54:'二頭',p56:'中束',p58:'腿後',p59:'臀大肌',p60:'臀中肌',p61:'下背',p62:'腹直肌',p63:'腹斜肌',p64:'臀大肌',p66:'腹斜肌',p67:'下胸',p68:'下胸',p69:'上胸',p70:'背闊',p71:'中胸',p72:'中胸',p73:'上胸',p74:'下胸'};
@@ -1127,11 +1127,15 @@ function mdw(k){var d=parseKey(k);return (d.getMonth()+1)+'月'+d.getDate()+'日
 function fitLinked(){return db.habits.filter(function(h){return h.fitLink&&!h.archived&&h.kind==='good'&&h.method==='check';});}
 var SPORT_RE=/運動|健身|重訓|有氧|跑|走路|散步|健走|步|游泳|騎|單車|自行車|瑜珈|瑜伽|伸展|球|拳|爬山|登山|划|跳繩|皮拉提斯|飛輪|舞|攀岩|tabata|hiit|gym/i;
 function fitEligible(d){return !!d.fitLink||d.icon==='fitness'||d.icon==='run'||SPORT_RE.test(d.name||'');}
+/* 伸展: its own minutes (l.st), never counted in 運動 minutes; a linked habit named 伸展／拉筋／瑜珈 is judged by them alone */
+var STRETCH_RE=/伸展|拉筋|瑜珈|瑜伽|stretch/i;
+function isStretchH(h){return STRETCH_RE.test(h.name||'');}
+function stMin(k){var l=fLog(k);return l&&l.st||0;}
 function fitTarget(h){var m=String(h.name).match(/(\d+)\s*(分鐘|分|min)/i);return m?+m[1]:0;}
 function fitMinutes(k){var l=fLog(k);if(!l)return {c:0,s:0,tot:0,any:false};var c=(l.c||[]).reduce(function(a,x){return a+cMin(x);},0),s=l.min||0;
   return {c:c,s:s,tot:c+s,any:!!((l.s&&l.s.length)||(l.c&&l.c.length)||s)};}
 function unAuto(k,id){var l=db.logs[k];if(l&&l.fa){var i=l.fa.indexOf(id);if(i>=0)l.fa.splice(i,1);if(!l.fa.length)delete l.fa;}}
-function fitOk(h,k){var fm=fitMinutes(k),tg=fitTarget(h);return tg?fm.tot>=tg:fm.any;}
+function fitOk(h,k){var tg=fitTarget(h);if(isStretchH(h)){var sm=stMin(k);return tg?sm>=tg:sm>0;}var fm=fitMinutes(k);return tg?fm.tot>=tg:fm.any;}
 /* 重訓計時: the start time is saved, so the phone can sleep or the app close; 結束 adds the minutes to that day's 重訓時間.
    Over 3 hours without 結束 → ask, offering the time of the last set logged while timing. */
 var FT_MAX=3*3600e3;
@@ -1148,7 +1152,15 @@ function ftHTML(k){var st=db.settings,t=todayKey();
       '<button class="secondary" data-act="ftend" data-v="60">記 60 分鐘</button><button class="ghost" data-act="ftcancel">不記，取消計時</button></div></div>';}
   return '<div class="ftbox"><div><b id="ftel">'+ftMins(st.ftStart,Date.now()-30000)+' 分</b><span class="small muted">'+hm(st.ftStart)+' 開始 · 計時中</span></div><div class="ftacts">'+
     '<button class="ghost" data-act="ftcancel">取消</button><button class="primary" data-act="ftend">結束</button></div></div>';}
-function ftTick(){var e=$('#ftel');if(e&&ftOn()){var el=Date.now()-db.settings.ftStart;if(el>FT_MAX)render();else e.textContent=ftMins(db.settings.ftStart,Date.now()-30000)+' 分';}}
+function stOn(){var st=db.settings;return st.stStart>0&&isKey(st.stDay);}
+function stHTML(k){var st=db.settings,t=todayKey();
+  if(!stOn())return k===t?'<button class="ghost ftgo" data-act="ststart"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2M10 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>開始計時</button>':'';
+  if(st.stDay!==k)return '';
+  if(Date.now()-st.stStart>FT_MAX)return '<div class="ftbox stale"><div><b>伸展計時還沒結束</b><span class="small muted">'+(st.stDay===t?'今天':shortMD(st.stDay))+' '+hm(st.stStart)+' 開始，已經超過 3 小時</span></div><div class="ftacts">'+
+    '<button class="secondary" data-act="stend" data-v="15">記 15 分鐘</button><button class="ghost" data-act="stcancel">不記，取消計時</button></div></div>';
+  return '<div class="ftbox"><div><b id="stel">'+ftMins(st.stStart,Date.now()-30000)+' 分</b><span class="small muted">伸展 · '+hm(st.stStart)+' 開始 · 計時中</span></div><div class="ftacts">'+
+    '<button class="ghost" data-act="stcancel">取消</button><button class="primary" data-act="stend">結束</button></div></div>';}
+function ftTick(){var se=$('#stel');if(se&&stOn()){if(Date.now()-db.settings.stStart>FT_MAX){render();return;}se.textContent=ftMins(db.settings.stStart,Date.now()-30000)+' 分';}var e=$('#ftel');if(e&&ftOn()){var el=Date.now()-db.settings.ftStart;if(el>FT_MAX)render();else e.textContent=ftMins(db.settings.ftStart,Date.now()-30000)+' 分';}}
 setInterval(ftTick,20000);
 function fitSync(k){
   if(!fOn())return;
@@ -1156,13 +1168,14 @@ function fitSync(k){
   db.habits.forEach(function(h){
     if(h.kind!=='good'||h.archived||!h.fitLink||h.method!=='check')return;
     var auto=fa.indexOf(h.id)>=0,on=val(k,h.id)>0;
-    var tg=fitTarget(h),ok=tg?fm.tot>=tg:fm.any;
+    var ok=fitOk(h,k);
     if(ok&&!on&&k>=h.created){var l=db.logs[k]||(db.logs[k]={});l.h=l.h||{};l.h[h.id]=1;fa.push(h.id);changed=true;}
     else if(!ok&&on&&auto){delete db.logs[k].h[h.id];fa.splice(fa.indexOf(h.id),1);changed=true;}
   });
   if(changed){var L=db.logs[k]||(db.logs[k]={});if(fa.length)L.fa=fa;else delete L.fa;tidy(k);}
 }
 function fitLinkMsg(h,k){var tg=fitTarget(h),fm=fitMinutes(k),on=val(k,h.id)>0;
+  if(isStretchH(h)){var sm=stMin(k);if(!tg)return '「'+esc(h.name)+'」：這天有伸展就自動打勾'+(on?'，已打勾 ✓':'');return '「'+esc(h.name)+'」：伸展 '+sm+' 分，'+(on?'已打勾 ✓':'還差 '+(tg-sm)+' 分');}
   if(!tg)return '「'+esc(h.name)+'」：這天有運動紀錄就自動打勾'+(on?'，已打勾 ✓':'');
   return '「'+esc(h.name)+'」：有氧 '+minTxt(fm.c)+' ＋ 重訓 '+fm.s+' 分 ＝ '+minTxt(fm.tot)+'，'+(on?'已打勾 ✓':'還差 '+minTxt(tg-fm.tot));}
 function minTxt(m){var sec=Math.round(m*60);return sec%60?durTxt(sec):Math.round(sec/60)+' 分';}
@@ -1214,6 +1227,7 @@ function fitLogHTML(){
     '<div class="dnav-c"><b>'+mdw(k)+'</b><span>'+relDay(k)+'</span></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></div>';
   if(ftOn()&&db.settings.ftDay===k)s+='<div class="fttop">'+ftHTML(k)+'</div>'; // running timer stays near the top
+  if(stOn()&&db.settings.stDay===k)s+='<div class="fttop">'+stHTML(k)+'</div>';
   s+=cyWeekHTML();
   var ss=(l.s||[]).filter(function(en){return exById(en.ex);}),cc=l.c||[],td=(l.todo||[]).filter(function(x){return !x.ex||exById(x.ex);}),tds=td.filter(function(x){return x.ex;}),tdc=td.filter(function(x){return !x.ex;});
   var partsOrder=[];ss.forEach(function(en){var pt=exById(en.ex).part;if(partsOrder.indexOf(pt)<0)partsOrder.push(pt);});
@@ -1245,14 +1259,17 @@ function fitLogHTML(){
       s+=(ordC?'<div class="ftodo-w">':'')+'<button class="fcard center" data-act="cedit" data-id="'+c.id+'"'+(ordC?' disabled':'')+'>'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b>'+(sub?'<span class="small muted">'+sub+'</span>':'')+'</span><span class="fmins">'+durTxt(cSecs(c))+'</span></button>'+(ordC?mvBtns('fmvc',c.id)+'</div>':'');});
     tdc.forEach(function(x){s+=ftodoCard(x,k,tdMap[x.id],ordC);});
     s+='</section>';return s;}
-  if(!ss.length&&!cc.length&&!td.length&&!(fLog(k)||{}).min){
+  if(!ss.length&&!cc.length&&!td.length&&!(fLog(k)||{}).min&&!stMin(k)){
     s+='<div class="empty" style="align-items:center;text-align:center"><div class="empty-t">這天沒有運動紀錄</div><p>'+(k<t?'補記一下，趨勢圖會比較完整。':'練完記下來，之後就能看到進步。')+'</p></div>';
   }
-  var linked=fitLinked(),fm=fitMinutes(k);
+  var linkedAll=fitLinked(),linked=linkedAll.filter(function(h){return !isStretchH(h);}),linkedSt=linkedAll.filter(isStretchH),fm=fitMinutes(k),sm=stMin(k);
   {
     s+='<section class="fmin"><div class="fmin-r"><span class="row-l"><span>重訓時間</span><span class="row-sub">選填 · '+(linked.length?'會和有氧分鐘加總，用來自動打勾':'記下今天重訓練了多久')+'</span></span>'+
       '<span class="stepper"><button data-act="fmin" data-n="-5" aria-label="減 5 分鐘"'+(fm.s?'':' disabled')+'>−</button><span class="v">'+(fm.s?fm.s+' 分':'—')+'</span><button class="go" data-act="fmin" data-n="5" aria-label="加 5 分鐘">＋</button></span></div>'+
       (ftOn()?'':ftHTML(k))+linked.map(function(h){return '<div class="flink">'+fitLinkMsg(h,k)+'</div>';}).join('')+'</section>';
+    s+='<section class="fmin"><div class="fmin-r"><span class="row-l"><span>伸展</span><span class="row-sub">選填 · 另外計算，不算進運動分鐘</span></span>'+
+      '<span class="stepper"><button data-act="fst" data-n="-5" aria-label="伸展減 5 分鐘"'+(sm?'':' disabled')+'>−</button><span class="v">'+(sm?sm+' 分':'—')+'</span><button class="go" data-act="fst" data-n="5" aria-label="伸展加 5 分鐘">＋</button></span></div>'+
+      (stOn()?'':stHTML(k))+linkedSt.map(function(h){return '<div class="flink">'+fitLinkMsg(h,k)+'</div>';}).join('')+'</section>';
   }
   if(k<t&&(ss.length||cc.length))s+='<button class="secondary fusecopy" data-act="fcopyday" data-k="'+k+'">用這天的課表（帶到今天）</button>';
   if(!ss.length&&!cc.length&&!td.length)s+='<div class="fbtns"><button class="primary" data-act="fpick">＋ 重訓</button><button class="secondary" data-act="fcnew">＋ 有氧</button>'+(fcopyDays(k).length?'<button class="secondary fbtn-copy" data-act="fcopy">複製之前的課表</button>':'')+'</div>';
@@ -1667,13 +1684,14 @@ function normalize(d){
     }).filter(function(en){return en.sets.length;});if(!o.s.length)delete o.s;}
     if(Array.isArray(l.c)){o.c=l.c.filter(function(c){return c&&cid(c.id)&&typeof c.type==='string'&&c.type.trim();}).slice(0,50).map(function(c){var m=Math.floor(+c.min),o={id:cid(c.id),type:c.type.trim().slice(0,12),min:isFinite(m)?Math.min(Math.max(m,0),1440):30},sc=Math.floor(+c.sec),di=+c.dist;if(isFinite(sc)&&sc>0)o.sec=Math.min(sc,59);if(isFinite(di)&&di>0)o.dist=Math.round(Math.min(di,1000)*1000)/1000;if(!o.min&&!o.sec)o.min=1;return o;});if(!o.c.length)delete o.c;}
     var mn=Math.floor(+l.min);if(isFinite(mn)&&mn>0)o.min=Math.min(mn,1440);
+    var sm=Math.floor(+l.st);if(isFinite(sm)&&sm>0)o.st=Math.min(sm,1440);
     if(Array.isArray(l.todo)){o.todo=l.todo.filter(function(x){return x&&cid(x.id)&&((x.ex&&seen[cid(x.ex)])||(typeof x.ct==='string'&&x.ct.trim()));}).slice(0,50).map(function(x){
       if(x.ex)return x.sw&&seen[cid(x.sw)]&&cid(x.sw)!==cid(x.ex)?{id:cid(x.id),ex:cid(x.ex),sw:cid(x.sw)}:{id:cid(x.id),ex:cid(x.ex)};var m=Math.floor(+x.min),r={id:cid(x.id),ct:x.ct.trim().slice(0,12),min:isFinite(m)?Math.min(Math.max(m,0),1440):30},sc=Math.floor(+x.sec),di=+x.dist;if(isFinite(sc)&&sc>0)r.sec=Math.min(sc,59);if(isFinite(di)&&di>0)r.dist=Math.round(Math.min(di,1000)*1000)/1000;return r;});
       if(!o.todo.length)delete o.todo;else{var pt=Math.floor(+l.pt);o.pt=isFinite(pt)&&pt>=o.todo.length?Math.min(pt,100):o.todo.length;}}
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,onboarded:!!st.onboarded,divSkip:typeof st.divSkip==='string'&&/^[0-9A-Z|,\-]*$/.test(st.divSkip)?st.divSkip.slice(-4000)||undefined:undefined,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman|egg|cat)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),divs:normDivs(d.divs),buys:normBuys(d.buys),prof:normProf(d.prof),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,stStart:+st.stStart>1.6e12&&+st.stStart<Date.now()+864e5?+st.stStart:undefined,stDay:isKey(st.stDay)?st.stDay:undefined,onboarded:!!st.onboarded,divSkip:typeof st.divSkip==='string'&&/^[0-9A-Z|,\-]*$/.test(st.divSkip)?st.divSkip.slice(-4000)||undefined:undefined,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman|egg|cat)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),divs:normDivs(d.divs),buys:normBuys(d.buys),prof:normProf(d.prof),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k)&&k!=='photos')R[k]=d[k];});
@@ -1873,7 +1891,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.02-3';
+var APP_VER='2026.11.02-4';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4330,10 +4348,14 @@ function act(a,b){
     case 'ftab': ui.fitTab=b.dataset.v;ui.top=true;break;
     case 'frange': ui.frange=+b.dataset.v;break;
     case 'fphelp': ui.fpHelp=!ui.fpHelp;break;
-    case 'ftstart': db.settings.ftStart=Date.now();db.settings.ftDay=todayKey();delete db.settings.ftLast;save();toast('開始計時，練完記得按「結束」');break;
+    case 'ftstart': if(stOn()){toast('伸展正在計時，先結束伸展再開始重訓計時',2600);return;}db.settings.ftStart=Date.now();db.settings.ftDay=todayKey();delete db.settings.ftLast;save();toast('開始計時，練完記得按「結束」');break;
     case 'ftcancel': delete db.settings.ftStart;delete db.settings.ftDay;delete db.settings.ftLast;save();toast('已取消計時');break;
     case 'ftend': if(!ftOn())break;var fst=db.settings,fend=b.dataset.v==='last'&&fst.ftLast>fst.ftStart?fst.ftLast:Date.now(),fm=b.dataset.v==='60'?60:ftMins(fst.ftStart,fend);
       l=fLogMk(fst.ftDay);l.min=Math.min(1440,(l.min||0)+fm);k=fst.ftDay;delete fst.ftStart;delete fst.ftDay;delete fst.ftLast;fTidy(k);fitSync(k);save();toast('記下重訓 '+fm+' 分鐘');break;
+    case 'ststart': if(ftOn()){toast('重訓正在計時，先結束重訓再開始伸展計時',2600);return;}db.settings.stStart=Date.now();db.settings.stDay=todayKey();save();toast('開始伸展計時，做完記得按「結束」');break;
+    case 'stcancel': delete db.settings.stStart;delete db.settings.stDay;save();toast('已取消伸展計時');break;
+    case 'stend': if(!stOn())break;var sst=db.settings,smn=b.dataset.v==='15'?15:ftMins(sst.stStart,Date.now());l=fLogMk(sst.stDay);l.st=Math.min(1440,(l.st||0)+smn);k=sst.stDay;delete sst.stStart;delete sst.stDay;fTidy(k);fitSync(k);save();toast('記下伸展 '+smn+' 分鐘');break;
+    case 'fst': l=fLogMk(ui.date);l.st=Math.max(0,(l.st||0)+(+b.dataset.n));fTidy(ui.date);fitSync(ui.date);save();break;
     case 'fmin': l=fLogMk(ui.date);l.min=Math.max(0,(l.min||0)+(+b.dataset.n));fTidy(ui.date);fitSync(ui.date);save();break;
     case 'fcopy': ui.sheet={type:'fcopy'};break;
     case 'fpartadd': var PL0=fPartList(b.dataset.v),on0={};PL0.usual.forEach(function(e){on0[e.id]=1;});ui.sheet={type:'fpartadd',p:b.dataset.v,on:on0};break;
