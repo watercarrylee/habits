@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-UEWBPVGze1kbbZeLl/j55FOI5HdEQg5aa68omLgNsfM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-cGsA7dMVoueO7YBiOpyyNMkrbpv8bKh8fxf0Zo6uz4Y='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -844,37 +844,6 @@ html:root[data-skin=ice]{
 .skinbtn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 6px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:14px}
 .skinbtn.on{border-color:var(--good);box-shadow:0 0 0 1.5px var(--good) inset;font-weight:700}
 .skinsw{display:flex;gap:4px}.skinsw i{width:16px;height:16px;border-radius:8px;display:block;border:1px solid rgba(0,0,0,.12)}
-/* 回顧與慶祝畫面 (--hv* follow the skin) */
-:root{--hv1:#1F4D3A;--hv2:#173B2D;--hvh1:#2A6047;--hvh2:#3C8560;--hvl1:#5FAE5A;--hvl2:#C8E86F;--hvs:#7CC46A;--hvc:#F3F7B5;--hvb:#CDEFD8;--hvn:#9FD58C;--hvt:#fff}
-html:root[data-skin=sport]{--hv1:#FC5200;--hv2:#D94400;--hvh1:#FF7A33;--hvh2:#FF9C63;--hvl1:#FFD9C2;--hvl2:#FFFFFF;--hvs:#FFE3D2;--hvc:#FFFFFF;--hvb:#FFFFFF;--hvn:#FFE0CF}
-html:root[data-skin=volt]{--hv1:#111111;--hv2:#000000;--hvh1:#1C1C1C;--hvh2:#2C2C2C;--hvl1:#9DBF00;--hvl2:#D8FF00;--hvs:#B8E000;--hvc:#F4FFB0;--hvb:#D8FF00;--hvn:#D8FF00}
-html:root[data-skin=ice]{--hv1:#2D6A89;--hv2:#1F4E66;--hvh1:#3B7C9C;--hvh2:#5A9BB9;--hvl1:#C9658F;--hvl2:#F4BDD3;--hvs:#E7A3C1;--hvc:#FFE9F2;--hvb:#DCEFF7;--hvn:#CBE0EA}
-#hv{position:fixed;inset:0;z-index:60;overflow-y:auto;background:var(--bg);-webkit-overflow-scrolling:touch}
-.hv{min-height:100%;display:flex;flex-direction:column}
-.hv-top{background:linear-gradient(var(--hv1),var(--hv2));color:var(--hvt);position:relative;overflow:hidden}
-.hv-in{padding:calc(env(safe-area-inset-top) + 48px) 26px 0;position:relative}
-.hv-x{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:16px;width:36px;height:36px;border-radius:18px;border:0;background:#ffffff26;color:#fff;display:flex;align-items:center;justify-content:center;z-index:2}
-.hv-k{font-size:14px;opacity:.85;font-weight:600}.hv-k.sp{letter-spacing:.2em;font-size:13px}
-.hv-big{font-family:var(--font);font-size:80px;font-weight:800;line-height:1;margin:10px 0 6px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.hv-big small{font-size:32px;margin-left:2px}.hv-big.m{font-size:58px}.hv-big.l{font-size:48px}
-.hv-v{font-size:23px;font-weight:800}.hv-s{font-size:14px;opacity:.88;line-height:1.55;margin-top:6px}
-.hv-bars{display:flex;justify-content:space-between;align-items:flex-end;height:92px;margin-top:14px;max-width:300px}.hv-bc{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}.hv-bc i{display:block;width:11px;background:var(--hvb);border-radius:2px}.hv-bc span{font-size:12px;opacity:.85;white-space:nowrap}
-.hv-scene{display:block;width:100%;height:150px}
-.hv-body{padding:14px 16px calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column;gap:10px;flex:1}
-.hv-tri{display:grid;gap:6px;background:var(--surface);border-radius:16px;padding:12px 14px}.hv-tri div{font-size:12px;color:var(--muted)}.hv-tri b{display:block;font-size:17px;color:var(--fg);font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
-.hv-card{background:var(--surface);border-radius:16px;padding:10px 14px}.hv-card.small{font-size:14px;color:var(--muted)}.hv-card.small b{color:var(--fg)}
-.hv-r{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:5px 0}.hv-r b{font-weight:800}
-.hv-go{margin-top:auto}
-.hv-full{position:relative;min-height:100%;background:linear-gradient(var(--hv1),var(--hv2));color:#fff;overflow:hidden}.hv-full.hv-gold{background:linear-gradient(#8A6418,#3E2C08)}
-.hv-bg{position:absolute;inset:0;width:100%;height:100%}
-.hv-fc{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:calc(env(safe-area-inset-top) + 70px) 24px 0}
-.hv-huge{font-family:var(--font);font-size:120px;font-weight:800;line-height:1;letter-spacing:-.03em;margin-top:6px}.hv-huge.mid{font-size:56px;margin-top:10px}
-.hv-t{font-size:24px;font-weight:800;margin-top:6px}.hv-gift svg{width:60px;height:60px;margin-bottom:12px}
-.hv-btns{position:absolute;left:24px;right:24px;bottom:calc(env(safe-area-inset-bottom) + 30px);display:flex;flex-direction:column;gap:10px}
-.hv-w,.hv-o{border-radius:16px;padding:14px;font-weight:800;font-size:16px;border:0}.hv-w{background:#fff;color:var(--hv1)}.hv-gold .hv-w{color:#5C4310}.hv-o{background:none;border:2px solid #ffffffcc;color:#fff}
-.shero{margin:4px 0 14px}.shero .hv-top{border-radius:22px}.shero .hv-in{padding:18px 20px 0}.shero .hv-big{font-size:60px}.shero .hv-v{font-size:19px}.shero .hv-bars{height:72px}
-.sh-nav{display:flex;align-items:center;justify-content:space-between;font-size:12px;opacity:.85;margin:8px -8px 0}.sh-nav .iconbtn{color:#fff;background:none}.sh-nav .iconbtn:disabled{opacity:.3}
-.sh-trend{background:#00000033;padding:8px 0 6px;margin-top:8px}.sh-trend svg{display:block;width:100%;height:130px}.sh-m{position:relative;height:16px;font-size:11px;opacity:.7}.sh-m span{position:absolute;transform:translateX(-50%);white-space:nowrap}
-.sh-links{display:flex;gap:18px;justify-content:center;margin-top:6px}.sh-links .linkish{display:inline-flex;align-items:center;gap:2px}
 </style>
 
 <div class="app">
@@ -904,7 +873,6 @@ html:root[data-skin=ice]{--hv1:#2D6A89;--hv2:#1F4E66;--hvh1:#3B7C9C;--hvh2:#5A9B
 </div>
 <div id="sheet" hidden></div>
 <div id="toast" role="status" hidden></div>
-<div id="hv" hidden></div>
 <input type="file" id="importFile" accept="application/json,.json,.txt" hidden>
 
 <script>
@@ -1902,7 +1870,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.02-1';
+var APP_VER='2026.11.01-4';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2387,7 +2355,7 @@ function progressOf(r,h,tot){
 /* small dots on the bottom tabs: a reward ready to redeem; backup due or a new 更新紀錄 */
 function bkDue(){if(DEMO||PREVIEW||!db.habits.length)return false;var o=bkGet(),t=todayKey();if(o.snooze&&o.snooze>t)return false;
   var lim=isIOS()&&!isStandalone()?7:14,age=o.at?daysSince(o.at):daysSince(firstUseKey());return age>=lim;}
-function tabBadges(){var rw=false;try{syncRewards();var tot=savingsTotals();rw=db.rewards.some(function(r){return pending(r,tot)>0;});rwWatch(tot);}catch(e){}
+function tabBadges(){var rw=false;try{syncRewards();var tot=savingsTotals();rw=db.rewards.some(function(r){return pending(r,tot)>0;});}catch(e){}
   var st=bkDue()||!clSeen();
   var a=document.querySelector('.tab[data-tab=rewards]'),b=document.querySelector('.tab[data-tab=settings]');
   if(a)a.classList.toggle('tdot',rw);if(b)b.classList.toggle('tdot',st);}
@@ -3466,112 +3434,6 @@ function avCrop(file){var u=URL.createObjectURL(file),im=new Image();
       cv.toBlob(function(b){close();if(!b){toast('這張照片無法讀取，請換一張試試',3000);return;}avSavePhoto(b).catch(function(){toast('頭像存不進去，請再試一次',3000);});},'image/jpeg',0.85);});
     ov.__crop={get:function(){return {s:s,tx:tx,ty:ty,smin:smin,C0:C0,D:D};}};};
   im.src=u;}
-/* ---------- 回顧與慶祝畫面: 週報 (first open each week), 月報 (first open each month, with 省錢結算),
-   統計頁頂部 (this week vs your usual range), 升級 and 獎勵達成 (full screen). Colours follow the skin (--hv*). ---------- */
-var HVQ=[];
-function hvAuto(){try{return !navigator.webdriver||localStorage.getItem('hvtest')==='1';}catch(e){return !navigator.webdriver;}}
-function hvDayRate(k){var sc=0,dn=0;active('good').forEach(function(h){if(isWk(h)||k<h.created||!scheduled(h,k))return;sc++;if(isDone(h,k))dn++;});return sc?dn/sc:null;}
-function hvRange(rate,prev){prev=prev.filter(function(x){return x!==null;});if(rate===null||prev.length<2)return null;
-  var m=prev.reduce(function(a,x){return a+x;},0)/prev.length,sd=Math.sqrt(prev.reduce(function(a,x){return a+(x-m)*(x-m);},0)/prev.length);sd=Math.max(sd,4);
-  return {avg:Math.round(m),d:Math.round(rate-m),t:rate>m+sd?'高於你的平常範圍':rate<m-sd?'低於你的平常範圍':'在你的平常範圍內',lo:m-sd,hi:m+sd};}
-function hvPrevRates(ws,n){var a=[],w=ws;for(var i=0;i<n;i++){w=addDays(w,-7);if(w<repMinWs())break;a.push(repRate(w));}return a;}
-function hvUpRun(ws){var n=0,w=ws,r=repRate(w);while(true){var pw=addDays(w,-7);if(pw<repMinWs())break;var pr=repRate(pw);if(r===null||pr===null||r<=pr)break;n++;w=pw;r=pr;}return n;}
-function hvDefs(p){return '<defs><linearGradient id="'+p+'hl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--hvh1)"/><stop offset="1" style="stop-color:var(--hvh2)"/></linearGradient>'+
-  '<linearGradient id="'+p+'lf" x1="0" y1="1" x2="1" y2="0"><stop offset="0" style="stop-color:var(--hvl1)"/><stop offset="1" style="stop-color:var(--hvl2)"/></linearGradient>'+
-  '<radialGradient id="'+p+'gl"><stop offset="0" style="stop-color:var(--hvc);stop-opacity:.9"/><stop offset=".35" style="stop-color:var(--hvl2);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--hvl2);stop-opacity:0"/></radialGradient></defs>';}
-function hvSprout(p,x,y,s,more){return '<g transform="translate('+x+' '+y+') scale('+s+')"><path d="M0 0C0-30-2-50 2-78" fill="none" style="stroke:var(--hvs)" stroke-width="5" stroke-linecap="round"/>'+
-  '<path d="M1-48C-30-46-62-64-70-92C-36-96-6-80 1-48Z" fill="url(#'+p+'lf)" opacity=".85"/><path d="M2-76C10-112 44-134 82-130C78-94 44-74 2-76Z" fill="url(#'+p+'lf)"/>'+
-  (more?'<path d="M1-22C26-20 50-34 58-54C32-58 10-44 1-22Z" fill="url(#'+p+'lf)" opacity=".8"/>':'')+'</g>';}
-function hvHill(p,w,h){return '<path d="M0 '+h+'L0 '+(h-30)+'C'+w*.4+' '+(h-50)+' '+w*.7+' '+(h-90)+' '+w+' '+(h-130)+'L'+w+' '+h+'Z" fill="url(#'+p+'hl)"/>';}
-function hvBars(vals,labels,hi){var m=Math.max.apply(null,vals.map(function(v){return v||0;}).concat([0.0001]));
-  return '<div class="hv-bars">'+vals.map(function(v,i){var hgt=v?Math.max(5,Math.round(v/m*64)):5;return '<div class="hv-bc"><i style="height:'+hgt+'px'+(v?'':';opacity:.3')+'"></i><span>'+labels[i]+'</span></div>';}).join('')+'</div>';}
-function hvParts(ws,we){var seen={},out=[];for(var d=ws;d<=we;d=addDays(d,1)){var l=fLog(d);if(!l)continue;(l.s||[]).forEach(function(en){var e=exById(en.ex);if(e&&e.part&&!seen[e.part]){seen[e.part]=1;out.push(e.part);}});}return out;}
-function hvSaved(a,b){var tot=0,per={};for(var d=a;d<=b;d=addDays(d,1))db.habits.forEach(function(h){var v=savedFor(h,d);if(!v)return;tot+=v;var p=per[h.id]||(per[h.id]={h:h,n:0,amt:0});p.n+=Math.max(1,Math.round(v/amtOn(h,d)));p.amt+=v;});
-  return {tot:tot,rows:Object.keys(per).map(function(i){return per[i];}).sort(function(x,y){return y.amt-x.amt;})};}
-function hvWeek(ws){var t=todayKey(),we=addDays(ws,6),end=we<t?we:t,rate=repRate(ws),days=[];for(var i=0;i<7;i++)days.push(addDays(ws,i));
-  var rg=hvRange(rate,hvPrevRates(ws,4)),up=hvUpRun(ws),best=null;
-  active('good').forEach(function(h){if(isWk(h))return;var sc=0,dn=0;days.forEach(function(d){if(d>end||d<h.created||!scheduled(h,d))return;sc++;if(isDone(h,d))dn++;});if(sc&&(!best||dn/sc>best.dn/best.sc||(dn/sc===best.dn/best.sc&&dn>best.dn)))best={h:h,dn:dn,sc:sc};});
-  var fd=0;days.forEach(function(d){if(d<=end&&fitMinutes(d).any)fd++;});
-  return {ws:ws,end:end,rate:rate,rg:rg,up:up,bars:days.map(function(d){return d>end?0:hvDayRate(d)||0;}),best:best,fd:fd,parts:hvParts(ws,end),sv:hvSaved(ws,end)};}
-function hvMonth(mk){var t=todayKey(),a=mk+'-01',b=monthEndKey(a),end=b<t?b:t,pa=addDays(a,-1).slice(0,7)+'-01',pb=addDays(a,-1);
-  var sv=hvSaved(a,end),pv=hvSaved(pa,pb),S=0,D=0,fd=0,run=0,best=0,wk={},order=[];
-  for(var d=a;d<=end;d=addDays(d,1)){var r=hvDayRate(d);if(r!==null){var sc=0,dn=0;active('good').forEach(function(h){if(isWk(h)||d<h.created||!scheduled(h,d))return;sc++;if(isDone(h,d))dn++;});S+=sc;D+=dn;}
-    if(r===1){run++;if(run>best)best=run;}else if(r!==null)run=0;if(fitMinutes(d).any)fd++;
-    var w=weekStartKey(d);if(!(w in wk)){wk[w]=0;order.push(w);}db.habits.forEach(function(h){wk[w]+=savedFor(h,d);});}
-  var rate=S?Math.round(D/S*100):null,prS=0,prD=0;
-  for(var e=pa;e<=pb;e=addDays(e,1))active('good').forEach(function(h){if(isWk(h)||e<h.created||!scheduled(h,e))return;prS++;if(isDone(h,e))prD++;});
-  return {mk:mk,m:+mk.slice(5),pm:+pa.slice(5,7),sv:sv,pv:pv,rate:rate,prate:prS?Math.round(prD/prS*100):null,fd:fd,best:best,wk:order.map(function(w){return wk[w];}),tot:savingsTotals()};}
-function hvBigCls(big){var n=String(big).replace(/<[^>]*>/g,'').length;return n>8?' l':n>6?' m':'';}
-function hvHeroTop(p,kick,big,verdict,sub,bars,scene){return '<div class="hv-top"><button class="hv-x" data-act="hvclose" aria-label="關閉">'+I.x+'</button><div class="hv-in"><div class="hv-k">'+kick+'</div><div class="hv-big'+hvBigCls(big)+'">'+big+'</div>'+
-  (verdict?'<div class="hv-v">'+verdict+'</div>':'')+(sub?'<div class="hv-s">'+sub+'</div>':'')+bars+'</div><svg class="hv-scene" viewBox="0 0 360 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true">'+hvDefs(p)+scene+'</svg></div>';}
-function hvPct(n){return n===null?'—':n+'<small>%</small>';}
-function hvCmpTxt(rg,up,what){if(!rg)return up>=2?'連續 '+up+' 週進步。':'';return what+'比過去平均'+(rg.d>=0?'高 ':'低 ')+Math.abs(rg.d)+'%'+(up>=2?'，連續 '+up+' 週進步':'')+'。';}
-function hvWeekHTML(ws){var W=hvWeek(ws),body='';
-  var tri=[];if(fOn())tri.push('<div>運動<b>'+W.fd+' 天</b></div>');if(anySave())tri.push('<div>省下<b>NT$'+fmtN(W.sv.tot)+'</b></div>');if(W.best)tri.push('<div>最穩定<b>'+esc(W.best.h.name)+' '+W.best.dn+'/'+W.best.sc+'</b></div>');
-  if(tri.length)body+='<div class="hv-tri" style="grid-template-columns:repeat('+tri.length+',1fr)">'+tri.join('')+'</div>';
-  if(fOn()&&W.parts.length)body+='<div class="hv-card small">練了 <b>'+W.parts.join('、')+'</b></div>';
-  return '<div class="hv" role="dialog" aria-modal="true" aria-label="上週回顧">'+hvHeroTop('hvw','上週回顧 · '+repRange(ws),hvPct(W.rate),W.rg?W.rg.t:'',hvCmpTxt(W.rg,W.up,'習慣達成率'),hvBars(W.bars,WD.slice(1).concat(WD[0])),
-    '<circle cx="262" cy="70" r="70" fill="url(#hvwgl)" opacity=".5"/>'+hvHill('hvw',360,150)+hvSprout('hvw',262,84,.82))+
-    '<div class="hv-body">'+body+'<button class="primary hv-go" data-act="hvclose">開始這一週</button></div></div>';}
-function hvMonthHTML(mk){var M=hvMonth(mk),body='',sv=anySave()&&(M.sv.tot||M.pv.tot);
-  var big=sv?'NT$'+fmtN(M.sv.tot):hvPct(M.rate),diff=sv?M.sv.tot-M.pv.tot:(M.rate!==null&&M.prate!==null?M.rate-M.prate:null);
-  var verdict=diff===null?'':sv?(diff>=0?'比 '+M.pm+' 月多省 NT$'+fmtN(diff):'比 '+M.pm+' 月少省 NT$'+fmtN(diff)):(diff>=0?'比 '+M.pm+' 月高 '+diff+'%':'比 '+M.pm+' 月低 '+Math.abs(diff)+'%');
-  var sub=sv?'累計 NT$'+fmtN(M.tot.all)+' · 可用 NT$'+fmtN(M.tot.avail):'習慣達成率';
-  var bars=sv?hvBars(M.wk,M.wk.map(function(x,i){return '第'+(i+1)+'週';})):'';
-  if(sv&&M.sv.rows.length)body+='<div class="hv-card">'+M.sv.rows.map(function(r){return '<div class="hv-r"><span>'+esc(r.h.name)+'</span><span>'+r.n+(r.h.kind==='bad'?' 天':' 次')+'　<b>NT$'+fmtN(r.amt)+'</b></span></div>';}).join('')+'</div>';
-  var tri=[];if(sv&&M.rate!==null)tri.push('<div>達成率<b>'+M.rate+'%</b></div>');if(fOn())tri.push('<div>運動<b>'+M.fd+' 天</b></div>');tri.push('<div>全部完成最長<b>'+M.best+' 天</b></div>');
-  body+='<div class="hv-tri" style="grid-template-columns:repeat('+tri.length+',1fr)">'+tri.join('')+'</div>';
-  return '<div class="hv" role="dialog" aria-modal="true" aria-label="'+M.m+' 月結算">'+hvHeroTop('hvm',M.m+' 月結算',big,verdict,sub,bars,
-    '<circle cx="268" cy="80" r="70" fill="url(#hvmgl)" opacity=".55"/>'+hvHill('hvm',360,150)+hvSprout('hvm',268,104,.86,true))+
-    '<div class="hv-body">'+body+'<button class="primary hv-go" data-act="hvclose">開始 '+(M.m%12+1)+' 月</button></div></div>';}
-var HV_BIRD='<g transform="translate(180 470)"><path d="M-110-20L-10 10 30-10Z" fill="#E9B949" opacity=".55"/><path d="M-130-70L-6 0 40-30Z" fill="url(#hvbd)"/><path d="M-6 0L40-30 90-36 120-60 100-20 50 6Z" fill="url(#hvbd)"/><path d="M-6 0L50 6 30 40Z" fill="#C9962E"/><path d="M-150-40L-90-32M-160-10L-80-10M-150 20L-90 8" stroke="#FFF1B8" stroke-width="3" stroke-linecap="round" opacity=".5"/></g>';
-function hvLvHTML(x){var L=hLevel(x.h);
-  return '<div class="hv hv-full hv-gold" role="dialog" aria-modal="true" aria-label="升級"><svg class="hv-bg" viewBox="0 0 360 760" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="hvbd" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#E9B949"/><stop offset="1" stop-color="#FFF1B8"/></linearGradient>'+
-    '<linearGradient id="hvgh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5C4310"/><stop offset="1" stop-color="#8A6A1E"/></linearGradient><radialGradient id="hvgg"><stop offset="0" stop-color="#FFF1B8" stop-opacity=".8"/><stop offset="1" stop-color="#FFF1B8" stop-opacity="0"/></radialGradient></defs>'+
-    '<circle cx="230" cy="440" r="160" fill="url(#hvgg)" opacity=".35"/><path d="M0 760L0 690C150 660 260 610 360 560L360 760Z" fill="url(#hvgh)"/>'+HV_BIRD+'</svg>'+
-    '<div class="hv-fc"><div class="hv-k sp">LEVEL UP · '+esc(x.h.name)+'</div><div class="hv-huge">Lv '+x.lv+'</div><div class="hv-t">累積 '+LV_AT[x.lv-1]+' 天</div><div class="hv-s">一天一天練習，現在飛得更高了。'+(L.next?'<br>下一級 Lv '+(x.lv+1)+' 還差 '+(L.next-L.n)+' 天。':'<br>已經是最高等級了。')+'</div></div>'+
-    '<div class="hv-btns"><button class="hv-w" data-act="hvclose">太好了</button></div></div>';}
-function hvBigOf(r){var R=RTYPES[r.type]||{},u=R.unit||'';if(r.type==='saved')return 'NT$'+fmtN(r.target);if(r.type==='rate')return r.target+'%';if(r.type==='limit'||r.type==='clean')return '守住了';if(isInv(r.type))return '達成';return r.target+(u&&u!=='NT$'?' '+u:' 天');}
-function hvRwHTML(x){var r=x.r,h=r.habit?byId(r.habit):null,rings='';
-  [[34,.55],[62,.42],[92,.32],[124,.24],[158,.17],[194,.12],[232,.08]].forEach(function(c){rings+='<circle cx="180" cy="560" r="'+c[0]+'" fill="none" style="stroke:var(--hvn)" stroke-opacity="'+c[1]+'" stroke-width="3"/>';});
-  return '<div class="hv hv-full" role="dialog" aria-modal="true" aria-label="獎勵達成"><svg class="hv-bg" viewBox="0 0 360 760" preserveAspectRatio="xMidYMax slice" aria-hidden="true">'+hvDefs('hvr')+rings+
-    '<path d="M88 540A92 92 0 0 1 150 474" fill="none" style="stroke:var(--hvl2)" stroke-width="5" stroke-linecap="round"/><circle cx="180" cy="560" r="56" fill="url(#hvrgl)"/><circle cx="180" cy="560" r="9" style="fill:var(--hvc)"/></svg>'+
-    '<div class="hv-fc"><span class="hv-gift">'+I.gift+'</span><div class="hv-k sp">獎勵達成</div><div class="hv-huge mid">'+hvBigOf(r)+'</div><div class="hv-t">'+esc(r.name)+'，可以兌換了</div><div class="hv-s">'+ruleText(r,h)+'</div></div>'+
-    '<div class="hv-btns"><button class="hv-o" data-act="hvclose">晚點再說</button><button class="hv-w" data-act="hvgo">去兌換</button></div></div>';}
-function hvShow(){var el=$('#hv'),x=HVQ[0];if(!el)return;if(!x){el.hidden=true;el.innerHTML='';return;}
-  try{el.innerHTML=x.type==='wk'?hvWeekHTML(x.ws):x.type==='mo'?hvMonthHTML(x.mk):x.type==='lv'?hvLvHTML(x):hvRwHTML(x);}catch(e){HVQ.shift();return hvShow();}
-  el.hidden=false;el.scrollTop=0;}
-function hvPush(x){HVQ.push(x);if(HVQ.length===1)hvShow();}
-function hvClose(){HVQ.shift();hvShow();}
-/* once per launch, on the 今天 page: last month's 結算 (if it has data) then last week's 回顧 */
-function hvBoot(){if(hvBoot.done||!db.habits.length||needOnboard())return;hvBoot.done=true;
-  try{if(localStorage.getItem('hvtest')==='1')window.__hv=function(x){if(x==='lv')hvPush({type:'lv',h:active('good')[0],lv:4});else if(x==='rw')hvPush({type:'rw',r:db.rewards[0]});else if(x==='wk')hvPush({type:'wk',ws:addDays(weekStartKey(todayKey()),-7)});};}catch(e){}
-
-  var t=todayKey(),s=db.settings,mk=t.slice(0,7),wk=weekStartKey(t),ch=false,auto=hvAuto();
-  if(s.moSeen!==mk){var pm=addDays(mk+'-01',-1);if(auto&&pm>=useStart())hvPush({type:'mo',mk:pm.slice(0,7)});s.moSeen=mk;ch=true;}
-  if(s.wkSeen!==wk){var lw=addDays(wk,-7);if(auto&&lw>=repMinWs()&&repRate(lw)!==null)hvPush({type:'wk',ws:lw});s.wkSeen=wk;ch=true;}
-  if(ch)save();}
-/* 獎勵: celebrate when a reward turns ready while checking things off on 今天 */
-function rwWatch(tot){var c=ui.rwCache,nc={};db.rewards.forEach(function(r){nc[r.id]=pending(r,tot);});ui.rwCache=nc;
-  if(!c||ui.view!=='today'||!hvAuto())return;db.rewards.forEach(function(r){if(nc[r.id]>0&&!(c[r.id]>0))hvPush({type:'rw',r:r});});}
-/* 統計頁頂部 */
-function shero(){var t=todayKey(),cw=weekStartKey(t),off=Math.max(0,ui.hwOff||0),ws=addDays(cw,-7*off);if(ws<repMinWs()){ws=repMinWs();}
-  var rate=repRate(ws),days=[];for(var i=0;i<7;i++)days.push(addDays(ws,i));var early=ws===cw&&diffDays(t,ws)<2,rg=early?null:hvRange(rate,hvPrevRates(ws,8));
-  var we=addDays(ws,6),cur=ws===cw,kick=(cur?'本週':ws===addDays(cw,-7)?'上週':'')+(cur||ws===addDays(cw,-7)?' · ':'')+repRange(ws);
-  var sub=early?'這週剛開始，到今天為止的習慣達成率。':cur?'到今天為止的習慣達成率。':'';if(rg)sub=(cur?'目前':'')+'比過去 8 週平均'+(rg.d>=0?'高 ':'低 ')+Math.abs(rg.d)+'%。';
-  var W=332,H=130,ws12=[],rt=[];for(var j=11;j>=0;j--){var w=addDays(ws,-7*j);ws12.push(w);rt.push(w<repMinWs()?null:repRate(w));}
-  var X=function(i){return 18+i*(W-36)/11;},Y=function(v){return 112-v*0.86;},band='',line=[],dots='';
-  var lo=[],hi=[];rt.forEach(function(v,i){var pr=rt.slice(Math.max(0,i-4),i).filter(function(x){return x!==null;});if(pr.length>=2){var r2=hvRange(50,pr);lo.push([X(i),Y(Math.max(0,r2.lo))]);hi.push([X(i),Y(Math.min(100,r2.hi))]);}});
-  if(hi.length>=2)band='<path d="M'+hi.map(function(p){return p[0].toFixed(1)+' '+p[1].toFixed(1);}).join('L')+'L'+lo.slice().reverse().map(function(p){return p[0].toFixed(1)+' '+p[1].toFixed(1);}).join('L')+'Z" fill="url(#hvshl)" opacity=".75"/>';
-  rt.forEach(function(v,i){if(v===null)return;line.push(X(i).toFixed(1)+','+Y(v).toFixed(1));if(i<11)dots+='<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(v).toFixed(1)+'" r="3.4" style="fill:var(--hvn)"/>';});
-  var last=rt[11]!==null?'<circle cx="'+X(11)+'" cy="'+Y(rt[11])+'" r="30" fill="url(#hvsgl)"/><circle cx="'+X(11)+'" cy="'+Y(rt[11])+'" r="6.5" style="fill:var(--hvc)"/>':'';
-  var vl='';for(var q=0;q<12;q++)vl+='<line x1="'+X(q)+'" y1="6" x2="'+X(q)+'" y2="'+H+'" stroke="#fff" stroke-opacity=".06"/>';
-  var mlab=[];ws12.forEach(function(w,i){var d=parseKey(w);if(i===0||d.getDate()<=7)mlab.push('<span style="left:'+Math.min(93,Math.max(5,X(i)/W*100)).toFixed(1)+'%">'+(d.getMonth()+1)+'月</span>');});
-  var lm=addDays(t.slice(0,7)+'-01',-1),links='<div class="sh-links">'+(addDays(cw,-7)>=repMinWs()?'<button class="linkish" data-act="hvopen" data-v="wk">上週回顧'+I.chev+'</button>':'')+(lm>=useStart()?'<button class="linkish" data-act="hvopen" data-v="mo">'+(+lm.slice(5,7))+' 月結算'+I.chev+'</button>':'')+'</div>';
-  return '<section class="shero"><div class="hv-top"><div class="hv-in"><div class="hv-k">'+kick+'</div><div class="hv-big">'+hvPct(rate)+'</div>'+(rg?'<div class="hv-v">'+rg.t+'</div>':'')+(sub?'<div class="hv-s">'+sub+'</div>':'')+
-    hvBars(days.map(function(d){return d>t?0:hvDayRate(d)||0;}),WD.slice(1).concat(WD[0]))+
-    '<div class="sh-nav"><button class="iconbtn" data-act="hw" data-n="1" aria-label="前一週"'+(addDays(ws,-7)<repMinWs()?' disabled':'')+'>'+I.left+'</button><span>看其他週</span><button class="iconbtn" data-act="hw" data-n="-1" aria-label="下一週"'+(cur?' disabled':'')+'>'+I.right+'</button></div></div>'+
-    '<div class="sh-trend"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-label="過去 12 週的習慣達成率">'+hvDefs('hvs')+vl+band+(line.length>1?'<polyline points="'+line.join(' ')+'" fill="none" style="stroke:var(--hvn)" stroke-width="2.4" stroke-linejoin="round"/>':'')+dots+last+'</svg><div class="sh-m">'+mlab.join('')+'</div></div></div>'+links+'</section>';}
 /* ---------- 習慣等級: cumulative days done (bad habits: days kept clean, before today); never goes down ---------- */
 var LV_AT=[1,7,21,50,100,200,365,500,730,1000];
 function hDays(h){var t=todayKey(),n=0;
@@ -3581,7 +3443,7 @@ function hLevel(h){var n=hDays(h),lv=0;while(lv<LV_AT.length&&n>=LV_AT[lv])lv++;
 function lvBadge(h){var L=hLevel(h);if(!L.lv)return '';return ' <span class="lv" style="--p:'+Math.round(L.p*100)+'%" title="累積 '+L.n+' 天'+(L.next?'，再 '+(L.next-L.n)+' 天升到 Lv'+(L.lv+1):'')+'">Lv'+L.lv+'</span>';}
 function lvWatch(){var c=ui.lvCache||{},first=!ui.lvCache,up=null;ui.lvCache={};
   db.habits.forEach(function(h){if(h.archived)return;var lv=hLevel(h).lv;ui.lvCache[h.id]=lv;if(!first&&c[h.id]!=null&&lv>c[h.id])up=[h,lv];});
-  if(up){if(hvAuto())setTimeout(function(){hvPush({type:'lv',h:up[0],lv:up[1]});},250);else setTimeout(function(){toast('升級了！'+up[0].name+' 到了 Lv'+up[1]+'（累積 '+LV_AT[up[1]-1]+' 天）',3200);},250);}}
+  if(up)setTimeout(function(){toast('升級了！'+up[0].name+' 到了 Lv'+up[1]+'（累積 '+LV_AT[up[1]-1]+' 天）',3200);},250);}
 function vToday(){
   var k=ui.date,t=todayKey();
   var wks=active('good').filter(isWk),goods=active('good').filter(function(h){return !isWk(h);}),bads=active('bad');
@@ -3589,7 +3451,7 @@ function vToday(){
   var done=gs.filter(function(h){return isDone(h,k);}).length,live=gs.filter(function(h){return k>=h.created||isDone(h,k);}).length;
   var badSum=bads.reduce(function(a,h){return a+val(k,h.id);},0);
   var log=db.logs[k]||{};
-  if(k===t){lvWatch();hvBoot();}
+  if(k===t)lvWatch();
   var s='<div class="page'+(dayLocked(k)?' locked':'')+'">'+(k===t?helloHTML():'')+'<header class="datebar">'+
     '<button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天"'+(ui.date<=useStart()?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="datebar-mid"><div class="sub">'+dateSub(k)+'</div><h1 class="h1">'+dateLabel(k)+'</h1></div>'+
@@ -3643,7 +3505,6 @@ function vStats(){
   var tab=tabs.some(function(x){return x[0]===ui.statTab;})?ui.statTab:'habits';
   var s='<div class="page"><header class="titlebar"><h1 class="h1">統計</h1><span class="tb-r"><button class="ghost repbtn" data-act="report">'+I.share+'分享這週</button><button class="iconbtn" data-act="search" aria-label="'+(dOn()?'搜尋備註和日記':'搜尋備註')+'">'+I.search+'</button></span></header>';
   if(tabs.length>1)s+='<div class="seg'+(tabs.length>2?' three':'')+'">'+tabs.map(function(x){return '<button class="'+(tab===x[0]?'on':'')+'" data-act="stab" data-v="'+x[0]+'" aria-pressed="'+(tab===x[0])+'">'+x[1]+'</button>';}).join('')+'</div>';
-  if(tab==='habits'&&(goods.length||bads.length))s+=shero();
   s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="month" data-n="-1" aria-label="上個月"'+(keyOf(first)<=us?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="month-l">'+y+' 年 '+(m+1)+' 月</div>'+
     '<button class="iconbtn" data-act="month" data-n="1" aria-label="下個月"'+(isCur||first>now?' disabled':'')+'>'+I.right+'</button></div>';
@@ -4085,7 +3946,6 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
- ['2026.11.01-4','11/1',['每個重訓動作都有姿勢圖，選動作和記錄時一眼看出怎麼做','啞鈴和槓鈴動作分開畫，啞鈴臥推、夾胸改用斜角視角，滑輪夾胸改成站姿','方向用深淺雙層 » 標示，器材改成藍色']],
  ['2026.10.31-7','10/31',['課表可以複製某一天，或依部位一鍵帶入動作，不喜歡還能「換一個」','課表裡的動作可以調整順序，選動作時標出「多關節」或「孤立」','有氧統計改成每天堆疊的長條圖，看得出各種有氧各練多久','換上更好讀的 Inter 數字字型，這週訓練改成卡片式']],
  ['2026.10.30-4','10/30',['「補登」新增「分潤」：記下家人的已實現損益和比例，自動算出你分到多少，也能看每個人的績效','交易紀錄可以看每週、每月、每年或自訂區間的買賣加總，一眼看出多投入還是多拿回','重訓新增史密斯臥推、上斜臥推、下斜臥推']],
  ['2026.10.28-3','10/28',['交易紀錄可以「補登」以前的已實現損益和股利：截圖丟給 AI 再貼回來，或手動一筆','自動追蹤填息：除息後持股顯示填息進度，第一次填息會提醒，交易紀錄標出幾天填息','上傳頭像照片時可以拖曳、縮放，調整要顯示的範圍']],
@@ -4693,10 +4553,6 @@ function act(a,b){
     case 'pnlpt': ui.pnlSel=b.dataset.k;break;
     case 'pgran': db.settings.pnlGran=b.dataset.v==='d'?undefined:b.dataset.v;if(!db.settings.pnlGran)delete db.settings.pnlGran;ui.pnlSel=null;save();break;
     case 'stab': ui.statTab=b.dataset.v;break;
-    case 'hw': ui.hwOff=Math.max(0,(ui.hwOff||0)+(+b.dataset.n));break;
-    case 'hvopen': if(b.dataset.v==='mo')hvPush({type:'mo',mk:addDays(t.slice(0,7)+'-01',-1).slice(0,7)});else hvPush({type:'wk',ws:addDays(weekStartKey(t),-7)});return;
-    case 'hvclose': hvClose();return;
-    case 'hvgo': hvClose();go('rewards');break;
     case 'search': go('search');render();var qi=$('#q');if(qi)qi.focus();return;
     case 'sback': go('stats');break;
     case 'report': go('report');ui.repWs=repDefWs(t);break;

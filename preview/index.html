@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-oDBFkEyw9VELEDlERt5d46qICdb/uzFLpmNYBeguDbY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-MbcD7wlq152l8gMOMnc3wCx4tv4VctN9Io3zXrtePXU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1902,7 +1902,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.02-1';
+var APP_VER='2026.11.01-4';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4085,7 +4085,6 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
- ['2026.11.01-4','11/1',['每個重訓動作都有姿勢圖，選動作和記錄時一眼看出怎麼做','啞鈴和槓鈴動作分開畫，啞鈴臥推、夾胸改用斜角視角，滑輪夾胸改成站姿','方向用深淺雙層 » 標示，器材改成藍色']],
  ['2026.10.31-7','10/31',['課表可以複製某一天，或依部位一鍵帶入動作，不喜歡還能「換一個」','課表裡的動作可以調整順序，選動作時標出「多關節」或「孤立」','有氧統計改成每天堆疊的長條圖，看得出各種有氧各練多久','換上更好讀的 Inter 數字字型，這週訓練改成卡片式']],
  ['2026.10.30-4','10/30',['「補登」新增「分潤」：記下家人的已實現損益和比例，自動算出你分到多少，也能看每個人的績效','交易紀錄可以看每週、每月、每年或自訂區間的買賣加總，一眼看出多投入還是多拿回','重訓新增史密斯臥推、上斜臥推、下斜臥推']],
  ['2026.10.28-3','10/28',['交易紀錄可以「補登」以前的已實現損益和股利：截圖丟給 AI 再貼回來，或手動一筆','自動追蹤填息：除息後持股顯示填息進度，第一次填息會提醒，交易紀錄標出幾天填息','上傳頭像照片時可以拖曳、縮放，調整要顯示的範圍']],

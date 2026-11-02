@@ -1019,7 +1019,6 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(d.divs.length === 1 && d.divs[0].amt === 4405 && d.divs[0].add === 50 && d.divs[0].d === ex && !d.divs[0].paid, 'dividends: record saved (amount as typed, 50 shares added)');
     const h1 = d.hold.find(h => h.id === 'h1'); ok(h1.shares === 1050 && Math.abs(h1.shares * h1.cost - 1000000) < 1, 'dividends: stock dividend adds shares, total cost unchanged');
     ok(!(await hp.$('.divbn')) && /股利/.test(await hp.innerText('.pnl-split')), 'dividends: banner gone; 已實現 shows 股利');
-    if (await hp.$('[data-act=txp][data-v=all]')) await hp.click('[data-act=txp][data-v=all]');
     await hp.click('.sold-row'); await hp.click('[data-act=divpaid]'); await hp.click('[data-act=divsave]'); ok((await db(hp)).divs[0].paid === true, 'dividends: mark 已入帳');
     await hp.click('.sold-row'); await hp.click('[data-act=divdel]'); await hp.click('[data-act=divdel]'); d = await db(hp);
     ok(d.divs.length === 0 && d.hold.find(h => h.id === 'h1').shares === 1000, 'dividends: delete takes the added shares back');
@@ -1266,27 +1265,6 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     { const ex = (await db(p)).fit.ex; const sm = ['史密斯臥推', '史密斯上斜臥推', '史密斯下斜臥推'].map(n => ex.find(e => e.name === n));
       ok(sm.every(e => e && e.eq === '史密斯機' && e.part === '胸') && sm.map(e => e.sub).join() === '中胸,上胸,下胸', 'Smith machine chest presets'); }
     await done(p, 'sub-parts');
-  }
-
-  // 週報／月報／統計頁頂部
-  {
-    const logs = {}; for (let i = 1; i <= 40; i++) logs[daysAgo(i)] = { h: { g1: i % 3 ? 1 : 0 } };
-    const seed = { 'habit-tracker-v1': { v: 1, settings: { onboarded: true }, rewards: [], redeemed: [], logs,
-      habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(60) }] } };
-    let p = await page(b, seed);
-    ok(await p.$eval('#hv', e => e.hidden), 'review: no automatic pop-up under automation');
-    let d = await db(p); ok(!!d.settings.wkSeen && !!d.settings.moSeen, 'review: week and month marked as seen');
-    await p.click('[data-tab=stats]');
-    ok(!!(await p.$('.shero .hv-big')) && !!(await p.$('.shero .sh-trend polyline')), 'stats hero: big number and 12-week trend');
-    await p.click('[data-act=hvopen][data-v=wk]');
-    ok(!(await p.$eval('#hv', e => e.hidden)) && /上週回顧/.test(await p.innerText('#hv')), 'review: 上週回顧 opens from 統計');
-    await p.click('#hv .hv-go'); ok(await p.$eval('#hv', e => e.hidden), 'review: closes');
-    await done(p, 'review');
-    p = await page(b, { ...seed, hvtest: '1' });
-    ok(!(await p.$eval('#hv', e => e.hidden)), 'review: shows on first open of the week/month');
-    while (!(await p.$eval('#hv', e => e.hidden))) await p.click('#hv .hv-go');
-    await p.reload(); ok(await p.$eval('#hv', e => e.hidden), 'review: only once');
-    await done(p, 'review auto');
   }
 
   // 個人化 + 習慣等級
