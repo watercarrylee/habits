@@ -879,6 +879,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       ok(/換掉划船/.test(await p.innerText('#sheet')), 'swap: sheet lists alternatives');
       await p.click('[data-act=fswapgo] >> nth=0'); await p.waitForTimeout(200); d = await db(p); const x1 = d.fit.logs[T].todo.find(x => x.id === x0.id);
       ok(x1.ex !== 'e2' && x1.sw === 'e2' && /換自划船/.test(await p.innerText('main')), 'swap: 待做 replaced, origin shown'); }
+    { const x2 = (await db(p)).fit.logs[T].todo.find(x => x.ex); await p.click('[data-act=fswap][data-id="' + x2.id + '"]');
+      await p.click('[data-act=fswappart][data-v=腿]'); ok(/換成練「腿」/.test(await p.innerText('#sheet')), 'swap: another part can be picked');
+      const sb = await p.$eval('.sheet', e => getComputedStyle(e.querySelector('.list')).flexShrink); ok(sb === '0', 'sheet: lists keep their height so the sheet scrolls');
+      await p.click('[data-act=fswapgo] >> nth=0'); await p.waitForTimeout(200); const x3 = (await db(p)).fit.logs[T].todo.find(x => x.id === x2.id);
+      ok(x3 && x3.ex !== x2.ex, 'swap: changed to an exercise of another part'); }
+    { await p.click('[data-act=fpartpick]'); ok(/加一個部位/.test(await p.innerText('#sheet')) && (await p.$$('#sheet [data-act=fpartadd]')).length === 10, 'part: 加部位 lists every part');
+      await p.click('#sheet [data-act=fpartadd][data-v=核心]'); ok(!!(await p.$('[data-act=fpartgo]')) || /核心/.test(await p.innerText('#sheet')), 'part: picking one opens its list');
+      await p.click('#sheet [data-act=closesheet]').catch(() => {}); }
     { const cp = await p.$('.cypt'); if (cp) { const pt = await cp.getAttribute('data-v'); await cp.click();
         ok(new RegExp('今天練' + pt).test(await p.innerText('#sheet')) && !!(await p.$('[data-act=fpartgo]')), 'part: tapping a suggested part opens its list (' + pt + ')');
         const n0 = (await db(p)).fit.logs[T].todo.length, tick = await p.$('[data-act=fparttog].off'); if (tick) await tick.click();
