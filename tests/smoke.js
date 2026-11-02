@@ -1019,6 +1019,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(d.divs.length === 1 && d.divs[0].amt === 4405 && d.divs[0].add === 50 && d.divs[0].d === ex && !d.divs[0].paid, 'dividends: record saved (amount as typed, 50 shares added)');
     const h1 = d.hold.find(h => h.id === 'h1'); ok(h1.shares === 1050 && Math.abs(h1.shares * h1.cost - 1000000) < 1, 'dividends: stock dividend adds shares, total cost unchanged');
     ok(!(await hp.$('.divbn')) && /股利/.test(await hp.innerText('.pnl-split')), 'dividends: banner gone; 已實現 shows 股利');
+    if (await hp.$('[data-act=txp][data-v=all]')) await hp.click('[data-act=txp][data-v=all]');
     await hp.click('.sold-row'); await hp.click('[data-act=divpaid]'); await hp.click('[data-act=divsave]'); ok((await db(hp)).divs[0].paid === true, 'dividends: mark 已入帳');
     await hp.click('.sold-row'); await hp.click('[data-act=divdel]'); await hp.click('[data-act=divdel]'); d = await db(hp);
     ok(d.divs.length === 0 && d.hold.find(h => h.id === 'h1').shares === 1000, 'dividends: delete takes the added shares back');
