@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-WjnJ15WrAs4WfNNEXTgvSi08qjU5i/OiE9INA/ZQVwI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-0eukf2i/1mpMsV3EtuWAwgIRQm3NS4cb49CF2KfDKs4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -542,6 +542,8 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .err{margin:-12px 0 0;color:var(--bad);font-size:13px}
 
 #sheet{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.sheet>*{flex-shrink:0}
+.eyerow{display:flex;justify-content:flex-end;margin:-8px 0 -6px}.cyadd{display:block;margin:8px auto 0;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;padding:0 10px}.swparts{flex-wrap:wrap;gap:6px}
 .sheet{background:var(--bg);width:100%;max-width:560px;max-height:85%;overflow-y:auto;box-sizing:border-box;border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
 .sheet h2{margin:0;font-size:18px}
 .sheet p{margin:0;color:var(--muted);line-height:1.6;font-size:14px}
@@ -1201,10 +1203,11 @@ function cyWeekHTML(){if(!Object.keys(db.fit.logs).length)return '';var t=todayK
       (d===t&&SG&&!SG.done&&SG.big.concat(SG.small).length?'<span class="cysg" role="separator" aria-label="建議"></span>'+SG.big.concat(SG.small).filter(function(p){return !SG.today[p];}).map(function(p){return '<span class="cyp dash" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(''):'')+'</button>';}
   s+='</div>';
   var mk=function(a){return a.map(function(p){return SG.today[p]?'<span class="cyok">'+p+' ✓</span>':'<button class="cypt" data-act="fpartadd" data-v="'+p+'" aria-label="帶入'+p+'的常用動作">'+p+'</button>';}).join('、');};
+  var addP=ui.date===t?'<button class="cyadd" data-act="fpartpick">＋ 加部位</button>':'';
   if(SG&&SG.done)s+='<div class="cyft cyft-ok"><span class="cyft-ic" aria-hidden="true">✓</span><p>今天的建議都練完了 👍<small>'+SG.big.concat(SG.small).join('、')+'</small></p></div>';
   else if(SG)s+='<div class="cyft"><p>'+(SG.big.length?'建議今天練：<b>'+mk(SG.big)+'</b>'+(SG.small.length?'，可以搭<b>'+mk(SG.small)+'</b>':''):'大肌群都才剛練過，今天適合休息'+(SG.small.length?'，或練<b>'+mk(SG.small)+'</b>':'')+'，或做有氧')+
     '<small>'+SG.why.join('、')+(SG.fresh.length?'；'+SG.fresh.join('、')+'昨天剛練':'')+'</small></p></div>';
-  return s+'</section>';}
+  return s+addP+'</section>';}
 function fitLogHTML(){
   var k=ui.date,t=todayKey(),l=fLog(k)||{},s='';
   s+='<div class="dnav"><button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天"'+(ui.date<=useStart()?' disabled':'')+'>'+I.left+'</button>'+
@@ -1510,10 +1513,10 @@ function fPartList(p){var t=todayKey(),u=fUse(),busy=fTodayEx(t),ex=db.fit.ex.fi
   var nTry=usual.length<2?3:2,tries=stale.slice(0,1).concat(fresh).concat(stale.slice(1)).slice(0,nTry);
   return {usual:usual,tries:tries,u:u};}
 function fExSub(e,u){var o=u[e.id],lb=lastBefore(e.id,addDays(todayKey(),1));return (e.sub||e.eq)+(o&&o.n?' · 近 60 天 '+o.n+' 次':'')+(lb?' · 上次 '+setsCompact(e,lb.sets):'');}
-function fSwapList(x){var t=todayKey(),e=exById(x.ex),u=fUse(),busy=fTodayEx(t),same=function(f){return f.id!==e.id&&!f.archived&&!busy[f.id]&&f.part===e.part;};
-  var list=db.fit.ex.filter(function(f){return same(f)&&e.sub&&f.sub===e.sub;});if(!list.length)list=db.fit.ex.filter(same);
+function fSwapList(x,part){var t=todayKey(),e=exById(x.ex),u=fUse(),busy=fTodayEx(t),pt=part||e.part,other=pt!==e.part,same=function(f){return f.id!==e.id&&!f.archived&&!busy[f.id]&&f.part===pt;};
+  var list=other?[]:db.fit.ex.filter(function(f){return same(f)&&e.sub&&f.sub===e.sub;});if(!list.length)list=db.fit.ex.filter(same);
   var done=list.filter(function(f){return u[f.id];}).sort(function(a,b){return (u[b.id].n-u[a.id].n)||(u[a.id].last<u[b.id].last?1:-1);}),never=list.filter(function(f){return !u[f.id];});
-  return {done:done,never:never,u:u,bySub:!!(e.sub&&list.some(function(f){return f.sub===e.sub;}))};}
+  return {done:done,never:never,u:u,bySub:!other&&!!(e.sub&&list.some(function(f){return f.sub===e.sub;})),part:pt,other:other};}
 function ftodoCard(x,k,no,ord){ord=!!ord;var nb='<span class="tdno">'+no+'</span>',mv='<span class="tdmv"><button data-act="fmv" data-id="'+x.id+'" data-n="-1" aria-label="往上">↑</button><button data-act="fmv" data-id="'+x.id+'" data-n="1" aria-label="往下">↓</button></span>';
   if(x.ex){var e=exById(x.ex);if(!e)return '';var lb=lastBefore(e.id,addDays(k,1));
     var sw=x.sw&&exById(x.sw);
@@ -1870,7 +1873,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.02-2';
+var APP_VER='2026.11.02-3';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -3508,7 +3511,7 @@ function vStats(){
   s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="month" data-n="-1" aria-label="上個月"'+(keyOf(first)<=us?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="month-l">'+y+' 年 '+(m+1)+' 月</div>'+
     '<button class="iconbtn" data-act="month" data-n="1" aria-label="下個月"'+(isCur||first>now?' disabled':'')+'>'+I.right+'</button></div>';
-  if(tab==='pnl')return s+pnlTab(y,m)+'</div>';
+  if(tab==='pnl')return s+'<div class="eyerow"><button class="eyebtn" data-act="hideamt">'+(hid()?I.eye+'顯示金額':I.eyeOff+'隱藏金額')+'</button></div>'+pnlTab(y,m)+'</div>';
   if(tab==='diary')return s+diaryStats(y,m)+'</div>';
   if(!goods.length&&!bads.length){
     return s+'<div class="empty"><div class="empty-t">還沒有資料</div><p>先到「設定」新增習慣，記錄幾天後這裡就會出現月曆和趨勢。</p><button class="primary" data-act="new">新增習慣</button></div></div>';
@@ -4079,6 +4082,9 @@ function renderSheet(){
   else if(sh.type==='fitadd'){
     h='<h2>新增運動紀錄</h2><div class="list fadd">'+(fcopyDays(ui.date).length?'<button class="row-btn" data-act="fcopy"><span class="row-l"><span>複製之前的課表</span><span class="row-sub">帶入某一天的動作和有氧，先列成待做</span></span>'+I.right+'</button>':'')+'<button class="row-btn" data-act="fpick"><span class="row-l"><span>重訓</span><span class="row-sub">選動作、記組數</span></span>'+I.right+'</button>'+
       '<button class="row-btn" data-act="fcnew"><span class="row-l"><span>有氧</span><span class="row-sub">跑步、單車、游泳⋯</span></span>'+I.right+'</button></div>';
+  }else if(sh.type==='fpartpick'){var tk=todayKey(),lastP={};Object.keys(db.fit.logs).forEach(function(d){if(d>tk)return;(db.fit.logs[d].s||[]).forEach(function(en){var e=exById(en.ex);if(e&&(!lastP[e.part]||d>lastP[e.part]))lastP[e.part]=d;});});
+    h='<h2>加一個部位</h2><p class="small muted">選一個部位，帶入你常做的動作。</p><div class="list">'+PARTS.map(function(p){var d=lastP[p],n=d?diffDays(tk,d):null;
+      return '<button class="row-btn" data-act="fpartadd" data-v="'+p+'"><span class="row-l"><span>'+p+'</span><span class="row-sub">'+(n===null?'還沒練過':n===0?'今天練過':n+' 天前練')+'</span></span>'+I.right+'</button>';}).join('')+'</div>';
   }else if(sh.type==='fpartadd'){var PL=fPartList(sh.p),on=sh.on,non=Object.keys(on).length,row=function(e,isTry){var o=PL.u[e.id],tag=isTry?(o?'<span class="warn-t">'+Math.floor(diffDays(todayKey(),o.last)/7)+' 週沒做</span>':'<span class="warn-t">還沒試過</span>'):'';
       var sb=isTry?(e.sub||e.eq)+' · '+tag+(o?(function(){var lb=lastBefore(e.id,addDays(todayKey(),1));return lb?' · 上次 '+esc(setsCompact(e,lb.sets)):'';})():''):esc(fExSub(e,PL.u));
       return '<button class="row-btn fcopy-it'+(on[e.id]?'':' off')+'" data-act="fparttog" data-v="'+e.id+'" aria-pressed="'+!!on[e.id]+'"><span class="bf-ck" aria-hidden="true">'+(on[e.id]?'✓':'')+'</span><span class="row-l"><span>'+esc(e.name)+'</span><span class="row-sub">'+sb+'</span></span></button>';};
@@ -4087,9 +4093,9 @@ function renderSheet(){
       (!PL.usual.length&&!PL.tries.length?'<p class="small muted">'+esc(sh.p)+'的動作今天都已經在清單上了。</p>':'')+
       '<div class="stack"><button class="primary" data-act="fpartgo"'+(non?'':' disabled')+'>加入今天（'+non+' 項）</button></div>';
   }else if(sh.type==='fswap'){var lt=fLog(todayKey())||{},xx=(lt.todo||[]).filter(function(y){return y.id===sh.id;})[0],ee=xx&&exById(xx.ex);
-    if(ee){var SL=fSwapList(xx),it=function(f,d){var o=SL.u[f.id],lb=d&&lastBefore(f.id,addDays(todayKey(),1)),wk=o?Math.floor(diffDays(todayKey(),o.last)/7):0;
+    if(ee){var SL=fSwapList(xx,sh.part),it=function(f,d){var o=SL.u[f.id],lb=d&&lastBefore(f.id,addDays(todayKey(),1)),wk=o?Math.floor(diffDays(todayKey(),o.last)/7):0;
         return '<button class="row-btn" data-act="fswapgo" data-v="'+f.id+'"><span class="row-l"><span>'+esc(f.name)+'</span><span class="row-sub">'+(d?(o.n?o.n+' 次 · ':'')+(wk>=2?wk+' 週前 · ':'')+(lb?'上次 '+esc(setsCompact(f,lb.sets)):''):esc(f.eq))+'</span></span>'+I.right+'</button>';};
-      h='<h2>換掉'+esc(ee.name)+'</h2><p class="small muted">同樣練「'+esc(SL.bySub?ee.sub:ee.part)+'」的動作</p>'+
+      h='<h2>換掉'+esc(ee.name)+'</h2><div class="fchips swparts">'+PARTS.map(function(p){var on=p===SL.part;return '<button class="fchip'+(on?' on':'')+'" data-act="fswappart" data-v="'+p+'" aria-pressed="'+on+'">'+p+'</button>';}).join('')+'</div>'+'<p class="small muted">'+(SL.other?'換成練「'+esc(SL.part)+'」的動作，會移到'+esc(SL.part)+'的分組':'同樣練「'+esc(SL.bySub?ee.sub:ee.part)+'」的動作')+'</p>'+
         (SL.done.length?'<div class="fgrp">做過的</div><div class="list">'+SL.done.map(function(f){return it(f,true);}).join('')+'</div>':'')+
         (SL.never.length?'<div class="fgrp">沒做過</div><div class="list">'+SL.never.map(function(f){return it(f,false);}).join('')+'</div>':'')+
         (!SL.done.length&&!SL.never.length?'<p class="small muted">沒有其他可以換的動作了。</p>':'');}
@@ -4335,6 +4341,8 @@ function act(a,b){
     case 'fpartgo': if(!ui.sheet||!ui.sheet.on)return;var pids=Object.keys(ui.sheet.on).filter(function(i){return exById(i);});if(!pids.length)return;var lp=fLogMk(t);lp.todo=lp.todo||[];
       planAdd(lp,pids.map(function(i){return {id:uid(),ex:i};}),true);lp.pt=(lp.pt||0)+pids.length;save();ui.sheet=null;ui.date=t;go('fit');ui.fitTab='log';toast('已加入 '+pids.length+' 項待做');break;
     case 'fswap': ui.sheet={type:'fswap',id:id};break;
+    case 'fpartpick': ui.sheet={type:'fpartpick'};break;
+    case 'fswappart': if(!ui.sheet||ui.sheet.type!=='fswap'||PARTS.indexOf(b.dataset.v)<0)return;ui.sheet.part=b.dataset.v;break;
     case 'fcg': ui.fcg=b.dataset.v==='w'?'w':'d';break;
     case 'ford': ui.fOrd=ui.fOrd===b.dataset.v?null:b.dataset.v;break;
     case 'fmvs': l=fLog(ui.date);if(!l||!l.s)return;doneMove(l.s,id,+b.dataset.n,function(a,c){var ea=exById(a.ex),ec=exById(c.ex);return ea&&ec&&ea.part===ec.part;});save();break;
