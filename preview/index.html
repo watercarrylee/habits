@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-84OukKlHGTdOmVWlZdXcm69L7sePjCqMujAB0EqRVUU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-45HDvAesij04VuPrqA12DpQNPX2uh+LHyDFmZsZK1VA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -543,7 +543,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 
 #sheet{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:10}
 .sheet>*{flex-shrink:0}
-.eyerow{display:flex;justify-content:flex-end;margin:-8px 0 -6px}.cyadd{display:block;margin:8px auto 0;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;padding:0 10px}.swparts{flex-wrap:wrap;gap:6px}
+.eyerow{display:flex;justify-content:flex-end;margin:-8px 0 -6px}.fkseg{margin-top:10px}.cyadd{display:block;margin:8px auto 0;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;padding:0 10px}.swparts{flex-wrap:wrap;gap:6px}
 .sheet{background:var(--bg);width:100%;max-width:560px;max-height:85%;overflow-y:auto;box-sizing:border-box;border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
 .sheet h2{margin:0;font-size:18px}
 .sheet p{margin:0;color:var(--muted);line-height:1.6;font-size:14px}
@@ -1129,7 +1129,7 @@ var SPORT_RE=/運動|健身|重訓|有氧|跑|走路|散步|健走|步|游泳|�
 function fitEligible(d){return !!d.fitLink||d.icon==='fitness'||d.icon==='run'||SPORT_RE.test(d.name||'');}
 /* 伸展: its own minutes (l.st), never counted in 運動 minutes; a linked habit named 伸展／拉筋／瑜珈 is judged by them alone */
 var STRETCH_RE=/伸展|拉筋|瑜珈|瑜伽|stretch/i;
-function isStretchH(h){return STRETCH_RE.test(h.name||'');}
+function isStretchH(h){return h.fitKind?h.fitKind==='st':STRETCH_RE.test(h.name||'');}
 function stMin(k){var l=fLog(k);return l&&l.st||0;}
 function fitTarget(h){var m=String(h.name).match(/(\d+)\s*(分鐘|分|min)/i);return m?+m[1]:0;}
 function fitMinutes(k){var l=fLog(k);if(!l)return {c:0,s:0,tot:0,any:false};var c=(l.c||[]).reduce(function(a,x){return a+cMin(x);},0),s=l.min||0;
@@ -1650,7 +1650,7 @@ function normalize(d){
     return {id:cid(h.id),name:String(h.name).slice(0,40),kind:h.kind==='bad'?'bad':'good',
       method:h.method==='count'?'count':'check',
       days:Array.isArray(h.days)&&h.days.length===7?h.days.map(Boolean):allDays(),
-      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),stepHist:normStep(h.stepHist),unit:normUnit(h.unit),step:clampInt(h.step,1,9999,1),freq:h.kind!=='bad'&&h.freq==='week'?'week':'day',perWeek:clampInt(h.perWeek,1,6,3),fitLink:!!h.fitLink,slash:typeof h.slash==='boolean'?h.slash:undefined};
+      created:/^\d{4}-\d\d-\d\d$/.test(h.created)?h.created:todayKey(),archived:!!h.archived,icon:ICONS[h.icon]?h.icon:(h.icon==='none'?'none':''),saveHist:normHist(h.saveHist),goalHist:normGoal(h.goalHist),stepHist:normStep(h.stepHist),unit:normUnit(h.unit),step:clampInt(h.step,1,9999,1),freq:h.kind!=='bad'&&h.freq==='week'?'week':'day',perWeek:clampInt(h.perWeek,1,6,3),fitLink:!!h.fitLink,fitKind:h.fitKind==='st'||h.fitKind==='mv'?h.fitKind:undefined,slash:typeof h.slash==='boolean'?h.slash:undefined};
   });
   var logs={};
   Object.keys(d.logs).forEach(function(k){
@@ -1891,7 +1891,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.02-4';
+var APP_VER='2026.11.02-5';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4072,7 +4072,10 @@ function vEdit(){
     var tg=fitTarget({name:d.name||''});
     s+='<div class="field" id="fitlinkf"'+(fitEligible(d)?'':' hidden')+'><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用運動紀錄自動打勾'+faqLink('fit')+'</span><span class="row-sub">預設關閉</span></span>'+
       '<button class="switch" role="switch" aria-checked="'+!!d.fitLink+'" aria-label="用運動紀錄自動打勾" data-act="fitlink"><span class="knob"></span></button></div>'+
-      (d.fitLink?'<p class="hint">'+(tg?'目標 '+tg+' 分鐘（從名稱抓到的數字）。當天「有氧分鐘 ＋ 運動頁填的重訓分鐘」達到 '+tg+' 分就自動打勾。':'名稱裡沒有分鐘數，所以當天只要有任何運動紀錄就自動打勾。')+'紀錄刪掉時，只會取消自動打的勾。</p>':'')+'</div>';
+      (d.fitLink?(function(){var stK=isStretchH({name:d.name||'',fitKind:d.fitKind});
+        return '<div class="seg fkseg"><button class="'+(stK?'':'on')+'" data-act="fitkind" data-v="mv" aria-pressed="'+!stK+'">運動（有氧＋重訓）</button><button class="'+(stK?'on':'')+'" data-act="fitkind" data-v="st" aria-pressed="'+stK+'">伸展</button></div>'+
+        '<p class="hint">'+(stK?(tg?'目標 '+tg+' 分鐘（從名稱抓到的數字）。當天「伸展分鐘」達到 '+tg+' 分就自動打勾。':'名稱裡沒有分鐘數，所以當天只要有記伸展就自動打勾。')+'有氧和重訓不算在內。'
+          :(tg?'目標 '+tg+' 分鐘（從名稱抓到的數字）。當天「有氧分鐘 ＋ 重訓分鐘」達到 '+tg+' 分就自動打勾。':'名稱裡沒有分鐘數，所以當天只要有有氧或重訓紀錄就自動打勾。')+'伸展不算在內。')+'紀錄刪掉時，只會取消自動打的勾。</p>';})():'')+'</div>';
   }
   var tk0=todayKey();
   s+='<div class="field"><label class="lbl" for="hstart">開始日期</label><input id="hstart" class="datein" type="date" min="'+useStart()+'" max="'+tk0+'" value="'+(d.start||tk0)+'">'+
@@ -4213,8 +4216,8 @@ function saveDraft(){
   if(!name){ui.err='請輸入習慣名稱。';render();return;}
   if(d.kind==='good'&&d.freq!=='week'&&!d.days.some(Boolean)){ui.err='請至少選一天。';render();return;}
   var fq=d.kind==='good'&&d.freq==='week'?'week':'day',pwk=Math.max(1,Math.min(6,d.perWeek||3));
-  if(d.id){var h=byId(d.id);if(h){if(typeof d.slash==='boolean')h.slash=d.slash;else delete h.slash;if(isKey(d.start)&&d.start<=todayKey())h.created=d.start;h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'&&fq==='day'?d.days.slice():allDays();h.freq=fq;h.perWeek=pwk;h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1),nu=normUnit(d.unit);changeStep(h,s1,nu);h.step=s1;h.unit=nu;setGoal(h,d.goal||1);}}}
-  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,freq:fq,perWeek:pwk,days:d.kind==='good'&&fq==='day'?d.days.slice():allDays(),created:isKey(d.start)&&d.start<=todayKey()?d.start:todayKey(),archived:false,icon:d.icon||'',slash:typeof d.slash==='boolean'?d.slash:undefined,saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
+  if(d.id){var h=byId(d.id);if(h){if(typeof d.slash==='boolean')h.slash=d.slash;else delete h.slash;if(isKey(d.start)&&d.start<=todayKey())h.created=d.start;h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'&&fq==='day'?d.days.slice():allDays();h.freq=fq;h.perWeek=pwk;h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;if(d.fitKind)h.fitKind=d.fitKind;else delete h.fitKind;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1),nu=normUnit(d.unit);changeStep(h,s1,nu);h.step=s1;h.unit=nu;setGoal(h,d.goal||1);}}}
+  else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,freq:fq,perWeek:pwk,days:d.kind==='good'&&fq==='day'?d.days.slice():allDays(),created:isKey(d.start)&&d.start<=todayKey()?d.start:todayKey(),archived:false,icon:d.icon||'',slash:typeof d.slash==='boolean'?d.slash:undefined,saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink,fitKind:d.fitKind||undefined};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
   fitSync(todayKey());if(ui.date!==todayKey())fitSync(ui.date);
   save();go(ui.back||'settings');render();toast('已儲存');
 }
@@ -4345,6 +4348,7 @@ function act(a,b){
     case 'fittoggle': db.settings.fit=!db.settings.fit;if(db.settings.fit){fSeed();fitSync(t);}save();toast(db.settings.fit?'已開啟運動紀錄，底部多了「運動」分頁':'已關閉，運動紀錄仍保留');break;
     case 'fitunit': db.settings.fitUnit=b.dataset.v==='lbs'?'lbs':'kg';save();break;
     case 'fitlink': ui.draft.fitLink=!ui.draft.fitLink;break;
+    case 'fitkind': if(ui.draft&&(b.dataset.v==='st'||b.dataset.v==='mv'))ui.draft.fitKind=b.dataset.v;break;
     case 'ftab': ui.fitTab=b.dataset.v;ui.top=true;break;
     case 'frange': ui.frange=+b.dataset.v;break;
     case 'fphelp': ui.fpHelp=!ui.fpHelp;break;
@@ -4479,7 +4483,7 @@ function act(a,b){
     case 'pickday': if(b.dataset.k<useStart())return;ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
     case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「設定」修改');break;
     case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),start:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
-    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,start:h.created,slash:typeof h.slash==='boolean'?h.slash:null,fitLink:!!h.fitLink,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,unit0:h.unit||'次',freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
+    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,start:h.created,slash:typeof h.slash==='boolean'?h.slash:null,fitLink:!!h.fitLink,fitKind:h.fitKind,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,unit0:h.unit||'次',freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
     case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
     case 'iconpick': ui.pickIcon=!ui.pickIcon;break;
     case 'seticon': ui.draft.icon=b.dataset.v;ui.draft.iconTouched=true;ui.pickIcon=false;break;

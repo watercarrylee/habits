@@ -1354,6 +1354,10 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=ststart]'); d = await db(p); ok(d.settings.stStart > 0 && d.settings.stDay === T0, 'stretch: timer started');
     await p.click('[data-act=ftstart]').catch(() => {}); ok(!(await db(p)).settings.ftStart, 'stretch: only one timer at a time');
     await p.click('[data-act=stend]'); d = await db(p); ok(!d.settings.stStart && d.fit.logs[T0].st === 6, 'stretch: 結束 adds the minutes');
+    await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=m1]');
+    ok(/伸展不算在內/.test(await p.innerText('main')) && !!(await p.$('[data-act=fitkind][data-v=mv].on')), 'stretch: editor shows 運動 chosen and says stretching is not counted');
+    await p.click('[data-act=fitkind][data-v=st]'); ok(/有氧和重訓不算在內/.test(await p.innerText('main')), 'stretch: choosing 伸展 updates the hint');
+    await p.click('[data-act=save]'); d = await db(p); ok(d.habits.find(h => h.id === 'm1').fitKind === 'st', 'stretch: chosen kind saved');
     await done(p, 'stretch');
   }
 
