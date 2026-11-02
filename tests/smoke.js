@@ -1339,6 +1339,19 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'tags');
   }
 
+  // 重訓卡片：只有新紀錄才顯示 1RM
+  {
+    const T0 = daysAgo(0);
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [],
+      fit: { ex: [{ id: 'e1', name: '臥推', eq: '槓鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'e2', name: '划船', eq: '槓鈴', part: '背', mode: 'wr', unit: 'kg' }], ctypes: [],
+        logs: { [daysAgo(3)]: { s: [{ id: 'a1', ex: 'e1', sets: [[40, 10]] }, { id: 'a2', ex: 'e2', sets: [[30, 10]] }] }, [T0]: { s: [{ id: 'b1', ex: 'e1', sets: [[45, 10]] }, { id: 'b2', ex: 'e2', sets: [[30, 10]] }] } } } } });
+    await p.click('#fitTab');
+    const cards = await p.$$eval('.fcard', xs => xs.map(x => x.innerText));
+    const bench = cards.find(x => x.includes('臥推')), row = cards.find(x => x.includes('划船'));
+    ok(/新紀錄/.test(bench) && /1RM/.test(bench) && !/1RM|新紀錄/.test(row), 'cards: 1RM line only on a new record');
+    await done(p, 'pr only');
+  }
+
   // 伸展計時 + 習慣連動
   {
     const T0 = daysAgo(0);
