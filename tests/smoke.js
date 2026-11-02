@@ -109,12 +109,12 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=flcnt][data-d="1"]'); await p.click('[data-act=flsave]');
   ok(/× 4 組/.test(await p.$eval('.fcard .fsets', e => e.textContent)), 'compact sets text');
   ok((await p.$eval('h2.sec-t', e => e.textContent)) === '重訓 · 背', 'day grouped by body part');
-  await p.click('[data-act=fmin][data-n="5"]'); for (let i = 0; i < 5; i++) await p.click('[data-act=fmin][data-n="5"]');
-  d = await db(p); ok(d.logs[T] && d.logs[T].h && d.logs[T].h.g1 === 1, 'linked habit auto-checked at 30 min');
+  await p.click('[data-act=fmanual]'); await p.click('[data-act=fmin][data-n="5"]'); for (let i = 0; i < 5; i++) await p.click('[data-act=fmin][data-n="5"]');
+  await p.click('#sheet [data-act=closesheet]'); d = await db(p); ok(d.logs[T] && d.logs[T].h && d.logs[T].h.g1 === 1, 'linked habit auto-checked at 30 min');
   await p.click('[data-tab=today]'); await p.click('[data-act=toggle][data-id=g1]');
   d = await db(p); ok(d.logs[T].h.g1 === 1 && (await p.$eval('#toast', e => e.innerText)).includes('自動打勾'), 'a check backed by a 運動 record cannot be undone by tapping');
   await p.click('[data-tab=fit]'); await p.click('[data-act=ftab][data-v=log]').catch(() => {});
-  await p.click('[data-act=fmin][data-n="-5"]'); d = await db(p); ok(!(d.logs[T] && d.logs[T].h && d.logs[T].h.g1), 'auto check removed below target');
+  await p.click('[data-act=fmanual]'); await p.click('[data-act=fmin][data-n="-5"]'); await p.click('#sheet [data-act=closesheet]'); d = await db(p); ok(!(d.logs[T] && d.logs[T].h && d.logs[T].h.g1), 'auto check removed below target');
   await p.click('[data-tab=today]');
   ok((await p.$eval('.hc-sub', e => e.innerText)).startsWith('83%') && !!(await p.$('.pbar')), 'linked card shows 83% (25 of 30 min) and a bar');
   await done(p, 'fitness');
@@ -126,8 +126,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(subs[0].startsWith('✓ 達成') && !subs[0].includes('有氧'), 'linked card shows ✓ 達成 without the 運動 breakdown (' + subs[0] + ')');
   ok(!subs[1].includes('重訓'), 'unlinked habits unchanged');
   await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=g1]'); await p.click('[data-act=fitlink]'); await p.click('[data-act=save]');
-  await p.click('[data-tab=fit]'); ok(!!(await p.$('[data-act=fmin][data-n="5"]')), '重訓時間 shown even with no linked habit');
-  await p.click('[data-act=fmin][data-n="5"]'); ok((await db(p)).fit.logs[T].min === 35, '重訓時間 adjustable without a link');
+  await p.click('[data-tab=fit]'); ok(!!(await p.$('[data-act=fmanual]')), '今天的運動時間 shown even with no linked habit');
+  await p.click('[data-act=fmanual]'); await p.click('[data-act=fmin][data-n="5"]'); await p.click('#sheet [data-act=closesheet]'); ok((await db(p)).fit.logs[T].min === 35, '重訓時間 adjustable without a link');
   ok(!(await p.$eval('#main', e => e.innerText)).includes('這天沒有運動紀錄'), 'minutes alone count as a record');
   await done(p, 'fitness line');
 
@@ -1213,7 +1213,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       fit: { ex: [{ id: 'p1', name: '槓鈴臥推', eq: '槓鈴', part: '胸' }, { id: 'p11', name: '啞鈴肩推', eq: '啞鈴', part: '肩' }], logs: { [T0]: { s: [{ id: 'a1', ex: 'p1', sets: [[40, 10]] }, { id: 'a2', ex: 'p11', sets: [[10, 10]] }] } }, ctypes: [] } } });
     await p.click('#fitTab');
     ok(!!(await p.$('.fab')) && !(await p.$('.fbtns')), 'fit: floating ＋ replaces the bottom buttons once there are records');
-    ok(!!(await p.$('.fttop .ftbox')) && !(await p.$('.fmin .ftbox')), 'fit: running timer shown at the top');
+    ok(!!(await p.$('.ftbar .ftsegs')) && !(await p.$('.fmin')), 'fit: running timer bar at the top with 重訓／有氧／伸展');
     await p.click('.secplus[data-v=肩]'); ok(await p.$eval('.fchip.on[data-act=fpart]', e => e.textContent) === '肩', 'fit: section ＋ opens the picker on that part');
     await p.click('[data-act=fpback]'); await p.click('.fab'); ok(!!(await p.$('.fadd')), 'fit: ＋ asks 重訓 or 有氧');
     await p.click('.fadd [data-act=fcnew]'); ok(!(await p.$('#sheet .sheet')), 'fit: menu closes after choosing');
@@ -1346,14 +1346,17 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       { id: 's1', name: '伸展 10 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5), fitLink: true },
       { id: 'm1', name: '運動 10 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5), fitLink: true }], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
     await p.click('#fitTab');
-    ok(/伸展/.test(await p.innerText('main')) && !!(await p.$('[data-act=ststart]')), 'stretch: section with a timer button');
-    await p.click('[data-act=fst][data-n="5"]'); await p.click('[data-act=fst][data-n="5"]'); let d = await db(p);
+    ok(/伸展/.test(await p.innerText('.fsum2')) && !!(await p.$('[data-act=ftstart]')), 'stretch: 今天 card lists 伸展, one 開始訓練 button');
+    await p.click('[data-act=fmanual]'); await p.click('[data-act=fst][data-n="5"]'); await p.click('[data-act=fst][data-n="5"]'); await p.click('#sheet [data-act=closesheet]'); let d = await db(p);
     ok(d.fit.logs[T0].st === 10 && d.logs[T0].h.s1 === 1 && !(d.logs[T0].h.m1), 'stretch: 10 min checks the stretch habit only, not 運動');
-    ok(/伸展 10 分，已打勾/.test(await p.innerText('main')), 'stretch: linked habit message');
-    await p.click('[data-act=fst][data-n="-5"]'); d = await db(p); ok(!(d.logs[T0] && d.logs[T0].h && d.logs[T0].h.s1), 'stretch: dropping below the target unchecks');
-    await p.click('[data-act=ststart]'); d = await db(p); ok(d.settings.stStart > 0 && d.settings.stDay === T0, 'stretch: timer started');
-    await p.click('[data-act=ftstart]').catch(() => {}); ok(!(await db(p)).settings.ftStart, 'stretch: only one timer at a time');
-    await p.click('[data-act=stend]'); d = await db(p); ok(!d.settings.stStart && d.fit.logs[T0].st === 6, 'stretch: 結束 adds the minutes');
+    ok(/伸展 10 分鐘\s*已達成/.test(await p.innerText('.fsum2')) && /運動 10 分鐘\s*還差 10 分/.test(await p.innerText('.fsum2')), 'stretch: 今天 card shows each linked habit');
+    await p.click('[data-act=fmanual]'); await p.click('[data-act=fst][data-n="-5"]'); await p.click('#sheet [data-act=closesheet]'); d = await db(p); ok(!(d.logs[T0] && d.logs[T0].h && d.logs[T0].h.s1), 'stretch: dropping below the target unchecks');
+    await p.click('[data-act=ftstart]'); await p.click('[data-act=ftseg][data-v=s]'); d = await db(p); ok(d.settings.ftStart > 0 && d.settings.ftSeg === 's', 'timer: switch to 伸展');
+    await p.click('.ftbar [data-act=ftend]'); ok(/結束訓練/.test(await p.innerText('#sheet')), 'timer: 結束 asks to confirm the minutes');
+    for (let i = 0; i < 4; i++) await p.click('[data-act=ftadj][data-v=s][data-n="1"]'); await p.click('[data-act=ftadj][data-v=c][data-n="1"]'); await p.click('[data-act=ftadj][data-v=c][data-n="1"]');
+    ok(/伸展 10 分鐘\s*已達成/.test(await p.innerText('#sheet')), 'timer: sheet previews the linked habits');
+    await p.click('[data-act=ftsave]'); d = await db(p);
+    ok(!d.settings.ftStart && d.fit.logs[T0].st === 10 && d.fit.logs[T0].c.length === 1 && d.fit.logs[T0].c[0].min === 2, 'timer: saved per kind (伸展 to 伸展, 有氧 as a cardio entry)');
     await p.click('[data-tab=settings]'); await p.click('[data-act=edit][data-id=m1]');
     ok(/伸展不算在內/.test(await p.innerText('main')) && !!(await p.$('[data-act=fitkind][data-v=mv].on')), 'stretch: editor shows 運動 chosen and says stretching is not counted');
     await p.click('[data-act=fitkind][data-v=st]'); ok(/有氧和重訓不算在內/.test(await p.innerText('main')), 'stretch: choosing 伸展 updates the hint');
@@ -1366,12 +1369,12 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const T0 = daysAgo(0), now = Date.now();
     let p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true, ftStart: now - 45 * 60000, ftDay: T0 }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: { [T0]: { min: 10 } }, ctypes: [] } } });
     await p.click('#fitTab');
-    ok(/45 分/.test(await p.innerText('.ftbox')), 'timer: elapsed minutes from the saved start');
-    await p.click('[data-act=ftend]'); let d = await db(p);
+    ok(/^45:0\d/.test(await p.innerText('#ftclk')), 'timer: elapsed time from the saved start');
+    await p.click('.ftbar [data-act=ftend]'); await p.click('[data-act=ftsave]'); let d = await db(p);
     ok(d.fit.logs[T0].min === 55 && !d.settings.ftStart, 'timer: 結束 adds the minutes to 重訓時間');
     await p.click('[data-act=ftstart]'); d = await db(p);
-    ok(d.settings.ftStart > now - 1000 && d.settings.ftDay === T0 && !!(await p.$('.ftbox')), 'timer: start saves the time');
-    await p.click('[data-act=ftcancel]'); ok(!(await db(p)).settings.ftStart, 'timer: cancel');
+    ok(d.settings.ftStart > now - 1000 && d.settings.ftDay === T0 && !!(await p.$('.ftbar')), 'timer: start saves the time');
+    await p.click('.ftbar [data-act=ftend]'); await p.click('[data-act=ftcancel]'); ok(!(await db(p)).settings.ftStart, 'timer: cancel');
     await fitAdd(p, 'fpick'); await p.fill('#fq', '槓鈴硬舉');
     ok(/硬舉/.test(await p.innerText('#fplist')), 'search: 器材＋動作 finds 硬舉');
     await p.fill('#fq', 'deadlift'); ok((await p.innerText('#fplist')).includes('羅馬尼亞硬舉') && /搜尋結果 · 2/.test(await p.innerText('#fplist')), 'search: English name');
@@ -1387,8 +1390,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'timer');
     p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true, ftStart: now - 5 * 3600e3, ftDay: T0, ftLast: now - 4 * 3600e3 }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
     await p.click('#fitTab');
-    ok(!!(await p.$('.ftbox.stale')), 'timer: over 3 hours asks instead of counting');
-    await p.click('[data-act=ftend][data-v=last]'); d = await db(p);
+    ok(!!(await p.$('.ftbar.stale')), 'timer: over 3 hours asks instead of counting');
+    await p.click('[data-act=ftend][data-v=last]'); await p.click('[data-act=ftsave]'); d = await db(p);
     ok(d.fit.logs[T0] && d.fit.logs[T0].min === 60, 'timer: end at the last set');
     await done(p, 'timer stale');
   }

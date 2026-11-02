@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-gIRhggaYFA6C508z2xbHB3SEomqvqRPXNFlSyi18cNA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Jh+rXtmDIdCkC6ushzW1kkgYniPBFasIWzNS3wfOuk8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -543,6 +543,21 @@ div.row-btn{box-sizing:border-box;cursor:default}
 
 #sheet{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:10}
 .sheet>*{flex-shrink:0}
+.ftbar{position:sticky;top:0;z-index:6;margin:0 0 12px;padding:12px 14px;border-radius:0 0 20px 20px;background:color-mix(in srgb,var(--good) 72%,#000);color:#fff;box-shadow:0 6px 18px #0003}
+.ftb-r{display:flex;justify-content:space-between;align-items:center;gap:10px}.ftb-r b{display:block;font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}.ftb-r span{display:block;font-size:12.5px;opacity:.85}
+.ftw{border:0;background:#fff;color:color-mix(in srgb,var(--good) 72%,#000);border-radius:12px;padding:10px 16px;font-weight:800;font-size:15px}.fto{border:1.5px solid #ffffffb3;background:none;color:#fff;border-radius:12px;padding:9px 14px;font-weight:700}
+.ftbar .ftacts{display:flex;flex-direction:column;gap:8px;margin-top:10px}.ftbar.stale b{font-size:18px}
+.ftsegs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.ftsegs button{border:0;border-radius:12px;padding:7px 4px;background:#ffffff24;color:#fff;font-weight:800;font-size:14px}.ftsegs small{display:block;font-weight:400;font-size:12px;opacity:.9}.ftsegs .on{background:#fff;color:color-mix(in srgb,var(--good) 72%,#000)}
+.ftbig{display:flex;align-items:center;justify-content:center;gap:8px;font-size:17px;margin:12px 0 2px}.ftbig svg{width:20px;height:20px}
+.fsum2{display:block;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px;margin:10px 0 4px;color:var(--fg);font:inherit}
+.fs-h{display:flex;justify-content:space-between;align-items:center}.fs-h b{font-size:15px}.fs-h span{font-size:12px;color:var(--muted)}
+.fs-3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:6px}.fs-3>span{font-size:12px;color:var(--muted)}.fs-3 b{display:block;font-size:20px;font-weight:800;color:var(--fg);font-variant-numeric:tabular-nums}
+.fs-l{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line-soft,var(--line))}.fs-l>span{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.fs-ok{color:var(--good);font-weight:800}.fs-no{color:var(--bad);font-weight:700}.fs-mu{color:var(--muted)}.ftprev{border:0;padding:0 2px;margin:0}
+.ftrow{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}.ftrow-h{display:flex;justify-content:space-between;align-items:center}.ftrow-h b{font-size:16px}.ftrow p{margin:6px 0 0}
+.ftcts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ftcx{align-self:center}
+.cyst{display:block;margin:2px auto 0;font-size:10px;font-weight:800;color:var(--muted);opacity:.85}.cystl{font-size:12.5px;color:var(--muted);margin:8px 2px 0}
+
 .eyerow{display:flex;justify-content:flex-end;margin:-8px 0 -6px}.fkseg{margin-top:10px}.cyadd{display:block;margin:8px auto 0;border:0;background:none;color:var(--good);font-weight:700;font-size:14px;min-height:36px;padding:0 10px}.swparts{flex-wrap:wrap;gap:6px}
 .sheet{background:var(--bg);width:100%;max-width:560px;max-height:85%;overflow-y:auto;box-sizing:border-box;border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
 .sheet h2{margin:0;font-size:18px}
@@ -1136,32 +1151,48 @@ function fitMinutes(k){var l=fLog(k);if(!l)return {c:0,s:0,tot:0,any:false};var 
   return {c:c,s:s,tot:c+s,any:!!((l.s&&l.s.length)||(l.c&&l.c.length)||s)};}
 function unAuto(k,id){var l=db.logs[k];if(l&&l.fa){var i=l.fa.indexOf(id);if(i>=0)l.fa.splice(i,1);if(!l.fa.length)delete l.fa;}}
 function fitOk(h,k){var tg=fitTarget(h);if(isStretchH(h)){var sm=stMin(k);return tg?sm>=tg:sm>0;}var fm=fitMinutes(k);return tg?fm.tot>=tg:fm.any;}
-/* 重訓計時: the start time is saved, so the phone can sleep or the app close; 結束 adds the minutes to that day's 重訓時間.
-   Over 3 hours without 結束 → ask, offering the time of the last set logged while timing. */
-var FT_MAX=3*3600e3;
+/* 訓練計時: one timer for the whole session. While it runs you mark what you are doing (重訓／有氧／伸展);
+   time goes to that kind until you switch. 結束 opens a sheet to check the minutes (有氧 picks a type) before saving.
+   Settings: ftStart, ftDay, ftSeg ('w'|'c'|'s'), ftSegAt (when the current kind started), ftW/ftC/ftS (ms banked),
+   ftC0 (有氧 minutes already logged that day at start, so 有氧 added by hand meanwhile isn't counted twice), ftLast (last set). */
+var FT_MAX=3*3600e3,FT_K={w:'重訓',c:'有氧',s:'伸展'};
 function ftOn(){var st=db.settings;return st.ftStart>0&&isKey(st.ftDay);}
 function hm(ms){var d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinutes());}
 function ftMins(a,b){return Math.max(1,Math.round((b-a)/60000));}
-function ftHTML(k){var st=db.settings,t=todayKey();
-  if(!ftOn())return k===t?'<button class="ghost ftgo" data-act="ftstart"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2M10 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>開始計時</button>':'';
-  if(st.ftDay!==k)return '';
-  var el=Date.now()-st.ftStart;
+function ftSeg(){var g=db.settings.ftSeg;return g==='c'||g==='s'?g:'w';}
+function ftMs(g,end){var st=db.settings,e=end||Date.now(),cur=ftSeg(),at=st.ftSegAt>=st.ftStart?st.ftSegAt:st.ftStart,b=+st['ft'+g.toUpperCase()]||0;
+  return b+(g===cur?Math.max(0,Math.min(e,Date.now())-at):0);}
+function ftMinOf(g,end){return Math.round(ftMs(g,end)/60000);}
+function ftClock(ms){var s=Math.max(0,Math.floor(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?h+':'+pad(m):m)+':'+pad(s%60);}
+function ftClear(){var st=db.settings;['ftStart','ftDay','ftLast','ftSeg','ftSegAt','ftW','ftC','ftS','ftC0'].forEach(function(x){delete st[x];});}
+function ftStartBtn(k){return k===todayKey()&&!ftOn()?'<button class="primary ftbig" data-act="ftstart"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 9v4l2.5 2M10 2h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>開始訓練</button>':'';}
+function ftBar(){if(!ftOn())return '';var st=db.settings,t=todayKey(),el=Date.now()-st.ftStart,cur=ftSeg();
   if(el>FT_MAX){var lt=st.ftLast>st.ftStart?st.ftLast:0;
-    return '<div class="ftbox stale"><div><b>計時還沒結束</b><span class="small muted">'+(st.ftDay===t?'今天':shortMD(st.ftDay))+' '+hm(st.ftStart)+' 開始，已經超過 3 小時</span></div><div class="ftacts">'+
-      (lt?'<button class="primary" data-act="ftend" data-v="last">用最後一組（'+hm(lt)+'）結束 · '+ftMins(st.ftStart,lt)+' 分</button>':'')+
-      '<button class="secondary" data-act="ftend" data-v="60">記 60 分鐘</button><button class="ghost" data-act="ftcancel">不記，取消計時</button></div></div>';}
-  return '<div class="ftbox"><div><b id="ftel">'+ftMins(st.ftStart,Date.now()-30000)+' 分</b><span class="small muted">'+hm(st.ftStart)+' 開始 · 計時中</span></div><div class="ftacts">'+
-    '<button class="ghost" data-act="ftcancel">取消</button><button class="primary" data-act="ftend">結束</button></div></div>';}
-function stOn(){var st=db.settings;return st.stStart>0&&isKey(st.stDay);}
-function stHTML(k){var st=db.settings,t=todayKey();
-  if(!stOn())return k===t?'<button class="ghost ftgo" data-act="ststart"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2M10 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>開始計時</button>':'';
-  if(st.stDay!==k)return '';
-  if(Date.now()-st.stStart>FT_MAX)return '<div class="ftbox stale"><div><b>伸展計時還沒結束</b><span class="small muted">'+(st.stDay===t?'今天':shortMD(st.stDay))+' '+hm(st.stStart)+' 開始，已經超過 3 小時</span></div><div class="ftacts">'+
-    '<button class="secondary" data-act="stend" data-v="15">記 15 分鐘</button><button class="ghost" data-act="stcancel">不記，取消計時</button></div></div>';
-  return '<div class="ftbox"><div><b id="stel">'+ftMins(st.stStart,Date.now()-30000)+' 分</b><span class="small muted">伸展 · '+hm(st.stStart)+' 開始 · 計時中</span></div><div class="ftacts">'+
-    '<button class="ghost" data-act="stcancel">取消</button><button class="primary" data-act="stend">結束</button></div></div>';}
-function ftTick(){var se=$('#stel');if(se&&stOn()){if(Date.now()-db.settings.stStart>FT_MAX){render();return;}se.textContent=ftMins(db.settings.stStart,Date.now()-30000)+' 分';}var e=$('#ftel');if(e&&ftOn()){var el=Date.now()-db.settings.ftStart;if(el>FT_MAX)render();else e.textContent=ftMins(db.settings.ftStart,Date.now()-30000)+' 分';}}
-setInterval(ftTick,20000);
+    return '<div class="ftbar stale"><div class="ftb-r"><div><b>計時還沒結束</b><span>'+(st.ftDay===t?'今天':shortMD(st.ftDay))+' '+hm(st.ftStart)+' 開始，已經超過 3 小時</span></div></div><div class="ftacts">'+
+      (lt?'<button class="ftw" data-act="ftend" data-v="last">用最後一組（'+hm(lt)+'）結束</button>':'')+'<button class="ftw" data-act="ftend" data-v="60">算 60 分鐘結束</button><button class="fto" data-act="ftcancel">不記，取消計時</button></div></div>';}
+  return '<div class="ftbar"><div class="ftb-r"><div><b id="ftclk">'+ftClock(el)+'</b><span>'+(st.ftDay===t?'':shortMD(st.ftDay)+' ')+hm(st.ftStart)+' 開始 · 正在做'+FT_K[cur]+'</span></div><button class="ftw" data-act="ftend">結束</button></div>'+
+    '<div class="ftsegs" role="group" aria-label="現在在做">'+['w','c','s'].map(function(g){return '<button class="'+(g===cur?'on':'')+'" data-act="ftseg" data-v="'+g+'" aria-pressed="'+(g===cur)+'">'+FT_K[g]+'<small id="ftm'+g+'">'+ftMinOf(g)+' 分</small></button>';}).join('')+'</div></div>';}
+function ftTick(){if(!ftOn())return;var c=$('#ftclk');if(!c)return;var el=Date.now()-db.settings.ftStart;if(el>FT_MAX){render();return;}c.textContent=ftClock(el);
+  ['w','c','s'].forEach(function(g){var e=$('#ftm'+g);if(e)e.textContent=ftMinOf(g)+' 分';});
+  if(db.settings.ftDay===ui.date){var lv=ftLive(ui.date);['w','c','s'].forEach(function(g){var e=$('#fsum'+g);if(e)e.textContent=lv[g]+' 分';});}}
+setInterval(ftTick,1000);
+function cMinTot(k){return ((fLog(k)||{}).c||[]).reduce(function(a,x){return a+cMin(x);},0);}
+/* today's minutes incl. the running timer */
+function ftLive(k){var l=fLog(k)||{},o={w:l.min||0,c:Math.round(cMinTot(k)),s:l.st||0};
+  if(ftOn()&&db.settings.ftDay===k){o.w+=ftMinOf('w');o.s+=ftMinOf('s');o.c+=Math.max(0,ftMinOf('c')-Math.max(0,Math.round(cMinTot(k)-(+db.settings.ftC0||0))));}return o;}
+function fitStat(h,o){var tg=fitTarget(h),v=isStretchH(h)?o.s:o.w+o.c;if(!tg)return v>0?'<span class="fs-ok">有紀錄 ✓</span>':'<span class="fs-mu">有'+(isStretchH(h)?'伸展':'運動')+'就打勾</span>';
+  return v>=tg?'<span class="fs-ok">已達成 ✓</span>':'<span class="fs-no">還差 '+(tg-v)+' 分</span>';}
+function fitSumHTML(k){var o=ftLive(k),lk=fitLinked();
+  return '<button class="fsum2" data-act="fmanual"><span class="fs-h"><b>'+(k===todayKey()?'今天':shortMD(k))+'</b><span>點一下可以手動調整</span></span><span class="fs-3">'+
+    ['w','c','s'].map(function(g){return '<span>'+FT_K[g]+'<b id="fsum'+g+'">'+o[g]+' 分</b></span>';}).join('')+'</span>'+
+    (lk.length?'<span class="fs-l">'+lk.map(function(h){return '<span><span>'+esc(h.name)+'</span>'+fitStat(h,o)+'</span>';}).join('')+'</span>':'')+'</button>';}
+function ftCtypes(){var n={},last=null;Object.keys(db.fit.logs).sort().forEach(function(x){(db.fit.logs[x].c||[]).forEach(function(c){n[c.type]=(n[c.type]||0)+1;last=c.type;});});
+  var all=CARDIO.concat(db.fit.ctypes).filter(function(x,i,a){return a.indexOf(x)===i;}).sort(function(a,b){return (b===last)-(a===last)||(n[b]||0)-(n[a]||0);});return all.slice(0,6);}
+function ftEndSheet(v){var st=db.settings,end=v==='last'&&st.ftLast>st.ftStart?st.ftLast:v==='60'?st.ftStart+3600e3:Date.now();
+  var cap=function(g){return v==='60'?Math.round(Math.min(ftMs(g),3600e3)/60000):Math.round(ftMs(g,end)/60000);},w=cap('w'),c=cap('c'),s=cap('s'),man=Math.max(0,Math.round(cMinTot(st.ftDay)-(+st.ftC0||0)));
+  if(v==='60'&&w+c+s<1)w=60;
+  if(!v&&w+c+s<1){if(ftSeg()==='c')c=1;else if(ftSeg()==='s')s=1;else w=1;}
+  return {type:'ftend',w:w,c:Math.max(0,c-man),man:man,c0:c,s:s,ct:ftCtypes()[0],a:st.ftStart,b:end};}
 function fitSync(k){
   if(!fOn())return;
   var fm=fitMinutes(k),fa=((db.logs[k]||{}).fa||[]).slice(),changed=false;
@@ -1213,22 +1244,22 @@ function cyWeekHTML(){if(!Object.keys(db.fit.logs).length)return '';var t=todayK
     ps.sort(function(a,b){return PARTS.indexOf(a)-PARTS.indexOf(b);});if((l.c||[]).length)ps.push('有氧');
     s+='<button class="cyd'+(d===t?' today':'')+(d>t?' fut':'')+(d<t&&!ps.length?' rest':'')+(d===ui.date&&d!==t?' sel':'')+'" data-act="cyday" data-k="'+d+'"'+(d>t?' disabled':'')+'><span class="cyn">'+WD[parseKey(d).getDay()]+'</span><span class="cyd2">'+parseKey(d).getDate()+'</span>'+
       (ps.length?ps.map(function(p){return '<span class="cyp" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(''):(d===t&&SG&&!SG.done&&SG.big.concat(SG.small).length?'':'<span class="cy0">·</span>'))+
-      (d===t&&SG&&!SG.done&&SG.big.concat(SG.small).length?'<span class="cysg" role="separator" aria-label="建議"></span>'+SG.big.concat(SG.small).filter(function(p){return !SG.today[p];}).map(function(p){return '<span class="cyp dash" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(''):'')+'</button>';}
+      (d===t&&SG&&!SG.done&&SG.big.concat(SG.small).length?'<span class="cysg" role="separator" aria-label="建議"></span>'+SG.big.concat(SG.small).filter(function(p){return !SG.today[p];}).map(function(p){return '<span class="cyp dash" style="--c:'+(PART_COL[p]||'#7A7468')+'">'+p+'</span>';}).join(''):'')+(l.st?'<span class="cyst" aria-label="有伸展">伸</span>':'')+'</button>';}
   s+='</div>';
   var mk=function(a){return a.map(function(p){return SG.today[p]?'<span class="cyok">'+p+' ✓</span>':'<button class="cypt" data-act="fpartadd" data-v="'+p+'" aria-label="帶入'+p+'的常用動作">'+p+'</button>';}).join('、');};
   var addP=ui.date===t?'<button class="cyadd" data-act="fpartpick">＋ 加部位</button>':'';
   if(SG&&SG.done)s+='<div class="cyft cyft-ok"><span class="cyft-ic" aria-hidden="true">✓</span><p>今天的建議都練完了 👍<small>'+SG.big.concat(SG.small).join('、')+'</small></p></div>';
   else if(SG)s+='<div class="cyft"><p>'+(SG.big.length?'建議今天練：<b>'+mk(SG.big)+'</b>'+(SG.small.length?'，可以搭<b>'+mk(SG.small)+'</b>':''):'大肌群都才剛練過，今天適合休息'+(SG.small.length?'，或練<b>'+mk(SG.small)+'</b>':'')+'，或做有氧')+
     '<small>'+SG.why.join('、')+(SG.fresh.length?'；'+SG.fresh.join('、')+'昨天剛練':'')+'</small></p></div>';
+  var stD=0,stM=0;for(var q=0;q<7;q++){var qd=addDays(ws,q),qm=(db.fit.logs[qd]||{}).st||0;if(qd<=t&&qm){stD++;stM+=qm;}}
+  if(stD)s+='<div class="cystl">伸展：'+(off?'這週':'本週')+' '+stD+' 天 · '+stM+' 分</div>';
   return s+addP+'</section>';}
 function fitLogHTML(){
-  var k=ui.date,t=todayKey(),l=fLog(k)||{},s='';
+  var k=ui.date,t=todayKey(),l=fLog(k)||{},s=ftBar();
   s+='<div class="dnav"><button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天"'+(ui.date<=useStart()?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="dnav-c"><b>'+mdw(k)+'</b><span>'+relDay(k)+'</span></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></div>';
-  if(ftOn()&&db.settings.ftDay===k)s+='<div class="fttop">'+ftHTML(k)+'</div>'; // running timer stays near the top
-  if(stOn()&&db.settings.stDay===k)s+='<div class="fttop">'+stHTML(k)+'</div>';
-  s+=cyWeekHTML();
+  s+=cyWeekHTML()+ftStartBtn(k)+fitSumHTML(k);
   var ss=(l.s||[]).filter(function(en){return exById(en.ex);}),cc=l.c||[],td=(l.todo||[]).filter(function(x){return !x.ex||exById(x.ex);}),tds=td.filter(function(x){return x.ex;}),tdc=td.filter(function(x){return !x.ex;});
   var partsOrder=[];ss.forEach(function(en){var pt=exById(en.ex).part;if(partsOrder.indexOf(pt)<0)partsOrder.push(pt);});
   var PG=planGroups(td);if(cc.length&&!PG.some(function(q){return q.key==='有氧';}))PG.push({key:'有氧',items:[]});PG.forEach(function(q){if(partsOrder.indexOf(q.key)<0)partsOrder.push(q.key);});
@@ -1261,15 +1292,6 @@ function fitLogHTML(){
     s+='</section>';return s;}
   if(!ss.length&&!cc.length&&!td.length&&!(fLog(k)||{}).min&&!stMin(k)){
     s+='<div class="empty" style="align-items:center;text-align:center"><div class="empty-t">這天沒有運動紀錄</div><p>'+(k<t?'補記一下，趨勢圖會比較完整。':'練完記下來，之後就能看到進步。')+'</p></div>';
-  }
-  var linkedAll=fitLinked(),linked=linkedAll.filter(function(h){return !isStretchH(h);}),linkedSt=linkedAll.filter(isStretchH),fm=fitMinutes(k),sm=stMin(k);
-  {
-    s+='<section class="fmin"><div class="fmin-r"><span class="row-l"><span>重訓時間</span><span class="row-sub">選填 · '+(linked.length?'會和有氧分鐘加總，用來自動打勾':'記下今天重訓練了多久')+'</span></span>'+
-      '<span class="stepper"><button data-act="fmin" data-n="-5" aria-label="減 5 分鐘"'+(fm.s?'':' disabled')+'>−</button><span class="v">'+(fm.s?fm.s+' 分':'—')+'</span><button class="go" data-act="fmin" data-n="5" aria-label="加 5 分鐘">＋</button></span></div>'+
-      (ftOn()?'':ftHTML(k))+linked.map(function(h){return '<div class="flink">'+fitLinkMsg(h,k)+'</div>';}).join('')+'</section>';
-    s+='<section class="fmin"><div class="fmin-r"><span class="row-l"><span>伸展</span><span class="row-sub">選填 · 另外計算，不算進運動分鐘</span></span>'+
-      '<span class="stepper"><button data-act="fst" data-n="-5" aria-label="伸展減 5 分鐘"'+(sm?'':' disabled')+'>−</button><span class="v">'+(sm?sm+' 分':'—')+'</span><button class="go" data-act="fst" data-n="5" aria-label="伸展加 5 分鐘">＋</button></span></div>'+
-      (stOn()?'':stHTML(k))+linkedSt.map(function(h){return '<div class="flink">'+fitLinkMsg(h,k)+'</div>';}).join('')+'</section>';
   }
   if(k<t&&(ss.length||cc.length))s+='<button class="secondary fusecopy" data-act="fcopyday" data-k="'+k+'">用這天的課表（帶到今天）</button>';
   if(!ss.length&&!cc.length&&!td.length)s+='<div class="fbtns"><button class="primary" data-act="fpick">＋ 重訓</button><button class="secondary" data-act="fcnew">＋ 有氧</button>'+(fcopyDays(k).length?'<button class="secondary fbtn-copy" data-act="fcopy">複製之前的課表</button>':'')+'</div>';
@@ -1691,7 +1713,8 @@ function normalize(d){
     if(Object.keys(o).length)flogs[k]=o;});
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,stStart:+st.stStart>1.6e12&&+st.stStart<Date.now()+864e5?+st.stStart:undefined,stDay:isKey(st.stDay)?st.stDay:undefined,onboarded:!!st.onboarded,divSkip:typeof st.divSkip==='string'&&/^[0-9A-Z|,\-]*$/.test(st.divSkip)?st.divSkip.slice(-4000)||undefined:undefined,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman|egg|cat)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),divs:normDivs(d.divs),buys:normBuys(d.buys),prof:normProf(d.prof),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  if(!(+st.ftStart>0)&&+st.stStart>1.6e12&&isKey(st.stDay))st=Object.assign({},st,{ftStart:+st.stStart,ftDay:st.stDay,ftSeg:'s',ftSegAt:+st.stStart}); // the old separate 伸展 timer
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,ftSeg:/^[wcs]$/.test(st.ftSeg||'')?st.ftSeg:undefined,ftLastSeg:/^[cs]$/.test(st.ftLastSeg||'')?st.ftLastSeg:undefined,ftSegAt:+st.ftSegAt>1.6e12?+st.ftSegAt:undefined,ftW:+st.ftW>0?Math.min(+st.ftW,864e5):undefined,ftC:+st.ftC>0?Math.min(+st.ftC,864e5):undefined,ftS:+st.ftS>0?Math.min(+st.ftS,864e5):undefined,ftC0:+st.ftC0>0?Math.min(Math.round(+st.ftC0),1440):undefined,onboarded:!!st.onboarded,divSkip:typeof st.divSkip==='string'&&/^[0-9A-Z|,\-]*$/.test(st.divSkip)?st.divSkip.slice(-4000)||undefined:undefined,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman|egg|cat)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),divs:normDivs(d.divs),buys:normBuys(d.buys),prof:normProf(d.prof),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k)&&k!=='photos')R[k]=d[k];});
@@ -4161,6 +4184,20 @@ function renderSheet(){
       '<label class="lbl" for="pastebox">或貼上備份內容</label><textarea id="pastebox" class="code" rows="5" placeholder="貼上匯出的備份內容">'+esc(sh.paste||'')+'</textarea>'+
       (sh.err?'<p class="err0" role="alert">'+esc(sh.err)+'</p>':'')+
       '<button class="secondary" data-act="usepaste">使用貼上的內容</button>';
+  }else if(sh.type==='ftend'){var fk=db.settings.ftDay||todayKey(),fl=fLog(fk)||{},o={w:(fl.min||0)+sh.w,c:Math.round(cMinTot(fk))+sh.c,s:(fl.st||0)+sh.s},lk=fitLinked();
+    var row=function(g){return '<div class="ftrow"><div class="ftrow-h"><b>'+FT_K[g]+'</b><span class="stepper"><button data-act="ftadj" data-v="'+g+'" data-n="-1" aria-label="'+FT_K[g]+'減 1 分鐘"'+(sh[g]?'':' disabled')+'>−</button><span class="v">'+sh[g]+' 分</span><button class="go" data-act="ftadj" data-v="'+g+'" data-n="1" aria-label="'+FT_K[g]+'加 1 分鐘">＋</button></span></div>'+
+      (g==='c'&&(sh.c||sh.c0)?'<div class="ftcts">'+ftCtypes().map(function(x){return '<button class="fchip'+(x===sh.ct?' on':'')+'" data-act="ftct" data-v="'+esc(x)+'" aria-pressed="'+(x===sh.ct)+'">'+esc(x)+'</button>';}).join('')+'</div>':'')+
+      (g==='c'&&sh.man?'<p class="small muted">計時期間你另外記了有氧 '+sh.man+' 分，已經先扣掉，不會重複算。</p>':'')+'</div>';};
+    el.innerHTML='<div class="sheet" role="dialog" aria-modal="true"><h2>結束訓練 · 共 '+(sh.w+sh.c+sh.s+sh.man)+' 分</h2><p class="small muted">'+hm(sh.a)+' – '+hm(sh.b)+' · 忘了切換的話在這裡改</p>'+row('w')+row('c')+row('s')+
+      (lk.length?'<div class="fs-l ftprev">'+lk.map(function(h){return '<span><span>'+esc(h.name)+'</span>'+fitStat(h,o)+'</span>';}).join('')+'</div>':'')+
+      '<div class="stack"><button class="primary" data-act="ftsave">儲存</button><button class="secondary" data-act="closesheet">繼續計時</button><button class="linkish ftcx" data-act="ftcancel">不記，取消這次計時</button></div></div>';el.hidden=false;return;
+  }else if(sh.type==='fmanual'){var mk0=ui.date,ml=fLog(mk0)||{},cm=Math.round(cMinTot(mk0));
+    h='<h2>'+(mk0===todayKey()?'今天':mdw(mk0))+'的運動時間</h2>'+
+      '<div class="ftrow"><div class="ftrow-h"><b>重訓</b><span class="stepper"><button data-act="fmin" data-n="-5" aria-label="重訓減 5 分鐘"'+(ml.min?'':' disabled')+'>−</button><span class="v">'+(ml.min||0)+' 分</span><button class="go" data-act="fmin" data-n="5" aria-label="重訓加 5 分鐘">＋</button></span></div></div>'+
+      '<div class="ftrow"><div class="ftrow-h"><b>有氧</b><span class="v">'+cm+' 分</span></div><p class="small muted">有氧在運動頁的「有氧」紀錄裡新增或修改。</p></div>'+
+      '<div class="ftrow"><div class="ftrow-h"><b>伸展</b><span class="stepper"><button data-act="fst" data-n="-5" aria-label="伸展減 5 分鐘"'+(ml.st?'':' disabled')+'>−</button><span class="v">'+(ml.st||0)+' 分</span><button class="go" data-act="fst" data-n="5" aria-label="伸展加 5 分鐘">＋</button></span></div></div>'+
+      '<p class="small muted">重訓和有氧加起來算「運動」，伸展另外算。</p>';
+    h+='<button class="primary" data-act="closesheet">完成</button>';el.innerHTML='<div class="sheet" role="dialog" aria-modal="true">'+h+'</div>';el.hidden=false;return;
   }else if(sh.type==='milestone'){
     el.innerHTML='<div class="sheet ms" role="dialog" aria-modal="true"><div class="ms-n">'+sh.n+'</div><h2>連續 '+sh.n+' 天全部完成！</h2>'+
       '<p>'+(sh.n>=100?'這已經不是習慣，是你的生活方式了。':sh.n>=30?'一整個月都沒有中斷，真的很厲害。':sh.n>=21?'三週了，習慣正在變成自然。':'一整週都做到了，好的開始！')+'</p>'+
@@ -4352,13 +4389,16 @@ function act(a,b){
     case 'ftab': ui.fitTab=b.dataset.v;ui.top=true;break;
     case 'frange': ui.frange=+b.dataset.v;break;
     case 'fphelp': ui.fpHelp=!ui.fpHelp;break;
-    case 'ftstart': if(stOn()){toast('伸展正在計時，先結束伸展再開始重訓計時',2600);return;}db.settings.ftStart=Date.now();db.settings.ftDay=todayKey();delete db.settings.ftLast;save();toast('開始計時，練完記得按「結束」');break;
-    case 'ftcancel': delete db.settings.ftStart;delete db.settings.ftDay;delete db.settings.ftLast;save();toast('已取消計時');break;
-    case 'ftend': if(!ftOn())break;var fst=db.settings,fend=b.dataset.v==='last'&&fst.ftLast>fst.ftStart?fst.ftLast:Date.now(),fm=b.dataset.v==='60'?60:ftMins(fst.ftStart,fend);
-      l=fLogMk(fst.ftDay);l.min=Math.min(1440,(l.min||0)+fm);k=fst.ftDay;delete fst.ftStart;delete fst.ftDay;delete fst.ftLast;fTidy(k);fitSync(k);save();toast('記下重訓 '+fm+' 分鐘');break;
-    case 'ststart': if(ftOn()){toast('重訓正在計時，先結束重訓再開始伸展計時',2600);return;}db.settings.stStart=Date.now();db.settings.stDay=todayKey();save();toast('開始伸展計時，做完記得按「結束」');break;
-    case 'stcancel': delete db.settings.stStart;delete db.settings.stDay;save();toast('已取消伸展計時');break;
-    case 'stend': if(!stOn())break;var sst=db.settings,smn=b.dataset.v==='15'?15:ftMins(sst.stStart,Date.now());l=fLogMk(sst.stDay);l.st=Math.min(1440,(l.st||0)+smn);k=sst.stDay;delete sst.stStart;delete sst.stDay;fTidy(k);fitSync(k);save();toast('記下伸展 '+smn+' 分鐘');break;
+    case 'ftstart': var fs0=db.settings,now0=Date.now();ftClear();fs0.ftStart=now0;fs0.ftDay=todayKey();fs0.ftSegAt=now0;fs0.ftSeg=db.settings.ftLastSeg||'w';fs0.ftC0=Math.round(cMinTot(todayKey()));save();toast('開始計時，做什麼就點上面的重訓／有氧／伸展');break;
+    case 'ftseg': if(!ftOn()||!FT_K[b.dataset.v])return;var fs1=db.settings,cur1=ftSeg(),n1=Date.now();if(b.dataset.v===cur1)return;fs1['ft'+cur1.toUpperCase()]=ftMs(cur1,n1);fs1.ftSeg=b.dataset.v;fs1.ftSegAt=n1;fs1.ftLastSeg=b.dataset.v;save();break;
+    case 'ftcancel': ftClear();save();ui.sheet=null;toast('已取消計時');break;
+    case 'ftend': if(!ftOn())break;ui.sheet=ftEndSheet(b.dataset.v);break;
+    case 'ftadj': var sh0=ui.sheet;if(!sh0||sh0.type!=='ftend'||!/^[wcs]$/.test(b.dataset.v))return;sh0[b.dataset.v]=Math.max(0,Math.min(600,sh0[b.dataset.v]+(+b.dataset.n)));break;
+    case 'ftct': if(ui.sheet&&ui.sheet.type==='ftend')ui.sheet.ct=b.dataset.v;break;
+    case 'ftsave': var sh1=ui.sheet;if(!sh1||sh1.type!=='ftend'||!ftOn())return;k=db.settings.ftDay;l=fLogMk(k);if(sh1.w)l.min=Math.min(1440,(l.min||0)+sh1.w);if(sh1.s)l.st=Math.min(1440,(l.st||0)+sh1.s);
+      if(sh1.c){l.c=l.c||[];l.c.push({id:uid(),type:sh1.ct||'跑步機',min:sh1.c});}ftClear();fTidy(k);fitSync(k);save();ui.sheet=null;
+      toast('記下 '+['w','c','s'].filter(function(g){return sh1[g];}).map(function(g){return FT_K[g]+' '+sh1[g]+' 分';}).join(' · ')||'已結束計時',2600);break;
+    case 'fmanual': ui.sheet={type:'fmanual'};break;
     case 'fst': l=fLogMk(ui.date);l.st=Math.max(0,(l.st||0)+(+b.dataset.n));fTidy(ui.date);fitSync(ui.date);save();break;
     case 'fmin': l=fLogMk(ui.date);l.min=Math.max(0,(l.min||0)+(+b.dataset.n));fTidy(ui.date);fitSync(ui.date);save();break;
     case 'fcopy': ui.sheet={type:'fcopy'};break;
