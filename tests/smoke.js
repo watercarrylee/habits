@@ -1339,6 +1339,24 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'tags');
   }
 
+  // 伸展計時 + 習慣連動
+  {
+    const T0 = daysAgo(0);
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [
+      { id: 's1', name: '伸展 10 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5), fitLink: true },
+      { id: 'm1', name: '運動 10 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5), fitLink: true }], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
+    await p.click('#fitTab');
+    ok(/伸展/.test(await p.innerText('main')) && !!(await p.$('[data-act=ststart]')), 'stretch: section with a timer button');
+    await p.click('[data-act=fst][data-n="5"]'); await p.click('[data-act=fst][data-n="5"]'); let d = await db(p);
+    ok(d.fit.logs[T0].st === 10 && d.logs[T0].h.s1 === 1 && !(d.logs[T0].h.m1), 'stretch: 10 min checks the stretch habit only, not 運動');
+    ok(/伸展 10 分，已打勾/.test(await p.innerText('main')), 'stretch: linked habit message');
+    await p.click('[data-act=fst][data-n="-5"]'); d = await db(p); ok(!(d.logs[T0] && d.logs[T0].h && d.logs[T0].h.s1), 'stretch: dropping below the target unchecks');
+    await p.click('[data-act=ststart]'); d = await db(p); ok(d.settings.stStart > 0 && d.settings.stDay === T0, 'stretch: timer started');
+    await p.click('[data-act=ftstart]').catch(() => {}); ok(!(await db(p)).settings.ftStart, 'stretch: only one timer at a time');
+    await p.click('[data-act=stend]'); d = await db(p); ok(!d.settings.stStart && d.fit.logs[T0].st === 6, 'stretch: 結束 adds the minutes');
+    await done(p, 'stretch');
+  }
+
   // 重訓計時 + 動作搜尋
   {
     const T0 = daysAgo(0), now = Date.now();
