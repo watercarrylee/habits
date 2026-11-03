@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-VrjVxzEt0GZl5Hn9uSPlXCLK1jGYJ/LEAV84kiAWBq0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-At228Z4SmhzK7z7mA4tiEiUvfIx6b7lkcKD51ohIm8Q='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -544,7 +544,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 #sheet{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:10}
 .sheet>*{flex-shrink:0}
 .ftbar{position:sticky;top:0;z-index:6;margin:0 0 12px;padding:12px 14px;border-radius:0 0 20px 20px;background:color-mix(in srgb,var(--good) 72%,#000);color:#fff;box-shadow:0 6px 18px #0003}
-.ftb-r{display:flex;justify-content:space-between;align-items:center;gap:10px}.ftb-r b{display:block;font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}.ftb-r span{display:block;font-size:12.5px;opacity:.85}
+.ftb-r{display:flex;justify-content:space-between;align-items:center;gap:10px}.ftb-r>div>b{display:block;font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}.ftb-r>div>span{display:block;font-size:12.5px;opacity:.85}
 .ftw{border:0;background:#fff;color:color-mix(in srgb,var(--good) 72%,#000);border-radius:12px;padding:10px 16px;font-weight:800;font-size:15px}.fto{border:1.5px solid #ffffffb3;background:none;color:#fff;border-radius:12px;padding:9px 14px;font-weight:700}
 .rdm-col{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px}.rdm-col .redeem{white-space:nowrap}.rdm-all{font-size:12.5px;min-height:24px}
 .fpall{display:inline-flex;align-items:center;gap:2px;margin:4px 0 6px}.fpall svg{width:18px;height:18px}.fxname{font-size:18px}
@@ -556,12 +556,13 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .fpstale{display:block;margin:12px auto 4px;font-size:13.5px}
 .tfold{display:flex;align-items:center;gap:10px;width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;margin:10px 0;color:var(--fg);font:inherit;font-weight:700;text-align:left}.tfold .tf-s{margin-left:auto;font-weight:400;color:var(--muted);font-size:14px}
 .tbacts{display:flex;align-items:center;gap:6px}.tbm{width:32px;height:32px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg)}.tbm:disabled{opacity:.3}
-.ftbar.paused{background:color-mix(in srgb,var(--muted) 70%,#000)}.ftbar.paused .ftsegs button{opacity:.5}.ftb-btns{display:flex;gap:8px;align-items:center}
+.ftbar.paused{background:color-mix(in srgb,var(--muted) 70%,#000)}.ftbar.paused .ftsegs button{opacity:.5}.ftb-btns{display:flex;gap:8px;align-items:center;flex:0 0 auto}.ftb-btns button{white-space:nowrap}
 .ftrest{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}.ftrb{border:0;border-radius:10px;padding:7px 12px;background:#ffffff24;color:#fff;font-weight:800;font-size:14px}
 .ftro{display:flex;gap:4px}.ftro button{border:0;border-radius:9px;padding:6px 9px;background:#ffffff1a;color:#fff;font-size:12.5px;font-weight:700}.ftro button.on{background:#ffffff59}
 .ftrest.on{background:#ffffff26;border-radius:12px;padding:6px 6px 6px 12px}.ftrest.on b{font-size:18px;font-variant-numeric:tabular-nums}.ftrest.over{background:#fff;color:color-mix(in srgb,var(--good) 72%,#000)}.ftrest.over .ftro button{background:color-mix(in srgb,var(--good) 18%,#fff);color:inherit}
 .ftbar .ftacts{display:flex;flex-direction:column;gap:8px;margin-top:10px}.ftbar.stale b{font-size:18px}
 .ftsegs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.ftsegs button{border:0;border-radius:12px;padding:7px 4px;background:#ffffff24;color:#fff;font-weight:800;font-size:14px}.ftsegs small{display:block;font-weight:400;font-size:12px;opacity:.9}.ftsegs .on{background:#fff;color:color-mix(in srgb,var(--good) 72%,#000)}
+.ftpick{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px;margin:12px 0 2px}.ftpick-h{display:flex;justify-content:space-between;align-items:center}.ftpick-b{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 6px}.ftpick-b .primary{padding:12px 4px;font-size:16px}
 .ftbig{display:flex;align-items:center;justify-content:center;gap:8px;font-size:17px;margin:12px 0 2px}.ftbig svg{width:20px;height:20px}
 .fsum2{display:block;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px;margin:10px 0 4px;color:var(--fg);font:inherit}
 .fs-h{display:flex;justify-content:space-between;align-items:center}.fs-h b{font-size:15px}.fs-h span{font-size:12px;color:var(--muted)}
@@ -1183,7 +1184,8 @@ function ftMs(g,end){var st=db.settings,e=end||Date.now(),cur=ftSeg(),at=st.ftSe
 function ftMinOf(g,end){return Math.round(ftMs(g,end)/60000);}
 function ftClock(ms){var s=Math.max(0,Math.floor(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?h+':'+pad(m):m)+':'+pad(s%60);}
 function ftClear(){var st=db.settings;['ftStart','ftDay','ftLast','ftSeg','ftSegAt','ftW','ftC','ftS','ftC0','ftPauseAt','ftPz','ftRest'].forEach(function(x){delete st[x];});}
-function ftStartBtn(k){return k===todayKey()&&!ftOn()?'<button class="primary ftbig" data-act="ftstart"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 9v4l2.5 2M10 2h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>開始訓練</button>':'';}
+function ftStartBtn(k){if(k!==todayKey()||ftOn())return '';if(ui.ftPick)return '<div class="ftpick"><div class="ftpick-h"><b>要先做什麼？</b><button class="linkish" data-act="ftpickx">取消</button></div><div class="ftpick-b">'+['w','c','s'].map(function(g){return '<button class="primary" data-act="ftstart" data-v="'+g+'">'+FT_K[g]+'</button>';}).join('')+'</div><p class="small muted">選了就開始計時，之後隨時可以切換。</p></div>';
+  return k===todayKey()&&!ftOn()?'<button class="primary ftbig" data-act="ftpick"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 9v4l2.5 2M10 2h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>開始訓練</button>':'';}
 function ftBar(){if(!ftOn())return '';var st=db.settings,t=todayKey(),el=ftEl(),cur=ftSeg(),pz=ftPaused();
   if(el>FT_MAX||(pz&&Date.now()-st.ftPauseAt>FT_MAX)){var lt=st.ftLast>st.ftStart?st.ftLast:0;
     return '<div class="ftbar stale"><div class="ftb-r"><div><b>計時還沒結束</b><span>'+(st.ftDay===t?'今天':shortMD(st.ftDay))+' '+hm(st.ftStart)+' 開始，已經超過 3 小時</span></div></div><div class="ftacts">'+
@@ -1971,7 +1973,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.03-1';
+var APP_VER='2026.11.03-2';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4461,7 +4463,9 @@ function act(a,b){
     case 'ftab': ui.fitTab=b.dataset.v;ui.top=true;break;
     case 'frange': ui.frange=+b.dataset.v;break;
     case 'fphelp': ui.fpHelp=!ui.fpHelp;break;
-    case 'ftstart': var fs0=db.settings,now0=Date.now();ftClear();fs0.ftStart=now0;fs0.ftDay=todayKey();fs0.ftSegAt=now0;fs0.ftSeg=db.settings.ftLastSeg||'w';fs0.ftC0=Math.round(cMinTot(todayKey()));save();toast('開始計時，做什麼就點上面的重訓／有氧／伸展');break;
+    case 'ftpick': ui.ftPick=true;break;
+    case 'ftpickx': ui.ftPick=false;break;
+    case 'ftstart': ui.ftPick=false;var fs0=db.settings,now0=Date.now();ftClear();fs0.ftStart=now0;fs0.ftDay=todayKey();fs0.ftSegAt=now0;fs0.ftSeg=FT_K[b.dataset.v]?b.dataset.v:(db.settings.ftLastSeg||'w');if(b.dataset.v)fs0.ftLastSeg=b.dataset.v;fs0.ftC0=Math.round(cMinTot(todayKey()));save();toast('開始計時，做什麼就點上面的重訓／有氧／伸展');break;
     case 'ftseg': if(!ftOn()||ftPaused()||!FT_K[b.dataset.v])return;var fs1=db.settings,cur1=ftSeg(),n1=Date.now();if(b.dataset.v===cur1)return;fs1['ft'+cur1.toUpperCase()]=ftMs(cur1,n1);fs1.ftSeg=b.dataset.v;fs1.ftSegAt=n1;fs1.ftLastSeg=b.dataset.v;save();break;
     case 'topen': ui.tOpen=ui.tOpen||{};ui.tOpen[b.dataset.v]=true;break;
     case 'tmove': var to0=tbOrder(),ti=to0.indexOf(b.dataset.v),tj=ti+(+b.dataset.n);if(ti<0||tj<0||tj>=to0.length)return;

@@ -1376,6 +1376,25 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'pause rest blocks');
   }
 
+  // 進步一覽
+  {
+    const L = {}; L[daysAgo(100)] = { s: [{ id: 'a', ex: 'e1', sets: [[50, 10]] }, { id: 'b', ex: 'e2', sets: [[30, 10]] }] };
+    L[daysAgo(3)] = { s: [{ id: 'c', ex: 'e1', sets: [[60, 10]] }, { id: 'd', ex: 'e2', sets: [[30, 10]] }, { id: 'e', ex: 'e3', sets: [[20, 10]] }] };
+    L[daysAgo(60)] = { s: [{ id: 'f', ex: 'e4', sets: [[40, 10]] }] };
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [],
+      fit: { ex: [{ id: 'e1', name: '臥推', eq: '槓鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'e2', name: '划船', eq: '槓鈴', part: '背', mode: 'wr', unit: 'kg' }, { id: 'e3', name: '飛鳥', eq: '啞鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'e4', name: '深蹲', eq: '槓鈴', part: '腿', mode: 'wr', unit: 'kg' }], logs: L, ctypes: [] } } });
+    await p.click('#fitTab'); await p.click('[data-act=ftab][data-v=prog]');
+    ok(await p.$eval('.fpt[data-id=e1]', e => e.classList.contains('up') && /↑ 20%/.test(e.innerText)), 'progress: tile shows a 3-month change (+20%)');
+    ok(await p.$eval('.fpt[data-id=e2]', e => e.classList.contains('flat')) && await p.$eval('.fpt[data-id=e3]', e => /新/.test(e.innerText)), 'progress: flat and new tiles');
+    ok(!(await p.$('.fpt[data-id=e4]')) && /還有 1 個動作最近一個月沒練/.test(await p.innerText('main')), 'progress: not trained for a month is tucked away');
+    ok(/1\s*進步/.test(await p.innerText('.fpsum')), 'progress: summary counts');
+    await p.click('[data-act=fpqhelp]'); ok(/最近兩週最好的一次/.test(await p.innerText('.fpsum')), 'progress: ? explains the comparison');
+    await p.click('[data-act=fpper][data-v="30"]'); ok((await db(p)).settings.fpPer === 30 && /1 個月/.test(await p.innerText('.fpsum')), 'progress: period remembered');
+    await p.click('.fpt[data-id=e1]'); ok(/所有動作/.test(await p.innerText('main')) && !!(await p.$('.fxname')), 'progress: tile opens the exercise detail');
+    await p.click('[data-act=fpall]'); ok(!!(await p.$('.fpov')), 'progress: back to all exercises');
+    await done(p, 'progress overview');
+  }
+
   // 伸展計時 + 習慣連動
   {
     const T0 = daysAgo(0);
@@ -1383,12 +1402,13 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       { id: 's1', name: '伸展 10 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5), fitLink: true },
       { id: 'm1', name: '運動 10 分鐘', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5), fitLink: true }], logs: {}, rewards: [], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
     await p.click('#fitTab');
-    ok(/伸展/.test(await p.innerText('.fsum2')) && !!(await p.$('[data-act=ftstart]')), 'stretch: 今天 card lists 伸展, one 開始訓練 button');
+    ok(/伸展/.test(await p.innerText('.fsum2')) && !!(await p.$('[data-act=ftpick]')), 'stretch: 今天 card lists 伸展, one 開始訓練 button');
     await p.click('[data-act=fmanual]'); await p.click('[data-act=fst][data-n="5"]'); await p.click('[data-act=fst][data-n="5"]'); await p.click('#sheet [data-act=closesheet]'); let d = await db(p);
     ok(d.fit.logs[T0].st === 10 && d.logs[T0].h.s1 === 1 && !(d.logs[T0].h.m1), 'stretch: 10 min checks the stretch habit only, not 運動');
     ok(/伸展 10 分鐘\s*已達成/.test(await p.innerText('.fsum2')) && /運動 10 分鐘\s*還差 10 分/.test(await p.innerText('.fsum2')), 'stretch: 今天 card shows each linked habit');
     await p.click('[data-act=fmanual]'); await p.click('[data-act=fst][data-n="-5"]'); await p.click('#sheet [data-act=closesheet]'); d = await db(p); ok(!(d.logs[T0] && d.logs[T0].h && d.logs[T0].h.s1), 'stretch: dropping below the target unchecks');
-    await p.click('[data-act=ftstart]'); await p.click('[data-act=ftseg][data-v=s]'); d = await db(p); ok(d.settings.ftStart > 0 && d.settings.ftSeg === 's', 'timer: switch to 伸展');
+    await p.click('[data-act=ftpick]'); ok(!(await db(p)).settings.ftStart && (await p.$$('.ftpick [data-act=ftstart]')).length === 3, 'timer: asks what you do first, clock not started yet');
+    await p.click('[data-act=ftstart][data-v=s]'); d = await db(p); ok(d.settings.ftStart > 0 && d.settings.ftSeg === 's', 'timer: switch to 伸展');
     await p.click('.ftbar [data-act=ftend]'); ok(/結束訓練/.test(await p.innerText('#sheet')), 'timer: 結束 asks to confirm the minutes');
     for (let i = 0; i < 4; i++) await p.click('[data-act=ftadj][data-v=s][data-n="1"]'); await p.click('[data-act=ftadj][data-v=c][data-n="1"]'); await p.click('[data-act=ftadj][data-v=c][data-n="1"]');
     ok(/伸展 10 分鐘\s*已達成/.test(await p.innerText('#sheet')), 'timer: sheet previews the linked habits');
@@ -1409,7 +1429,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(/^45:0\d/.test(await p.innerText('#ftclk')), 'timer: elapsed time from the saved start');
     await p.click('.ftbar [data-act=ftend]'); await p.click('[data-act=ftsave]'); let d = await db(p);
     ok(d.fit.logs[T0].min === 55 && !d.settings.ftStart, 'timer: 結束 adds the minutes to 重訓時間');
-    await p.click('[data-act=ftstart]'); d = await db(p);
+    await p.click('[data-act=ftpick]'); await p.click('[data-act=ftstart][data-v=w]'); d = await db(p);
     ok(d.settings.ftStart > now - 1000 && d.settings.ftDay === T0 && !!(await p.$('.ftbar')), 'timer: start saves the time');
     await p.click('.ftbar [data-act=ftend]'); await p.click('[data-act=ftcancel]'); ok(!(await db(p)).settings.ftStart, 'timer: cancel');
     await fitAdd(p, 'fpick'); await p.fill('#fq', '槓鈴硬舉');
