@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-sA19apI0gVbiFLHDNMDiRcJhSYbenRvq9bxn93XkmKo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-OXHyhh2bgz1diwQqd4sF3NtGqR4AE4tsGf65RbcSJ00='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -548,7 +548,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .ftw{border:0;background:#fff;color:color-mix(in srgb,var(--good) 72%,#000);border-radius:12px;padding:10px 16px;font-weight:800;font-size:15px}.fto{border:1.5px solid #ffffffb3;background:none;color:#fff;border-radius:12px;padding:9px 14px;font-weight:700}
 .rdm-col{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px}.rdm-col .redeem{white-space:nowrap}.rdm-all{font-size:12.5px;min-height:24px}
 .fpall{display:inline-flex;align-items:center;gap:2px;margin:4px 0 6px}.fpall svg{width:18px;height:18px}.fxname{font-size:18px}
-.fpov .fchips{margin:4px 0 10px}.fpsum{padding:12px 14px}.fpsum-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}.fpsum-n{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin-top:6px}.fpsum-n span{font-size:12px;color:var(--muted)}.fpsum-n b{display:block;font-size:24px;font-weight:800}
+.fpov .fchips{margin:4px 0 10px}.fpov .fchip:disabled{opacity:.35}.fpnote{margin:-4px 4px 8px}.fpsum{padding:12px 14px}.fpsum-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}.fpsum-n{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin-top:6px}.fpsum-n span{font-size:12px;color:var(--muted)}.fpsum-n b{display:block;font-size:24px;font-weight:800}
 .fpsum-n .up b{color:var(--good)}.fpsum-n .flat b{color:var(--muted)}.fpsum-n .down b{color:var(--bad)}
 .fpcard{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:4px 10px 10px;margin-top:10px}.fpgh{font-size:13px;font-weight:800;color:var(--muted);margin:8px 2px 8px}.fpg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .fpt{border:0;border-radius:12px;padding:8px;min-height:62px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;font:inherit;color:var(--fg);background:color-mix(in srgb,var(--chip) 55%,var(--surface))}.fpt b{font-size:12.5px;line-height:1.25;font-weight:700}.fpt span{font-size:15px;font-weight:800;color:var(--muted)}
@@ -1363,22 +1363,25 @@ function fitProgHTML(){
 }
 /* 進步一覽: every exercise as a tile, grouped by part, coloured by how its best 1RM (or reps/seconds) moved over the chosen period.
    Now = best of the last 14 days; then = best of the 14 days ending at the start of the period (else the 14 days before its last record before then). */
-var FP_PER=[[30,'1 個月',1.5],[91,'3 個月',2.5],[182,'6 個月',3],[365,'1 年',4]];
-function fpPer(){var v=+db.settings.fpPer;return FP_PER.filter(function(x){return x[0]===v;})[0]||FP_PER[1];}
+var FP_PER=[[30,'1 個月',1.5],[91,'3 個月',2.5],[182,'6 個月',3],[365,'1 年',4],[0,'全部',4]];
+function fpFirst(){var f=null;Object.keys(db.fit.logs).forEach(function(k){if((db.fit.logs[k].s||[]).length&&(!f||k<f))f=k;});return f;}
+/* a period is offered only once your records reach back that far; 全部 always */
+function fpOk(x){if(!x[0])return true;var f=fpFirst();return !!f&&f<=addDays(todayKey(),-x[0]);}
+function fpPer(){var v=db.settings.fpPer,x=FP_PER.filter(function(y){return y[0]===+v&&v!==undefined;})[0]||FP_PER[1];return fpOk(x)?x:FP_PER[4];}
 function fpBest(H,a,b){var m=0;H.forEach(function(h){if(h.k>=a&&h.k<=b&&h.m>m)m=h.m;});return m;}
-function fpChange(H,P){var t=todayKey(),last=H[H.length-1].k,now=fpBest(H,addDays(last,-13),last),st=addDays(t,-P[0]);
+function fpChange(H,P){var t=todayKey(),last=H[H.length-1].k,now=fpBest(H,addDays(last,-13),last),st=P[0]?addDays(t,-P[0]):'0000';
   if(!now)return {kind:'na'};
   var pre=H.filter(function(h){return h.k<=st&&h.m>0;}),then,since=false;
   if(pre.length){var pk=pre[pre.length-1].k;then=fpBest(H,addDays(pk,-13),pk);}
-  else{var first=H.filter(function(h){return h.m>0;})[0];if(!first||first.k>addDays(t,-14))return {kind:'new'};then=fpBest(H,first.k,addDays(first.k,13));since=true;} // started inside the period: compare with your first two weeks
+  else{var first=H.filter(function(h){return h.m>0;})[0];if(!first||first.k>addDays(t,-14))return {kind:'new'};then=fpBest(H,first.k,addDays(first.k,13));since=!!P[0];} // started inside the period: compare with your first two weeks
   if(!then)return {kind:'na'};var pct=(now-then)/then*100;return {kind:pct>P[2]?'up':pct<-P[2]?'down':'flat',pct:pct,since:since};}
 function fpOverview(W){var t=todayKey(),P=fpPer(),groups={},stale=[],cnt={up:0,flat:0,down:0};
   W.forEach(function(x){var c=fpChange(x.h,P),it={e:x.e,c:c,last:x.last};if(x.last<addDays(t,-30)){stale.push(it);return;}if(cnt[c.kind]!=null)cnt[c.kind]++;(groups[x.e.part]=groups[x.e.part]||[]).push(it);});
   var tile=function(it,old){var c=it.c,txt=c.kind==='new'?'新':c.kind==='na'?'—':(c.kind==='up'?'↑ ':c.kind==='down'?'↓ ':'→ ')+Math.abs(c.pct).toFixed(c.kind==='flat'||Math.abs(c.pct)>=10?0:1).replace(/\.0$/,'')+'%';
     return '<button class="fpt '+c.kind+(old?' old':'')+'" data-act="fpsel" data-id="'+it.e.id+'"><b>'+esc(it.e.name)+'</b><span>'+txt+(c.since?'<small>開始以來</small>':'')+'</span></button>';};
-  var s='<div class="fpov"><div class="fchips">'+FP_PER.map(function(x){var on=x===P;return '<button class="fchip sm'+(on?' on':'')+'" data-act="fpper" data-v="'+x[0]+'" aria-pressed="'+on+'">'+x[1]+'</button>';}).join('')+'</div>'+
-    '<div class="panel fpsum"><div class="fpsum-h"><span>近 '+P[1]+' · '+(cnt.up+cnt.flat+cnt.down)+' 個動作</span><button class="qbtn" data-act="fpqhelp" aria-label="怎麼算進步" aria-expanded="'+!!ui.fpQ+'">'+QICON+'</button></div>'+
-    (ui.fpQ?'<div class="fhelp">拿<b>最近兩週最好的一次</b>，和<b>'+P[1]+'前那兩週最好的一次</b>比（那時沒練的話，用再往前最近的一次）。比的是估計 1RM；徒手或計時動作比單組最多次數或最久秒數。偶爾一天狀況差不會被當成退步。變化在 ±'+P[2]+'% 以內算持平。'+P[1]+'前還沒開始練的，改和你最早練的那兩週比，標「開始以來」；練不到兩週的標「新」。</div>':'')+
+  var s='<div class="fpov"><div class="fchips">'+FP_PER.map(function(x){var on=x===P,ok=fpOk(x);return '<button class="fchip sm'+(on?' on':'')+'" data-act="fpper" data-v="'+x[0]+'" aria-pressed="'+on+'"'+(ok?'':' disabled')+'>'+x[1]+'</button>';}).join('')+'</div>'+(FP_PER.some(function(x){return !fpOk(x);})?'<p class="small muted fpnote">'+(function(){var n=FP_PER.filter(function(x){return !fpOk(x);})[0];return '紀錄滿 '+n[1]+'後就能選「'+n[1]+'」';})()+'。</p>':'')+
+    '<div class="panel fpsum"><div class="fpsum-h"><span>'+(P[0]?'近 '+P[1]:'開始至今')+' · '+(cnt.up+cnt.flat+cnt.down)+' 個動作</span><button class="qbtn" data-act="fpqhelp" aria-label="怎麼算進步" aria-expanded="'+!!ui.fpQ+'">'+QICON+'</button></div>'+
+    (ui.fpQ?'<div class="fhelp">拿<b>最近兩週最好的一次</b>，和'+(P[0]?'<b>'+P[1]+'前那兩週最好的一次</b>比（那時沒練的話，用再往前最近的一次）':'<b>你最早練的那兩週最好的一次</b>比')+'。比的是估計 1RM；徒手或計時動作比單組最多次數或最久秒數。偶爾一天狀況差不會被當成退步。變化在 ±'+P[2]+'% 以內算持平。'+(P[0]?P[1]+'前還沒開始練的，改和你最早練的那兩週比，標「開始以來」；':'')+'練不到兩週的標「新」。</div>':'')+
     '<div class="fpsum-n"><span class="up"><b>'+cnt.up+'</b>進步</span><span class="flat"><b>'+cnt.flat+'</b>持平</span><span class="down"><b>'+cnt.down+'</b>退步</span></div></div>';
   PARTS.forEach(function(p){var g=groups[p];if(!g)return;g.sort(function(a,b){return (b.last>a.last)-(b.last<a.last);});
     s+='<div class="fpcard"><div class="fpgh">'+p+'</div><div class="fpg">'+g.map(function(it){return tile(it);}).join('')+'</div></div>';});
@@ -1773,7 +1776,7 @@ function normalize(d){
   var cdist=(Array.isArray(fd.cdist)?fd.cdist:[]).filter(function(x){return typeof x==='string';}).map(function(x){return x.trim().slice(0,12);}).slice(0,30);
   var ctypes=(Array.isArray(fd.ctypes)?fd.ctypes:[]).filter(function(x){return typeof x==='string'&&x.trim();}).map(function(x){return x.trim().slice(0,12);}).filter(function(x,i,a){return a.indexOf(x)===i&&CARDIO.indexOf(x)<0;}).slice(0,30);
   if(!(+st.ftStart>0)&&+st.stStart>1.6e12&&isKey(st.stDay))st=Object.assign({},st,{ftStart:+st.stStart,ftDay:st.stDay,ftSeg:'s',ftSegAt:+st.stStart}); // the old separate 伸展 timer
-  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,ftSeg:/^[wcs]$/.test(st.ftSeg||'')?st.ftSeg:undefined,ftLastSeg:/^[cs]$/.test(st.ftLastSeg||'')?st.ftLastSeg:undefined,ftSegAt:+st.ftSegAt>1.6e12?+st.ftSegAt:undefined,ftW:+st.ftW>0?Math.min(+st.ftW,864e5):undefined,ftC:+st.ftC>0?Math.min(+st.ftC,864e5):undefined,ftS:+st.ftS>0?Math.min(+st.ftS,864e5):undefined,fpPer:[30,91,182,365].indexOf(+st.fpPer)>=0?+st.fpPer:undefined,ftC0:+st.ftC0>0?Math.min(Math.round(+st.ftC0),1440):undefined,ftPauseAt:+st.ftPauseAt>1.6e12?+st.ftPauseAt:undefined,ftPz:+st.ftPz>0?Math.min(+st.ftPz,864e5):undefined,ftRest:+st.ftRest>1.6e12?+st.ftRest:undefined,restSec:[60,90,120,180].indexOf(+st.restSec)>=0?+st.restSec:undefined,tOrder:typeof st.tOrder==='string'?st.tOrder.slice(0,80):undefined,tFold:typeof st.tFold==='string'?st.tFold.slice(0,80):undefined,onboarded:!!st.onboarded,divSkip:typeof st.divSkip==='string'&&/^[0-9A-Z|,\-]*$/.test(st.divSkip)?st.divSkip.slice(-4000)||undefined:undefined,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman|egg|cat)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),divs:normDivs(d.divs),buys:normBuys(d.buys),prof:normProf(d.prof),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
+  var R={v:1,habits:habits,logs:logs,settings:{pnl:!!st.pnl,hideAmt:!!st.hideAmt,iconAuto:!!st.iconAuto,diary:!!st.diary,dNoPrompt:!!st.dNoPrompt,hideDiary:!!st.hideDiary,fit:!!st.fit,fitUnit:st.fitUnit==='lbs'?'lbs':'kg',fitHideUnused:!!st.fitHideUnused,fitGran:/^[wqy]$/.test(st.fitGran||'')?st.fitGran:undefined,fitSex:st.fitSex==='f'?'f':undefined,fitChar:/^(mel|pp|man|woman)$/.test(st.fitChar||'')?st.fitChar:undefined,ftStart:+st.ftStart>1.6e12&&+st.ftStart<Date.now()+864e5?+st.ftStart:undefined,ftDay:isKey(st.ftDay)?st.ftDay:undefined,ftLast:+st.ftLast>1.6e12?+st.ftLast:undefined,ftSeg:/^[wcs]$/.test(st.ftSeg||'')?st.ftSeg:undefined,ftLastSeg:/^[cs]$/.test(st.ftLastSeg||'')?st.ftLastSeg:undefined,ftSegAt:+st.ftSegAt>1.6e12?+st.ftSegAt:undefined,ftW:+st.ftW>0?Math.min(+st.ftW,864e5):undefined,ftC:+st.ftC>0?Math.min(+st.ftC,864e5):undefined,ftS:+st.ftS>0?Math.min(+st.ftS,864e5):undefined,fpPer:[0,30,91,182,365].indexOf(+st.fpPer)>=0&&st.fpPer!==null&&st.fpPer!==''?+st.fpPer:undefined,ftC0:+st.ftC0>0?Math.min(Math.round(+st.ftC0),1440):undefined,ftPauseAt:+st.ftPauseAt>1.6e12?+st.ftPauseAt:undefined,ftPz:+st.ftPz>0?Math.min(+st.ftPz,864e5):undefined,ftRest:+st.ftRest>1.6e12?+st.ftRest:undefined,restSec:[60,90,120,180].indexOf(+st.restSec)>=0?+st.restSec:undefined,tOrder:typeof st.tOrder==='string'?st.tOrder.slice(0,80):undefined,tFold:typeof st.tFold==='string'?st.tFold.slice(0,80):undefined,onboarded:!!st.onboarded,divSkip:typeof st.divSkip==='string'&&/^[0-9A-Z|,\-]*$/.test(st.divSkip)?st.divSkip.slice(-4000)||undefined:undefined,uname:typeof st.uname==='string'&&st.uname.trim()?st.uname.trim().slice(0,20):undefined,avatar:/^(photo|kaka|mel|pp|man|woman|egg|cat)$/.test(st.avatar||'')?st.avatar:undefined,avPh:cid(st.avPh)||undefined,motto:typeof st.motto==='string'&&st.motto.trim()?st.motto.trim().slice(0,120):undefined,lockOff:!!st.lockOff,lockN:[1,2,3,7].indexOf(+st.lockN)>=0?+st.lockN:1,skin:['sport','volt','ice'].indexOf(st.skin)>=0?st.skin:undefined,firstUse:isKey(st.firstUse)?st.firstUse:undefined,pnlOrder:pOrd(st.pnlOrder),holdSince:isKey(st.holdSince)?st.holdSince:undefined,holdSort:/^(day|mv)-?$|^un-$/.test(st.holdSort||'')?st.holdSort:undefined},rewards:rewards,redeemed:redeemed,hold:normHold(d.hold),sold:normSold(d.sold),divs:normDivs(d.divs),buys:normBuys(d.buys),prof:normProf(d.prof),fit:{ex:fex,logs:flogs,ctypes:ctypes,cdist:cdist}};
   // forward compatibility: keep fields a newer version added, so rolling back the app does not erase them
   var okKey=function(k){return /^[A-Za-z0-9_]{1,30}$/.test(k)&&!/^(__proto__|constructor|prototype)$/.test(k);};
   Object.keys(d).forEach(function(k){if(!(k in R)&&okKey(k)&&k!=='photos')R[k]=d[k];});
@@ -1974,7 +1977,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.03-3';
+var APP_VER='2026.11.03-4';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4719,7 +4722,7 @@ function act(a,b){
     case 'stab': ui.statTab=b.dataset.v;break;
     case 'fpsel': if(!exById(id))return;ui.fpx=id;ui.top=true;break;
     case 'fpall': ui.fpx=null;ui.top=true;break;
-    case 'fpper': if(!FP_PER.some(function(x){return x[0]===+b.dataset.v;}))return;db.settings.fpPer=+b.dataset.v;save();break;
+    case 'fpper': if(!FP_PER.some(function(x){return x[0]===+b.dataset.v&&fpOk(x);}))return;db.settings.fpPer=+b.dataset.v;save();break;
     case 'fpqhelp': ui.fpQ=!ui.fpQ;break;
     case 'fpstale': ui.fpStale=!ui.fpStale;break;
     case 'search': go('search');render();var qi=$('#q');if(qi)qi.focus();return;
