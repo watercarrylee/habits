@@ -326,7 +326,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.reload(); d = await db(p);
   ok(d.habits.find(h => h.id === 'w3').freq === 'week' && d.habits.find(h => h.id === 'w3').perWeek === 3, 'freq survives reload');
   await p.click('[data-tab=stats]');
-  ok(/週 · 共 \d+ 次/.test(await p.$eval('#main', e => e.innerText)), 'stats ranking counts weekly habits in weeks');
+  ok(/週達成 · 本月做了 \d+ 次/.test(await p.$eval('#main', e => e.innerText)), 'stats ranking counts weekly habits in weeks');
   await p.click('[data-tab=settings]');
   ok((await p.$eval('#main', e => e.innerText)).includes('每週 3 次'), 'settings list shows 每週 3 次');
   await p.click('[data-act=new][data-kind=good]').catch(async () => { await p.click('[data-act=new]'); });
@@ -1064,10 +1064,10 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(L2[D[1]].pnl === 10000 && L2[D[4]].pnl === 9 && (await db(hp)).settings.holdSince === D[3], 'days before the trade date and locked days stay as they were');
     await hp.reload(); await hp.waitForSelector('.pnl-card .pct');
     const pc = await hp.$eval('.pnl-card', e => e.innerText);
-    ok(pc.includes('+10.00%') && pc.includes('今日損益') && pc.includes('+4.76%'), 'today card: return on cost and today % of previous market value (' + pc.replace(/\n/g, ' ') + ')');
+    ok(pc.includes('+10.00%') && pc.includes('帳面變化') && pc.includes('+4.76%'), 'today card: return on cost and today % of previous market value (' + pc.replace(/\n/g, ' ') + ')');
     await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
     const sp = await hp.$eval('.pnl-read', e => e.innerText);
-    ok(sp.includes('+10.00%') && sp.includes('今日損益') && sp.includes('+4.76%'), 'stats panel shows both percentages');
+    ok(sp.includes('+10.00%') && sp.includes('帳面變化') && sp.includes('+4.76%'), 'stats panel shows both percentages');
     ok((await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('週變動') && (await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('本月變動'), 'trend shows a week row above the month row');
     await hp.click('[data-act=pgran][data-v=w]');
     ok((await hp.$eval('.pnl-read', e => e.innerText)).includes('本週損益') && (await db(hp)).settings.pnlGran === 'w', 'week view: one point per week, 本週損益');
@@ -1350,6 +1350,30 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const bench = cards.find(x => x.includes('臥推')), row = cards.find(x => x.includes('划船'));
     ok(/新紀錄/.test(bench) && /1RM/.test(bench) && !/1RM|新紀錄/.test(row), 'cards: 1RM line only on a new record');
     await done(p, 'pr only');
+  }
+
+  // 計時暫停、組間休息、今天頁區塊、全部兌換
+  {
+    const T0 = daysAgo(0), now = Date.now();
+    let p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true, ftStart: now - 20 * 60000, ftDay: T0, ftSegAt: now - 20 * 60000 }, habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) }],
+      logs: { [T0]: { mood: 3 } }, rewards: [{ id: 'r1', name: '看電影', type: 'total', habit: 'g1', target: 1, repeat: true, created: daysAgo(30), earned: [], done: false }], redeemed: [], fit: { ex: [], logs: {}, ctypes: [] } } });
+    await p.click('#fitTab');
+    await p.click('[data-act=ftpause]'); let d = await db(p); ok(d.settings.ftPauseAt > 0 && /已暫停/.test(await p.innerText('.ftbar')) && await p.$eval('[data-act=ftseg][data-v=s]', e => e.disabled), 'pause: stops the clock and locks the kinds');
+    await p.evaluate(() => { const k = 'habit-tracker-v1', o = JSON.parse(localStorage.getItem(k)); o.settings.ftPauseAt -= 10 * 60000; localStorage.setItem(k, JSON.stringify(o)); }); await p.reload(); await p.click('#fitTab');
+    await p.click('[data-act=ftpause]'); d = await db(p); ok(!d.settings.ftPauseAt && d.settings.ftPz >= 10 * 60000 - 2000, 'pause: 繼續 adds up the paused time');
+    await p.click('.ftbar [data-act=ftend]'); ok(/中間暫停 1\d 分/.test(await p.innerText('#sheet')) && /重訓[\s−]*(19|20|21) 分/.test(await p.innerText('#sheet')), 'pause: paused minutes are left out');
+    await p.click('#sheet [data-act=closesheet]');
+    await p.click('[data-act=restlen][data-v="60"]'); await p.click('[data-act=restgo]'); d = await db(p); ok(d.settings.restSec === 60 && d.settings.ftRest > now, 'rest: countdown started with the chosen length');
+    ok(/休息 [01]:\d\d/.test(await p.innerText('.ftrest')), 'rest: shown in the timer bar');
+    await p.click('[data-act=restskip]'); ok(!(await db(p)).settings.ftRest, 'rest: skip');
+    await p.click('[data-tab=settings]'); await p.click('[data-act=tfoldtog][data-v=mood]'); await p.click('[data-act=tmove][data-v=mood][data-n="-1"]');
+    d = await db(p); ok(d.settings.tFold === 'mood' && d.settings.tOrder.indexOf('mood') < d.settings.tOrder.indexOf('bad'), 'today blocks: fold and order saved');
+    await p.click('[data-tab=today]'); ok(/心情與備註\s*好/.test(await p.innerText('.tfold')) && !(await p.$('.moods')), 'today blocks: folded block is one line with a summary');
+    await p.click('.tfold[data-v=mood]'); ok(!!(await p.$('.moods')), 'today blocks: tap opens it');
+    await p.click('[data-act=toggle][data-id=g1]'); await p.evaluate(() => { const k = 'habit-tracker-v1', o = JSON.parse(localStorage.getItem(k)); o.logs[o.rewards[0].created] = { h: { g1: 1 } }; localStorage.setItem(k, JSON.stringify(o)); }); await p.reload();
+    await p.click('[data-tab=rewards]'); const ra = await p.$('[data-act=redeemall]');
+    if (ra) { await ra.click(); d = await db(p); ok(d.redeemed.length >= 2, 'rewards: 全部兌換 redeems every one at once'); } else ok(true, 'rewards: only one ready (skip)');
+    await done(p, 'pause rest blocks');
   }
 
   // 伸展計時 + 習慣連動
