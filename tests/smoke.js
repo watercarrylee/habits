@@ -1386,6 +1386,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('#fitTab'); await p.click('[data-act=ftab][data-v=prog]');
     ok(await p.$eval('.fpt[data-id=e1]', e => e.classList.contains('up') && /↑ 20%/.test(e.innerText)), 'progress: tile shows a 3-month change (+20%)');
     ok(await p.$eval('.fpt[data-id=e2]', e => e.classList.contains('flat')) && await p.$eval('.fpt[data-id=e3]', e => /新/.test(e.innerText)), 'progress: flat and new tiles');
+    await p.click('[data-act=fpper][data-v="365"]'); ok(await p.$eval('.fpt[data-id=e1]', e => /↑ 20%/.test(e.innerText) && /開始以來/.test(e.innerText)), 'progress: started inside the period → compared with the first two weeks');
+    await p.click('[data-act=fpper][data-v="91"]');
     ok(!(await p.$('.fpt[data-id=e4]')) && /還有 1 個動作最近一個月沒練/.test(await p.innerText('main')), 'progress: not trained for a month is tucked away');
     ok(/1\s*進步/.test(await p.innerText('.fpsum')), 'progress: summary counts');
     await p.click('[data-act=fpqhelp]'); ok(/最近兩週最好的一次/.test(await p.innerText('.fpsum')), 'progress: ? explains the comparison');
