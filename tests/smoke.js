@@ -1376,6 +1376,25 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(p, 'pause rest blocks');
   }
 
+  // 進步一覽
+  {
+    const L = {}; L[daysAgo(100)] = { s: [{ id: 'a', ex: 'e1', sets: [[50, 10]] }, { id: 'b', ex: 'e2', sets: [[30, 10]] }] };
+    L[daysAgo(3)] = { s: [{ id: 'c', ex: 'e1', sets: [[60, 10]] }, { id: 'd', ex: 'e2', sets: [[30, 10]] }, { id: 'e', ex: 'e3', sets: [[20, 10]] }] };
+    L[daysAgo(60)] = { s: [{ id: 'f', ex: 'e4', sets: [[40, 10]] }] };
+    const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [],
+      fit: { ex: [{ id: 'e1', name: '臥推', eq: '槓鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'e2', name: '划船', eq: '槓鈴', part: '背', mode: 'wr', unit: 'kg' }, { id: 'e3', name: '飛鳥', eq: '啞鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'e4', name: '深蹲', eq: '槓鈴', part: '腿', mode: 'wr', unit: 'kg' }], logs: L, ctypes: [] } } });
+    await p.click('#fitTab'); await p.click('[data-act=ftab][data-v=prog]');
+    ok(await p.$eval('.fpt[data-id=e1]', e => e.classList.contains('up') && /↑ 20%/.test(e.innerText)), 'progress: tile shows a 3-month change (+20%)');
+    ok(await p.$eval('.fpt[data-id=e2]', e => e.classList.contains('flat')) && await p.$eval('.fpt[data-id=e3]', e => /新/.test(e.innerText)), 'progress: flat and new tiles');
+    ok(!(await p.$('.fpt[data-id=e4]')) && /還有 1 個動作最近一個月沒練/.test(await p.innerText('main')), 'progress: not trained for a month is tucked away');
+    ok(/1\s*進步/.test(await p.innerText('.fpsum')), 'progress: summary counts');
+    await p.click('[data-act=fpqhelp]'); ok(/最近兩週最好的一次/.test(await p.innerText('.fpsum')), 'progress: ? explains the comparison');
+    await p.click('[data-act=fpper][data-v="30"]'); ok((await db(p)).settings.fpPer === 30 && /1 個月/.test(await p.innerText('.fpsum')), 'progress: period remembered');
+    await p.click('.fpt[data-id=e1]'); ok(/所有動作/.test(await p.innerText('main')) && !!(await p.$('.fxname')), 'progress: tile opens the exercise detail');
+    await p.click('[data-act=fpall]'); ok(!!(await p.$('.fpov')), 'progress: back to all exercises');
+    await done(p, 'progress overview');
+  }
+
   // 伸展計時 + 習慣連動
   {
     const T0 = daysAgo(0);
