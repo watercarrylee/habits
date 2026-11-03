@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-I864TAkILYIc8oREtdnUko3JcHR9Qn/c4i+8rvTxrtk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-1R9pjXTkp1eeGFdCt9mKcF1LetGfEldqwKjLn7Qb2xE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -550,8 +550,8 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .fpall{display:inline-flex;align-items:center;gap:2px;margin:4px 0 6px}.fpall svg{width:18px;height:18px}.fxname{font-size:18px}
 .fpov .fchips{margin:4px 0 10px}.fpsum{padding:12px 14px}.fpsum-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}.fpsum-n{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin-top:6px}.fpsum-n span{font-size:12px;color:var(--muted)}.fpsum-n b{display:block;font-size:24px;font-weight:800}
 .fpsum-n .up b{color:var(--good)}.fpsum-n .flat b{color:var(--muted)}.fpsum-n .down b{color:var(--bad)}
-.fpgh{font-size:13px;font-weight:800;color:var(--muted);margin:14px 4px 6px}.fpg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.fpt{border:0;border-radius:12px;padding:8px;min-height:66px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;font:inherit;color:var(--fg);background:var(--chip)}.fpt b{font-size:12.5px;line-height:1.25;font-weight:700}.fpt span{font-size:15px;font-weight:800;color:var(--muted)}
+.fpcard{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:4px 10px 10px;margin-top:10px}.fpgh{font-size:13px;font-weight:800;color:var(--muted);margin:8px 2px 8px}.fpg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.fpt{border:0;border-radius:12px;padding:8px;min-height:62px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;font:inherit;color:var(--fg);background:color-mix(in srgb,var(--chip) 55%,var(--surface))}.fpt b{font-size:12.5px;line-height:1.25;font-weight:700}.fpt span{font-size:15px;font-weight:800;color:var(--muted)}
 .fpt.up{background:color-mix(in srgb,var(--good) 16%,var(--surface))}.fpt.up span{color:var(--good)}.fpt.down{background:color-mix(in srgb,var(--bad) 14%,var(--surface))}.fpt.down span{color:var(--bad)}.fpt.new span{color:var(--good)}.fpt.old{opacity:.6}
 .fpstale{display:block;margin:12px auto 4px;font-size:13.5px}
 .tfold{display:flex;align-items:center;gap:10px;width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;margin:10px 0;color:var(--fg);font:inherit;font-weight:700;text-align:left}.tfold .tf-s{margin-left:auto;font-weight:400;color:var(--muted);font-size:14px}
@@ -1378,9 +1378,9 @@ function fpOverview(W){var t=todayKey(),P=fpPer(),groups={},stale=[],cnt={up:0,f
     (ui.fpQ?'<div class="fhelp">拿<b>最近兩週最好的一次</b>，和<b>'+P[1]+'前那兩週最好的一次</b>比（那時沒練的話，用再往前最近的一次）。比的是估計 1RM；徒手或計時動作比單組最多次數或最久秒數。偶爾一天狀況差不會被當成退步。變化在 ±'+P[2]+'% 以內算持平；'+P[1]+'前還沒練過的標「新」。</div>':'')+
     '<div class="fpsum-n"><span class="up"><b>'+cnt.up+'</b>進步</span><span class="flat"><b>'+cnt.flat+'</b>持平</span><span class="down"><b>'+cnt.down+'</b>退步</span></div></div>';
   PARTS.forEach(function(p){var g=groups[p];if(!g)return;g.sort(function(a,b){return (b.last>a.last)-(b.last<a.last);});
-    s+='<div class="fpgh">'+p+'</div><div class="fpg">'+g.map(function(it){return tile(it);}).join('')+'</div>';});
+    s+='<div class="fpcard"><div class="fpgh">'+p+'</div><div class="fpg">'+g.map(function(it){return tile(it);}).join('')+'</div></div>';});
   if(stale.length){s+='<button class="linkish fpstale" data-act="fpstale">還有 '+stale.length+' 個動作最近一個月沒練'+(ui.fpStale?' · 收起':'')+'</button>';
-    if(ui.fpStale)s+='<div class="fpg">'+stale.map(function(it){return tile(it,true);}).join('')+'</div>';}
+    if(ui.fpStale)s+='<div class="fpcard"><div class="fpg">'+stale.map(function(it){return tile(it,true);}).join('')+'</div></div>';}
   return s+'<p class="small muted">點動作看詳細的趨勢圖和每次紀錄。</p></div>';}
 var QICON='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5v.4M12 17h.01"/></svg>';
 var RM_HELP='<b>1RM</b>是「最多只能舉起一下」的重量。不用真的去試極限，App 用每組的重量和次數推算（Epley 公式：重量 ×（1 ＋ 次數 ÷ 30）），取當天最好的一組。所以 60 kg × 10 下和 65 kg × 5 下也能放在一起比較。次數超過 12 下時推算不準，那組不列入。';
