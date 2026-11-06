@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-OXHyhh2bgz1diwQqd4sF3NtGqR4AE4tsGf65RbcSJ00='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-rpBhvdenP9mfmhcat5nNqa6vU0DRmw42FEFlhEdEFFk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -106,6 +106,7 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .txper{margin:14px 0 8px}.txnav{justify-content:space-between;margin:0 0 8px}.txdates{display:flex;gap:8px;align-items:center;margin:0 0 8px}.txdates input{flex:1;min-width:0;box-sizing:border-box;height:42px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:0 10px;font-size:15px;color:var(--fg);font-family:inherit}.txquick{margin:0 0 8px}.txquick button{font-size:13px}.txsum{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:2px 14px;margin:0 0 12px}.txs-r{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line-soft)}.txs-r>span:first-child{display:flex;gap:8px;align-items:baseline}.txs-r b{font-size:16px}.txs-v{display:flex;flex-direction:column;align-items:flex-end;gap:2px}.txs-net{padding:10px 0;text-align:right}.txs-net b{font-size:17px;color:var(--good)}
 .divtag.buytag{background:color-mix(in srgb,#3C6E9E 14%,var(--surface));color:#3C6E9E}.divtag.selltag{background:color-mix(in srgb,var(--up) 12%,var(--surface));color:var(--up)}.txseg{margin:0 0 10px}.hbtns{flex-wrap:wrap;justify-content:flex-end}.sell-sign{margin:6px 0 8px}.sell-amt{box-sizing:border-box;width:100%;height:52px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 14px;font-size:24px;font-weight:800;color:var(--fg);font-family:inherit;font-variant-numeric:tabular-nums}
 .pnl-split{margin:4px 0 2px}
+.tri{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0 2px}.tri.two{grid-template-columns:repeat(2,minmax(0,1fr))}.tri>div{background:var(--chip);border-radius:10px;padding:7px 8px;min-width:0}.tri span{display:block;font-size:12px;color:var(--muted)}.tri b{display:block;font-size:14.5px;letter-spacing:-.02em;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hbt{display:block;color:var(--muted)}
 .pnl-brk{margin:10px 0 4px;border-left:3px solid var(--line);padding-left:10px;font-size:13px}.pnl-brk div{display:flex;gap:8px;align-items:baseline;margin:3px 0;flex-wrap:wrap}.pnl-brk span{color:var(--muted);width:44px}.pnl-brk b{min-width:76px;text-align:right;font-variant-numeric:tabular-nums}.pnl-brk em{font-style:normal;color:var(--muted);font-size:12px}
 .pnl-lg{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px}.pnl-lg i{display:inline-block;width:20px;height:0;vertical-align:middle;margin-right:5px}.lg-tot{border-top:2px solid var(--fg)}.lg-real{border-top:2px dashed var(--good)}
 .seg.four{grid-template-columns:repeat(4,minmax(0,1fr))}.seg.five{grid-template-columns:repeat(5,minmax(0,1fr))}.seg.five button{font-size:14px}.bmgran button{height:32px;font-size:14px}
@@ -1977,7 +1978,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.03-4';
+var APP_VER='2026.11.06-1';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2719,7 +2720,9 @@ function fillTag(code){var t=todayKey(),x=(db.divs||[]).filter(function(y){retur
 function pxOf(code){var x=PX&&PX.p[code];return Array.isArray(x)&&+x[0]>0?{close:+x[0],ch:+x[1]||0,name:String(x[2]||'')}:null;}
 function holdCalc(){if(!PX||!db.hold.length)return null;var r={d:PX.d,mv:0,cost:0,day:0,rows:[],miss:[]};
   db.hold.forEach(function(h){var p=pxOf(h.code);if(!p){r.miss.push(h);return;}var v=h.shares*p.close,c=h.shares*h.cost;
-    r.mv+=v;r.cost+=c;r.day+=h.shares*p.ch;r.rows.push({h:h,p:p,v:v,un:v-c,day:h.shares*p.ch});});
+    var bn=0,bc=0;(db.buys||[]).forEach(function(b){if(b.d===PX.d&&b.code===h.code){bn+=+b.shares;bc+=b.shares*b.px;}});
+    var n=Math.min(bn,h.shares),bt=n>0?{n:n,pnl:Math.round(n*(p.close-bc/bn))}:null,dd=(h.shares-n)*p.ch+(bt?n*(p.close-bc/bn):0);
+    r.mv+=v;r.cost+=c;r.day+=dd;r.rows.push({h:h,p:p,v:v,un:v-c,day:dd,bt:bt});});
   r.un=Math.round(r.mv-r.cost);r.day=Math.round(r.day);r.mv=Math.round(r.mv);return r;}
 function lots(n){return fmtN(n)+' 股';}
 function hSort(){var v=db.settings.holdSort;return /^(day|un|mv)-?$/.test(v||'')?v:'un';}
@@ -2749,6 +2752,15 @@ function holdSuggest(k){if(!db.hold.length||k<holdSince())return '';var h=hid(),
     '<button class="secondary hsug-b" data-act="pauto" data-k="'+k+'">改回自動</button></div>';
   if(l&&l.pa&&l.pnl===r.un)return '<div class="hsug ok">✓ 已依 '+shortMD(k)+' 收盤價自動記錄'+(c&&c.d===k?' · 今日漲跌 <b class="'+(h?'':pcls(c.day))+'">'+(h?'••••':chg(c.day))+'</b>':'')+'</div>';
   return '';}
+function holdTop(c,h){var s='',t='';
+  if(c){var isT=c.d===todayKey(),dl=shortMD(c.d);
+    s+='<div class="tri"><div><span>市值</span><b>'+(h?MASK:fmtN(c.mv))+'</b></div><div><span>未實現</span><b class="'+(h?'':pcls(c.un))+'">'+(h?MASK:sgn(c.un))+'</b></div><div><span>'+(isT?'今日':dl+' ')+'漲跌</span><b class="'+(h?'':pcls(c.day))+'">'+(h?'••••':chg(c.day))+'</b></div></div>';
+    t=(isT?'今天收盤':'最新收盤是 '+dl)+(pxWhen()?' · 收盤價更新於 '+pxWhen():'');}
+  else t=pxWhen()?'收盤價更新於 '+pxWhen():PX?shortMD(PX.d)+' 的收盤價':'還沒有收盤價';
+  s+='<div class="pxbar"><span class="small muted">'+t+'</span><button class="ghost pxre" data-act="pxrefresh">重新整理</button></div>';
+  if(c&&c.d!==todayKey())s+='<p class="small muted">下面的價格和漲跌都是 '+shortMD(c.d)+' 的收盤資料。交易日約下午 2 點半會更新成當天的收盤價（偶爾會晚一些）。</p>';
+  else if(!c)s+='<p class="small muted">收盤價在交易日約下午 2 點半更新（偶爾會晚一些），之後打開 App 就會自動記錄。</p>';
+  return s;}
 function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class="sec-row"><h2 class="sec-t">我的持股</h2><span class="tb-r hbtns"><button class="ghost" data-act="buynew">買入</button>'+(db.hold.length?'<button class="ghost" data-act="sellnew">賣出</button><button class="ghost" data-act="divnew">除權息</button>':'')+'<button class="ghost" data-act="holdedit">'+(db.hold.length?'編輯':'新增持股')+'</button>'+pGrip('hold')+'</span></div>';
   if(!db.hold.length)return s+'<p class="small muted">輸入持股的代號、股數和平均成本，每天收盤後 App 會用收盤價自動算好並記錄未實現損益。持股只存在這支手機。</p>'+soldHTML()+'</section>';
   s+=divBanner();
@@ -2756,6 +2768,7 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
   var list=db.hold.map(function(x){return {x:x,r:c&&c.rows.filter(function(q){return q.h.id===x.id;})[0]};});
   if(c){var f=function(o){return o.r?(mode==='day'?o.r.day:mode==='mv'?o.r.v:o.r.un):null;};
     list.sort(function(a,b){var va=f(a),vb=f(b);if(va==null||vb==null)return va==null?(vb==null?0:1):-1;return rev?va-vb:vb-va;});}
+  s+=holdTop(c,h);
   if(c&&c.rows.length>1){var isT0=c.d===todayKey();
     s+='<div class="seg three hsort">'+[['day',isT0?'今日':shortMD(c.d)],['un','損益'],['mv','市值']].map(function(o){var on=o[0]===mode;
       return '<button class="'+(on?'on':'')+'" data-act="hsort" data-v="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+(on?' '+(rev?'↑':'↓'):'')+'</button>';}).join('')+'</div>';}
@@ -2764,14 +2777,9 @@ function holdHTML(){var c=holdCalc(),h=hid(),s='<section class="sec"><div class=
     if(r){big=mode==='day'?r.day:mode==='mv'?r.v:r.un;cls=mode==='mv'?'':pcls(big);big=mode==='mv'?fmtN(Math.round(big)):sgn(Math.round(big));}
     var cst=x.shares*x.cost,px=!r?'':mode==='un'?'<span class="muted">'+r.p.close+' · </span><span class="'+(h?'muted':pcls(r.un))+'">'+(h?'••%':cst>0?pctS(r.un/cst):'')+'</span>':
       '<span class="'+(h?'muted':pcls(r.p.ch))+'">'+r.p.close+' '+(r.p.ch>0?'▲':r.p.ch<0?'▼':'')+(r.p.close-r.p.ch>0?pctS(r.p.ch/(r.p.close-r.p.ch)).replace(/^[+−]/,''):'')+'</span>';
-    s+='<div class="hrow"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+esc(x.code)+' · '+lots(x.shares)+' · 成本 '+r1(x.cost)+(r&&c.mv?' · 佔 '+pct1(r.v/c.mv):'')+'</span>'+fillTag(x.code)+'</div>'+
+    s+='<div class="hrow"><div class="hrow-l"><b>'+esc(x.name||(p&&p.name)||x.code)+'</b><span class="small muted">'+esc(x.code)+' · '+lots(x.shares)+' · 成本 '+r1(x.cost)+(r&&c.mv?' · 佔 '+pct1(r.v/c.mv):'')+'</span>'+fillTag(x.code)+(r&&r.bt?'<span class="small hbt">'+(c.d===todayKey()?'今天':shortMD(c.d)+' ')+'買 '+fmtN(r.bt.n)+' 股 · 買進後 <b class="'+(h?'':pcls(r.bt.pnl))+'">'+(h?'••••':chg(r.bt.pnl))+'</b></span>':'')+'</div>'+
       (r?'<div class="hrow-r"><b class="'+(h?'':cls)+'">'+(h?MASK:big)+'</b>'+'<span class="small">'+px+'</span>'+'</div>':'<div class="hrow-r small muted">'+(PX?'找不到價格':'等待收盤價')+'</div>')+'</div>';});
   s+='</div>';
-  s+='<div class="pxbar"><span class="small muted">'+(pxWhen()?'收盤價更新於 '+pxWhen():PX?shortMD(PX.d)+' 的收盤價':'還沒有收盤價')+'</span><button class="ghost pxre" data-act="pxrefresh">重新整理</button></div>';
-  if(c){var isT=c.d===todayKey(),dl=isT?'今天':shortMD(c.d);
-    s+='<p class="small muted">'+(isT?'今天收盤':'最新收盤是 '+dl)+' · 市值 '+(h?MASK:'NT$'+fmtN(c.mv))+' · 未實現 '+(h?MASK:sgn(c.un))+' · '+(isT?'今日':dl+' ')+'漲跌 '+(h?'••••':chg(c.day))+'</p>'+
-      (isT?'':'<p class="small muted">上面的價格和漲跌都是 '+dl+' 的收盤資料。交易日約下午 2 點半會更新成當天的收盤價（偶爾會晚一些）。</p>');}
-  else s+='<p class="small muted">收盤價在交易日約下午 2 點半更新（偶爾會晚一些），之後打開 App 就會自動記錄。</p>';
   return s+soldHTML()+'</section>';}
 /* 除權息: announced ex-dates for stocks you hold → ask once (記錄／略過); upcoming ones are just shown */
 function divKey(code,d){return code+'|'+d;}
@@ -3266,7 +3274,7 @@ function pnlStats(y,m){
     (function(){if(!rv||pk==null)return '';var dR=realAt(sk)-realAt(pk);if(!dR)return '';var dU=unAt(sk)-unAt(pk),sl=db.sold.filter(function(x){return x.d>pk&&x.d<=sk;}),dl=(db.divs||[]).filter(function(x){return x.d>pk&&x.d<=sk;});
       var nm=sl.map(function(x){var p=pxOf(x.code);return '賣出 '+esc(x.name||(p&&p.name)||x.code)+' '+lots(x.shares);}).concat(dl.map(function(x){var p=pxOf(x.code);return '股利 '+esc(x.name||(p&&p.name)||x.code);}));
       return '<div class="pnl-brk"><div><span>未實現</span><b class="'+(h?'':pcls(dU))+'">'+(h?'••••':chg(dU))+'</b></div><div><span>已實現</span><b class="'+(h?'':pcls(dR))+'">'+(h?'••••':chg(dR))+'</b><em>'+(nm.length>2?nm.slice(0,2).join('、')+' 等 '+nm.length+' 筆':nm.join('、'))+'</em></div></div>';})()+
-    (anySold()?'<div class="pnl-split small muted">累計：已實現 <b class="'+(h?'':pcls(realAt(sk)))+'">'+(h?'••••':sgn(realAt(sk)))+'</b>'+(divAt(sk)?'<small>（股利 '+(h?'••••':sgn(divAt(sk)))+'）</small>':'')+'　未實現 <b class="'+(h?'':pcls(unAt(sk)))+'">'+(h?'••••':sgn(unAt(sk)))+'</b></div>':'')+
+    (anySold()?'<div class="tri pnl-tri'+(divAt(sk)?'':' two')+'"><div><span>已實現</span><b class="'+(h?'':pcls(realAt(sk)))+'">'+(h?'••••':sgn(realAt(sk)))+'</b></div>'+(divAt(sk)?'<div><span>其中股利</span><b class="'+(h?'':pcls(divAt(sk)))+'">'+(h?'••••':sgn(divAt(sk)))+'</b></div>':'')+'<div><span>未實現</span><b class="'+(h?'':pcls(unAt(sk)))+'">'+(h?'••••':sgn(unAt(sk)))+'</b></div></div>':'')+
     (K?'<div class="ohlc">'+[['開',K[sel].o],['高',K[sel].h],['低',K[sel].l],['收',K[sel].c]].map(function(q){return '<span><small>'+q[0]+'</small><b class="'+(h?'':pcls(q[1]))+'">'+(h?'••••':sgn(q[1]))+'</b></span>';}).join('')+'</div>':'')+
     svg+ticks+(rv?'<div class="pnl-lg"><span><i class="lg-tot"></i>總損益</span><span><i class="lg-real"></i>已實現</span></div>':'')+
     '<p class="small muted">'+(anySold()?'總損益＝已實現（賣出落袋＋股利）＋未實現（還在手上的帳面損益）。':'')+(gr==='d'?(anySold()?'每個點是那天收盤後的總損益':'每個點是你那天記下的未實現損益')+'（不是即時股價），只畫有記錄的日子，點圓點看那一天。':gr==='w'?'每根 K 棒是一週（最近 26 週）：開＝上週最後一筆，收＝這週最後一筆，高低是這週紀錄的最高和最低。點 K 棒看那一週。':'每根 K 棒是一個月（最近 12 個月）：開＝上個月最後一筆，收＝這個月最後一筆，高低是這個月紀錄的最高和最低。點 K 棒看那個月。')+'</p></div>';
@@ -4067,6 +4075,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.11.03-4','11/3',['開始訓練時先選重訓／有氧／伸展；計時可以暫停，組間休息會倒數提醒','今天頁的區塊可以調整順序、收起來','獎勵可以「全部兌換」','運動頁新增「進步一覽」：每個部位用色塊看進步，可選近 1 個月、3 個月或全部','修正一些小問題']],
  ['2026.11.02-6','11/2',['課表可以「＋ 加部位」，「換一個」也能換成別的部位；統計頁也能隱藏金額','一個「開始訓練」計時，練的時候切換重訓／有氧／伸展，結束時確認分鐘；運動頁新增「今天」小卡','伸展可以計時，習慣可以選連動「運動」或「伸展」','重訓卡片只在新紀錄時顯示 1RM']],
  ['2026.11.01-4','11/1',['每個重訓動作都有姿勢圖，選動作和記錄時一眼看出怎麼做','啞鈴和槓鈴動作分開畫，啞鈴臥推、夾胸改用斜角視角，滑輪夾胸改成站姿','方向用深淺雙層 » 標示，器材改成藍色']],
  ['2026.10.31-7','10/31',['課表可以複製某一天，或依部位一鍵帶入動作，不喜歡還能「換一個」','課表裡的動作可以調整順序，選動作時標出「多關節」或「孤立」','有氧統計改成每天堆疊的長條圖，看得出各種有氧各練多久','換上更好讀的 Inter 數字字型，這週訓練改成卡片式']],
