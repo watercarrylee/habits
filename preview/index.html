@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-qSV3cPtLd5IRCZdJXqI9tvt1IUJAPqqA4uRyrZsz5mQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-wGWP2lEnA/175jJ5W7fuQkgwiO8SOkG5INcagYrrwNw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -702,6 +702,8 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .hist-n{flex:1 1 auto;min-width:0;font-size:15px;overflow-wrap:anywhere}
 .hist-a{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .tb-r{display:flex;align-items:center;gap:6px}
+.hmng{min-height:32px;padding:0 12px;font-size:13px}
+.hbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px}.hbar .seg{flex:0 1 190px;margin:0}.avbtn{position:relative;flex:0 0 auto;width:44px;height:44px;border:0;background:none;padding:0;display:flex;align-items:center;justify-content:center;color:var(--fg)}.avbtn .av.none{color:var(--muted)}.avbtn .av.none svg{width:20px;height:20px}.avdot{position:absolute;top:3px;right:3px;width:10px;height:10px;border-radius:5px;background:var(--bad);box-shadow:0 0 0 2px var(--bg)}
 .repbtn{display:inline-flex;align-items:center;gap:6px;color:var(--good);border-color:var(--good-line);font-weight:700}
 .rep-sub{padding-left:32px}.rep-hrow{min-height:48px;padding-top:8px;padding-bottom:8px}.rep-hn{font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rep-hn.off{color:var(--muted)}
 .rep-hide{flex:0 0 auto;font-size:13px;font-weight:700;border-radius:10px;padding:6px 11px;border:1.5px solid var(--line);color:var(--muted);background:var(--surface)}.rep-hide.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
@@ -890,17 +892,13 @@ html:root[data-skin=ice]{
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4.5a2 2 0 1 0 4 0a2 2 0 1 0-4 0M7 21l3.5-6 3 2.5V21M5 11.5l4-3 4.5 1 2 3 3.5 1M10.5 15l2-6"></path></svg>
       運動
     </button>
-    <button class="tab" data-act="tab" data-tab="stats">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg>
-      統計
+    <button class="tab" data-act="tab" data-tab="inv" id="invTab" hidden>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16M5 15l4.5-5 3.5 3 6-7M15 6h4v4"></path></svg>
+      投資
     </button>
     <button class="tab" data-act="tab" data-tab="rewards">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4" rx="1"></rect><path d="M5 12v8h14v-8M12 8v12M12 8C10.5 5 7 4.5 7 6.8 7 8 9.5 8 12 8zm0 0c1.5-3 5-3.5 5-1.2C17 8 14.5 8 12 8z"></path></svg>
       獎勵
-    </button>
-    <button class="tab" data-act="tab" data-tab="settings">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
-      設定
     </button>
   </nav>
 </div>
@@ -1250,7 +1248,7 @@ function minTxt(m){var sec=Math.round(m*60);return sec%60?durTxt(sec):Math.round
 /* tab: log */
 function vFit(){
   var tab=ui.fitTab==='prog'?'prog':'log';
-  var s='<div class="page"><header class="titlebar"><h1 class="h1">運動</h1></header>'+
+  var s='<div class="page"><header class="titlebar"><h1 class="h1">運動</h1>'+avBtn()+'</header>'+
     '<div class="seg"><button class="'+(tab==='log'?'on':'')+'" data-act="ftab" data-v="log" aria-pressed="'+(tab==='log')+'">紀錄</button>'+
     '<button class="'+(tab==='prog'?'on':'')+'" data-act="ftab" data-v="prog" aria-pressed="'+(tab==='prog')+'">進步</button></div>';
   return s+(tab==='log'?fitLogHTML():fitProgHTML())+'</div>';
@@ -1993,7 +1991,7 @@ function autoSnap(why,ver,raw){try{raw=raw||localStorage.getItem(KEY);if(!raw)re
   if(pv&&pv!==APP_VER)autoSnap('update',pv,RAW0);
   else if(!autoList().some(function(x){return x.why==='daily'&&keyOf(new Date(x.at))===t;}))autoSnap('daily',APP_VER,RAW0);
   localStorage.setItem(KEY+'-ver',APP_VER);}catch(e){}})();
-var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'settings',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
+var ui={statTab:'habits',pnlSel:null,pe:null,peBack:'today',q:'',view:'today',date:todayKey(),follow:true,month:null,draft:null,back:'habits',err:'',confirmDel:false,sheet:null,dragId:null,top:false};
 
 /* ---------- data helpers ---------- */
 function active(kind){return db.habits.filter(function(h){return !h.archived&&h.kind===kind;});}
@@ -2480,7 +2478,7 @@ function removeRedemption(id){
 function vRewards(){
   syncRewards();
   var tot=savingsTotals();
-  var s='<div class="page"><header class="titlebar"><h1 class="h1">獎勵</h1><button class="addbtn" data-act="rnew" aria-label="新增獎勵">'+I.plus+'</button></header>';
+  var s='<div class="page"><header class="titlebar"><h1 class="h1">獎勵</h1><span class="tb-r"><button class="addbtn" data-act="rnew" aria-label="新增獎勵">'+I.plus+'</button>'+avBtn()+'</span></header>';
   if(anySave()||tot.all){
     var rows=Object.keys(tot.per).map(function(id){return tot.per[id];}).sort(function(a,b){return b.amt-a.amt;});
     s+='<section class="savecard"><div class="save-top"><div><div class="pnl-l">本月省下</div><div class="save-v">NT$'+fmtN(tot.mon)+'</div></div>'+
@@ -2653,11 +2651,11 @@ var PX=null,pxAt=0;
 var DIVS=null,divAt0=0;
 function divLoad(){var now=Date.now();if(now-divAt0<3*3600e3||!db.hold.length)return;divAt0=now;
   fetch('dividends.json?t='+now,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!Array.isArray(j.e))return;
-    DIVS=j.e.filter(function(e){return Array.isArray(e)&&e.length===4&&/^[0-9A-Z]{4,6}$/.test(String(e[0]))&&isKey(e[1])&&+e[2]>=0&&+e[3]>=0;});if(/^(stats|today)$/.test(ui.view)&&!ui.sheet)render();}).catch(function(){});}
+    DIVS=j.e.filter(function(e){return Array.isArray(e)&&e.length===4&&/^[0-9A-Z]{4,6}$/.test(String(e[0]))&&isKey(e[1])&&+e[2]>=0&&+e[3]>=0;});if(/^(inv|today)$/.test(ui.view)&&!ui.sheet)render();}).catch(function(){});}
 function pxLoad(cb){divLoad();var now=Date.now();if(now-pxAt<60000||!db.hold.length)return;pxAt=now;
   fetch('../prices.json?t='+now,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
     if(!j||!isKey(j.d)||!j.p||typeof j.p!=='object')return;var old=PX&&PX.d,ot=PX&&PX.t;PX={d:j.d,p:j.p,t:typeof j.t==='string'?j.t:''};
-    if((old!==PX.d||ot!==PX.t||cb)&&/^(today|stats|hold)$/.test(ui.view)&&!ui.sheet)render();holdAuto();fillTrack();if(cb)cb(true);}).catch(function(){if(cb)cb(false);});}
+    if((old!==PX.d||ot!==PX.t||cb)&&/^(today|inv|hold)$/.test(ui.view)&&!ui.sheet)render();holdAuto();fillTrack();if(cb)cb(true);}).catch(function(){if(cb)cb(false);});}
 function pxWhen(){var d=PX&&PX.t?new Date(PX.t):null;return d&&!isNaN(d)?(d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes()):'';}
 /* 自動優先: closes beat typed numbers. From the day holdings were last changed (settings.holdSince), every trading day
    with closes gets its P&L computed and saved, unless the day was edited by hand after its closes were out (pm).
@@ -2678,7 +2676,7 @@ function holdAuto(){if(!db.settings.pnl||!db.hold.length||!PX||ui.sheet)return;
     if(l&&l.pa&&l.pnl===r.un&&l.cb===r.cb)return;
     if(!l||typeof l.pnl!=='number'||!l.pa)filled.push(k);else if(k<PX.d)redone.push(k);
     l=db.logs[k]||(db.logs[k]={});l.pnl=r.un;l.cb=r.cb;l.pa=true;delete l.pm;changed=true;});
-  if(changed){save();if(/^(today|stats)$/.test(ui.view))render();
+  if(changed){save();if(/^(today|inv)$/.test(ui.view))render();
     var past=filled.filter(function(k){return k<PX.d;});
     if(redone.length&&!past.length)toast('已依新持股重算 '+shortMD(redone[0])+(redone.length>1?' 起 '+redone.length+' 天':''));
     else if(past.length)toast('已依收盤價補上 '+(past.length>1?shortMD(past[0])+'–'+shortMD(past[past.length-1])+' 共 '+past.length+' 天':shortMD(past[0])));
@@ -2705,7 +2703,7 @@ function fillTrack(){if(!PX||!db.divs||!db.divs.length)return;var t=todayKey(),c
     if(x.pre&&after.length){if(!PXH&&after[0]>addDays(x.d,4))need=true;
       for(i=0;i<after.length;i++)if(m[after[i]]>=x.pre){x.fill=after[i];x.fd=fillWd(x.d,after[i]);ch=true;news.push(x);break;}}
     if(!x.fill&&t>addDays(x.d,365)){x.exp=true;ch=true;}});
-  if(ch){save();if(/^(stats)$/.test(ui.view)&&!ui.sheet)render();}
+  if(ch){save();if(/^(inv)$/.test(ui.view)&&!ui.sheet)render();}
   var nw=news.filter(function(x){return diffDays(t,x.fill)<=3;})[0];if(nw)toast('🎉 '+(nw.name||nw.code)+' '+nw.fd+' 天填息',3500);
   if(need&&!PXH&&Date.now()-pxhAt>600000){pxhAt=Date.now();fetch('../prices-30.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
     if(!j||!Array.isArray(j.d)||!j.c||typeof j.c!=='object'||!j.d.every(isKey))return;PXH={d:j.d,c:j.c};holdAuto();fillTrack();}).catch(function(){});}}
@@ -2823,16 +2821,16 @@ function vDiv(){var dv=ui.dv,ed=!!dv.id,o=ed&&db.divs.filter(function(x){return 
     else s+='<p class="small muted">股利從除息日起算進「已實現」，所以除息當天股價下跌，總損益不會跟著掉；配股會自動加進持股，總成本不變、平均成本變低。</p>';}
   return s+'</div>';}
 function divSave(){var dv=ui.dv,c=divCalc(dv),td=todayKey(),d=isKey(dv.d)?dv.d:td,amt=parseInt(String(dv.amt).replace(/[^0-9]/g,''),10);if(isNaN(amt))amt=c.est;
-  if(dv.id){var o=db.divs.filter(function(x){return x.id===dv.id;})[0];if(!o)return;o.amt=amt;o.paid=!!dv.paid;o.d=d;db.divs=normDivs(db.divs);save();ui.dv=null;ui.err='';go('stats');ui.statTab='pnl';render();toast('已更新');return;}
+  if(dv.id){var o=db.divs.filter(function(x){return x.id===dv.id;})[0];if(!o)return;o.amt=amt;o.paid=!!dv.paid;o.d=d;db.divs=normDivs(db.divs);save();ui.dv=null;ui.err='';go('inv');render();toast('已更新');return;}
   var h=db.hold.filter(function(x){return x.id===dv.hid;})[0];if(!h){ui.err='請選擇股票。';render();return;}
   if(!(c.cash>0)&&!(c.ratio>0)){ui.err='請輸入每股現金股利或股票股利。';render();return;}
   if(db.divs.some(function(x){return x.code===h.code&&x.d===d;})){ui.err='這檔在這天已經有一筆除權息紀錄了。';render();return;}
   var p=pxOf(h.code);db.divs.push({id:uid(),d:d,code:h.code,name:h.name||(p&&p.name)||'',shares:h.shares,cash:c.cash,amt:c.cash>0?amt:0,ratio:c.ratio,add:c.add,paid:!!dv.paid});db.divs=normDivs(db.divs);
   if(c.add>0){h.cost=Math.round(h.cost*h.shares/(h.shares+c.add)*10000)/10000;h.shares+=c.add;if(d<=td)sellRecalc(d);}
-  save();ui.dv=null;ui.err='';go('stats');ui.statTab='pnl';render();toast('已記錄除權息'+(c.cash>0&&!hid()?' '+sgn(amt):''));}
+  save();ui.dv=null;ui.err='';go('inv');render();toast('已記錄除權息'+(c.cash>0&&!hid()?' '+sgn(amt):''));}
 function divDel(){var dv=ui.dv,o=dv&&db.divs.filter(function(x){return x.id===dv.id;})[0];if(!o)return;
   if(o.add>0){var h=db.hold.filter(function(x){return x.code===o.code;})[0];if(h){var ns=Math.max(0,h.shares-o.add);if(ns>0){h.cost=Math.round(h.cost*h.shares/ns*10000)/10000;h.shares=ns;}else db.hold=db.hold.filter(function(x){return x!==h;});}sellRecalc(o.d<=todayKey()?o.d:todayKey());}
-  db.divs=db.divs.filter(function(x){return x!==o;});save();ui.dv=null;go('stats');ui.statTab='pnl';render();toast('已刪除');}
+  db.divs=db.divs.filter(function(x){return x!==o;});save();ui.dv=null;go('inv');render();toast('已刪除');}
 /* 交易紀錄 period: 週 (default) / 月 / 年 / 自訂 / 全部. Returns {a,b,lab} or null for 全部 */
 function txRange(){var P=/^(w|m|y|c|all)$/.test(ui.txP||'')?ui.txP:'w',t=todayKey();if(P==='all')return null;
   if(P==='c'){var a=isKey(ui.txA)?ui.txA:addDays(t,-29),b=isKey(ui.txB)?ui.txB:t;if(b<a){var z=a;a=b;b=z;}return {a:a,b:b>t?t:b,lab:shortMD(a)+' – '+shortMD(b),P:P};}
@@ -2933,14 +2931,14 @@ function buySave(){var bd=ui.bd,td=todayKey(),d=isKey(bd.d)&&bd.d<=td?bd.d:td,sh
   var p=pxOf(c),ps=h?h.shares:0,pc=h?h.cost:0,nc=Math.round((ps*pc+amt)/(ps+sh)*10000)/10000;
   if(h){h.cost=nc;h.shares=ps+sh;if(!h.name&&p&&p.name)h.name=p.name;}else db.hold.push({id:uid(),code:c,name:(p&&p.name)||'',shares:sh,cost:nc});
   db.hold=normHold(db.hold);db.buys.push({id:uid(),d:d,code:c,name:(h&&h.name)||(p&&p.name)||'',shares:sh,px:px,amt:amt,ps:ps,pc:pc,nc:nc});db.buys=normBuys(db.buys);
-  sellRecalc(d);save();ui.err='';ui.bd=null;go('stats');ui.statTab='pnl';render();toast('已記錄買入 '+lots(sh));}
+  sellRecalc(d);save();ui.err='';ui.bd=null;go('inv');render();toast('已記錄買入 '+lots(sh));}
 function buyDel(){var bd=ui.bd,o=bd&&db.buys.filter(function(x){return x.id===bd.id;})[0];if(!o)return;
   var h=db.hold.filter(function(x){return x.code===o.code;})[0];
   if(!h||h.shares<o.shares){ui.err='目前持股不夠扣回這筆（可能已經賣掉了），請用「編輯」直接修正持股。';ui.confirm=null;render();return;}
   var ns=h.shares-o.shares;
   if(!ns)db.hold=db.hold.filter(function(x){return x!==h;});
   else{var back=!buyLater(o)&&h.shares===o.ps+o.shares&&o.pc>0?o.pc:(h.shares*h.cost-o.amt)/ns;h.cost=Math.round((back>0?back:o.pc||h.cost)*10000)/10000;h.shares=ns;}
-  db.hold=normHold(db.hold);db.buys=db.buys.filter(function(x){return x!==o;});sellRecalc(o.d);save();ui.bd=null;ui.err='';ui.confirm=null;go('stats');ui.statTab='pnl';render();toast('已刪除，'+lots(o.shares)+' 從持股扣回');}
+  db.hold=normHold(db.hold);db.buys=db.buys.filter(function(x){return x!==o;});sellRecalc(o.d);save();ui.bd=null;ui.err='';ui.confirm=null;go('inv');render();toast('已刪除，'+lots(o.shares)+' 從持股扣回');}
 /* 賣出: pick a holding, shares (default all), price (default latest close), date, and the realized amount (prefilled with
    (price − cost) × shares, no fees; type the broker's number to override). Saving reduces the holding and recalculates from that day. */
 function sellEst(sd){var h=sd.hid&&db.hold.filter(function(x){return x.id===sd.hid;})[0],sh=Math.floor(+String(sd.shares).replace(/,/g,'')),px=+String(sd.px).replace(/,/g,'');
@@ -2977,18 +2975,18 @@ function sellRecalc(d){var td=todayKey();db.settings.holdSince=d;if(d<td){PXH=nu
 function sellSave(){var sd=ui.sd,td=todayKey(),d=isKey(sd.d)&&sd.d<=td?sd.d:td,px=+String(sd.px).replace(/,/g,''),amt=parseInt(String(sd.amt).replace(/[^0-9]/g,''),10);
   if(!(px>0)){ui.err='請輸入成交價。';render();return;}
   if(isNaN(amt)){var e0=sellEst(sd);if(e0==null){ui.err='請輸入已實現損益。';render();return;}amt=e0;}else amt=sd.neg?-amt:amt;
-  if(sd.id){var o=db.sold.filter(function(x){return x.id===sd.id;})[0];if(!o)return;var od=o.d;o.px=px;o.amt=amt;o.d=d;db.sold=normSold(db.sold);if(od!==d)sellRecalc(od<d?od:d);save();ui.err='';ui.sd=null;go('stats');ui.statTab='pnl';render();toast('賣出紀錄已更新');return;}
+  if(sd.id){var o=db.sold.filter(function(x){return x.id===sd.id;})[0];if(!o)return;var od=o.d;o.px=px;o.amt=amt;o.d=d;db.sold=normSold(db.sold);if(od!==d)sellRecalc(od<d?od:d);save();ui.err='';ui.sd=null;go('inv');render();toast('賣出紀錄已更新');return;}
   var h=db.hold.filter(function(x){return x.id===sd.hid;})[0],sh=Math.floor(+String(sd.shares).replace(/,/g,''));
   if(!h){ui.err='請選擇要賣出的股票。';render();return;}
   if(!(sh>0)||sh>h.shares){ui.err='股數要在 1 到 '+fmtN(h.shares)+' 之間。';render();return;}
   var p=pxOf(h.code);db.sold.push({id:uid(),d:d,code:h.code,name:h.name||(p&&p.name)||'',shares:sh,px:px,amt:amt,c:Math.round(sh*h.cost)});db.sold=normSold(db.sold);
   h.shares-=sh;if(!h.shares)db.hold=db.hold.filter(function(x){return x!==h;});
-  sellRecalc(d);save();ui.err='';ui.sd=null;go('stats');ui.statTab='pnl';render();toast('已記錄賣出 '+(hid()?'':sgn(amt)));}
+  sellRecalc(d);save();ui.err='';ui.sd=null;go('inv');render();toast('已記錄賣出 '+(hid()?'':sgn(amt)));}
 function sellDel(){var sd=ui.sd,o=sd&&db.sold.filter(function(x){return x.id===sd.id;})[0];if(!o)return;
-  if(o.bf){db.sold=db.sold.filter(function(x){return x!==o;});save();ui.sd=null;ui.err='';go('stats');ui.statTab='pnl';render();toast('已刪除補登紀錄');return;}
+  if(o.bf){db.sold=db.sold.filter(function(x){return x!==o;});save();ui.sd=null;ui.err='';go('inv');render();toast('已刪除補登紀錄');return;}
   var h=db.hold.filter(function(x){return x.code===o.code;})[0];
   if(h){h.cost=Math.round((h.shares*h.cost+o.c)/(h.shares+o.shares)*10000)/10000;h.shares+=o.shares;}else db.hold.push({id:uid(),code:o.code,name:o.name,shares:o.shares,cost:Math.round(o.c/o.shares*10000)/10000});
-  db.hold=normHold(db.hold);db.sold=db.sold.filter(function(x){return x!==o;});sellRecalc(o.d);save();ui.sd=null;ui.err='';go('stats');ui.statTab='pnl';render();toast('已刪除，'+lots(o.shares)+' 加回持股');}
+  db.hold=normHold(db.hold);db.sold=db.sold.filter(function(x){return x!==o;});sellRecalc(o.d);save();ui.sd=null;ui.err='';go('inv');render();toast('已刪除，'+lots(o.shares)+' 加回持股');}
 function vHold(){var d=ui.hd;
   var s='<div class="page"><header class="editbar"><button class="textbtn" data-act="holdcancel">取消</button><h1 class="edit-t">編輯持股</h1><button class="textbtn strong" data-act="holdsave">儲存</button></header>'+
     (ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'')+
@@ -3041,7 +3039,7 @@ function bfSaveDiv(){var bf=ui.bf,d=bfDate(bf.d),code=bfCode(bf.code),sh=bfNum(b
   if(!code){ui.err='請輸入股票代號（4～6 碼）。';render();return;}
   if(!(sh>0)){ui.err='請輸入除息股數。';render();return;}
   if(!(a>0)){ui.err='請輸入股利金額。';render();return;}
-  db.divs.push(bfDivRec({d:d,code:code,shares:Math.floor(sh),amt:Math.round(a)}));db.divs=normDivs(db.divs);save();ui.bf=null;ui.err='';ui.txF=null;go('stats');ui.statTab='pnl';render();toast('已補登股利 '+sgn(Math.round(a)));}
+  db.divs.push(bfDivRec({d:d,code:code,shares:Math.floor(sh),amt:Math.round(a)}));db.divs=normDivs(db.divs);save();ui.bf=null;ui.err='';ui.txF=null;go('inv');render();toast('已補登股利 '+sgn(Math.round(a)));}
 /* each person's results this year: their realized, weighted return (cost inferred from amount ÷ return %), wins, my share */
 function profStats(y){var o={},order=[];(db.prof||[]).forEach(function(x){if(x.d.slice(0,4)!==y)return;var k=x.who;if(!o[k]){o[k]={who:k,amt:0,n:0,win:0,lose:0,ca:0,cc:0,mine:0,rate:x.rate};order.push(k);}
   var q=o[k];q.amt+=x.amt;q.n++;if(x.amt>0)q.win++;else if(x.amt<0)q.lose++;q.mine+=x.mine;q.rate=x.rate;if(x.pct!=null){var c=x.amt/(x.pct/100);if(c>0){q.ca+=x.amt;q.cc+=c;}}});
@@ -3078,7 +3076,7 @@ function profSave(){var bf=ui.bf,who=String(bf.who||'').replace(/[<>&"']/g,'').t
   if(isNaN(pc)){ui.err='報酬率不是數字。';render();return;}
   if(m===null||isNaN(m)||m<0)m=0;if(bf.neg)m=0;
   var rec={id:bf.id||uid(),d:d,who:who,amt:Math.round(bf.neg?-a:a),pct:pc===null?undefined:(bf.neg?-Math.abs(pc):Math.abs(pc)),rate:r,mine:Math.round(m)};
-  if(bf.id)db.prof=db.prof.filter(function(x){return x.id!==bf.id;});db.prof.push(rec);db.prof=normProf(db.prof);save();ui.bf=null;ui.err='';ui.confirm=null;ui.txF='prof';go('stats');ui.statTab='pnl';render();toast(bf.id?'分潤已更新':rec.mine?'已記錄分潤 '+(hid()?'':sgn(rec.mine)):'已記錄（虧損不分）');}
+  if(bf.id)db.prof=db.prof.filter(function(x){return x.id!==bf.id;});db.prof.push(rec);db.prof=normProf(db.prof);save();ui.bf=null;ui.err='';ui.confirm=null;ui.txF='prof';go('inv');render();toast(bf.id?'分潤已更新':rec.mine?'已記錄分潤 '+(hid()?'':sgn(rec.mine)):'已記錄（虧損不分）');}
 function vBackfill(){var bf=ui.bf,h=hid(),s='<div class="page"><header class="editbar"><button class="textbtn" data-act="bfcancel">取消</button><h1 class="edit-t">補登已實現損益</h1>'+
     (bf.mode==='one'||bf.kind==='prof'?'<button class="textbtn strong" data-act="'+(bf.kind==='prof'?'pfsave':'bfsave1')+'">儲存</button>':'<span style="width:44px"></span>')+'</header>'+(ui.err?'<p class="err" role="alert">'+ui.err+'</p>':'');
   var DV=bf.kind==='div';
@@ -3117,14 +3115,14 @@ function vBackfill(){var bf=ui.bf,h=hid(),s='<div class="page"><header class="ed
       '<p class="small muted">'+(DV?'會算進已實現損益的「其中股利」，標成已入帳；':'只會加進已實現損益，')+'不會動到目前的持股和未實現。之後在交易紀錄點一筆可以修改或刪除。</p>';}
   return s+'</div>';}
 function bfSaveRows(){var bf=ui.bf,on=(bf.rows||[]).filter(function(r){return !r.err&&r.on;});if(!on.length)return;
-  on.forEach(function(r){if(r.div)db.divs.push(bfDivRec(r));else db.sold.push(bfRec(r));});db.sold=normSold(db.sold);db.divs=normDivs(db.divs);save();ui.bf=null;ui.err='';ui.txF=null;go('stats');ui.statTab='pnl';render();toast('已補登 '+on.length+' 筆');}
+  on.forEach(function(r){if(r.div)db.divs.push(bfDivRec(r));else db.sold.push(bfRec(r));});db.sold=normSold(db.sold);db.divs=normDivs(db.divs);save();ui.bf=null;ui.err='';ui.txF=null;go('inv');render();toast('已補登 '+on.length+' 筆');}
 function bfSaveOne(){if(ui.bf.kind==='div'){bfSaveDiv();return;}var bf=ui.bf,d=bfDate(bf.d),code=String(bf.code||'').trim().toUpperCase(),sh=bfNum(bf.shares),px=bfNum(bf.px),a=bfNum(bf.amt);
   if(!d){ui.err='請選擇賣出日期。';render();return;}
   if(!/^[0-9A-Z]{4,6}$/.test(code)){ui.err='請輸入股票代號（4～6 碼）。';render();return;}
   if(a===null||isNaN(a)||a<0){ui.err='請輸入已實現損益金額。';render();return;}
   if(isNaN(sh)||isNaN(px)||(sh!==null&&sh<0)||(px!==null&&px<0)){ui.err='股數或成交價不是數字。';render();return;}
   var r={d:d,code:code,shares:sh>0?Math.floor(sh):0,px:0,amt:Math.round(bf.neg?-a:a)};r.px=px>0&&r.shares?px:0;
-  db.sold.push(bfRec(r));db.sold=normSold(db.sold);save();ui.bf=null;ui.err='';ui.txF=null;go('stats');ui.statTab='pnl';render();toast('已補登 '+sgn(r.amt));}
+  db.sold.push(bfRec(r));db.sold=normSold(db.sold);save();ui.bf=null;ui.err='';ui.txF=null;go('inv');render();toast('已補登 '+sgn(r.amt));}
 var HOLD_PROMPT='請看我附上的券商庫存截圖（可能有好幾張），把每一檔持股整理成下面的格式，每檔一行，不要表頭、不要其他說明：\n股票代號, 持有股數, 平均成本\n\n規則：\n1. 股票代號是 4–6 碼，例如 2330、0050、00679B。截圖只有名稱時，填你確定的代號；不確定就直接填股票名稱。\n2. 持有股數用「股」：1 張 = 1000 股，零股照實際股數。不要加千分位逗號。\n3. 平均成本是每股的平均買進價格（成本均價），不是總成本。只寫數字，不要加 $ 或「元」。\n4. 好幾張截圖裡重複出現的股票只列一次。\n5. 看不清楚的數字，在那一行最後加上「?」。\n\n範例：\n2330, 2000, 612.5\n0050, 1537, 142.2';
 function pxByName(n){if(!PX)return '';n=n.replace(/\s/g,'');for(var c in PX.p){if(String(PX.p[c][2]||'').replace(/\s/g,'')===n)return c;}return '';}
 function holdParse(text){var rows=[],seen={};
@@ -3169,7 +3167,7 @@ function holdSave(){var out=[],bad='';
   if(bad){ui.err=bad;render();return;}
   var nh=normHold(out),sig=function(a){return JSON.stringify(a.map(function(x){return [x.code,x.shares,x.cost];}));};
   var td0=todayKey(),hd0=isKey(ui.hdate)&&ui.hdate<=td0?ui.hdate:td0;
-  if(sig(nh)!==sig(db.hold)){db.settings.holdSince=hd0;if(hd0<td0){PXH=null;pxhAt=0;ui.histNeed=true;}}db.hold=nh;save();ui.err='';pxAt=0;pxLoad();go('stats');ui.statTab='pnl';render();toast('持股已儲存');}
+  if(sig(nh)!==sig(db.hold)){db.settings.holdSince=hd0;if(hd0<td0){PXH=null;pxhAt=0;ui.histNeed=true;}}db.hold=nh;save();ui.err='';pxAt=0;pxLoad();go('inv');render();toast('持股已儲存');}
 function pnlTile(k){
   var h=hid(),pk=prevPnlKey(k),txt='—',cls='';
   if(hasP(k)&&pk){var d=pnlAt(k)-pnlAt(pk);txt=h?'••••':cchg(d);cls=h?'':pcls(d);}
@@ -3504,8 +3502,14 @@ function avHTML(sz,cls){var st=db.settings,c=st.avatar;
   if(c&&(CHARS[c]||AV_IMG[c]))return '<span class="av ch '+(cls||'')+'" style="width:'+sz+'px;height:'+sz+'px">'+avSvg(c,sz)+'</span>';
   return '<span class="av none '+(cls||'')+'" style="width:'+sz+'px;height:'+sz+'px">'+I.plus+'</span>';}
 function hello(){var h=new Date().getHours();return h>=5&&h<11?'早安':h>=11&&h<17?'午安':h>=17&&h<23?'晚安':'夜深了';}
-function helloHTML(){var st=db.settings;if(!st.uname&&!st.avatar&&!st.motto)return '';
-  return '<button class="hello" data-act="profile">'+avHTML(44)+'<span class="hello-t"><b>'+hello()+(st.uname?'，'+esc(st.uname):'')+'</b>'+(st.motto?'<small class="motto'+(ui.mottoFull?' full':'')+'">'+esc(st.motto)+'</small>':'')+'</span></button>';}
+function avBtn(){var st=db.settings,dot=bkDue()||!clSeen(),c=st.avatar,a;
+  if(c==='photo'&&st.avPh||c&&(CHARS[c]||AV_IMG[c]))a=avHTML(38);
+  else a='<span class="av none" style="width:38px;height:38px">'+(st.uname?'<b style="font-size:16px;color:var(--fg)">'+esc(Array.from(st.uname)[0])+'</b>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"></circle><path d="M5 20c1.2-3.6 3.8-5.5 7-5.5s5.8 1.9 7 5.5"></path></svg>')+'</span>';
+  return '<button class="avbtn" data-act="tab" data-tab="settings" aria-label="設定'+(dot?'（有新的提醒）':'')+'">'+a+(dot?'<i class="avdot"></i>':'')+'</button>';}
+function habBar(on,right){return '<div class="hbar"><div class="seg">'+[['today','今天'],['stats','統計']].map(function(x){var o=x[0]===on;return '<button class="'+(o?'on':'')+'" data-act="tab" data-tab="'+x[0]+'" aria-pressed="'+o+'">'+x[1]+'</button>';}).join('')+'</div><span class="tb-r">'+(right||'')+avBtn()+'</span></div>';}
+function backBar(act,title,right){return '<header class="datebar"><button class="iconbtn" data-act="'+act+'" aria-label="返回">'+I.left+'</button><h1 class="h1" style="font-size:22px">'+title+'</h1>'+(right||'<span style="width:44px"></span>')+'</header>';}
+function helloHTML(){var st=db.settings;if(!st.uname&&!st.motto)return '';
+  return '<button class="hello" data-act="profile"><span class="hello-t"><b>'+hello()+(st.uname?'，'+esc(st.uname):'')+'</b>'+(st.motto?'<small class="motto'+(ui.mottoFull?' full':'')+'">'+esc(st.motto)+'</small>':'')+'</span></button>';}
 var QUOTES=[['千里之行，始於足下。','老子《道德經》'],['不積跬步，無以至千里；不積小流，無以成江海。','《荀子・勸學》'],['鍥而不捨，金石可鏤。','《荀子・勸學》'],['業精於勤，荒於嬉；行成於思，毀於隨。','韓愈《進學解》'],
   ['水滴石穿。','成語'],['九層之臺，起於累土。','老子《道德經》'],['合抱之木，生於毫末。','老子《道德經》'],['苟日新，日日新，又日新。','《禮記・大學》'],['學而時習之，不亦說乎？','《論語》'],
   ['一日之計在於晨。','俗諺'],['慢慢來，比較快。',''],['今天的一小步，是明天的一大步。',''],['不用完美，只要繼續。',''],['做了，就比沒做好。',''],['習慣是每天投給未來自己的一票。',''],
@@ -3576,7 +3580,7 @@ function vToday(){
   var badSum=bads.reduce(function(a,h){return a+val(k,h.id);},0);
   var log=db.logs[k]||{};
   if(k===t)lvWatch();
-  var s='<div class="page'+(dayLocked(k)?' locked':'')+'">'+(k===t?helloHTML():'')+'<header class="datebar">'+
+  var s='<div class="page'+(dayLocked(k)?' locked':'')+'">'+habBar('today')+(k===t?helloHTML():'')+'<header class="datebar">'+
     '<button class="iconbtn" data-act="day" data-n="-1" aria-label="前一天"'+(ui.date<=useStart()?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="datebar-mid"><div class="sub">'+dateSub(k)+'</div><h1 class="h1">'+dateLabel(k)+'</h1></div>'+
     '<button class="iconbtn" data-act="day" data-n="1" aria-label="後一天"'+(k>=t?' disabled':'')+'>'+I.right+'</button></header>';
@@ -3595,7 +3599,7 @@ function vToday(){
      '<div class="sum-card"><div class="sum-l muted">壞習慣</div><div class="sum-v bad-t">'+badSum+'<small class="muted"> 次</small></div></div>'+(pOn?pnlTile(k):'')+'</div>';
   function notPre(h){return !(k<h.created&&!val(k,h.id));}
   var gsv=gs.filter(notPre),B={},sum={};
-  if(goods.length){var x='<section class="sec"><h2 class="sec-t good-t">好習慣</h2>';
+  if(goods.length){var x='<section class="sec"><div class="sec-row"><h2 class="sec-t good-t">好習慣</h2><button class="ghost hmng" data-act="habits">管理習慣</button></div>';
     if(!gsv.length)x+='<p class="small muted">'+(gs.length?'這天還沒開始任何好習慣。':'這天沒有排定的好習慣。')+'</p>';
     gsv.forEach(function(h){x+=goodCard(h,k);});
     if(rest.length)x+='<p class="small muted">這天休息：'+rest.map(function(h){return esc(h.name);}).join('、')+'</p>';
@@ -3605,7 +3609,7 @@ function vToday(){
   if(bsv.length){B.bad='<section class="sec"><h2 class="sec-t bad-t">壞習慣</h2>'+bsv.map(function(h){return badCard(h,k);}).join('')+'</section>';sum.bad=badSum+' 次';}
   /* habits that start after this day: one line only; back-filling means moving the habit's start date (編輯習慣 → 開始日期) */
   var pres=gs.concat(wks.filter(function(h){return wkEnd(weekStartKey(k))>=h.created;}),bads).filter(function(h){return !notPre(h);});
-  var preTxt=pres.length?'<p class="small muted pre-more">還有 '+pres.length+' 個習慣這天還沒開始（要補記，請到「設定」把它的開始日期往前改）</p>':'';
+  var preTxt=pres.length?'<p class="small muted pre-more">還有 '+pres.length+' 個習慣這天還沒開始（要補記，請到「管理習慣」把它的開始日期往前改）</p>':'';
   if(pOn){B.pnl=pnlSection(k);sum.pnl=hasP(k)?(hid()?MASK:sgn(pnlAt(k))):'還沒記';}
   B.mood='<section class="sec"><h2 class="sec-t">心情</h2><div class="moods'+(log.mood!=null?' picked':'')+'">'+
     MOODS.map(function(m,i){var on=log.mood===i;return '<button class="mood'+(on?' on':'')+'" data-act="mood" data-i="'+i+'" aria-pressed="'+on+'" aria-label="心情'+m+'">'+moodFace(i,34)+'<span>'+m+'</span></button>';}).join('')+
@@ -3617,9 +3621,16 @@ function vToday(){
     else s+=B[key];
     if(key==='bad'||(key==='wk'&&!B.bad)||(key==='good'&&!B.wk&&!B.bad)){s+=preTxt;preTxt='';}});
   s+=preTxt;
+  if(!goods.length)s+='<div class="list" style="margin-top:14px"><button class="row-btn" data-act="habits"><span class="row-l"><span>管理習慣</span><span class="row-sub">新增、排序、今天頁的區塊</span></span>'+I.chev+'</button></div>';
   return s+'</div>';
 }
 
+function vInv(){var now=new Date(),us=useStart();if(!ui.month)ui.month=[now.getFullYear(),now.getMonth()];
+  var y=ui.month[0],m=ui.month[1],first=new Date(y,m,1),isCur=y===now.getFullYear()&&m===now.getMonth();
+  return '<div class="page"><header class="titlebar"><h1 class="h1">投資</h1><span class="tb-r"><button class="iconbtn" data-act="hideamt" aria-label="'+(hid()?'顯示金額':'隱藏金額')+'">'+(hid()?I.eye:I.eyeOff)+'</button>'+avBtn()+'</span></header>'+
+    '<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="month" data-n="-1" aria-label="上個月"'+(keyOf(first)<=us?' disabled':'')+'>'+I.left+'</button>'+
+    '<div class="month-l">'+y+' 年 '+(m+1)+' 月</div>'+
+    '<button class="iconbtn" data-act="month" data-n="1" aria-label="下個月"'+(isCur||first>now?' disabled':'')+'>'+I.right+'</button></div>'+pnlTab(y,m)+'</div>';}
 function vStats(){
   var t=todayKey(),now=new Date(),us=useStart();
   if(!ui.month)ui.month=[now.getFullYear(),now.getMonth()];
@@ -3627,19 +3638,17 @@ function vStats(){
   var first=new Date(y,m,1),lastDay=new Date(y,m+1,0).getDate();
   var isCur=y===now.getFullYear()&&m===now.getMonth();
   var goods=active('good'),bads=active('bad');
-  var pOn=!!db.settings.pnl,tabs=[['habits','習慣']];
-  if(pOn)tabs.push(['pnl','投資']);
+  var tabs=[['habits','習慣']];
   if(dOn())tabs.push(['diary','日記']);
   var tab=tabs.some(function(x){return x[0]===ui.statTab;})?ui.statTab:'habits';
-  var s='<div class="page"><header class="titlebar"><h1 class="h1">統計</h1><span class="tb-r"><button class="ghost repbtn" data-act="report">'+I.share+'分享這週</button><button class="iconbtn" data-act="search" aria-label="'+(dOn()?'搜尋備註和日記':'搜尋備註')+'">'+I.search+'</button></span></header>';
+  var s='<div class="page">'+habBar('stats','<button class="iconbtn repbtn" data-act="report" aria-label="分享這週">'+I.share+'</button><button class="iconbtn" data-act="search" aria-label="'+(dOn()?'搜尋備註和日記':'搜尋備註')+'">'+I.search+'</button>');
   if(tabs.length>1)s+='<div class="seg'+(tabs.length>2?' three':'')+'">'+tabs.map(function(x){return '<button class="'+(tab===x[0]?'on':'')+'" data-act="stab" data-v="'+x[0]+'" aria-pressed="'+(tab===x[0])+'">'+x[1]+'</button>';}).join('')+'</div>';
   s+='<div class="monthnav" style="justify-content:center"><button class="iconbtn" data-act="month" data-n="-1" aria-label="上個月"'+(keyOf(first)<=us?' disabled':'')+'>'+I.left+'</button>'+
     '<div class="month-l">'+y+' 年 '+(m+1)+' 月</div>'+
     '<button class="iconbtn" data-act="month" data-n="1" aria-label="下個月"'+(isCur||first>now?' disabled':'')+'>'+I.right+'</button></div>';
-  if(tab==='pnl')return s+'<div class="eyerow"><button class="eyebtn" data-act="hideamt">'+(hid()?I.eye+'顯示金額':I.eyeOff+'隱藏金額')+'</button></div>'+pnlTab(y,m)+'</div>';
   if(tab==='diary')return s+diaryStats(y,m)+'</div>';
   if(!goods.length&&!bads.length){
-    return s+'<div class="empty"><div class="empty-t">還沒有資料</div><p>先到「設定」新增習慣，記錄幾天後這裡就會出現月曆和趨勢。</p><button class="primary" data-act="new">新增習慣</button></div></div>';
+    return s+'<div class="empty"><div class="empty-t">還沒有資料</div><p>先新增習慣，記錄幾天後這裡就會出現月曆和趨勢。</p><button class="primary" data-act="new">新增習慣</button></div></div>';
   }
   var S=0,D=0,B=0,cells=[];
   for(var b=0;b<first.getDay();b++)cells.push('<span class="cell blank"></span>');
@@ -3672,13 +3681,8 @@ function meta(h){
   var n=h.days.filter(Boolean).length;
   return m+' · '+(n===7?'每天':'每週'+WD.filter(function(_,i){return h.days[i];}).join(''));
 }
-function vSettings(){
-  var s='<div class="page"><header class="titlebar"><h1 class="h1">設定</h1><button class="addbtn" data-act="new" aria-label="新增習慣">'+I.plus+'</button></header>';
-  var pst=db.settings;
-  s+='<section class="sec" id="profile"><h2 class="sec-t">個人化</h2><div class="prof"><button class="prof-av" data-act="avpick" aria-label="更換頭像">'+avHTML(64)+'<small>更換</small></button><div class="prof-f">'+
-    '<label class="lbl" for="uname">名字</label><input id="uname" type="text" maxlength="20" placeholder="今天頁會跟你打招呼" value="'+esc(pst.uname||'')+'" autocomplete="nickname" enterkeyhint="done"></div></div>'+
-    '<label class="lbl" for="motto" style="margin-top:12px">座右銘</label><input id="motto" type="text" maxlength="120" placeholder="例如：慢慢來，比較快" value="'+esc(pst.motto||'')+'" enterkeyhint="done">'+
-    '<button class="ghost" data-act="quotes" style="margin-top:6px">從名言金句挑一句</button></section>';
+function vHabits(){var arch=db.habits.filter(function(h){return h.archived;}).length;
+  var s='<div class="page">'+backBar('hback','管理習慣','<button class="addbtn" data-act="new" aria-label="新增習慣">'+I.plus+'</button>');
   ['good','bad'].forEach(function(kind){
     var list=active(kind),nm=kind==='good'?'好習慣':'壞習慣';
     s+='<section class="sec"><div class="sec-row"><h2 class="sec-t '+kind+'-t">'+nm+'</h2>'+(list.length>1?'<span class="small muted">按住左邊拖曳排序</span>':'')+'</div>';
@@ -3690,11 +3694,20 @@ function vSettings(){
     s+='</section>';
   });
   s+='<div class="list"><button class="row-btn" data-act="obtpl"><span class="row-l"><span>用範本加入習慣</span><span class="row-sub">選想改善的方面，推薦幾個常見的習慣</span></span>'+I.chev+'</button></div>';
+  s+=tbSettingsHTML();
+  if(arch)s+='<div class="list" style="margin-top:12px"><button class="row-btn" data-act="archived"><span>已封存的習慣</span><span class="side">'+arch+'</span></button></div>';
+  return s+'</div>';}
+function vSettings(){
+  var s='<div class="page">'+backBar('setback','設定');
+  var pst=db.settings;
+  s+='<section class="sec" id="profile"><h2 class="sec-t">個人化</h2><div class="prof"><button class="prof-av" data-act="avpick" aria-label="更換頭像">'+avHTML(64)+'<small>更換</small></button><div class="prof-f">'+
+    '<label class="lbl" for="uname">名字</label><input id="uname" type="text" maxlength="20" placeholder="今天頁會跟你打招呼" value="'+esc(pst.uname||'')+'" autocomplete="nickname" enterkeyhint="done"></div></div>'+
+    '<label class="lbl" for="motto" style="margin-top:12px">座右銘</label><input id="motto" type="text" maxlength="120" placeholder="例如：慢慢來，比較快" value="'+esc(pst.motto||'')+'" enterkeyhint="done">'+
+    '<button class="ghost" data-act="quotes" style="margin-top:6px">從名言金句挑一句</button></section>';
   var arch=db.habits.filter(function(h){return h.archived;}).length;
   var pOn=!!db.settings.pnl;
   var dO=dOn(),dP=!db.settings.dNoPrompt;
   var lkOn=!db.settings.lockOff;
-  s+=tbSettingsHTML();
   s+='<section class="sec"><h2 class="sec-t">外觀</h2><div class="skins">'+SKINS.map(function(k){var on=skinNow()===k[0];return '<button class="skinbtn'+(on?' on':'')+'" data-act="skin" data-v="'+k[0]+'" aria-pressed="'+on+'"><span class="skinsw">'+k[2].map(function(c){return '<i style="background:'+c+'"></i>';}).join('')+'</span>'+k[1]+'</button>';}).join('')+'</div><p class="small muted">只改顏色和樣式，紀錄不受影響。深色、淺色會跟著手機設定。</p></section>';
   s+='<section class="sec"><h2 class="sec-t">過去的紀錄</h2><div class="list">'+
     '<div class="row-btn"'+(lkOn?'':' style="border-bottom:0"')+'><span class="row-l"><span>鎖定過去的紀錄</span><span class="row-sub">避免翻舊紀錄時不小心改到，要改再按「編輯這天」</span></span>'+
@@ -3703,9 +3716,9 @@ function vSettings(){
     '<span class="useg">'+LOCK_NS.map(function(v){return '<button class="'+(lockN()===v?'on':'')+'" data-act="lockn" data-v="'+v+'" aria-pressed="'+(lockN()===v)+'">'+(v===1?'昨天':v+' 天前')+'</button>';}).join('')+'</span></div>':'')+
     '</div><p class="small muted">只鎖習慣、心情和休息卡。備註和日記本來就有自己的確認鎖定。</p></section>';
   s+='<section class="sec"><h2 class="sec-t">額外功能</h2><div class="list">'+
-    '<div class="row-btn"><span class="row-l"><span>記錄未實現損益</span><span class="row-sub">每天記一次帳面損益，統計頁看走勢</span></span>'+
+    '<div class="row-btn"><span class="row-l"><span>記錄未實現損益</span><span class="row-sub">底部多一個「投資」分頁，記損益和持股</span></span>'+
     '<button class="switch" role="switch" aria-checked="'+pOn+'" aria-label="記錄未實現損益" data-act="pnltoggle"><span class="knob"></span></button></div>'+
-    '<div class="row-btn"><span class="row-l"><span>日記</span><span class="row-sub">習慣頁多一張日記卡，統計頁多一個日記分頁</span></span>'+
+    '<div class="row-btn"><span class="row-l"><span>日記</span><span class="row-sub">習慣頁多一張日記卡，習慣統計多一個日記分頁</span></span>'+
     '<button class="switch" role="switch" aria-checked="'+dO+'" aria-label="日記" data-act="dtoggle"><span class="knob"></span></button></div>'+
     (dO?'<div class="row-btn subrow"><span class="row-l"><span>引導題</span><span class="row-sub">還沒寫的時候給一個小問題</span></span>'+
     '<button class="switch" role="switch" aria-checked="'+dP+'" aria-label="引導題" data-act="dptoggle"><span class="knob"></span></button></div>':'')+
@@ -3716,7 +3729,6 @@ function vSettings(){
     '</div><p class="small muted">關閉只是先藏起來，寫過的資料會保留，重新打開就會回來。</p></section>';
   s+='<section class="sec"><h2 class="sec-t">說明</h2><div class="list"><button class="row-btn" data-act="faq"><span>常見問題</span><span class="side">'+I.chev+'</span></button></div></section>';
   s+='<section class="sec"><h2 class="sec-t">資料</h2><div class="list">'+
-    '<button class="row-btn" data-act="archived"><span>已封存的習慣</span><span class="side">'+arch+'</span></button>'+
     '<button class="row-btn" data-act="export"><span>匯出備份</span><span class="side"><span class="small muted" style="margin-right:6px">'+bkAgeText()+'</span>'+I.down+'</span></button>'+
     '<button class="row-btn" data-act="import"><span>從備份還原</span><span class="side">'+I.up+'</span></button>'+
     '<button class="row-btn" data-act="autobk"><span class="row-l"><span>自動備份／還原</span><span class="row-sub">存在這支手機的瀏覽器裡</span></span><span class="side"><span class="small muted" style="margin-right:6px">'+autoList().length+' 份</span>'+I.chev+'</span></button>'+
@@ -4059,6 +4071,7 @@ var FAQ=[
   ['改了習慣名稱，圖示為什麼有時會跟著變、有時不會？','系統自動選的圖示，會跟著名稱更新；你手動挑過的圖示，會保留你的選擇。'],
   ['「全部完成」的慶祝，為什麼一天只出現一次？補記過去的日子為什麼沒有？','慶祝是給「今天」的。一直重複出現，或補記時跳出來，就失去意義了。']]],
  ['data','資料與更新',[
+  ['設定在哪裡？習慣要去哪裡新增、排序？','設定在每一頁右上角的頭像（有紅點代表有更新紀錄沒看，或該備份了）。新增、編輯、排序習慣，在習慣頁「好習慣」旁邊的「管理習慣」。'],
   ['我的資料存在哪裡？','只存在這支手機的這個瀏覽器裡，不會上傳到任何地方。換手機、刪掉主畫面上的 App，或清除 Safari 網站資料之前，請先到「設定 → 匯出備份」。'],
   ['備份為什麼建議設密碼？','就算備份檔不小心外流，沒有密碼也打不開。但密碼忘記就無法還原，請記好。'],
   ['為什麼更新後要把 App 關掉再開？多久更新一次？','App 要重新開啟才會抓到新版，有時要關掉重開兩次。新功能一天最多更新一次，影響使用的問題會盡快修正。每次改了什麼，可以看「設定 → 更新紀錄」。']]]
@@ -4317,16 +4330,17 @@ function render(){
   if(!fOn()&&/^(fit|flog|fpick|fcardio|fex)$/.test(ui.view))ui.view='today';
   if(ui.view==='flog'&&(!ui.fl||!exById(ui.fl.ex)))ui.view='fit';
   var main=$('#main'),v=ui.view;
-  $('#fitTab').hidden=!fOn();$('#tabs').classList.toggle('five',fOn());
-  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='report'?vReport():v==='hold'?vHold():v==='tag'?vTag():v==='bf'?vBackfill():v==='buy'?vBuy():v==='sell'?vSell():v==='div'?vDiv():v==='faq'?vFaq():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
+  if(v==='inv'&&!db.settings.pnl)ui.view=v='today';
+  $('#fitTab').hidden=!fOn();$('#invTab').hidden=!db.settings.pnl;$('#tabs').style.gridTemplateColumns='repeat('+(2+(fOn()?1:0)+(db.settings.pnl?1:0))+',minmax(0,1fr))';
+  main.innerHTML=v==='today'?vToday():v==='stats'?vStats():v==='inv'?vInv():v==='habits'?vHabits():v==='settings'?vSettings():v==='edit'?vEdit():v==='pnl'?vPnl():v==='search'?vSearch():v==='rewards'?vRewards():v==='redit'?vRewardEdit():v==='diary'?vDiary():v==='changelog'?vChangelog():v==='report'?vReport():v==='hold'?vHold():v==='tag'?vTag():v==='bf'?vBackfill():v==='buy'?vBuy():v==='sell'?vSell():v==='div'?vDiv():v==='faq'?vFaq():v==='onboard'?vOnboard():v==='fit'?vFit():v==='flog'?vFLog():v==='fpick'?vFPick():v==='fcardio'?vFCardio():v==='fex'?vFEx():vArchived();
   $('#tabs').hidden=(v==='faq'&&ui.faqBack&&ui.faqBack.view==='edit')||v==='edit'||v==='hold'||v==='pnl'||v==='redit'||v==='diary'||v==='onboard'||v==='flog'||v==='fpick'||v==='fcardio'||v==='fex';
-  var tabv=v==='archived'||v==='changelog'||v==='faq'?'settings':v==='search'||v==='report'||v==='hold'?'stats':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
+  var tabv=/^(stats|search|report|tag|habits|archived)$/.test(v)?'today':v==='hold'?'inv':v==='redit'?'rewards':/^(flog|fpick|fcardio|fex)$/.test(v)?'fit':v;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){var on=t.dataset.tab===tabv;t.classList.toggle('on',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
   phHydrate();
   if(v==='settings'&&window.indexedDB&&Object.keys(phRefs(db)).length)phSize().then(function(z){var e=$('#phuse');if(e&&z.n)e.textContent='照片 '+z.n+' 張 · 約 '+phMB(z.b)+'（存在這支手機的瀏覽器裡，匯出備份時可以一起帶走）';});
   if(v==='report')repDraw();
   if(!db.hold)db.hold=[];
-  if(db.hold.length&&(v==='today'||v==='stats'))pxLoad();
+  if(db.hold.length&&(v==='today'||v==='inv'))pxLoad();
   tabBadges();
   renderSheet();
   if(ui.celAnim){var ce=typeof ui.celAnim==='string'?main.querySelector('[data-id="'+ui.celAnim+'"] .check, [data-act=inc][data-id="'+ui.celAnim+'"]'):null;if(ce)ce.classList.add('pop');ui.celAnim=null;}
@@ -4343,7 +4357,7 @@ function saveDraft(){
   if(d.id){var h=byId(d.id);if(h){if(typeof d.slash==='boolean')h.slash=d.slash;else delete h.slash;if(isKey(d.start)&&d.start<=todayKey())h.created=d.start;h.name=name;h.kind=d.kind;h.method=d.method;h.days=d.kind==='good'&&fq==='day'?d.days.slice():allDays();h.freq=fq;h.perWeek=pwk;h.icon=d.icon||'';h.fitLink=d.kind==='good'&&d.method==='check'&&!!d.fitLink;if(d.fitKind)h.fitKind=d.fitKind;else delete h.fitKind;setSave(h,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){var s1=clampInt(d.step,1,9999,1),nu=normUnit(d.unit);changeStep(h,s1,nu);h.step=s1;h.unit=nu;setGoal(h,d.goal||1);}}}
   else{var nh={id:uid(),name:name,kind:d.kind,method:d.method,freq:fq,perWeek:pwk,days:d.kind==='good'&&fq==='day'?d.days.slice():allDays(),created:isKey(d.start)&&d.start<=todayKey()?d.start:todayKey(),archived:false,icon:d.icon||'',slash:typeof d.slash==='boolean'?d.slash:undefined,saveHist:[],fitLink:d.kind==='good'&&d.method==='check'&&!!d.fitLink,fitKind:d.fitKind||undefined};db.habits.push(nh);setSave(nh,d.save||0,d.firstSave?d.saveFrom:null);if(d.kind==='good'&&d.method==='count'){nh.step=clampInt(d.step,1,9999,1);nh.unit=normUnit(d.unit);setGoal(nh,d.goal||1,true);}}
   fitSync(todayKey());if(ui.date!==todayKey())fitSync(ui.date);
-  save();go(ui.back||'settings');render();toast('已儲存');
+  save();go(ui.back||'habits');render();toast('已儲存');
 }
 
 /* ---------- backup encryption (PBKDF2-SHA256 + AES-GCM) ---------- */
@@ -4441,7 +4455,7 @@ function act(a,b){
     case 'skin': db.settings.skin=b.dataset.v==='sprout'?undefined:b.dataset.v;if(!db.settings.skin)delete db.settings.skin;save();applySkin();break;
     case 'locktoggle': db.settings.lockOff=!db.settings.lockOff;save();toast(db.settings.lockOff?'已關閉，過去的紀錄可以直接修改':'已開啟，過去的紀錄會先鎖住');break;
     case 'lockn': n=+b.dataset.v;if(LOCK_NS.indexOf(n)>=0){db.settings.lockN=n;save();}break;
-    case 'tab': go(b.dataset.tab);if(ui.view==='today'){ui.date=t;ui.follow=true;}else if(ui.view==='fit'&&ui.follow)ui.date=t;break;
+    case 'tab': if(b.dataset.tab==='settings'&&ui.view!=='settings')ui.setBack=ui.view;go(b.dataset.tab);if(ui.view==='today'){ui.date=t;ui.follow=true;}else if(ui.view==='fit'&&ui.follow)ui.date=t;break;
     case 'day': k=addDays(ui.date,+b.dataset.n);if(k>t||k<useStart())return;ui.date=k;ui.follow=k===t;break;
     case 'phadd': phPick(b.dataset.k,b.dataset.slot);return;
     case 'phview': var pl=db.logs[b.dataset.k];if(!pl||!pl[b.dataset.slot])return;ui.sheet={type:'photo',id:pl[b.dataset.slot],k:b.dataset.k,slot:b.dataset.slot};break;
@@ -4599,7 +4613,7 @@ function act(a,b){
     case 'pvfill': if(!PREVIEW)return;if(db.habits.length&&ui.pvConfirm!=='fill'){ui.pvConfirm='fill';break;}ui.pvConfirm=null;demoBuild();save();ui.date=t;ui.follow=true;go('today');toast('已帶入 4 個月示範資料（只在預覽版）',2600);break;
     case 'pvclear': if(!PREVIEW)return;if(ui.pvConfirm!=='clear'){ui.pvConfirm='clear';break;}ui.pvConfirm=null;db=blank();save();ui.date=t;ui.follow=true;go('today');toast('預覽版資料已清空');break;
     case 'demofill': if(!DEMO_NEW)return;demoFill(120);ui.date=t;ui.follow=true;go('today');toast('已填入 4 個月假紀錄，到各分頁看看',2600);break;
-    case 'obskip': if(ui.ob&&ui.ob.add){ui.ob=null;go('settings');break;}db.settings.onboarded=true;save();ui.ob=null;go('today');break;
+    case 'obskip': if(ui.ob&&ui.ob.add){ui.ob=null;go('habits');break;}db.settings.onboarded=true;save();ui.ob=null;go('today');break;
     case 'obtpl': ui.ob=obNew();ui.ob.add=true;ui.top=true;go('onboard');break;
     case 'obarea': n=ui.ob.areas.indexOf(b.dataset.v);if(n>=0)ui.ob.areas.splice(n,1);else ui.ob.areas.push(b.dataset.v);
       if(!ui.ob.touched.diary)ui.ob.feats.diary=ui.ob.areas.indexOf('mind')>=0;if(!ui.ob.touched.fit)ui.ob.feats.fit=ui.ob.areas.indexOf('fit')>=0;
@@ -4622,9 +4636,9 @@ function act(a,b){
     case 'mood': n=+b.dataset.i;l=db.logs[ui.date]||(db.logs[ui.date]={});l.mood=l.mood===n?null:n;tidy(ui.date);save();break;
     case 'month': n=ui.month[1]+(+b.dataset.n);if(+b.dataset.n<0&&keyOf(new Date(ui.month[0],ui.month[1],1))<=useStart())return;ui.month=[ui.month[0]+(n<0?-1:n>11?1:0),(n+12)%12];break;
     case 'pickday': if(b.dataset.k<useStart())return;ui.date=b.dataset.k;ui.follow=ui.date===t;go('today');break;
-    case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「設定」修改');break;
-    case 'new': ui.back=ui.view==='edit'?'settings':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),start:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
-    case 'edit': h=byId(id);if(!h)return;ui.back='settings';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,start:h.created,slash:typeof h.slash==='boolean'?h.slash:null,fitLink:!!h.fitLink,fitKind:h.fitKind,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,unit0:h.unit||'次',freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
+    case 'examples': addExamples();toast('已加入 7 個範例習慣，可到「管理習慣」修改');break;
+    case 'new': ui.back=ui.view==='edit'?'habits':ui.view;ui.draft={id:null,name:'',kind:b.dataset.kind||'good',method:b.dataset.kind==='bad'?'count':'check',days:allDays(),icon:'flag',iconTouched:false,save:0,firstSave:true,saveFrom:todayKey(),start:todayKey(),fitLink:false,goal:1,unit:'次',step:1,freq:'day',perWeek:3};ui.pickIcon=true;ui.err='';go('edit');break;
+    case 'edit': h=byId(id);if(!h)return;ui.back=ui.view==='edit'?ui.back:ui.view==='today'?'today':'habits';ui.draft={id:h.id,name:h.name,kind:h.kind,method:h.method,days:h.days.slice(),icon:h.icon||'',iconTouched:!(h.icon&&h.icon===guessIcon(h.name)),save:amtOn(h,todayKey()),firstSave:!(h.saveHist||[]).some(function(e){return e.amt>0&&e.from<todayKey();}),saveFrom:todayKey(),created:h.created,start:h.created,slash:typeof h.slash==='boolean'?h.slash:null,fitLink:!!h.fitLink,fitKind:h.fitKind,goal:goalOn(h,todayKey()),goal0:goalOn(h,todayKey()),unit:h.unit||'次',step:h.step||1,step0:h.step||1,unit0:h.unit||'次',freq:h.freq==='week'?'week':'day',perWeek:h.perWeek||3};ui.pickIcon=false;ui.err='';go('edit');break;
     case 'kind': ui.draft.kind=b.dataset.v;ui.draft.method=b.dataset.v==='good'?'check':'count';ui.err='';break;
     case 'iconpick': ui.pickIcon=!ui.pickIcon;break;
     case 'seticon': ui.draft.icon=b.dataset.v;ui.draft.iconTouched=true;ui.pickIcon=false;break;
@@ -4635,12 +4649,15 @@ function act(a,b){
     case 'freq': ui.draft.freq=b.dataset.v==='week'?'week':'day';ui.err='';break;
     case 'slasht': ui.draft.slash=!hasSlash(ui.draft.name,ui.draft.slash);break;
     case 'pwstep': ui.draft.perWeek=Math.max(1,Math.min(6,(ui.draft.perWeek||3)+(+b.dataset.n)));break;
-    case 'cancel': go(ui.back||'settings');break;
+    case 'cancel': go(ui.back||'habits');break;
     case 'save': saveDraft();return;
-    case 'archive': h=byId(ui.draft.id);if(h){h.archived=true;save();}go('settings');toast('已封存');break;
-    case 'delete': if(!ui.confirmDel){ui.confirmDel=true;break;}removeHabit(ui.draft.id);go('settings');toast('已刪除');break;
+    case 'archive': h=byId(ui.draft.id);if(h){h.archived=true;save();}go('habits');toast('已封存');break;
+    case 'delete': if(!ui.confirmDel){ui.confirmDel=true;break;}removeHabit(ui.draft.id);go(ui.back==='today'?'today':'habits');toast('已刪除');break;
     case 'archived': go('archived');break;
-    case 'back': go('settings');break;
+    case 'back': go(ui.view==='archived'?'habits':'settings');break;
+    case 'setback': go(ui.setBack&&ui.setBack!=='settings'?ui.setBack:'today');break;
+    case 'hback': go('today');break;
+    case 'habits': go('habits');break;
     case 'changelog': clMarkSeen();go('changelog');break;
     case 'faq': if(ui.view!=='faq')ui.faqBack={view:ui.view,date:ui.date};ui.faqOpen=b.dataset.v||null;go('faq');render();if(ui.faqOpen){var fo=$('#faq-'+ui.faqOpen);if(fo)fo.scrollIntoView({block:'start'});}return;
     case 'faqback': var fb=ui.faqBack||{view:'settings'};go(fb.view);if(fb.view==='today'&&fb.date)ui.date=fb.date;break;
@@ -4648,7 +4665,7 @@ function act(a,b){
     case 'restore': h=byId(id);if(h){h.archived=false;save();}ui.confirmDel=false;toast('已恢復');break;
     case 'delarch': if(ui.confirmDel!==id){ui.confirmDel=id;break;}removeHabit(id);ui.confirmDel=false;toast('已刪除');break;
     case 'hideamt': db.settings.hideAmt=!db.settings.hideAmt;save();break;
-    case 'pnltoggle': db.settings.pnl=!db.settings.pnl;if(!db.settings.pnl)ui.statTab='habits';save();toast(db.settings.pnl?'已開啟未實現損益':'已關閉，資料仍保留');break;
+    case 'pnltoggle': db.settings.pnl=!db.settings.pnl;save();toast(db.settings.pnl?'已開啟未實現損益':'已關閉，資料仍保留');break;
     case 'pnlopen': if(b.dataset.k){ui.date=b.dataset.k;ui.follow=ui.date===t;}
       ui.peBack=ui.view;ui.pe=hasP(ui.date)?{digits:String(Math.abs(unAt(ui.date))),neg:unAt(ui.date)<0}:{digits:'',neg:false};go('pnl');break;
     case 'pkey': n=b.dataset.k;
@@ -4666,13 +4683,13 @@ function act(a,b){
     case 'hpapply': holdApply(b.dataset.v);break;
     case 'holdadd': ui.hd.push({code:'',shares:'',cost:''});break;
     case 'holddel': ui.hd.splice(+b.dataset.i,1);break;
-    case 'holdcancel': ui.err='';go('stats');break;
+    case 'holdcancel': ui.err='';go('inv');break;
     case 'divnew': ui.err='';ui.dv={d:todayKey(),cash:'',stk:'',amt:'',touched:false,paid:false};if(db.hold.length===1)divOpen(db.hold[0],todayKey());go('div');break;
     case 'divrec': var dh=db.hold.filter(function(x){return x.id===b.dataset.id;})[0];if(!dh)return;ui.err='';divOpen(dh,b.dataset.d,+b.dataset.c,+b.dataset.r);go('div');break;
     case 'divpick': var dph=db.hold.filter(function(x){return x.id===b.dataset.id;})[0];if(dph){var odd=ui.dv&&ui.dv.d,oc=ui.dv&&ui.dv.cash,os=ui.dv&&ui.dv.stk;divOpen(dph,odd);ui.dv.cash=oc||'';ui.dv.stk=os||'';divSync0();}break;
     case 'divskip': db.settings.divSkip=((db.settings.divSkip?db.settings.divSkip+',':'')+b.dataset.v).slice(-4000);save();toast('已略過這次除權息');break;
     case 'divpaid': ui.dv.paid=!ui.dv.paid;break;
-    case 'divcancel': ui.err='';ui.dv=null;go('stats');break;
+    case 'divcancel': ui.err='';ui.dv=null;go('inv');break;
     case 'divsave': divSave();return;
     case 'divdel': if(ui.confirmDel!=='div'){ui.confirmDel='div';toast('再按一次刪除');return;}ui.confirmDel=false;divDel();return;
     case 'divedit': var deo=db.divs.filter(function(x){return x.id===b.dataset.id;})[0];if(!deo)return;ui.err='';ui.dv={id:deo.id,d:deo.d,cash:r1x(deo.cash),stk:r1x(deo.ratio*10),amt:String(deo.amt),touched:true,paid:deo.paid};go('div');break;
@@ -4680,10 +4697,10 @@ function act(a,b){
     case 'pfwho': if(!ui.bf)return;if(b.dataset.v){ui.bf.who=b.dataset.v;ui.bf.newWho=false;var lr=profLastRate(b.dataset.v);if(lr!=null)ui.bf.rate=String(lr);}else{ui.bf.who='';ui.bf.newWho=true;}break;
     case 'pfsign': ui.bf.neg=b.dataset.v==='1';break;
     case 'pfsave': profSave();return;
-    case 'pfdel': if(ui.confirm!=='pfdel'){ui.confirm='pfdel';break;}db.prof=db.prof.filter(function(x){return x.id!==ui.bf.id;});save();ui.bf=null;ui.confirm=null;go('stats');ui.statTab='pnl';render();toast('已刪除分潤');return;
+    case 'pfdel': if(ui.confirm!=='pfdel'){ui.confirm='pfdel';break;}db.prof=db.prof.filter(function(x){return x.id!==ui.bf.id;});save();ui.bf=null;ui.confirm=null;go('inv');render();toast('已刪除分潤');return;
     case 'profedit': var po=db.prof.filter(function(x){return x.id===b.dataset.id;})[0];if(!po)return;ui.err='';ui.confirm=null;
       ui.bf={id:po.id,kind:'prof',mode:'one',who:po.who,newWho:false,d:po.d,rate:String(po.rate),amt:String(Math.abs(po.amt)),neg:po.amt<0,pct:po.pct!=null?String(Math.abs(po.pct)):'',mine:String(po.mine),touched:true};go('bf');break;
-    case 'bfcancel': ui.err='';ui.bf=null;go('stats');break;
+    case 'bfcancel': ui.err='';ui.bf=null;go('inv');break;
     case 'bfmode': if(ui.bf){ui.bf.mode=b.dataset.v==='one'?'one':'paste';ui.err='';}break;
     case 'bfcopy': try{navigator.clipboard.writeText(ui.bf&&ui.bf.kind==='div'?BFD_PROMPT:BF_PROMPT).then(function(){toast('提示詞已複製');},function(){var d=$('.hp-prompt');if(d)d.open=true;var ta=$('#bfprompt');if(ta){ta.focus();ta.select();}toast('請長按選取提示詞後拷貝');});}catch(e){}return;
     case 'bfkind': if(ui.bf){var nk=b.dataset.v==='div'?'div':b.dataset.v==='prof'?'prof':'sell';if(nk==='prof'&&ui.bf.kind!=='prof'){var w0=profWhos()[0]||'';ui.bf.who=w0;ui.bf.newWho=!w0;ui.bf.rate=w0?String(profLastRate(w0)):'50';ui.bf.amt='';ui.bf.pct='';ui.bf.mine='';ui.bf.touched=false;ui.bf.neg=false;}if(nk!==(ui.bf.kind||'sell')){ui.bf.kind=nk;ui.bf.rows=null;ui.bf.text='';ui.err='';}}break;
@@ -4694,7 +4711,7 @@ function act(a,b){
     case 'bfsign': ui.bf.neg=b.dataset.v==='1';break;
     case 'buynew': ui.err='';ui.confirm=null;ui.bd={d:todayKey(),isNew:!db.hold.length,code:'',shares:'',px:'',amt:'',touched:false};if(db.hold.length===1)buyOpen(db.hold[0]);go('buy');break;
     case 'buypick': if(b.dataset.id==='new'){var bd0=ui.bd;ui.bd={d:bd0.d,isNew:true,code:'',shares:'',px:'',amt:'',touched:false};}else{var bx=db.hold.filter(function(x){return x.id===b.dataset.id;})[0];if(bx)buyOpen(bx);}ui.err='';break;
-    case 'buycancel': ui.err='';ui.bd=null;ui.confirm=null;go('stats');break;
+    case 'buycancel': ui.err='';ui.bd=null;ui.confirm=null;go('inv');break;
     case 'buysave': buySave();return;
     case 'buyedit': var bo=db.buys.filter(function(x){return x.id===b.dataset.id;})[0];if(!bo)return;ui.err='';ui.confirm=null;ui.bd={id:bo.id};go('buy');break;
     case 'buydel': if(ui.confirm!=='buydel'){ui.confirm='buydel';break;}buyDel();return;
@@ -4705,7 +4722,7 @@ function act(a,b){
     case 'sellnew': ui.err='';ui.sd={d:todayKey(),shares:'',px:'',amt:'',neg:false,touched:false};if(db.hold.length===1)sellOpen(db.hold[0]);go('sell');break;
     case 'sellpick': var shx=db.hold.filter(function(x){return x.id===b.dataset.id;})[0];if(shx){var sdd=ui.sd&&ui.sd.d;sellOpen(shx);if(sdd)ui.sd.d=sdd;}break;
     case 'sellsign': ui.sd.neg=b.dataset.v==='1';ui.sd.touched=true;break;
-    case 'sellcancel': ui.err='';ui.sd=null;go('stats');break;
+    case 'sellcancel': ui.err='';ui.sd=null;go('inv');break;
     case 'sellsave': sellSave();return;
     case 'selldel': sellDel();return;
     case 'selledit': var so=db.sold.filter(function(x){return x.id===b.dataset.id;})[0];if(!so)return;ui.err='';ui.sd={id:so.id,d:so.d,shares:String(so.shares),px:String(so.px),amt:String(Math.abs(so.amt)),neg:so.amt<0,touched:true};go('sell');break;
@@ -4782,7 +4799,7 @@ function act(a,b){
     case 'confirmimport': autoSnap('restore');var iph=ui.sheet.photos;if(iph&&Object.keys(iph).length&&window.indexedDB)phRestore(iph).then(function(){render();});db=ui.sheet.data;save();ui.sheet=null;ui.date=t;ui.follow=true;go('today');toast('已還原備份');break;
     case 'copy': copyText(ui.sheet.text);return;
     case 'download': downloadText(ui.sheet.text,ui.sheet.name);return;
-    case 'profile': var msm=document.querySelector('.hello .motto');if(msm&&!ui.mottoFull&&msm.scrollHeight>msm.clientHeight+2){ui.mottoFull=true;break;}ui.mottoFull=false;go('settings');ui.top=false;render();var pf=document.getElementById('profile');if(pf)pf.scrollIntoView({block:'start'});return;
+    case 'profile': var msm=document.querySelector('.hello .motto');if(msm&&!ui.mottoFull&&msm.scrollHeight>msm.clientHeight+2){ui.mottoFull=true;break;}ui.mottoFull=false;ui.setBack=ui.view;go('settings');ui.top=false;render();var pf=document.getElementById('profile');if(pf)pf.scrollIntoView({block:'start'});return;
     case 'avpick': ui.sheet={type:'avpick'};break;
     case 'avphoto': avPick();return;
     case 'avset': var oav=db.settings.avPh;if(b.dataset.v){db.settings.avatar=b.dataset.v;}else delete db.settings.avatar;if(b.dataset.v!=='photo'&&oav){delete db.settings.avPh;phDel(oav);}save();ui.sheet=null;toast(b.dataset.v?'頭像已更新':'已拿掉頭像');break;
@@ -4964,7 +4981,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')updCheck();});
 setTimeout(updCheck,1500);
 render();
-if(autoIcons)toast('已幫 '+autoIcons+' 個習慣加上圖示，可在「設定」修改',4000);
+if(autoIcons)toast('已幫 '+autoIcons+' 個習慣加上圖示，可在「管理習慣」修改',4000);
 })();
 </script>
 
