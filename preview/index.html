@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-1OofLDsxRX0Etl7AjgorL/bC+4lWm2K5mr+jEG3M2WA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-CQVwmZ+Y1x9wB2XDnzGAilFQ5thBk3tWhrP8Qo0utyM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -501,7 +501,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .cyp.dash{background:var(--surface);border:1.5px dotted var(--c);padding:0 3px}.cysg{display:block;width:55%;border-top:1.5px solid var(--faint);margin:3px 0 1px}
 .cyft{display:flex;align-items:center;gap:12px;font-size:13px;margin:10px 0 2px;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--chip) 55%,var(--surface))}.cyft p{margin:0;min-width:0}.cyft-ic{flex:0 0 auto;width:30px;height:30px;border-radius:15px;background:var(--good);color:var(--on-good);display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:15px}.cyft-ok p{font-size:14px}.cyok{color:var(--muted);font-weight:600}.cyft b{color:var(--good)}.cyft small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.cyhelp{margin:0 0 6px;padding-left:20px;font-size:14px;line-height:1.7}.cyhelp li{margin:4px 0}
 .fab{position:fixed;z-index:5;right:calc(max(0px,(100vw - 560px)/2) + 18px);bottom:calc(78px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:28px;border:0;background:var(--good);color:var(--on-good);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}.fab svg{width:26px;height:26px}.fabpad{height:56px}body:has(#sheet:not([hidden])) .fab{display:none}
-.secplus{width:32px;height:32px;border-radius:16px;border:1.5px solid var(--good);background:var(--surface);color:var(--good);font-size:18px;font-weight:800;line-height:1;cursor:pointer}
+.secadd{display:block;width:100%;margin:8px 0 0;min-height:44px;border:1.5px dashed var(--line);border-radius:14px;background:none;color:var(--good);font-size:15px;font-weight:700;cursor:pointer}.fext{color:var(--muted);font-weight:600}
 .fttop .ftbox{margin-top:0}.fadd .row-btn{font-size:17px}
 .mdbar{display:flex;gap:3px;margin:0 0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}.mdbar button{flex:1 1 0;min-width:30px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:15px;font-family:inherit;padding:0 6px}
 .dstat{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -1302,9 +1302,10 @@ function fitLogHTML(){
   var secCnt=function(pk){return pk==='有氧'?cc.length+tdc.length:ss.filter(function(en){return exById(en.ex).part===pk;}).length+tds.filter(function(x){return exById(x.ex).part===pk;}).length;};
   var sortBtn=function(pk){return secCnt(pk)<2?'':ui.fOrd===pk?'<button class="secsort on" data-act="ford" data-v="'+pk+'">完成</button>':'<button class="secsort" data-act="ford" data-v="'+pk+'" aria-label="調整'+pk+'的順序">⇅ 排序</button>';};
   var mvBtns=function(act,id){return '<span class="tdmv"><button data-act="'+act+'" data-id="'+id+'" data-n="-1" aria-label="往上">↑</button><button data-act="'+act+'" data-id="'+id+'" data-n="1" aria-label="往下">↓</button></span>';};
-  if(td.length){var pt0=Math.max(l.pt||0,td.length);s+='<div class="fplan"><span>今天的課表</span><span><b>'+(pt0-td.length)+'</b> / '+pt0+' 完成</span></div>';}
+  if(td.length||l.pt){var pt0=Math.max(l.pt||0,td.length),pd=pt0-td.length,ext=Math.max(0,ss.length+cc.length-pd);
+    s+='<div class="fplan"><span>'+(k===t?'今天的課表':'這天的課表')+'</span><span><b>'+pd+'</b> / '+pt0+' 完成'+(ext?'<small class="fext"> · 另外加了 '+ext+' 個</small>':'')+'</span></div>';}
   partsOrder.forEach(function(pt){if(pt==='有氧'){s+=cardioSec();return;}
-    var ordP=ui.fOrd===pt;s+='<section class="sec'+(ordP?' sorting':'')+'"><div class="sec-row"><h2 class="sec-t">重訓 · '+pt+'</h2><span class="sec-acts">'+sortBtn(pt)+(ordP?'':'<button class="secplus" data-act="fpickp" data-v="'+pt+'" aria-label="再加一個'+pt+'的動作">＋</button>')+'</span></div>';
+    var ordP=ui.fOrd===pt;s+='<section class="sec'+(ordP?' sorting':'')+'"><div class="sec-row"><h2 class="sec-t">重訓 · '+pt+'</h2><span class="sec-acts">'+sortBtn(pt)+'</span></div>';
     ss.filter(function(en){return exById(en.ex).part===pt;}).forEach(function(en){
       var e=exById(en.ex),u=exU(e),m=setMetric(e,en.sets),b=bestBefore(e.id,k),pr=b!==null&&m>b,met='';
       /* only a new record gets a line; the full 1RM stays in the editor and 進步 */
@@ -1315,6 +1316,7 @@ function fitLogHTML(){
         (pr?'<span class="fmet"><span class="prb">新紀錄</span><span>'+met+'</span></span>':'')+'</span></button>'+(ordP?mvBtns('fmvs',en.id)+'</div>':'');
     });
     tds.filter(function(x){return exById(x.ex).part===pt;}).forEach(function(x){s+=ftodoCard(x,k,tdMap[x.id],ordP);});
+    if(!ordP)s+='<button class="secadd" data-act="fpickp" data-v="'+pt+'">＋ 再加一個'+pt+'的動作</button>';
     s+='</section>';
   });
   function cardioSec(){var s='',ordC=ui.fOrd==='有氧';
@@ -1322,6 +1324,7 @@ function fitLogHTML(){
     cc.forEach(function(c){var kd=cKind(c.type),pc=cPace(c,kd),sub=c.dist>0?distTxt(c.dist,kd)+(pc?' · '+pc.txt:''):'';
       s+=(ordC?'<div class="ftodo-w">':'')+'<button class="fcard center" data-act="cedit" data-id="'+c.id+'"'+(ordC?' disabled':'')+'>'+fBox(caIco(c.type))+'<span class="fbody"><b style="font-size:16px">'+esc(c.type)+'</b>'+(sub?'<span class="small muted">'+sub+'</span>':'')+'</span><span class="fmins">'+durTxt(cSecs(c))+'</span></button>'+(ordC?mvBtns('fmvc',c.id)+'</div>':'');});
     tdc.forEach(function(x){s+=ftodoCard(x,k,tdMap[x.id],ordC);});
+    if(!ordC)s+='<button class="secadd" data-act="fcnew">＋ 再加一個有氧</button>';
     s+='</section>';return s;}
   if(k<t&&!ss.length&&!cc.length&&!td.length&&!(fLog(k)||{}).min&&!stMin(k)){
     s+='<div class="empty" style="align-items:center;text-align:center"><div class="empty-t">這天沒有運動紀錄</div><p>'+(k<t?'補記一下，趨勢圖會比較完整。':'練完記下來，之後就能看到進步。')+'</p></div>';
@@ -1976,7 +1979,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.06-2';
+var APP_VER='2026.11.06-3';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
