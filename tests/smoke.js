@@ -22,6 +22,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
 
 (async () => {
   const b = await chromium.launch();
+  // 統計 is the 習慣 tab's second view and 設定 is the avatar at the top right: when a test asks for them from
+  // a page that has no such button, go through 習慣 first (what a person would do).
+  { const tp = await b.newPage(), P = Object.getPrototypeOf(tp), oc = P.click; await tp.context().close();
+    P.click = async function (sel, o) {
+      if (sel === '[data-tab=stats]' && !(await this.$('.hbar [data-tab=stats]'))) await oc.call(this, '#tabs [data-tab=today]');
+      if (sel === '[data-tab=settings]' && !(await this.$('.avbtn'))) await oc.call(this, '#tabs [data-tab=today]');
+      if (/^\[data-act=(edit|new|archived|obtpl|tmove|tfoldtog)\]/.test(sel) && !(await this.$(sel))) { await oc.call(this, '#tabs [data-tab=today]'); await oc.call(this, '[data-act=habits]'); }
+      return oc.call(this, sel, o); }; }
   const T = today();
 
   console.log('• basics: examples, habits, notes with links');
@@ -327,8 +335,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(d.habits.find(h => h.id === 'w3').freq === 'week' && d.habits.find(h => h.id === 'w3').perWeek === 3, 'freq survives reload');
   await p.click('[data-tab=stats]');
   ok(/週達成 · 本月做了 \d+ 次/.test(await p.$eval('#main', e => e.innerText)), 'stats ranking counts weekly habits in weeks');
-  await p.click('[data-tab=settings]');
-  ok((await p.$eval('#main', e => e.innerText)).includes('每週 3 次'), 'settings list shows 每週 3 次');
+  await p.click('#tabs [data-tab=today]'); await p.click('[data-act=habits]');
+  ok((await p.$eval('#main', e => e.innerText)).includes('每週 3 次'), '管理習慣 list shows 每週 3 次');
   await p.click('[data-act=new][data-kind=good]').catch(async () => { await p.click('[data-act=new]'); });
   await p.fill('#hname', '游泳'); await p.click('[data-act=freq][data-v=week]');
   ok(!(await p.$('[data-act=dayt]')) && (await p.$eval('#pwv', e => e.textContent)) === '3', 'weekly mode hides weekday picker, default 3');
@@ -452,13 +460,32 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   p = await page(b, { 'habit-tracker-v1': { v: 1, settings: {}, logs: { [daysAgo(1)]: { h: { r1: 1 } }, [daysAgo(2)]: { h: { r1: 1 } } }, redeemed: [],
     rewards: [{ id: 'rw', name: '吃大餐', type: 'streak', habit: 'r1', target: 2, repeat: true, created: daysAgo(5), earned: [], done: false }],
     habits: [{ id: 'r1', name: '伸展', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5) }] } });
-  ok((await p.$eval('.tab[data-tab=settings]', e => e.innerText.trim())) === '設定', 'tab is named 設定');
+  ok(!(await p.$('.tab[data-tab=settings]')) && (await p.$eval('.avbtn', e => e.getAttribute('aria-label'))).startsWith('設定'), '設定 is the avatar at the top right, not a tab');
+  ok((await p.$$eval('#tabs .tab', a => a.filter(e => !e.hidden).map(e => e.innerText.trim()).join(','))) === '習慣,獎勵', 'tabs: 習慣 and 獎勵 only when 運動/投資 are off');
   ok(await p.$eval('.tab[data-tab=rewards]', e => e.classList.contains('tdot')), 'reward ready: dot on 獎勵');
-  ok(await p.$eval('.tab[data-tab=settings]', e => e.classList.contains('tdot')), 'unseen changelog / backup due: dot on 設定');
+  ok(!!(await p.$('.avbtn .avdot')), 'unseen changelog / backup due: dot on the avatar');
   await p.evaluate(() => { localStorage.setItem('habit-tracker-v1-backup', JSON.stringify({ at: new Date().toISOString() })); });
   await p.click('[data-tab=settings]'); await p.click('[data-act=changelog]'); await p.click('[data-act=back]');
-  ok(!(await p.$eval('.tab[data-tab=settings]', e => e.classList.contains('tdot'))), 'dot on 設定 clears after viewing 更新紀錄 (backed up)');
+  await p.click('[data-act=setback]');
+  ok(!(await p.$('.avbtn .avdot')), 'dot on the avatar clears after viewing 更新紀錄 (backed up)');
   await done(p, 'badges');
+
+  console.log('• navigation: 習慣｜運動｜投資｜獎勵 + avatar');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, pnl: true, fit: true }, logs: {}, rewards: [], redeemed: [],
+    habits: [{ id: 'n1', name: '伸展', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5) }] } });
+  ok((await p.$$eval('#tabs .tab', a => a.filter(e => !e.hidden).map(e => e.innerText.trim()).join(','))) === '習慣,運動,投資,獎勵', 'four tabs with 運動 and 投資 on');
+  ok(!!(await p.$('.hbar [data-tab=today].on')) && !!(await p.$('.hbar .avbtn')), '習慣 page: 今天｜統計 switch and avatar');
+  await p.click('.hbar [data-tab=stats]'); ok(!!(await p.$('.hbar [data-tab=stats].on')) && !!(await p.$('#tabs [data-tab=today].on')) && !(await p.$('[data-act=stab][data-v=pnl]')), '統計 is under 習慣, without an 投資 sub-tab');
+  await p.click('#tabs [data-tab=inv]'); ok((await p.innerText('h1.h1')) === '投資' && !!(await p.$('[data-act=hideamt]')) && !!(await p.$('.avbtn')), '投資 tab with hide-amount button and avatar');
+  await p.click('#tabs [data-tab=rewards]'); await p.click('.avbtn'); ok((await p.innerText('h1.h1')) === '設定' && !(await p.$('[data-act=edit]')), 'avatar opens 設定 (habit list moved out)');
+  await p.click('[data-act=setback]'); ok(!!(await p.$('#tabs [data-tab=rewards].on')), '設定 back returns to where you were');
+  await p.click('#tabs [data-tab=today]'); await p.click('[data-act=habits]');
+  ok((await p.innerText('h1.h1')) === '管理習慣' && !!(await p.$('[data-act=edit][data-id=n1]')) && /今天頁的區塊/.test(await p.innerText('main')), '管理習慣: habit list and 今天頁的區塊');
+  await p.click('[data-act=edit][data-id=n1]'); await p.click('[data-act=cancel]'); ok((await p.innerText('h1.h1')) === '管理習慣', 'editing a habit returns to 管理習慣');
+  await p.click('[data-act=hback]'); ok(!!(await p.$('.hbar [data-tab=today].on')), '管理習慣 back returns to 今天');
+  await p.evaluate(() => { const d = JSON.parse(localStorage.getItem('habit-tracker-v1')); d.settings.pnl = false; localStorage.setItem('habit-tracker-v1', JSON.stringify(d)); });
+  await p.reload(); ok(await p.$eval('#invTab', e => e.hidden), '投資 tab hidden when 損益 is off');
+  await done(p, 'navigation');
 
   console.log('• photos in 備註 and 日記');
   {
@@ -582,7 +609,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok((await lbl()).includes('本週'), 'this week is labelled');
     for (const k of ['h', 'fit', 'mood']) await p.click('[data-act=ropt][data-v=' + k + ']');
     ok(await p.$eval('[data-act=rshare]', e => e.disabled), 'share disabled when nothing is chosen');
-    await p.click('[data-act=rback]'); ok((await p.$eval('h1.h1', e => e.textContent)) === '統計', 'back returns to 統計');
+    await p.click('[data-act=rback]'); ok(await p.$eval('.hbar [data-tab=stats]', e => e.classList.contains('on')), 'back returns to 習慣 › 統計');
     await done(p, 'report');
   }
 
@@ -686,7 +713,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok((await db(hp)).logs[T].pnl === 15000, 'locked day is not overwritten on the next open');
     await hp.click('[data-act=pauto]'); await hp.waitForSelector('.hsug.ok');
     lg = (await db(hp)).logs[T]; ok(lg.pnl === 150000 && lg.pa && !lg.pm, '改回自動 restores the computed value');
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-tab=inv]');
     const hl = await hp.$eval('#main', e => e.innerText);
     ok(hl.includes('台積電') && hl.includes('1,500 股') && !hl.includes('張') && /市值\s+1,500,000/.test(await hp.innerText('.tri:not(.pnl-tri)')) && hl.includes('今天收盤'), 'stats lists holdings in shares and market value');
     await hp.click('[data-act=holdedit]'); await hp.click('[data-act=holdadd]');
@@ -708,7 +735,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.click('[data-act=holdedit]'); await hp.click('[data-act=hpopen]'); await hp.fill('#hptext', '2454, 300, 1180'); await hp.click('[data-act=hpcheck]');
     await hp.click('[data-act=hpapply][data-v=merge]'); await hp.click('[data-act=holdsave]');
     ok((await db(hp)).hold.length === 4, 'merge keeps existing holdings and adds new ones');
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-tab=inv]');
     const pie = await hp.$eval('[data-pblk=pie]', e => e.innerText);
     ok(pie.includes('持股佔比') && pie.includes('99.1%') && pie.includes('0.9%') && pie.includes('2,019,000') && pie.includes('未列入'), 'donut shows share by market value, total, and skips holdings without price (' + pie.replace(/\n/g, ' ') + ')');
     ok((await hp.$eval('[data-pblk=hold]', e => e.innerText)).includes('佔 99.1%'), 'holding rows show their share');
@@ -731,7 +758,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.mouse.move(g.x + g.width / 2, g.y + g.height / 2); await hp.mouse.down();
     await hp.mouse.move(g.x + g.width / 2, tr.y + 10, { steps: 8 }); await hp.mouse.up();
     ok((await order()) === 'pie,trend,hold' && (await db(hp)).settings.pnlOrder === 'pie,trend,hold', 'drag moves 持股佔比 to the top and saves the order');
-    await hp.reload(); await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.reload(); await hp.click('[data-tab=inv]');
     ok((await order()) === 'pie,trend,hold', 'block order kept after reload');
     await hp.click('[data-tab=today]');
     ok((await hp.$eval('.hsug', e => e.innerText)).includes('9999'), 'card warns when a holding has no closing price');
@@ -751,7 +778,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
         hold: [{ id: 'h1', code: '2330', shares: 1500, cost: 900 }, { id: 'h2', code: '0050', shares: 2000, cost: 150 }],
         buys: [{ id: 'b1', d: T, code: '2330', shares: 500, px: 1002, amt: 501000 }, { id: 'b0', d: daysAgo(3), code: '0050', shares: 100, px: 180, amt: 18000 }] });
     await hp.goto(BASE); await hp.waitForSelector('.hsug.ok');
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-tab=inv]');
     const top = await hp.innerText('.tri:not(.pnl-tri)');
     ok(/市值\s+1,880,000/.test(top) && /未實現\s+\+230,000/.test(top), 'holdings tiles: 市值 and 未實現 at the top');
     ok(/今日漲跌\s+\S*\s*7,000/.test(top), '今日漲跌 uses (close − buy price) for shares bought today: 1000×10 + 500×(−2) − 2000');
@@ -775,7 +802,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       { v: 1, settings: { pnl: true, onboarded: true, holdSince: daysAgo(3) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], logs: {},
         hold: [{ id: 'h1', code: '2330', shares: 2000, cost: 1000 }, { id: 'h2', code: '0050', shares: 1000, cost: 150 }] });
     await hp.goto(BASE); await hp.waitForTimeout(400);
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-tab=inv]');
     await hp.click('[data-act=sellnew]'); await hp.click('[data-act=sellpick][data-id=h1]');
     ok(await hp.inputValue('#sellsh') === '2000' && await hp.inputValue('#sellpx') === '1100', 'sell: shares default to all, price to the latest close');
     ok(await hp.inputValue('#sellamt') === '200000', 'sell: realized amount prefilled from price and cost');
@@ -814,7 +841,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       { v: 1, settings: { pnl: true, onboarded: true, holdSince: daysAgo(3) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], logs: {},
         hold: [{ id: 'h1', code: '2330', shares: 2000, cost: 1000 }, { id: 'h2', code: '0050', shares: 1000, cost: 150 }] });
     await hp.goto(BASE); await hp.waitForTimeout(400);
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-tab=inv]');
     await hp.click('[data-act=buynew]'); await hp.click('[data-act=buypick][data-id=h1]');
     ok(await hp.inputValue('#buypx') === '1100', 'buy: price defaults to the latest close');
     await hp.fill('#buysh', '1000');
@@ -936,7 +963,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
           { id: 'd2', d: daysAgo(5), code: '0050', name: '元大台灣50', shares: 1000, cash: 2, amt: 2000, ratio: 0, add: 0, paid: false },
           { id: 'd3', d: daysAgo(60), code: '2454', name: '聯發科', shares: 100, cash: 20, amt: 2000, ratio: 0, add: 0, paid: true }] });
     await hp.goto(BASE); await hp.waitForTimeout(400);
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]'); await hp.waitForTimeout(800); await hp.click('[data-act=txp][data-v=all]');
+    await hp.click('[data-tab=inv]'); await hp.waitForTimeout(800); await hp.click('[data-act=txp][data-v=all]');
     let d = await db(hp), d1 = d.divs.find(x => x.id === 'd1'), d2 = d.divs.find(x => x.id === 'd2');
     ok(d1.pre === 1000 && d1.fill === daysAgo(1) && d1.fd >= 1, 'fill: target is the close before the ex-date; first close back at it is the fill day');
     ok(d2.pre === 190 && !d2.fill, 'fill: not filled yet');
@@ -961,7 +988,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       { v: 1, settings: { pnl: true, onboarded: true, holdSince: daysAgo(3) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], logs: {},
         hold: [{ id: 'h1', code: '2330', shares: 2000, cost: 1000 }], sold: [{ id: 's1', d: daysAgo(10), code: '2330', name: '台積電', shares: 500, px: 1000, amt: 3000, c: 497000 }] });
     await hp.goto(BASE); await hp.waitForTimeout(400);
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-tab=inv]');
     await hp.click('[data-act=txp][data-v=all]');
     await hp.click('[data-act=bfnew]'); ok(/補登已實現損益/.test(await hp.innerText('main')), 'backfill: page opens from 交易紀錄');
     await hp.fill('#bftext', [daysAgo(30) + ', 2330, 1000, 980, 52300', daysAgo(20) + ', 0050, , , -1,200', daysAgo(20) + ', 0050, , , −1200 ?', daysAgo(10) + ', 2330, 500, 1000, 3000', 'hello'].join('\n'));
@@ -1042,7 +1069,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       { v: 1, settings: { pnl: true, onboarded: true, holdSince: daysAgo(30) }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(9) }], logs: {},
         hold: [{ id: 'h1', code: '2330', shares: 1000, cost: 1000 }, { id: 'h2', code: '0056', shares: 2000, cost: 30 }] });
     await hp.goto(BASE); await hp.waitForTimeout(500);
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]'); await hp.waitForTimeout(300);
+    await hp.click('[data-tab=inv]'); await hp.waitForTimeout(300);
     ok((await hp.$$('.divbn')).length === 2 && /即將除權息：台積電/.test(await hp.innerText('main')), 'dividends: due ex-dates asked, upcoming listed');
     await hp.click('.divbn [data-act=divskip][data-v^="0056"]'); ok((await hp.$$('.divbn')).length === 1, 'dividends: 略過 hides it');
     await hp.click('[data-act=divrec]');
@@ -1079,7 +1106,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(L[D[4]].pnl === 9 && L[D[4]].pm, 'hand-locked day kept');
     ok(histCalls === 1, 'history downloaded once, only because days were missing');
     ok(L[T].cb === 1000000, 'cost basis stored with the auto record');
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-tab=inv]');
     ok((await hp.$eval('.pxbar', e => e.innerText)).includes('重新整理'), 'investment tab has a refresh button with the price time');
     await hp.click('[data-act=pxrefresh]'); await hp.waitForTimeout(300);
     await hp.click('[data-act=holdedit]'); await hp.fill('#hdate', D[3]); await hp.fill('[data-hi="0"][data-hf=shares]', '2000'); await hp.click('[data-act=holdsave]');
@@ -1090,7 +1117,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await hp.reload(); await hp.waitForSelector('.pnl-card .pct');
     const pc = await hp.$eval('.pnl-card', e => e.innerText);
     ok(pc.includes('+10.00%') && pc.includes('帳面變化') && pc.includes('+4.76%'), 'today card: return on cost and today % of previous market value (' + pc.replace(/\n/g, ' ') + ')');
-    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    await hp.click('[data-tab=inv]');
     const sp = await hp.$eval('.pnl-read', e => e.innerText);
     ok(sp.includes('+10.00%') && sp.includes('帳面變化') && sp.includes('+4.76%'), 'stats panel shows both percentages');
     ok((await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('週變動') && (await hp.$eval('[data-pblk=trend]', e => e.innerText)).includes('本月變動'), 'trend shows a week row above the month row');
@@ -1316,12 +1343,12 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=quotes]'); ok((await p.$$('.qopt')).length === 6, 'profile: six quotes to pick from');
     await p.click('.qopt >> nth=0'); const mt = (await db(p)).settings.motto; ok(!!mt && mt !== '慢慢來，比較快', 'profile: picking a quote sets the motto');
     await p.click('[data-tab=today]');
-    ok(/Aaron/.test(await p.innerText('.hello')) && !!(await p.$('.hello .av.ch svg')), 'profile: greeting with name and character avatar');
+    ok(/Aaron/.test(await p.innerText('.hello')) && !!(await p.$('.avbtn .av.ch svg')), 'profile: greeting with name; character avatar at the top right');
     const d = (await db(p)).settings; ok(d.uname === 'Aaron' && d.avatar === 'mel', 'profile: saved');
     await p.click('[data-tab=settings]'); await p.click('[data-act=avpick]');
     ok((await p.$$('.avopt')).length === 7 && /軟軟/.test(await p.innerText('.avgrid')) && /帕丁/.test(await p.innerText('.avgrid')), 'profile: seven avatars incl. 軟軟 and 帕丁');
     await p.click('[data-act=avset][data-v=cat]'); await p.click('[data-tab=today]');
-    ok(!!(await p.$('.hello .av.ch img.avimg')) && (await db(p)).settings.avatar === 'cat', 'profile: picture avatar shown and saved');
+    ok(!!(await p.$('.avbtn .av.ch img.avimg')) && (await db(p)).settings.avatar === 'cat', 'profile: picture avatar shown and saved');
     await p.click('[data-tab=settings]'); await p.click('[data-act=avpick]'); await p.click('[data-act=avset][data-v=mel]');
     { const png = Buffer.from((await p.evaluate(() => { const c = document.createElement('canvas'); c.width = 800; c.height = 400; const x = c.getContext('2d'); x.fillStyle = '#c33'; x.fillRect(0, 0, 400, 400); x.fillStyle = '#33c'; x.fillRect(400, 0, 400, 400); return c.toDataURL('image/png'); })).split(',')[1], 'base64');
       const pick = async (open) => { if (open) { await p.click('[data-tab=settings]'); await p.click('[data-act=avpick]'); } const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.click('[data-act=avphoto]')]); await fc.setFiles({ name: 'a.png', mimeType: 'image/png', buffer: png }); await p.waitForSelector('.avcrop'); };
