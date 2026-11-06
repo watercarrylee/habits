@@ -688,7 +688,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     lg = (await db(hp)).logs[T]; ok(lg.pnl === 150000 && lg.pa && !lg.pm, '改回自動 restores the computed value');
     await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
     const hl = await hp.$eval('#main', e => e.innerText);
-    ok(hl.includes('台積電') && hl.includes('1,500 股') && !hl.includes('張') && hl.includes('市值 NT$1,500,000') && hl.includes('今天收盤'), 'stats lists holdings in shares and market value');
+    ok(hl.includes('台積電') && hl.includes('1,500 股') && !hl.includes('張') && /市值\s+1,500,000/.test(await hp.innerText('.tri:not(.pnl-tri)')) && hl.includes('今天收盤'), 'stats lists holdings in shares and market value');
     await hp.click('[data-act=holdedit]'); await hp.click('[data-act=holdadd]');
     await hp.fill('[data-hi="1"][data-hf=code]', '0050'); await hp.fill('[data-hi="1"][data-hf=shares]', '37'); await hp.fill('[data-hi="1"][data-hf=cost]', '180.5');
     await hp.click('[data-act=holdsave]');
@@ -739,6 +739,31 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await done(hp, 'holdings');
   }
 
+  console.log('• 今日漲跌 with shares bought today');
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 1600 }, serviceWorkers: 'block' });
+    const hp = await ctx.newPage(); hp.errs = []; hp.csp = []; hp.on('pageerror', e => hp.errs.push(e.message));
+    hp.on('console', m => { if (/Content Security Policy|Refused/.test(m.text())) hp.csp.push(m.text()); });
+    await hp.route('**/prices.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: T, t: 'x', p: { '2330': [1000, 10, '台積電'], '0050': [190, -1, '元大台灣50'] } }) }));
+    await hp.route('**/prices-30.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ d: [], c: {} }) }));
+    await hp.addInitScript(s => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('habit-tracker-v1', JSON.stringify(s)); } },
+      { v: 1, logs: {}, settings: { pnl: true }, rewards: [], redeemed: [], habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(5) }],
+        hold: [{ id: 'h1', code: '2330', shares: 1500, cost: 900 }, { id: 'h2', code: '0050', shares: 2000, cost: 150 }],
+        buys: [{ id: 'b1', d: T, code: '2330', shares: 500, px: 1002, amt: 501000 }, { id: 'b0', d: daysAgo(3), code: '0050', shares: 100, px: 180, amt: 18000 }] });
+    await hp.goto(BASE); await hp.waitForSelector('.hsug.ok');
+    await hp.click('[data-tab=stats]'); await hp.click('[data-act=stab][data-v=pnl]');
+    const top = await hp.innerText('.tri:not(.pnl-tri)');
+    ok(/市值\s+1,880,000/.test(top) && /未實現\s+\+230,000/.test(top), 'holdings tiles: 市值 and 未實現 at the top');
+    ok(/今日漲跌\s+\S*\s*7,000/.test(top), '今日漲跌 uses (close − buy price) for shares bought today: 1000×10 + 500×(−2) − 2000');
+    const rows = await hp.$$eval('.hrow', a => a.map(e => e.innerText));
+    ok(/今天買 500 股 · 買進後\s*\S*\s*1,000/.test(rows.find(r => r.includes('台積電'))) && !/今天買/.test(rows.find(r => r.includes('元大'))), 'buy-day line only on the stock bought today');
+    ok(await hp.$eval('.pxbar', e => /今天收盤/.test(e.innerText) && !!(e.compareDocumentPosition(document.querySelector('.hrow')) & 4)), '今天收盤 line sits above the list');
+    await hp.click('[data-act=hideamt]');
+    const hidden = (await hp.innerText('.tri:not(.pnl-tri)')) + (await hp.innerText('.hbt'));
+    ok(!/[0-9],[0-9]{3}/.test(hidden), 'hidden amounts mask the tiles and the buy-day line');
+    await done(hp, 'holdings today-buy');
+  }
+
   console.log('• 賣出 / 已實現損益');
   {
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
@@ -762,7 +787,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(d.hold.find(h => h.id === 'h1').shares === 1000, 'sell: holding reduced');
     ok(d.logs[T] && d.logs[T].pnl === 140000, 'sell: 未實現 recalculated with the remaining shares');
     ok(/\+239,500/.test(await hp.innerText('.pnl-read')), 'sell: chart shows 總損益 = 已實現 + 未實現');
-    ok(/已實現 \+99,500/.test(await hp.innerText('.pnl-split')), 'sell: split line shows 已實現');
+    ok(/已實現\s+\+99,500/.test(await hp.innerText('.pnl-tri')), 'sell: 已實現 tile in the P&L card');
     ok(!!(await hp.$('.real-ln')) && !!(await hp.$('.pnl-lg')), 'sell: chart draws the 已實現 dashed line with a legend');
     ok(/交易紀錄/.test(await hp.innerText('main')) && (await hp.$$('.sold-row')).length === 1, 'sell: 交易紀錄 list');
     await hp.click('[data-act=sellnew]'); await hp.click('[data-act=sellpick][data-id=h2]'); await hp.click('[data-act=sellsign][data-v="1"]'); await hp.fill('#sellamt', '500');
@@ -1026,7 +1051,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     let d = await db(hp);
     ok(d.divs.length === 1 && d.divs[0].amt === 4405 && d.divs[0].add === 50 && d.divs[0].d === ex && !d.divs[0].paid, 'dividends: record saved (amount as typed, 50 shares added)');
     const h1 = d.hold.find(h => h.id === 'h1'); ok(h1.shares === 1050 && Math.abs(h1.shares * h1.cost - 1000000) < 1, 'dividends: stock dividend adds shares, total cost unchanged');
-    ok(!(await hp.$('.divbn')) && /股利/.test(await hp.innerText('.pnl-split')), 'dividends: banner gone; 已實現 shows 股利');
+    ok(!(await hp.$('.divbn')) && /其中股利/.test(await hp.innerText('.pnl-tri')), 'dividends: banner gone; 已實現 shows 股利');
     if (await hp.$('[data-act=txp][data-v=all]')) await hp.click('[data-act=txp][data-v=all]');
     await hp.click('.sold-row'); await hp.click('[data-act=divpaid]'); await hp.click('[data-act=divsave]'); ok((await db(hp)).divs[0].paid === true, 'dividends: mark 已入帳');
     await hp.click('.sold-row'); await hp.click('[data-act=divdel]'); await hp.click('[data-act=divdel]'); d = await db(hp);
