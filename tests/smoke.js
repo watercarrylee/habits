@@ -16,7 +16,7 @@ async function page(b, seed, url) {
   await p.goto(url || BASE);
   return p;
 }
-const fitAdd = async (p, kind) => { if (await p.$('.fab')) await p.click('.fab'); await p.click('[data-act=' + kind + ']'); };
+const fitAdd = async (p, kind) => { if (await p.$('.fab')) { await p.click('.fab'); await p.click('#sheet [data-act=' + kind + ']'); } else await p.click('[data-act=' + kind + ']'); };
 const db = (p, key) => p.evaluate(k => JSON.parse(localStorage.getItem(k) || 'null'), key || 'habit-tracker-v1');
 const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' + p.errs.join(' | ')); ok(!p.csp.length, name + ': no CSP violations'); await p.context().close(); };
 
@@ -919,6 +919,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('[data-act=flsave]'); await p.waitForTimeout(200); d = await db(p); lt = d.fit.logs[T];
     ok(lt.s.length === 1 && lt.s[0].ex === 'e1' && JSON.stringify(lt.s[0].sets) === '[[40,10],[40,10]]' && lt.todo.length === 1, 'copy: saving a 待做 records it with last sets and clears it');
     ok(/1<\/b> \/ 2|1 \/ 2 完成/.test(await p.innerText('.fplan')), 'copy: progress 1 / 2');
+    await p.evaluate(T => { const d = JSON.parse(localStorage.getItem('habit-tracker-v1')), l = d.fit.logs[T]; l.s.push({ id: 'xtra', ex: l.s[0].ex, sets: [[40, 5]] }); localStorage.setItem('habit-tracker-v1', JSON.stringify(d)); }, T); await p.reload(); await p.click('#tabs [data-tab=fit]');
+    ok(/1 \/ 2 完成 · 另外加了 1 個/.test(await p.innerText('.fplan')), 'progress: actions added on top of the plan are shown as 另外加了');
+    await p.evaluate(T => { const d = JSON.parse(localStorage.getItem('habit-tracker-v1')), l = d.fit.logs[T]; l.s = l.s.filter(x => x.id !== 'xtra'); localStorage.setItem('habit-tracker-v1', JSON.stringify(d)); }, T); await p.reload(); await p.click('#tabs [data-tab=fit]');
     await p.click('[data-act=ftodoc]'); await p.click('[data-act=ftododel]'); await p.waitForTimeout(200); d = await db(p); lt = d.fit.logs[T];
     ok(!lt.todo && !lt.pt && lt.s.length === 1 && !lt.c, 'copy: skipping removes the 待做');
     await p.click('[data-act=day][data-n="-1"]'); await p.click('[data-act=day][data-n="-1"]');
@@ -1266,7 +1269,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('#fitTab');
     ok(!!(await p.$('.fab')) && !(await p.$('.fbtns')), 'fit: floating ＋ replaces the bottom buttons once there are records');
     ok(!!(await p.$('.ftbar .ftsegs')) && !(await p.$('.fmin')), 'fit: running timer bar at the top with 重訓／有氧／伸展');
-    await p.click('.secplus[data-v=肩]'); ok(await p.$eval('.fchip.on[data-act=fpart]', e => e.textContent) === '肩', 'fit: section ＋ opens the picker on that part');
+    ok(!(await p.$('.secplus')) && /再加一個肩的動作/.test(await p.innerText('.secadd[data-v=肩]')), 'fit: 「＋ 再加一個肩的動作」 at the bottom of the section');
+    await p.click('.secadd[data-v=肩]'); ok(await p.$eval('.fchip.on[data-act=fpart]', e => e.textContent) === '肩', 'fit: section ＋ opens the picker on that part');
     await p.click('[data-act=fpback]'); await p.click('.fab'); ok(!!(await p.$('.fadd')), 'fit: ＋ asks 重訓 or 有氧');
     await p.click('.fadd [data-act=fcnew]'); ok(!(await p.$('#sheet .sheet')), 'fit: menu closes after choosing');
     await done(p, 'fit add');
