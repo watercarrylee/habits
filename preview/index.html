@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-m+Z3IoY3T1WyOwZ8u0DpIsZ6g4RTPwmuX3VcE72ulbs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-i41XjgbXsy7yRkZJprwl8c5/d0POiOwhT7v0ixwOiio='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -704,11 +704,11 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .tb-r{display:flex;align-items:center;gap:6px}
 .rpgcard{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px 12px;margin:0 0 12px;color:var(--fg);cursor:pointer}
 .rspr{display:inline-block;flex:0 0 auto;background-repeat:no-repeat;background-color:#FCF6F1;border-radius:10px}
-.rpgmini{flex:0 0 64px;height:66px;border-radius:14px;background:#FCF6F1;display:flex;align-items:center;justify-content:center}.rpgc-r{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.rpgmini{flex:0 0 64px;height:66px;border-radius:14px;overflow:hidden;background:#FCF6F1;display:flex;align-items:center;justify-content:center}.rpgc-r{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .rpgc-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.rpgc-t b{font-size:17px}.rpgc-t .small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rxp{display:block;height:8px;border-radius:4px;background:var(--chip);overflow:hidden;margin-top:6px}.rpgcard .rxp{margin-top:0}.rxp i{display:block;height:100%;background:linear-gradient(90deg,#C4562A,#E39A4A);border-radius:4px}
 .rcard{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px}.rh3{font-size:17px;font-weight:800}.row-sb{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.rpghero{display:flex;gap:12px;align-items:center}.rpgfig{flex:0 0 128px;height:142px;border-radius:16px;background:#FCF6F1;display:flex;align-items:center;justify-content:center}.rpgfig.big{width:150px;height:160px;margin:8px auto}
+.rpghero{display:flex;gap:12px;align-items:center}.rpgfig{flex:0 0 136px;height:141px;border-radius:16px;overflow:hidden;background:#FCF6F1;display:flex;align-items:center;justify-content:center}.rpgfig.big{width:150px;height:160px;margin:8px auto}
 .rpgh-r{flex:1;min-width:0}.rpgcls{font-size:26px;font-weight:900;line-height:1.2}.rpgttl{display:inline-block;font-size:12px;font-weight:800;background:#F3E3BE;color:#7A5410;border-radius:9px;padding:2px 8px;margin-top:4px}
 .rpgrad{display:flex;justify-content:center}.rpgli{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}.rpgli:first-of-type{border-top:0;margin-top:4px}.rpgli b{margin-left:6px;white-space:nowrap}
 .rpgseason{background:linear-gradient(135deg,#21334A,#3B4F73);color:#fff;border:0}.rpgseason .small{color:#C9D3E6}.rsbar{display:flex;gap:4px;margin:10px 0 4px}.rsbar i{flex:1;height:7px;border-radius:4px;background:rgba(255,255,255,.22)}.rsbar i.on{background:#F2C14E}.rsbar i.now{background:linear-gradient(90deg,#F2C14E 50%,rgba(255,255,255,.22) 50%)}
@@ -2413,11 +2413,11 @@ function rpgRadar(P,W){W=W||260;var M=1,cx=W/2,cy=W/2-2,R=W*0.33,s='';ATTR.forEa
   ATTR.forEach(function(a,i){var p=pt(i,R+22);s+='<text x="'+p[0]+'" y="'+(+p[1]+4)+'" text-anchor="middle" font-size="13" font-weight="800" fill="'+a[2]+'">'+a[1]+' '+fmtN(P[a[0]])+'</text>';});
   return '<svg class="rpgradar" width="'+W+'" height="'+W+'" viewBox="0 0 '+W+' '+W+'" role="img" aria-label="六項能力">'+s+'</svg>';}
 function rpgCardHTML(){var r=rpgState(),s=curSeason(),pc=Math.round((r.tot-r.lo)/Math.max(1,r.hi-r.lo)*100);
-  return '<button class="rpgcard" data-act="rpgopen"><span class="rpgmini">'+rpgFig(r.cls,52,{noGround:1})+'</span><span class="rpgc-r"><span class="rpgc-t"><b>'+CLS[r.cls]+' Lv '+r.lv+'</b><span class="small muted">'+(s?esc(s.name)+' · 第 '+seasonWeek(s)+' 週':'成長系統（測試中）')+'</span></span>'+
+  return '<button class="rpgcard" data-act="rpgopen"><span class="rpgmini">'+rpgFig(r.cls,64)+'</span><span class="rpgc-r"><span class="rpgc-t"><b>'+CLS[r.cls]+' Lv '+r.lv+'</b><span class="small muted">'+(s?esc(s.name)+' · 第 '+seasonWeek(s)+' 週':'成長系統（測試中）')+'</span></span>'+
     '<span class="rxp"><i style="width:'+pc+'%"></i></span><span class="small '+(r.canPick?'rpgpk':'muted')+'">'+(r.canPick?'可以轉職了！點這裡選職業':'再 '+fmtN(r.hi-r.tot)+' 經驗升到 Lv '+(r.lv+1))+'</span></span></button>';}
 function nextClassTxt(r){if(r.canPick)return '已經 Lv 10，可以選職業了';if(r.lv<10)return '一轉：Lv 10　還差 '+(10-r.lv)+' 級';if(r.lv<30)return '二轉：Lv 30　還差 '+(30-r.lv)+' 級';return '已完成二轉';}
 function vRpg(){var r=rpgState(),t=todayKey(),ws=weekStartKey(t),s='<div class="page">'+backBar('rpgback','我的角色'),pc=Math.round((r.tot-r.lo)/Math.max(1,r.hi-r.lo)*100),ti=rpgTitles();
-  s+='<div class="rcard rpghero"><div class="rpgfig">'+rpgFig(r.cls,112)+'</div><div class="rpgh-r"><div class="small muted">'+esc(db.settings.uname||'我')+' · Lv '+r.lv+'</div><div class="rpgcls">'+CLS[r.cls]+'</div>'+
+  s+='<div class="rcard rpghero"><div class="rpgfig">'+rpgFig(r.cls,136)+'</div><div class="rpgh-r"><div class="small muted">'+esc(db.settings.uname||'我')+' · Lv '+r.lv+'</div><div class="rpgcls">'+CLS[r.cls]+'</div>'+
     (ti.length?'<span class="rpgttl">稱號：'+esc(ti[ti.length-1])+'</span>':'')+'<div class="small muted" style="margin-top:8px">'+nextClassTxt(r)+'</div><div class="rxp"><i style="width:'+pc+'%"></i></div>'+
     '<div class="small muted" style="margin-top:6px">金幣 🪙 '+fmtN(r.gold)+'<span class="faqq" data-act="rpghelp" role="button" aria-label="說明">?</span></div></div></div>';
   s+='<section class="rcard"><div class="row-sb"><b class="rh3">生活分布</b><span class="small muted">經驗都從哪裡來</span></div><div class="rpgrad">'+rpgRadar(r.p,270)+'</div></section>';
