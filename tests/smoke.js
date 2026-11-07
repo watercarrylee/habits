@@ -487,6 +487,32 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.reload(); ok(await p.$eval('#invTab', e => e.hidden), '投資 tab hidden when 損益 is off');
   await done(p, 'navigation');
 
+  console.log('• 成長系統 (RPG, testing)');
+  { const logs = {}; for (let i = 0; i < 150; i++) logs[daysAgo(i + 1)] = { h: { r1: 1, r2: 1 } };
+    p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, rpg: true }, rewards: [], redeemed: [], logs, rpg: { seen: { lv: 5, cls: 'base' }, seasons: [] },
+      habits: [{ id: 'r1', name: '重訓', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(200), attr: ['str', 'pow'] },
+               { id: 'r2', name: '衝刺', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(200), attr: ['pow', 'str'] }] } });
+    ok(/你成為了戰士/.test(await p.innerText('#sheet')), 'rpg: reaching Lv 10 with 力量＋爆發 highest shows the 轉職 sheet → 戰士');
+    await p.click('#sheet [data-act=closesheet]');
+    ok(/戰士 Lv 11/.test(await p.innerText('.rpgcard')), 'rpg: today card shows class and level (900 exp → Lv 11)');
+    await p.click('[data-act=toggle][data-id=r1]'); await p.waitForTimeout(150);
+    ok(/力量 \+2 · 爆發 \+1/.test(await p.innerText('#toast')), 'rpg: completing a habit toasts the attribute gain');
+    await p.click('[data-act=rpgopen]'); ok((await p.innerText('h1.h1')) === '我的角色' && !!(await p.$('.rpgradar')) && /重訓/.test(await p.innerText('main')), 'rpg: 我的角色 page with radar and this week\'s growth');
+    await p.click('[data-act=seasonnew]'); await p.click('#sheet [data-act=sq][data-i="0"][data-v=r1]');
+    ok((await p.$eval('#sname', e => e.value)) === '重訓季', 'rpg: season name suggested from the main quest');
+    await p.click('[data-act=seasongo]'); await p.waitForTimeout(150);
+    ok(/重訓季/.test(await p.innerText('.rpgseason')) && /主線：重訓 每週 5 天/.test(await p.innerText('.rpgseason')), 'rpg: season card with the main quest');
+    await p.click('[data-act=rpgtree]'); ok((await p.$$('.rnode')).length === 15 && /戰士/.test(await p.innerText('.rnode.cur')), 'rpg: 職業一覽 lists 15 classes and marks the current one');
+    await p.click('[data-act=rpgtreeback]'); await p.click('[data-act=rpgback]');
+    await p.click('[data-act=edit][data-id=r2]').catch(async () => { await p.click('[data-act=habits]'); await p.click('[data-act=edit][data-id=r2]'); });
+    ok(!!(await p.$('[data-act=attrpick][data-i="0"][data-v=pow].on')), 'rpg: editor shows the habit\'s 成長屬性');
+    await p.click('[data-act=attrpick][data-i="0"][data-v=int]'); await p.click('[data-act=save]'); let d = await db(p);
+    ok(JSON.stringify(d.habits.find(h => h.id === 'r2').attr) === '["int","str"]', 'rpg: changing the main attribute is saved');
+    if (!(await p.$('.avbtn'))) await p.click('[data-act=hback]');
+    await p.click('.avbtn'); await p.click('[data-act=rpgtoggle]'); await p.click('[data-act=setback]');
+    ok(!(await p.$('.rpgcard')) && !!(await db(p)).rpg.seasons.length, 'rpg: turning it off hides the card and keeps the data');
+    await done(p, 'rpg'); }
+
   console.log('• weekly count habit: target changed mid-week applies to the whole week');
   { const ws = (() => { const d = new Date(T + 'T00:00:00'); return daysAgo((d.getDay() + 6) % 7); })();
     p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true }, rewards: [], redeemed: [], logs: { [ws]: { h: { wr: 10 } } },
