@@ -334,7 +334,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.reload(); d = await db(p);
   ok(d.habits.find(h => h.id === 'w3').freq === 'week' && d.habits.find(h => h.id === 'w3').perWeek === 3, 'freq survives reload');
   await p.click('[data-tab=stats]');
-  ok(/週達成 · 本月做了 \d+ 次/.test(await p.$eval('#main', e => e.innerText)), 'stats ranking counts weekly habits in weeks');
+  ok(/本月 \d+ \/ \d+ 週達成\n本月做了 \d+ 次 · 累計 \d+ 天/.test(await p.$eval('#main', e => e.innerText)), 'stats ranking counts weekly habits in weeks, plus 累計天數');
   await p.click('#tabs [data-tab=today]'); await p.click('[data-act=habits]');
   ok((await p.$eval('#main', e => e.innerText)).includes('每週 3 次'), '管理習慣 list shows 每週 3 次');
   await p.click('[data-act=new][data-kind=good]').catch(async () => { await p.click('[data-act=new]'); });
