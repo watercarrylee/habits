@@ -487,6 +487,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.reload(); ok(await p.$eval('#invTab', e => e.hidden), '投資 tab hidden when 損益 is off');
   await done(p, 'navigation');
 
+  console.log('• weekly count habit: target changed mid-week applies to the whole week');
+  { const ws = (() => { const d = new Date(T + 'T00:00:00'); return daysAgo((d.getDay() + 6) % 7); })();
+    p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true }, rewards: [], redeemed: [], logs: { [ws]: { h: { wr: 10 } } },
+      habits: [{ id: 'wr', name: '閱讀', kind: 'good', method: 'count', freq: 'week', perWeek: 3, days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(20), unit: '分鐘', step: 5,
+        goalHist: [{ from: '2000-01-01', n: 30 }, { from: T, n: 10 }] }] } });
+    ok(ws === T || (await p.$$('.pbar.seg i.on')).length === 1, 'a day logged earlier this week at the new target (10) counts toward 每週 3 次');
+    await done(p, 'weekly goal'); }
+
   console.log('• photos in 備註 and 日記');
   {
     p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, diary: true }, rewards: [], redeemed: [], logs: {}, habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(3) }] } });
