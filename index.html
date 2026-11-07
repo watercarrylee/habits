@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ShZW/VC0Cw0uvN0M+7rGEj2NMB3r+SY6ShVXDUfeuf8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-P9D35L9sa2Bs8co1e33z61KJ5GvUMIr55ircTwSvXIA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -773,7 +773,7 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .rk-n.first{color:var(--good)}
 .rk-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
 .rk-name{font-size:15px;font-weight:700;overflow-wrap:anywhere}
-.rk-sub{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rk-sub{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}.rk-l{display:block;line-height:1.55}.nw{white-space:nowrap}.rk-l b{display:inline-block;min-width:2.7em;font-weight:800;color:var(--fg);opacity:.7}
 .rk-v{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .rk-val{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums}
 .rk-c{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -1997,7 +1997,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.07-4';
+var APP_VER='2026.11.07-5';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -3595,7 +3595,16 @@ function rankMonth(y,m){
   var r=1;good.forEach(function(x){x.rank=x.ok?r++:null;});r=1;bad.forEach(function(x){x.rank=x.ok?r++:null;});
   return {good:good,bad:bad,ms:ms,me:me};
 }
-function amtLine(x){if(!isAmt(x.h)||!x.nd)return '';return '<span class="rk-amt">本月共 '+esc(amtTxt(x.h,x.tot))+' · 平均每天 '+esc(amtTxt(x.h,Math.round(x.tot/x.nd)))+'</span>';}
+/* 好習慣排行 sub lines: 本月 (this month, average per day for amounts) / 累計 (all days, total only where adding up means something, streak) */
+var AMT_NOSUM=/ml|cc|杯|公升|^l$|瓶|份|口|^g$|克|大卡|kcal/i,AMT_MIN=/^(分鐘|分|min|mins|分鐘數)$/i;
+function amtSum(h){var t=todayKey(),n=0;Object.keys(db.logs).forEach(function(k){if(k<=t&&k>=h.created)n+=+val(k,h.id)||0;});return n;}
+function amtCumTxt(h){var u=hUnit(h);if(AMT_NOSUM.test(u))return '';var n=amtSum(h);if(!n)return '';
+  if(AMT_MIN.test(u)){if(n<60)return n+' 分鐘';var hr=n/60;return (hr<10?(Math.round(hr*10)/10):fmtN(Math.round(hr)))+' 小時';}
+  return amtTxt(h,n);}
+function rkGoodSub(x,since){var h=x.h,a=isAmt(h)&&x.nd?' · 日均 '+esc(amtTxt(h,Math.round(x.tot/x.nd))):'',c=isAmt(h)?amtCumTxt(h):'';
+  return (since?'<span class="rk-l">'+since.replace(/ · $/,'')+'</span>':'')+
+    '<span class="rk-l"><b>本月</b>'+x.dn+' / '+x.sc+(x.wk?' 週達成 · <span class="nw">做了 '+x.cnt+' 次</span>':' 天')+(a?' · <span class="nw">'+a.slice(3)+'</span>':'')+'</span>'+
+    '<span class="rk-l"><b>累計</b>'+fmtN(hDays(h))+' 天'+(c?' · <span class="nw">'+esc(c)+'</span>':'')+(x.st?' · <span class="nw">連續 '+x.st+(x.wk?' 週':' 天')+'</span>':'')+'</span>';}
 function rankChange(x,prev,prevMe){
   if(x.h.created>prevMe)return '<span class="rk-new">新</span>';
   var p=null;prev.forEach(function(y){if(y.h.id===x.h.id)p=y.rank;});
@@ -3609,7 +3618,7 @@ function rankingHTML(y,m){
     var main=list.filter(function(x){return x.ok;}),fresh=list.filter(function(x){return !x.ok;}),out='';
     out+=main.map(function(x){
       var first=x.rank===1,sub,valTxt;
-      if(isGood){sub=(x.st?'連續 '+x.st+(x.wk?' 週 · ':' 天 · '):'')+'本月 '+x.dn+' / '+x.sc+(x.wk?' 週達成<br>本月做了 '+x.cnt+' 次 · 累計 ':' 天<br>累計 ')+fmtN(hDays(x.h))+' 天'+amtLine(x);valTxt=x.rate+'%';}
+      if(isGood){sub=rkGoodSub(x,'');valTxt=x.rate+'%';}
       else{sub=x.clean?'已 '+x.clean+' 天沒犯':'這天有犯';valTxt=x.sl+' 次';}
       return '<div class="rk"><div class="rk-top"><span class="rk-n'+(first?' first':'')+'">'+x.rank+'</span>'+ico(x.h)+
         '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
@@ -3619,7 +3628,7 @@ function rankingHTML(y,m){
     if(fresh.length){
       out+='<div class="rk-sep">天數還少（本月'+(isGood?'排定':'記錄')+'不到 7 天）</div>'+fresh.map(function(x){
         var since=x.h.created>=cur.ms?shortMD(x.h.created)+' 才開始 · ':'';
-        var sub=isGood?since+'本月 '+x.dn+' / '+x.sc+(x.wk?' 週達成<br>本月做了 '+x.cnt+' 次 · 累計 ':' 天<br>累計 ')+fmtN(hDays(x.h))+' 天'+amtLine(x):since+x.days+' 天';
+        var sub=isGood?rkGoodSub(x,since):since+x.days+' 天';
         var v=isGood?(x.sc?x.rate+'%':'—'):x.sl+' 次';
         return '<div class="rk fresh"><div class="rk-top"><span class="rk-n">·</span>'+ico(x.h)+
           '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
