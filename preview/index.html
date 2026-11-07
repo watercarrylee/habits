@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-xMG2g25RcPTKwCkdlOVitFF+Hp6mEsNq9+nF6OWkmW8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-E00AQucmRTAwr38U4TtHrWr/1c7Fgdk/2Yj5BGT6/ZQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -718,6 +718,7 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .rpglvs{text-align:center}.rpgbig{font-size:26px;font-weight:900;margin:4px 0}.rpgcc{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0}.rpgglow{background:radial-gradient(circle,#FCE7B8 0,#FCE7B800 70%);border-radius:50%}
 .rpgwhy{background:var(--chip);border-radius:14px;padding:10px 12px;text-align:left;font-size:14px;line-height:1.55;margin:10px 0 14px}
 .rpgrv{background:linear-gradient(160deg,#21334A,#41557C 60%,#6B5A8C);color:#fff;border-radius:22px;padding:18px;text-align:center;margin-bottom:14px}.rpgrv .small{color:#C9D3E6}.rvk{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;text-align:left}.rvk div{background:rgba(255,255,255,.1);border-radius:12px;padding:8px 10px}.rvk b{display:block;font-size:18px}
+.rpick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.rpick .rnode{position:relative;cursor:pointer;padding:8px 6px 10px}.rpick .rnode span{line-height:1.35;margin-top:2px}.rrec{position:absolute;top:6px;left:6px;font-style:normal;font-size:10.5px;font-weight:800;background:#F3E3BE;color:#7A5410;border-radius:8px;padding:1px 6px}.rpgpk{color:#C4562A;font-weight:800}
 .rhelp p{margin:0 0 10px;line-height:1.6}
 .hmng{min-height:32px;padding:0 12px;font-size:13px}
 .hbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px}.hbar .seg{flex:0 1 190px;margin:0}.avbtn{position:relative;flex:0 0 auto;width:44px;height:44px;border:0;background:none;padding:0;display:flex;align-items:center;justify-content:center;color:var(--fg)}.avbtn .av.none{color:var(--muted)}.avbtn .av.none svg{width:20px;height:20px}.avdot{position:absolute;top:3px;right:3px;width:10px;height:10px;border-radius:5px;background:var(--bad);box-shadow:0 0 0 2px var(--bg)}
@@ -1996,7 +1997,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.07-2';
+var APP_VER='2026.11.07-3';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2344,47 +2345,49 @@ function savedFor(h,k){
 /* ---------- 成長系統（測試中）：六屬性、等級、轉職、季節 ----------
    Everything is derived from the existing records (habits, 運動, 心情), so turning it on counts past days too
    and nothing has to be stored except what was already shown (seen) and the seasons. */
-var ATTR=[['str','力量','#B4471C'],['pow','爆發','#C98A12'],['sta','體力','#2F6B52'],['agi','敏捷','#2E8A7A'],['int','智力','#4F6FA6'],['spi','精神','#7A5BA6']];
+var ATTR=[['rest','作息','#4F6FA6'],['move','運動','#B4471C'],['food','飲食','#2E8A7A'],['learn','學習','#C98A12'],['mind','心靈','#7A5BA6'],['self','自律','#2F6B52']];
 var ATTR_N={},ATTR_C={};ATTR.forEach(function(a){ATTR_N[a[0]]=a[1];ATTR_C[a[0]]=a[2];});
 var CLS={base:'見習冒險者',war:'戰士',kni:'騎士',ran:'遊俠',rog:'盜賊',mag:'法師',mon:'僧侶',adv:'冒險家',ber:'狂戰士',pal:'聖騎士',wind:'疾風遊俠',nin:'忍者',sag:'賢者',fist:'武僧',hero:'勇者'};
 var CLS1=['war','kni','ran','rog','mag','mon','adv'],CLS2={war:'ber',kni:'pal',ran:'wind',rog:'nin',mag:'sag',mon:'fist',adv:'hero'};
-var CLS_PAIR={'pow,str':'war','sta,str':'kni','agi,sta':'ran','agi,pow':'rog','int,spi':'mag','spi,sta':'mon'},CLS_TOP={str:'war',pow:'rog',sta:'kni',agi:'ran',int:'mag',spi:'mon'};
-var CLS_WHY={war:'力量＋爆發',kni:'體力＋力量',ran:'敏捷＋體力',rog:'敏捷＋爆發',mag:'智力＋精神',mon:'精神＋體力',adv:'六項平均'};
-var ATTR_GUESS=[[/睡/,['sta','spi']],[/讀|書|閱/,['int','spi']],[/英文|日文|韓文|語|學|課|寫|程式|code/i,['int','spi']],[/冥想|日記|靜心|感恩|禱|呼吸/,['spi','int']],
-  [/伸展|拉筋|瑜伽|瑜珈|stretch/i,['agi','spi']],[/重訓|健身|深蹲|伏地|硬舉|臥推|核心|啞鈴/,['str','pow']],[/球|衝刺|HIIT|跳/i,['pow','agi']],
-  [/跑|走|步|騎|單車|游泳|有氧/,['sta','agi']],[/水/,['sta',null]],[/早起/,['spi','sta']],[/運動/,['sta','str']]];
+var CLS_DESC={war:'正面迎戰，越練越強',kni:'守住規律，穩穩前進',ran:'耐力型，走得又遠又久',rog:'靈活自律，忍得住誘惑',mag:'好奇心旺盛，持續學習',mon:'照顧內在，心平氣和',adv:'什麼都試一點，均衡發展'};
+var CAT_GUESS=[['rest',/睡|早起|起床|作息|午休/],['move',/跑|走|步|運動|重訓|健身|伸展|拉筋|瑜伽|瑜珈|騎|游|球|深蹲|伏地|核心|有氧/],['food',/水|吃|喝|飲|菜|果|早餐|蛋白|糖|零食|食|咖啡/],
+  ['learn',/讀|書|閱|學|英文|日文|韓文|課|寫|程式|單字|語/i],['mind',/冥想|日記|感恩|靜|禱|呼吸|心情|反思/]];
 function rpgOn(){return !!db.settings.rpg;}
-function guessAttr(h){if(!h||h.kind==='bad')return ['spi',null];for(var i=0;i<ATTR_GUESS.length;i++)if(ATTR_GUESS[i][0].test(h.name||''))return ATTR_GUESS[i][1].slice();return ['spi',null];}
-function hAttr(h){return h&&h.kind==='good'&&h.attr&&ATTR_N[h.attr[0]]?[h.attr[0],h.attr[1]&&ATTR_N[h.attr[1]]&&h.attr[1]!==h.attr[0]?h.attr[1]:null]:guessAttr(h);}
+function hCat(h){if(!h||h.kind==='bad')return 'self';for(var i=0;i<CAT_GUESS.length;i++)if(CAT_GUESS[i][1].test(h.name||''))return CAT_GUESS[i][0];return 'self';}
 /* runs inside normalize() at load, before the var tables above are assigned: no ATTR / CLS here */
 function isAttrK(x){return /^(str|pow|sta|agi|int|spi)$/.test(x);}
 function normAttr(a){return Array.isArray(a)&&isAttrK(a[0])?[a[0],isAttrK(a[1])&&a[1]!==a[0]?a[1]:null]:undefined;}
 function rpgZero(){var o={};ATTR.forEach(function(a){o[a[0]]=0;});return o;}
-/* points one day earns, with where they came from */
-function rpgDay(k){var P=rpgZero(),src=[],bad=0,l=db.logs[k],add=function(name,a,v){var g={n:name,p:{}};a.forEach(function(x,i){if(x&&v[i]){P[x]+=v[i];g.p[x]=v[i];}});src.push(g);};
-  db.habits.forEach(function(h){if(k<h.created)return;var a=hAttr(h);
-    if(h.kind==='good'){if(isDone(h,k))add(h.name,a,[2,1]);}
+/* experience one day earns, tagged by area of life (the 生活分布 radar); the class does not depend on it */
+function rpgDay(k){var P=rpgZero(),src=[],bad=0,l=db.logs[k],add=function(name,cat,v){if(!v)return;P[cat]+=v;src.push({n:name,c:cat,v:v});};
+  db.habits.forEach(function(h){if(k<h.created)return;
+    if(h.kind==='good'){if(isDone(h,k))add(h.name,hCat(h),3);}
     else if(l){if(val(k,h.id))bad=-999;else bad++;}});
-  if(bad)add('壞習慣都沒犯',['spi'],[1]);
-  var f=fLog(k);if(f){var ns=(f.s||[]).length,nc=Math.min(2,(f.c||[]).length),st=f.st||0;
-    if(ns)add('重訓 '+ns+' 個動作',['str','pow'],[2+Math.min(4,ns),1+Math.floor(Math.min(4,ns)/2)]);
-    if(nc)add('有氧',['sta','agi'],[2*nc,nc]);
-    if(st)add('伸展 '+st+' 分',['agi','spi'],[Math.min(4,Math.ceil(st/5)),1]);}
-  if(l&&l.mood!=null)add('記錄心情',['spi'],[1]);
+  if(bad>0)add('壞習慣都沒犯','self',1);
+  var f=fLog(k);if(f){var ns=Math.min(4,(f.s||[]).length),nc=Math.min(2,(f.c||[]).length),st=f.st||0;
+    if(ns)add('重訓','move',3+ns+Math.floor(ns/2));if(nc)add('有氧','move',3*nc);if(st)add('伸展','move',Math.min(4,Math.ceil(st/5))+1);}
+  if(l&&l.mood!=null)add('記錄心情','mind',1);
   return {p:P,src:src};}
 function rpgKeys(from,to){var t=todayKey(),o={};Object.keys(db.logs).forEach(function(k){o[k]=1;});if(db.fit&&db.fit.logs)Object.keys(db.fit.logs).forEach(function(k){o[k]=1;});
   return Object.keys(o).filter(function(k){return isKey(k)&&k<=t&&(!from||k>=from)&&(!to||k<=to);}).sort();}
 function rpgSum(from,to){var P=rpgZero();rpgKeys(from,to).forEach(function(k){var d=rpgDay(k).p;for(var x in d)P[x]+=d[x];});return P;}
 function rpgLv(tot){return 1+Math.floor(Math.sqrt(tot/9));}
-function rpgClassOf(P,lv){if(lv<10)return 'base';var ks=ATTR.map(function(a){return a[0];}).sort(function(a,b){return P[b]-P[a];}),mx=P[ks[0]],mn=P[ks[5]],c;
-  if(mn>0&&mx/mn<1.35)c='adv';else c=CLS_PAIR[[ks[0],ks[1]].sort().join(',')]||CLS_TOP[ks[0]];return lv>=30?CLS2[c]:c;}
+function rpgPick(){var c=(db.rpg||{}).cls;return CLS1.indexOf(c)>=0?c:null;}
+function rpgClassOf(lv){if(lv<10)return 'base';var c=rpgPick();if(!c)return 'base';return lv>=30?CLS2[c]:c;}
+/* a suggestion only: what the last 8 weeks of life look like */
+function rpgSuggest(){var t=todayKey(),P=rpgSum(addDays(t,-55),t),ks=ATTR.map(function(a){return a[0];}).sort(function(a,b){return P[b]-P[a];}),mx=P[ks[0]];
+  if(!mx)return 'adv';var nz=ks.filter(function(k){return P[k]>=mx*0.5;}).length;if(nz>=4)return 'adv';
+  var top=ks[0];if(top==='move'){var s2=0,c2=0;rpgKeys(addDays(t,-55),t).forEach(function(k){var f=fLog(k);if(f){s2+=(f.s||[]).length;c2+=(f.c||[]).length;}});return s2>=c2?'war':'ran';}
+  return {rest:'kni',food:'kni',learn:'mag',mind:'mon',self:'rog'}[top];}
+function rpgCanChange(){var d=rpgData();return !d.cAt||diffDays(todayKey(),d.cAt)>=56;}
 function rpgState(){if(ui._rpg)return ui._rpg;var P=rpgSum(),tot=0;for(var x in P)tot+=P[x];var lv=rpgLv(tot),gold=Math.max(0,savingsTotals().all);
-  return ui._rpg={p:P,tot:tot,lv:lv,lo:(lv-1)*(lv-1)*9,hi:lv*lv*9,cls:rpgClassOf(P,lv),gold:gold};}
+  return ui._rpg={p:P,tot:tot,lv:lv,lo:(lv-1)*(lv-1)*9,hi:lv*lv*9,cls:rpgClassOf(lv),gold:gold,canPick:lv>=10&&!rpgPick()};}
 function rpgTop2(P){return ATTR.map(function(a){return a[0];}).sort(function(a,b){return P[b]-P[a];}).slice(0,2);}
 /* ---- seasons: 8 weeks from a Monday; quests = habit + days per week; a quest week counts when met ---- */
 var SEASON_W=8;
 function normRpg(r){if(!r||typeof r!=='object')return undefined;var o={};
   if(r.seen&&typeof r.seen==='object')o.seen={lv:clampInt(r.seen.lv,1,999,1),cls:/^(base|war|kni|ran|rog|mag|mon|adv|ber|pal|wind|nin|sag|fist|hero)$/.test(r.seen.cls)?r.seen.cls:'base'};
+  if(/^(war|kni|ran|rog|mag|mon|adv)$/.test(r.cls))o.cls=r.cls;if(isKey(r.cAt))o.cAt=r.cAt;if(r.pickShown)o.pickShown=true;
   o.seasons=(Array.isArray(r.seasons)?r.seasons:[]).filter(function(s){return s&&isKey(s.start)&&Array.isArray(s.q);}).slice(-40).map(function(s){
     return {id:cid(s.id)?s.id:uid(),name:String(s.name||'這一季').slice(0,12),start:s.start,rv:!!s.rv,q:s.q.filter(function(q){return q&&cid(q.h);}).slice(0,3).map(function(q){return {h:q.h,n:clampInt(q.n,1,7,3)};})};});
   return o;}
@@ -2495,27 +2498,29 @@ function rpgRadar(P,W){W=W||260;var M=1,cx=W/2,cy=W/2-2,R=W*0.33,s='';ATTR.forEa
   return '<svg class="rpgradar" width="'+W+'" height="'+W+'" viewBox="0 0 '+W+' '+W+'" role="img" aria-label="六項能力">'+s+'</svg>';}
 function rpgCardHTML(){var r=rpgState(),s=curSeason(),pc=Math.round((r.tot-r.lo)/Math.max(1,r.hi-r.lo)*100);
   return '<button class="rpgcard" data-act="rpgopen"><span class="rpgmini">'+rpgFig(r.cls,52,{noGround:1})+'</span><span class="rpgc-r"><span class="rpgc-t"><b>'+CLS[r.cls]+' Lv '+r.lv+'</b><span class="small muted">'+(s?esc(s.name)+' · 第 '+seasonWeek(s)+' 週':'成長系統（測試中）')+'</span></span>'+
-    '<span class="rxp"><i style="width:'+pc+'%"></i></span><span class="small muted">再 '+fmtN(r.hi-r.tot)+' 經驗升到 Lv '+(r.lv+1)+'</span></span></button>';}
-function nextClassTxt(r){if(r.lv<10)return '一轉：Lv 10　還差 '+(10-r.lv)+' 級';if(r.lv<30)return '二轉：Lv 30　還差 '+(30-r.lv)+' 級';return '已完成二轉';}
+    '<span class="rxp"><i style="width:'+pc+'%"></i></span><span class="small '+(r.canPick?'rpgpk':'muted')+'">'+(r.canPick?'可以轉職了！點這裡選職業':'再 '+fmtN(r.hi-r.tot)+' 經驗升到 Lv '+(r.lv+1))+'</span></span></button>';}
+function nextClassTxt(r){if(r.canPick)return '已經 Lv 10，可以選職業了';if(r.lv<10)return '一轉：Lv 10　還差 '+(10-r.lv)+' 級';if(r.lv<30)return '二轉：Lv 30　還差 '+(30-r.lv)+' 級';return '已完成二轉';}
 function vRpg(){var r=rpgState(),t=todayKey(),ws=weekStartKey(t),s='<div class="page">'+backBar('rpgback','我的角色'),pc=Math.round((r.tot-r.lo)/Math.max(1,r.hi-r.lo)*100),ti=rpgTitles();
   s+='<div class="rcard rpghero"><div class="rpgfig">'+rpgFig(r.cls,112)+'</div><div class="rpgh-r"><div class="small muted">'+esc(db.settings.uname||'我')+' · Lv '+r.lv+'</div><div class="rpgcls">'+CLS[r.cls]+'</div>'+
     (ti.length?'<span class="rpgttl">稱號：'+esc(ti[ti.length-1])+'</span>':'')+'<div class="small muted" style="margin-top:8px">'+nextClassTxt(r)+'</div><div class="rxp"><i style="width:'+pc+'%"></i></div>'+
     '<div class="small muted" style="margin-top:6px">金幣 🪙 '+fmtN(r.gold)+'<span class="faqq" data-act="rpghelp" role="button" aria-label="說明">?</span></div></div></div>';
-  s+='<section class="rcard"><div class="row-sb"><b class="rh3">能力</b><span class="small muted">最高的兩項決定職業</span></div><div class="rpgrad">'+rpgRadar(r.p,270)+'</div></section>';
-  var wk={},order=[];rpgKeys(ws,t).forEach(function(k){rpgDay(k).src.forEach(function(g){var o=wk[g.n];if(!o){o=wk[g.n]={n:g.n,d:0,p:{}};order.push(g.n);}o.d++;for(var x in g.p)o.p[x]=(o.p[x]||0)+g.p[x];});});
-  s+='<section class="rcard"><b class="rh3">這週的成長</b>'+(order.length?order.map(function(n){var o=wk[n];return '<div class="rpgli"><span>'+esc(o.n)+(o.d>1?' · '+o.d+' 天':'')+'</span><span>'+Object.keys(o.p).map(function(x){return '<b style="color:'+ATTR_C[x]+'">'+ATTR_N[x]+' +'+o.p[x]+'</b>';}).join(' ')+'</span></div>';}).join(''):'<p class="small muted" style="margin-top:6px">這週還沒有紀錄。完成習慣、記錄運動或心情，都會加屬性。</p>')+'</section>';
+  s+='<section class="rcard"><div class="row-sb"><b class="rh3">生活分布</b><span class="small muted">經驗都從哪裡來</span></div><div class="rpgrad">'+rpgRadar(r.p,270)+'</div></section>';
+  var wk={},order=[];rpgKeys(ws,t).forEach(function(k){rpgDay(k).src.forEach(function(g){var o=wk[g.n];if(!o){o=wk[g.n]={n:g.n,d:0,p:{}};order.push(g.n);}o.d++;o.p[g.c]=(o.p[g.c]||0)+g.v;});});
+  s+='<section class="rcard"><b class="rh3">這週的成長</b>'+(order.length?order.map(function(n){var o=wk[n];return '<div class="rpgli"><span>'+esc(o.n)+(o.d>1?' · '+o.d+' 天':'')+'</span><span>'+Object.keys(o.p).map(function(x){return '<b style="color:'+ATTR_C[x]+'">'+ATTR_N[x]+' +'+o.p[x]+'</b>';}).join(' ')+'</span></div>';}).join(''):'<p class="small muted" style="margin-top:6px">這週還沒有紀錄。完成習慣、記錄運動或心情，都會加經驗。</p>')+'</section>';
   var se=curSeason();
   if(se){s+='<section class="rcard rpgseason"><div class="row-sb"><b class="rh3">'+esc(se.name)+'</b><span class="small">第 '+seasonWeek(se)+' 週 / '+SEASON_W+' · 到 '+shortMD(seasonEnd(se))+'</span></div><div class="rsbar">';
     for(var i=1;i<=SEASON_W;i++)s+='<i class="'+(i<seasonWeek(se)?'on':i===seasonWeek(se)?'now':'')+'"></i>';s+='</div>';
     se.q.forEach(function(q,i){var w=questWeeks(se,q);if(!w.h)return;s+='<div class="rpgq"><b>'+(i?'支線':'主線')+'：'+esc(w.h.name)+' 每週 '+q.n+' 天</b><span class="small">已達成 '+w.met+' / '+SEASON_W+' 週'+(w.now!=null?' · 這週 '+w.now+' / '+q.n:'')+'</span><span class="rpb"><i style="width:'+Math.round(w.met/SEASON_W*100)+'%"></i></span></div>';});
     s+='<p class="small" style="margin-top:8px;opacity:.85">主線達成 6 週以上，季末拿到稱號「'+esc(se.name)+'完成者」。</p></section>';}
   else s+='<section class="rcard"><b class="rh3">季節挑戰</b><p class="small muted" style="margin:6px 0 10px">8 週一季：選一個主線習慣，每週做到幾天；再加最多兩條支線。</p><button class="primary" data-act="seasonnew">開始一季</button></section>';
-  s+='<div class="list" style="margin-top:4px"><button class="row-btn" data-act="rpgtree"><span class="row-l"><span>職業一覽</span><span class="row-sub">看所有職業和轉職條件</span></span>'+I.right+'</button></div>';
+  var pk=rpgPick(),cc=rpgCanChange();
+  s+='<div class="list" style="margin-top:4px">'+(r.lv>=10?'<button class="row-btn" data-act="rpgpick"'+(pk&&!cc?' disabled':'')+'><span class="row-l"><span>'+(pk?'換職業':'選職業')+'</span><span class="row-sub">'+(!pk?'Lv 10 了，選一個你喜歡的職業':cc?'每 8 週可以換一次':shortMD(addDays(rpgData().cAt,56))+' 之後可以再換')+'</span></span>'+I.right+'</button>':'')+
+    '<button class="row-btn" data-act="rpgtree"><span class="row-l"><span>職業一覽</span><span class="row-sub">Lv 10 自己選職業，Lv 30 自動二轉</span></span>'+I.right+'</button></div>';
   return s+'</div>';}
 function vRpgTree(){var r=rpgState(),cur=r.cls,s='<div class="page">'+backBar('rpgtreeback','職業一覽');
   var node=function(c,sub){return '<div class="rnode'+(c===cur?' cur':'')+'">'+rpgFig(c,62)+'<b>'+CLS[c]+'</b><span>'+sub+'</span></div>';};
-  s+='<p class="small muted">見習冒險者 → Lv 10 一轉 → Lv 30 二轉。職業看你最高的兩項屬性；六項都很平均會變成冒險家。</p>';
-  s+='<div class="rlvl">起點</div><div class="rtree one">'+node('base','一開始')+'</div><div class="rlvl">一轉 · Lv 10</div><div class="rtree">'+CLS1.map(function(c){return node(c,CLS_WHY[c]);}).join('')+'</div>'+
+  s+='<p class="small muted">見習冒險者 → Lv 10 自己選一個職業 → Lv 30 自動二轉。職業跟你做哪些習慣無關，選喜歡的就好；每 8 週可以換一次。</p>';
+  s+='<div class="rlvl">起點</div><div class="rtree one">'+node('base','一開始')+'</div><div class="rlvl">一轉 · Lv 10</div><div class="rtree">'+CLS1.map(function(c){return node(c,CLS_DESC[c]);}).join('')+'</div>'+
     '<div class="rlvl">二轉 · Lv 30</div><div class="rtree">'+CLS1.map(function(c){return node(CLS2[c],'由'+CLS[c]);}).join('')+'</div>';
   return s+'</div>';}
 function seasonSheet(sh){var goods=active('good');
@@ -2529,29 +2534,30 @@ function seasonReview(se){var q0=se.q[0],w0=questWeeks(se,q0),ok=w0.met>=6,P=rpg
   var h='<div class="rpgrv"><div class="small">'+esc(db.settings.uname||'')+' · '+shortMD(se.start)+'–'+shortMD(seasonEnd(se))+'</div><div class="rpgbig">'+esc(se.name)+(ok?' 完成':' 結束')+'</div>'+
     '<div class="small">'+(w0.h?esc(w0.h.name)+'：'+SEASON_W+' 週裡有 '+w0.met+' 週達成':'')+'</div><div class="rvk">'+
     se.q.slice(1).map(function(q){var w=questWeeks(se,q);return w.h?'<div><span class="small">'+esc(w.h.name)+'</span><b>'+w.met+' / '+SEASON_W+' 週</b></div>':'';}).join('')+
-    '<div><span class="small">這季經驗</span><b>+'+fmtN(tot)+'</b></div><div><span class="small">成長最多</span><b>'+ATTR_N[top[0]]+'、'+ATTR_N[top[1]]+'</b></div></div>'+(ok?'<div class="rpgttl" style="margin-top:10px">獲得稱號：'+esc(se.name)+'完成者</div>':'')+'</div>';
-  return h+'<div class="stack"><button class="primary" data-act="seasonnew">開始下一季</button><button class="secondary" data-act="closesheet">之後再說</button></div>';}
+    '<div><span class="small">這季經驗</span><b>+'+fmtN(tot)+'</b></div><div><span class="small">經驗最多</span><b>'+ATTR_N[top[0]]+'、'+ATTR_N[top[1]]+'</b></div></div>'+(ok?'<div class="rpgttl" style="margin-top:10px">獲得稱號：'+esc(se.name)+'完成者</div>':'')+'</div>';
+  return h+'<div class="stack"><button class="primary" data-act="seasonnew">開始下一季</button>'+(rpgPick()&&rpgCanChange()?'<button class="secondary" data-act="rpgpick">換職業</button>':'')+'<button class="secondary" data-act="closesheet">之後再說</button></div>';}
 function rpgCheck(){if(!rpgOn()||ui.sheet||ui.view!=='today')return;var r=rpgState(),d=rpgData(),t=todayKey();
   var dp=rpgDay(t).p,prev=ui.rpgDay&&ui.rpgDay.k===t?ui.rpgDay.p:null;ui.rpgDay={k:t,p:dp};
-  if(prev){var g=ATTR.filter(function(a){return dp[a[0]]>prev[a[0]];}).map(function(a){return a[1]+' +'+(dp[a[0]]-prev[a[0]]);});if(g.length){var te=$('#toast'),was=te.hidden?'':te.textContent;toast((was?was+'　':'')+g.join(' · '),was?2600:1600);}}
+  if(prev){var gs=0;ATTR.forEach(function(a){gs+=Math.max(0,dp[a[0]]-prev[a[0]]);});var g=gs?['經驗 +'+gs]:[];if(g.length){var te=$('#toast'),was=te.hidden?'':te.textContent;toast((was?was+'　':'')+g.join(' · '),was?2600:1600);}}
   if(!d.seen){d.seen={lv:r.lv,cls:r.cls};save();return;}
+  if(r.canPick&&!d.pickShown){d.pickShown=true;d.seen={lv:r.lv,cls:r.cls};save();ui.sheet={type:'rpgpick',sel:rpgSuggest()};renderSheet();return;}
   if(r.cls!==d.seen.cls&&r.lv>=10){ui.sheet={type:'rpgcls',from:d.seen.cls,to:r.cls};d.seen={lv:r.lv,cls:r.cls};save();renderSheet();return;}
   if(r.lv>d.seen.lv){ui.sheet={type:'rpglv',lv:r.lv};d.seen.lv=r.lv;d.seen.cls=r.cls;save();renderSheet();return;}
   if(r.lv!==d.seen.lv||r.cls!==d.seen.cls){d.seen={lv:r.lv,cls:r.cls};save();}
   var se=(d.seasons||[]).filter(function(s){return !s.rv&&seasonEnd(s)<t;})[0];if(se){se.rv=true;save();ui.sheet={type:'seasonrv',id:se.id};renderSheet();}}
 function rpgSheet(sh){var r=rpgState();
   if(sh.type==='rpglv')return '<div class="rpglvs"><div class="small" style="font-weight:800;letter-spacing:.1em">升級</div><div class="rpgfig big">'+rpgFig(r.cls,120)+'</div><div class="rpgbig">Lv '+sh.lv+'</div>'+
-    '<p class="small muted">'+(sh.lv<10?'再 '+(10-sh.lv)+' 級就能第一次轉職。':sh.lv<30?'再 '+(30-sh.lv)+' 級就能第二次轉職。':'')+'目前最高：'+rpgTop2(r.p).map(function(x){return ATTR_N[x]+' '+fmtN(r.p[x]);}).join('、')+'</p></div><div class="stack"><button class="primary" data-act="closesheet">太好了</button><button class="secondary" data-act="rpgopen">看我的角色</button></div>';
+    '<p class="small muted">'+(sh.lv<10?'再 '+(10-sh.lv)+' 級就能選職業。':sh.lv<30?'再 '+(30-sh.lv)+' 級就能第二次轉職。':'')+'累計經驗 '+fmtN(r.tot)+'，最多來自'+ATTR_N[rpgTop2(r.p)[0]]+'。</p></div><div class="stack"><button class="primary" data-act="closesheet">太好了</button><button class="secondary" data-act="rpgopen">看我的角色</button></div>';
   if(sh.type==='rpgcls'){var t2=rpgTop2(r.p),c1=sh.to;return '<div class="rpglvs"><div class="small" style="font-weight:800;letter-spacing:.1em">'+(r.lv>=30?'第二次轉職':'轉職')+'</div><div class="rpgcc"><span style="opacity:.55">'+rpgFig(sh.from,96,{noGround:1})+'</span><span class="muted" style="font-size:24px">➜</span><span class="rpgglow">'+rpgFig(c1,120,{noGround:1})+'</span></div>'+
-    '<div class="rpgbig">你成為了'+CLS[c1]+'</div><p class="rpgwhy">'+(c1==='adv'||c1==='hero'?'你的六項屬性都很平均，所以走上了冒險家的路。':'你最高的兩項是 <b>'+ATTR_N[t2[0]]+' '+fmtN(r.p[t2[0]])+'</b> 和 <b>'+ATTR_N[t2[1]]+' '+fmtN(r.p[t2[1]])+'</b>。')+(r.lv<30?'<br>Lv 30 可以轉成<b>'+CLS[CLS2[c1]]+'</b>。':'')+'</p></div>'+
+    '<div class="rpgbig">你成為了'+CLS[c1]+'</div><p class="rpgwhy">'+(r.lv>=30?'累計 Lv 30，'+CLS[rpgPick()]+'進化成<b>'+CLS[c1]+'</b>。':(CLS_DESC[c1]||'')+'。<br>Lv 30 會自動轉成<b>'+CLS[CLS2[c1]]+'</b>。')+'</p></div>'+
     '<div class="stack"><button class="primary" data-act="closesheet">出發</button><button class="secondary" data-act="rpgtree">看職業一覽</button></div>';}
+  if(sh.type==='rpgpick'){var sg=rpgSuggest(),sel=sh.sel||sg;return '<h2>'+(rpgPick()?'換職業':'選一個職業')+'</h2><p class="small muted">選你喜歡的就好，跟你做哪些習慣無關。Lv 30 會自動二轉；之後每 8 週可以換一次。</p><div class="rpick">'+
+    CLS1.map(function(c){return '<button class="rnode'+(c===sel?' cur':'')+'" data-act="rpgsel" data-v="'+c+'" aria-pressed="'+(c===sel)+'">'+rpgFig(c,58,{noGround:1})+'<b>'+CLS[c]+'</b><span>'+CLS_DESC[c]+'</span>'+(c===sg?'<i class="rrec">依你最近的生活推薦</i>':'')+'</button>';}).join('')+
+    '</div><div class="stack" style="margin-top:12px"><button class="primary" data-act="rpgpickgo">'+(sel===rpgPick()?'維持'+CLS[sel]:'成為'+CLS[sel])+'</button><button class="secondary" data-act="closesheet">之後再選</button></div>';}
   if(sh.type==='season')return seasonSheet(sh);
   if(sh.type==='seasonrv'){var se=(rpgData().seasons||[]).filter(function(s){return s.id===sh.id;})[0];return se?seasonReview(se):'';}
-  if(sh.type==='rpghelp')return '<h2>經驗和屬性怎麼算</h2><div class="rhelp"><p>完成一個好習慣：主屬性 +2、副屬性 +1（在習慣的編輯頁可以改）。</p><p>壞習慣那天一個都沒犯（當天有記錄）：精神 +1。</p><p>重訓：力量和爆發，依動作數；有氧：體力和敏捷；伸展：敏捷和精神。記錄心情：精神 +1。</p><p>屬性只會增加，不會因為沒做而扣分。等級看六項加起來的總經驗；Lv 10 第一次轉職、Lv 30 第二次轉職，職業看最高的兩項。</p><p>金幣就是省下的錢累計。</p></div><div class="stack"><button class="primary" data-act="closesheet">知道了</button></div>';
+  if(sh.type==='rpghelp')return '<h2>經驗怎麼算</h2><div class="rhelp"><p>完成一個好習慣 +3。壞習慣那天一個都沒犯（當天有記錄）+1。重訓、有氧、伸展依量加經驗；記錄心情 +1。</p><p>經驗只會增加，不會因為沒做而扣分。生活分布只是讓你看看經驗都從哪裡來（依習慣名稱自動分類），不影響職業。</p><p>Lv 10 自己選職業，Lv 30 自動二轉；每 8 週可以換一次職業。金幣就是省下的錢累計。</p></div><div class="stack"><button class="primary" data-act="closesheet">知道了</button></div>';
   return '';}
-function attrField(d){var a=d.attr||guessAttr({kind:'good',name:d.name}),row=function(i,lbl){return '<div class="small muted" style="margin:8px 0 4px">'+lbl+'</div><div class="chips">'+(i?'<button class="chip'+(!a[1]?' on':'')+'" data-act="attrpick" data-i="1" data-v="">無</button>':'')+
-  ATTR.map(function(x){var on=a[i]===x[0];return '<button class="chip'+(on?' on':'')+'" data-act="attrpick" data-i="'+i+'" data-v="'+x[0]+'" aria-pressed="'+on+'"'+(i&&a[0]===x[0]?' disabled':'')+'>'+x[1]+'</button>';}).join('')+'</div>';};
-  return '<div class="field"><div class="lbl">成長屬性</div>'+row(0,'主屬性（+2）')+row(1,'副屬性（+1）')+'<p class="hint">'+(d.attr?'':'依名稱自動判斷，')+'完成這個習慣時加的屬性。</p></div>';}
 
 function savingsTotals(){
   var t=todayKey(),ms=t.slice(0,8)+'01',all=0,mon=0,per={},from=null;
@@ -4428,7 +4434,6 @@ function vEdit(){
       return '<button class="day'+(d.days[i]?' on':'')+'" data-act="dayt" data-i="'+i+'" aria-pressed="'+d.days[i]+'" aria-label="星期'+w+'">'+w+'</button>';
     }).join('')+'</div><p class="hint">'+(n===7?'每天都要做。':n?'每週 '+n+' 天，其他天不會中斷連續天數。':'請至少選一天。')+'</p></div>';
   }
-  if(good&&rpgOn())s+=attrField(d);
   if(good&&chk&&fOn()){
     var tg=fitTarget({name:d.name||''});
     s+='<div class="field" id="fitlinkf"'+(fitEligible(d)?'':' hidden')+'><div class="row-btn" style="padding:12px 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px"><span class="row-l"><span>用運動紀錄自動打勾'+faqLink('fit')+'</span><span class="row-sub">預設關閉</span></span>'+
@@ -4460,7 +4465,7 @@ function renderSheet(){
       '<button class="secondary" data-act="phreplace">換一張</button><button class="secondary bad-t" data-act="phremove">'+(sh.conf?'再按一次，刪除這張照片':'刪除照片')+'</button>'+
       '<button class="primary" data-act="closesheet">關閉</button></div></div>';el.hidden=false;phHydrate();return;
   }
-  if(/^(rpglv|rpgcls|season|seasonrv|rpghelp)$/.test(sh.type)){h=rpgSheet(sh);}
+  if(/^(rpglv|rpgcls|rpgpick|season|seasonrv|rpghelp)$/.test(sh.type)){h=rpgSheet(sh);}
   else if(sh.type==='cyhelp'){h=cyHelp();}
   else if(sh.type==='fitadd'){
     h='<h2>新增運動紀錄</h2><div class="list fadd">'+(fcopyDays(ui.date).length?'<button class="row-btn" data-act="fcopy"><span class="row-l"><span>複製之前的課表</span><span class="row-sub">帶入某一天的動作和有氧，先列成待做</span></span>'+I.right+'</button>':'')+'<button class="row-btn" data-act="fpick"><span class="row-l"><span>重訓</span><span class="row-sub">選動作、記組數</span></span>'+I.right+'</button>'+
@@ -4551,7 +4556,7 @@ function renderSheet(){
     h='<h2>確定要還原嗎？</h2>'+metaLine(sh.meta)+'<p>備份裡有 '+sh.data.habits.length+' 個習慣、'+Object.keys(sh.data.logs).length+' 天的紀錄。還原後會取代這支手機上目前的所有資料。</p>'+
       '<div class="stack"><button class="primary danger" data-act="confirmimport">取代目前資料</button></div>';
   }
-  h+='<button class="secondary" data-act="closesheet">取消</button>';
+  if(!/^(rpglv|rpgcls|rpgpick|season|seasonrv|rpghelp)$/.test(sh.type))h+='<button class="secondary" data-act="closesheet">取消</button>';
   el.innerHTML='<div class="sheet" role="dialog" aria-modal="true">'+h+'</div>';
   el.hidden=false;
 }
@@ -4899,17 +4904,19 @@ function act(a,b){
     case 'setback': go(ui.setBack&&ui.setBack!=='settings'?ui.setBack:'today');break;
     case 'hback': go('today');break;
     case 'rpgtoggle': db.settings.rpg=!db.settings.rpg;if(db.settings.rpg&&!db.rpg)db.rpg={seasons:[]};save();toast(db.settings.rpg?'已開啟成長系統，習慣頁上方會出現你的角色':'已關閉成長系統（資料會保留）',2600);break;
-    case 'rpgopen': ui.sheet=null;go('rpg');break;
+    case 'rpgopen': if(!ui.sheet&&rpgState().canPick){ui.sheet={type:'rpgpick',sel:rpgSuggest()};break;}ui.sheet=null;go('rpg');break;
     case 'rpgback': go('today');break;
     case 'rpgtree': ui.sheet=null;go('rpgtree');break;
     case 'rpgtreeback': go(rpgOn()?'rpg':'today');break;
     case 'rpghelp': ui.sheet={type:'rpghelp'};break;
+    case 'rpgpick': if(rpgState().lv<10||(rpgPick()&&!rpgCanChange()))break;ui.sheet={type:'rpgpick',sel:rpgPick()||rpgSuggest()};break;
+    case 'rpgsel': if(ui.sheet&&CLS1.indexOf(b.dataset.v)>=0)ui.sheet.sel=b.dataset.v;break;
+    case 'rpgpickgo': {var d1=rpgData(),c0=rpgState().cls,nc2=ui.sheet&&ui.sheet.sel;if(CLS1.indexOf(nc2)<0)break;if(nc2===rpgPick()){ui.sheet=null;break;}var had=!!rpgPick();d1.cls=nc2;if(had)d1.cAt=todayKey();ui._rpg=null;var r2=rpgState();d1.seen={lv:r2.lv,cls:r2.cls};save();ui.sheet={type:'rpgcls',from:c0,to:r2.cls};}break;
     case 'seasonnew': if(!active('good').length){toast('先新增一個好習慣，才能開始一季',2400);break;}ui.sheet={type:'season',name:'',q:[{h:null,n:5}]};break;
     case 'sq': {var sq=ui.sheet,i2=+b.dataset.i,v2=b.dataset.v;sq.name=($('#sname')||{}).value||sq.name;if(!v2){sq.q.splice(i2);}else{var hh=byId(v2);sq.q[i2]={h:v2,n:sq.q[i2]&&sq.q[i2].n||(i2?3:5)};if(!i2&&!sq.name&&hh)sq.name=hh.name.slice(0,8)+'季';}}break;
     case 'sqn': {var q2=ui.sheet.q[+b.dataset.i];ui.sheet.name=($('#sname')||{}).value||ui.sheet.name;if(q2)q2.n=Math.max(1,Math.min(7,q2.n+(+b.dataset.n)));}break;
     case 'seasongo': {var sg=ui.sheet,nm=(($('#sname')||{}).value||'').trim()||'第 '+((rpgData().seasons||[]).length+1)+' 季',qs=sg.q.filter(function(q,i){return q&&q.h&&sg.q.findIndex(function(z){return z&&z.h===q.h;})===i;});
       if(!qs.length)break;var d0=rpgData();d0.seasons=(d0.seasons||[]).filter(function(x){return seasonEnd(x)<todayKey();});d0.seasons.push({id:uid(),name:nm.slice(0,12),start:weekStartKey(todayKey()),q:qs});save();ui.sheet=null;toast('「'+nm+'」開始了，加油',2400);}break;
-    case 'attrpick': {var dd=ui.draft;dd.name=($('#hname')||{}).value||dd.name;var a2=(dd.attr||guessAttr({kind:'good',name:dd.name})).slice();if(+b.dataset.i===0){a2[0]=b.dataset.v;if(a2[1]===a2[0])a2[1]=null;}else a2[1]=b.dataset.v||null;dd.attr=a2;}break;
     case 'habits': go('habits');break;
     case 'changelog': clMarkSeen();go('changelog');break;
     case 'faq': if(ui.view!=='faq')ui.faqBack={view:ui.view,date:ui.date};ui.faqOpen=b.dataset.v||null;go('faq');render();if(ui.faqOpen){var fo=$('#faq-'+ui.faqOpen);if(fo)fo.scrollIntoView({block:'start'});}return;
