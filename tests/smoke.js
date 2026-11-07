@@ -253,7 +253,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=dec][data-id=u1]'); ok((await db(p)).logs[T].h.u1 === 500, 'minus removes 500 ml');
   await p.click('[data-act=inc][data-id=b1]'); ok((await db(p)).logs[T].h.b1 === 1, 'bad habit +1');
   await p.click('[data-act=tab][data-tab=stats]');
-  ok(/本月共 .* ml · 平均每天/.test(await p.$eval('#main', e => e.innerText)), 'stats show monthly total and daily average');
+  ok(/日均 [\d,]+ ml/.test(await p.$eval('#main', e => e.innerText)) && !/本月共/.test(await p.$eval('#main', e => e.innerText)), 'stats show the daily average (日均) for ml, no monthly total');
   await p.click('[data-act=tab][data-tab=settings]'); await p.click('[data-act=edit][data-id=u1]');
   ok(!(await p.$eval('#ghint', e => e.innerText)).includes('換算'), 'no conversion warning when step unchanged');
   await p.click('[data-act=unitchip][data-v=杯]'); await p.click('[data-act=save]'); d = await db(p); u = d.habits.find(h => h.id === 'u1');
@@ -334,7 +334,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.reload(); d = await db(p);
   ok(d.habits.find(h => h.id === 'w3').freq === 'week' && d.habits.find(h => h.id === 'w3').perWeek === 3, 'freq survives reload');
   await p.click('[data-tab=stats]');
-  ok(/本月 \d+ \/ \d+ 週達成\n本月做了 \d+ 次 · 累計 \d+ 天/.test(await p.$eval('#main', e => e.innerText)), 'stats ranking counts weekly habits in weeks, plus 累計天數');
+  ok(/本月\s*\d+ \/ \d+ 週達成 · 做了 \d+ 次\n累計\s*\d+ 天/.test(await p.$eval('#main', e => e.innerText)), 'stats ranking counts weekly habits in weeks, plus 累計天數');
   await p.click('#tabs [data-tab=today]'); await p.click('[data-act=habits]');
   ok((await p.$eval('#main', e => e.innerText)).includes('每週 3 次'), '管理習慣 list shows 每週 3 次');
   await p.click('[data-act=new][data-kind=good]').catch(async () => { await p.click('[data-act=new]'); });
@@ -486,6 +486,17 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.evaluate(() => { const d = JSON.parse(localStorage.getItem('habit-tracker-v1')); d.settings.pnl = false; localStorage.setItem('habit-tracker-v1', JSON.stringify(d)); });
   await p.reload(); ok(await p.$eval('#invTab', e => e.hidden), '投資 tab hidden when 損益 is off');
   await done(p, 'navigation');
+
+  console.log('• 好習慣排行：本月／累計');
+  { const logs = {}; for (let i = 0; i < 40; i++) logs[daysAgo(i)] = { h: { w1: 2000, r1: 30 } };
+    p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true }, rewards: [], redeemed: [], logs,
+      habits: [{ id: 'w1', name: '喝水', kind: 'good', method: 'count', unit: 'ml', step: 250, goalHist: [{ from: daysAgo(60), n: 2000 }], days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) },
+               { id: 'r1', name: '閱讀', kind: 'good', method: 'count', unit: '分鐘', step: 10, goalHist: [{ from: daysAgo(60), n: 20 }], days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(40) }] } });
+    await p.click('.hbar [data-tab=stats]'); const rk = await p.$$eval('.rk', a => a.map(e => e.innerText));
+    const w = rk.find(x => x.includes('喝水')), r = rk.find(x => x.includes('閱讀'));
+    ok(/日均 2,000 ml/.test(w) && /累計\s*40 天/.test(w) && !/ml · 連續|\d+,\d{3} ml\s*·\s*連續|本月共/.test(w.split('累計')[1]), 'ranking: 喝水 shows 日均 and no total ml');
+    ok(/日均 30 分鐘/.test(r) && /累計\s*40 天 · 20 小時 · 連續 40 天/.test(r), 'ranking: 閱讀 shows total hours and streak on the 累計 line');
+    await done(p, 'ranking lines'); }
 
   console.log('• 成長系統 (RPG, testing)');
   { const logs = {}; for (let i = 0; i < 150; i++) logs[daysAgo(i + 1)] = { h: { r1: 1, r2: 1 } };
