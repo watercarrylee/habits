@@ -492,25 +492,24 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, rpg: true }, rewards: [], redeemed: [], logs, rpg: { seen: { lv: 5, cls: 'base' }, seasons: [] },
       habits: [{ id: 'r1', name: '重訓', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(200), attr: ['str', 'pow'] },
                { id: 'r2', name: '衝刺', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(200), attr: ['pow', 'str'] }] } });
-    ok(/你成為了戰士/.test(await p.innerText('#sheet')), 'rpg: reaching Lv 10 with 力量＋爆發 highest shows the 轉職 sheet → 戰士');
+    ok(/選一個職業/.test(await p.innerText('#sheet')) && (await p.$$('#sheet .rnode')).length === 7 && !!(await p.$('#sheet .rrec')), 'rpg: reaching Lv 10 asks to pick one of 7 classes, with a suggestion');
+    await p.click('#sheet [data-act=rpgsel][data-v=mag]'); await p.click('[data-act=rpgpickgo]');
+    ok(/你成為了法師/.test(await p.innerText('#sheet')), 'rpg: any class can be chosen (法師 although the habits are 重訓)');
     await p.click('#sheet [data-act=closesheet]');
-    ok(/戰士 Lv 11/.test(await p.innerText('.rpgcard')), 'rpg: today card shows class and level (900 exp → Lv 11)');
+    ok(/法師 Lv 11/.test(await p.innerText('.rpgcard')), 'rpg: today card shows the chosen class and level (900 exp → Lv 11)');
     await p.click('[data-act=toggle][data-id=r1]'); await p.waitForTimeout(150);
-    ok(/力量 \+2 · 爆發 \+1/.test(await p.innerText('#toast')), 'rpg: completing a habit toasts the attribute gain');
-    await p.click('[data-act=rpgopen]'); ok((await p.innerText('h1.h1')) === '我的角色' && !!(await p.$('.rpgradar')) && /重訓/.test(await p.innerText('main')), 'rpg: 我的角色 page with radar and this week\'s growth');
+    ok(/經驗 \+3/.test(await p.innerText('#toast')), 'rpg: completing a habit toasts the experience');
+    await p.click('[data-act=rpgopen]'); ok((await p.innerText('h1.h1')) === '我的角色' && !!(await p.$('.rpgradar')) && /生活分布/.test(await p.innerText('main')) && /運動 \+/.test(await p.innerText('main')), 'rpg: 我的角色 with 生活分布 radar and this week\'s experience by area');
+    await p.click('[data-act=rpgpick]'); await p.click('#sheet [data-act=rpgsel][data-v=war]'); await p.click('[data-act=rpgpickgo]'); await p.click('#sheet [data-act=closesheet]');
+    ok(/戰士/.test(await p.innerText('.rpgcls')) && await p.$eval('[data-act=rpgpick]', e => e.disabled) && /之後可以再換/.test(await p.innerText('[data-act=rpgpick]')), 'rpg: 換職業 works, then waits 8 weeks');
     await p.click('[data-act=seasonnew]'); await p.click('#sheet [data-act=sq][data-i="0"][data-v=r1]');
     ok((await p.$eval('#sname', e => e.value)) === '重訓季', 'rpg: season name suggested from the main quest');
     await p.click('[data-act=seasongo]'); await p.waitForTimeout(150);
     ok(/重訓季/.test(await p.innerText('.rpgseason')) && /主線：重訓 每週 5 天/.test(await p.innerText('.rpgseason')), 'rpg: season card with the main quest');
     await p.click('[data-act=rpgtree]'); ok((await p.$$('.rnode')).length === 15 && /戰士/.test(await p.innerText('.rnode.cur')), 'rpg: 職業一覽 lists 15 classes and marks the current one');
     await p.click('[data-act=rpgtreeback]'); await p.click('[data-act=rpgback]');
-    await p.click('[data-act=edit][data-id=r2]').catch(async () => { await p.click('[data-act=habits]'); await p.click('[data-act=edit][data-id=r2]'); });
-    ok(!!(await p.$('[data-act=attrpick][data-i="0"][data-v=pow].on')), 'rpg: editor shows the habit\'s 成長屬性');
-    await p.click('[data-act=attrpick][data-i="0"][data-v=int]'); await p.click('[data-act=save]'); let d = await db(p);
-    ok(JSON.stringify(d.habits.find(h => h.id === 'r2').attr) === '["int","str"]', 'rpg: changing the main attribute is saved');
-    if (!(await p.$('.avbtn'))) await p.click('[data-act=hback]');
-    await p.click('.avbtn'); await p.click('[data-act=rpgtoggle]'); await p.click('[data-act=setback]');
-    ok(!(await p.$('.rpgcard')) && !!(await db(p)).rpg.seasons.length, 'rpg: turning it off hides the card and keeps the data');
+    await p.click('[data-act=edit][data-id=r2]'); ok(!(await p.$('[data-act=attrpick]')), 'rpg: no per-habit attribute setting any more');
+    await p.click('[data-act=cancel]');
     await done(p, 'rpg'); }
 
   console.log('• weekly count habit: target changed mid-week applies to the whole week');
