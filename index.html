@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-OxQMAdT3zEpsKpnkrjqFghvhJ0L77/FwHUxSPVPehiw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ShZW/VC0Cw0uvN0M+7rGEj2NMB3r+SY6ShVXDUfeuf8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1997,7 +1997,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.07-3';
+var APP_VER='2026.11.07-4';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -3609,7 +3609,7 @@ function rankingHTML(y,m){
     var main=list.filter(function(x){return x.ok;}),fresh=list.filter(function(x){return !x.ok;}),out='';
     out+=main.map(function(x){
       var first=x.rank===1,sub,valTxt;
-      if(isGood){sub=(x.st?'連續 '+x.st+(x.wk?' 週 · ':' 天 · '):'')+x.dn+' / '+x.sc+(x.wk?' 週達成 · 本月做了 '+x.cnt+' 次':' 天')+amtLine(x);valTxt=x.rate+'%';}
+      if(isGood){sub=(x.st?'連續 '+x.st+(x.wk?' 週 · ':' 天 · '):'')+'本月 '+x.dn+' / '+x.sc+(x.wk?' 週達成<br>本月做了 '+x.cnt+' 次 · 累計 ':' 天<br>累計 ')+fmtN(hDays(x.h))+' 天'+amtLine(x);valTxt=x.rate+'%';}
       else{sub=x.clean?'已 '+x.clean+' 天沒犯':'這天有犯';valTxt=x.sl+' 次';}
       return '<div class="rk"><div class="rk-top"><span class="rk-n'+(first?' first':'')+'">'+x.rank+'</span>'+ico(x.h)+
         '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
@@ -3619,7 +3619,7 @@ function rankingHTML(y,m){
     if(fresh.length){
       out+='<div class="rk-sep">天數還少（本月'+(isGood?'排定':'記錄')+'不到 7 天）</div>'+fresh.map(function(x){
         var since=x.h.created>=cur.ms?shortMD(x.h.created)+' 才開始 · ':'';
-        var sub=isGood?since+x.dn+' / '+x.sc+(x.wk?' 週達成 · 本月做了 '+x.cnt+' 次':' 天')+amtLine(x):since+x.days+' 天';
+        var sub=isGood?since+'本月 '+x.dn+' / '+x.sc+(x.wk?' 週達成<br>本月做了 '+x.cnt+' 次 · 累計 ':' 天<br>累計 ')+fmtN(hDays(x.h))+' 天'+amtLine(x):since+x.days+' 天';
         var v=isGood?(x.sc?x.rate+'%':'—'):x.sl+' 次';
         return '<div class="rk fresh"><div class="rk-top"><span class="rk-n">·</span>'+ico(x.h)+
           '<div class="rk-t"><span class="rk-name">'+esc(x.h.name)+'</span><span class="rk-sub">'+sub+'</span></div>'+
