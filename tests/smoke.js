@@ -510,6 +510,22 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok((await db(p)).settings.coachChar === 'egg', 'coach: character saved');
   await done(p, 'coach voice');
 
+  console.log('• 待做一鍵完成 + 用詞');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, rewards: [], redeemed: [], logs: {},
+    habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) }],
+    fit: { ex: [{ id: 'eC', name: '臥推', eq: '槓鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'eN', name: '新動作', eq: '啞鈴', part: '胸', mode: 'wr', unit: 'kg' }],
+      logs: { [daysAgo(3)]: { s: [{ id: 's1', ex: 'eC', sets: [[40, 8], [40, 8]] }] }, [T]: { todo: [{ id: 't1', ex: 'eC' }, { id: 't2', ex: 'eN' }], pt: 2 } } } } });
+  await p.click('#tabs [data-tab=fit]');
+  ok((await p.$$('.tdck')).length === 1, 'todo: ✓ only on exercises that have a last time');
+  await p.click('.tdck'); let fd = (await db(p)).fit.logs[T];
+  ok(fd.s && fd.s.length === 1 && JSON.stringify(fd.s[0].sets) === '[[40,8],[40,8]]' && fd.todo.length === 1, 'todo: ✓ completes with last time\'s sets');
+  ok(/已完成 臥推/.test(await p.innerText('#toast')) && /1<\/b> \/ 2|1 \/ 2 完成/.test(await p.innerText('.fplan')), 'todo: toast + progress');
+  await p.click('#toast [data-act=ftquickundo]'); fd = (await db(p)).fit.logs[T];
+  ok(!fd.s && fd.todo.length === 2, 'todo: 復原 puts it back');
+  await p.click('.ftodo[data-id=t2]'); ok((await p.innerText('[data-act=flsave]')) === '完成', 'flog: new entry button says 完成');
+  await p.click('[data-act=flcancel]'); await p.click('[data-act=cyhelp]').catch(() => {});
+  await done(p, 'todo quick');
+
   console.log('• 失蹤協尋燈號 (green / red)');
   { const mk = (d1, d2) => ({ 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true, coach: 'missing' }, rewards: [], redeemed: [], logs: {},
       habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) }],
