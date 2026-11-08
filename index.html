@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Qoh5ZuJi0Rh97FGMLriVdvqqDknrNr7VbNGs/6RxEzQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-R82pKuNL/UAUKdmUVrTgXl9Bbna/S1O6RzcbZiDI95w='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -317,7 +317,11 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .fmins{flex:0 0 auto;font-size:15px;font-variant-numeric:tabular-nums}
 .prb{height:22px;padding:0 8px;border-radius:11px;background:var(--good);color:var(--on-good);font-weight:700;display:inline-flex;align-items:center;font-size:12px}
 .fbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fbtn-copy{grid-column:1/-1}.fusecopy{width:100%;margin:6px 0 10px}
-.cypt{border:0;background:none;padding:0;font:inherit;font-weight:800;color:var(--good);border-bottom:2px dotted var(--good);cursor:pointer}.cyok+.cypt,.cypt{margin:0 1px}.ftodo-w{position:relative}.ftodo.hasck{padding-right:58px}.tdck{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;border:2px solid var(--good);background:var(--surface);color:var(--good);font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}.tdck:active{background:var(--good);color:#fff}.tdno{flex:0 0 auto;width:26px;height:26px;border-radius:13px;border:1.8px solid var(--good);color:var(--good);font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;align-self:center}.tdkind{font-size:11px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px}.fcard.ftodo:disabled{opacity:1;color:inherit}.tdmv{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px}.tdmv button{width:36px;height:30px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--good);font-weight:900;font-size:15px}.fordbtn{margin-left:8px;font-size:12.5px;font-weight:800;color:var(--good);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:4px 9px}.fplan.ord{background:var(--good);color:var(--on-good);border-color:var(--good)}.fordok{font-size:13px;font-weight:800;background:var(--surface);color:var(--good);border:0;border-radius:9px;padding:4px 12px}.ftodo-w .fcard{padding-right:84px}.sec-acts{display:flex;gap:8px;align-items:center}.secsort{font-size:12.5px;font-weight:800;color:var(--good);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:6px 10px}.secsort.on{background:var(--good);color:var(--on-good);border-color:var(--good)}.sec.sorting .ftodo-w .fcard{padding-right:60px}.ftodo-w .fcard:disabled{opacity:1;color:inherit}
+.cypt{border:0;background:none;padding:0;font:inherit;font-weight:800;color:var(--good);border-bottom:2px dotted var(--good);cursor:pointer}.cyok+.cypt,.cypt{margin:0 1px}.ftodo-w{position:relative}.ftodo-w.swp{touch-action:pan-y;border-radius:18px;overflow:hidden}.ftodo-w.swp>.fcard{transition:transform .16s ease;position:relative;z-index:1}.ftodo-w.drag>.fcard{transition:none}
+.tdbg{position:absolute;inset:0;border-radius:18px;background:#C0392B;color:#fff;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:flex-end;padding-right:20px;opacity:0;transition:opacity .1s}.ftodo-w.drag .tdbg,.ftodo-w.arm .tdbg{opacity:1}.ftodo-w.arm .tdbg{background:#E0201B}
+.ftodo-w .tdck{z-index:2}.tdx{position:absolute;left:6px;top:6px;width:26px;height:26px;border-radius:13px;border:0;background:none;color:var(--muted);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.75}.tdx:active{background:var(--chip)}
+.secadd2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 0}.secadd2 .secadd{margin:0}.secadd.plan{border-style:dashed}.secadd2 .secadd:not(.plan){border-style:solid}
+.fpall{display:block;width:100%;margin:12px 0 4px;border:0;border-top:1px solid var(--line);background:none;padding:12px 0 4px;font:inherit;font-weight:800;color:var(--good);cursor:pointer}.fpeq{margin:6px 0 8px}.ftodo.hasck{padding-right:58px}.tdck{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;border:2px solid var(--good);background:var(--surface);color:var(--good);font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}.tdck:active{background:var(--good);color:#fff}.tdno{flex:0 0 auto;width:26px;height:26px;border-radius:13px;border:1.8px solid var(--good);color:var(--good);font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;align-self:center}.tdkind{font-size:11px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px}.fcard.ftodo:disabled{opacity:1;color:inherit}.tdmv{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px}.tdmv button{width:36px;height:30px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--good);font-weight:900;font-size:15px}.fordbtn{margin-left:8px;font-size:12.5px;font-weight:800;color:var(--good);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:4px 9px}.fplan.ord{background:var(--good);color:var(--on-good);border-color:var(--good)}.fordok{font-size:13px;font-weight:800;background:var(--surface);color:var(--good);border:0;border-radius:9px;padding:4px 12px}.ftodo-w .fcard{padding-right:84px}.sec-acts{display:flex;gap:8px;align-items:center}.secsort{font-size:12.5px;font-weight:800;color:var(--good);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:6px 10px}.secsort.on{background:var(--good);color:var(--on-good);border-color:var(--good)}.sec.sorting .ftodo-w .fcard{padding-right:60px}.ftodo-w .fcard:disabled{opacity:1;color:inherit}
 .fswap{position:absolute;right:12px;bottom:12px;font-size:12.5px;font-weight:800;color:var(--good);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:5px 9px}.fgrp{font-size:13px;font-weight:800;color:var(--muted);margin:12px 2px 6px}
 .fcard.ftodo{background:color-mix(in srgb,var(--surface) 55%,var(--bg));border:1.8px dashed var(--faint)}.fcard.ftodo .fico{opacity:.55}.todopill{flex:0 0 auto;font-size:11px;font-weight:800;color:#8A6A1E;background:color-mix(in srgb,#C8962C 16%,var(--surface));border-radius:7px;padding:2px 7px;margin-left:auto}.fplan{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:9px 14px;margin:10px 0 0;font-size:14px}.fplan b{color:var(--good)}.fcopy-it{gap:12px;justify-content:flex-start}.fcopy-it.off{opacity:.5}.fcopy-it .bf-ck{margin-right:2px}.fcopy-it.off .bf-ck{background:var(--surface);border:2px solid var(--line)}.fcopy-days .cyp{margin-right:2px}
 .fmin .row-l,.frow .row-l{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -1433,7 +1437,7 @@ function fitLogHTML(){
         (pr?'<span class="fmet"><span class="prb">新紀錄</span><span>'+met+'</span></span>':'')+'</span></button>'+(ordP?mvBtns('fmvs',en.id)+'</div>':'');
     });
     tds.filter(function(x){return exById(x.ex).part===pt;}).forEach(function(x){s+=ftodoCard(x,k,tdMap[x.id],ordP);});
-    if(!ordP)s+='<button class="secadd" data-act="fpickp" data-v="'+pt+'">＋ 再加一個'+pt+'的動作</button>';
+    if(!ordP)s+='<div class="secadd2"><button class="secadd plan" data-act="fpartadd" data-v="'+pt+'">＋ 加到計劃</button><button class="secadd" data-act="fpickp" data-v="'+pt+'">＋ 直接記錄</button></div>';
     s+='</section>';
   });
   function cardioSec(){var s='',ordC=ui.fOrd==='有氧';
@@ -1731,7 +1735,7 @@ function fPartList(p){var t=todayKey(),u=fUse(),busy=fTodayEx(t),ex=db.fit.ex.fi
     fresh=ex.filter(function(e){return !ui0[e.id]&&!u[e.id];}),rot=parseKey(t).getDate();
   fresh.sort(function(a,b){return (subs[a.sub]?1:0)-(subs[b.sub]?1:0);});if(fresh.length>1){var r=rot%fresh.length;fresh=fresh.slice(r).concat(fresh.slice(0,r));fresh.sort(function(a,b){return (subs[a.sub]?1:0)-(subs[b.sub]?1:0);});}
   var nTry=usual.length<2?3:2,tries=stale.slice(0,1).concat(fresh).concat(stale.slice(1)).slice(0,nTry);
-  return {usual:usual,tries:tries,u:u};}
+  return {usual:usual,tries:tries,u:u,ex:ex};}
 function fExSub(e,u){var o=u[e.id],lb=lastBefore(e.id,addDays(todayKey(),1));return (e.sub||e.eq)+(o&&o.n?' · 近 60 天 '+o.n+' 次':'')+(lb?' · 上次 '+setsCompact(e,lb.sets):'');}
 function fSwapList(x,part){var t=todayKey(),e=exById(x.ex),u=fUse(),busy=fTodayEx(t),pt=part||e.part,other=pt!==e.part,same=function(f){return f.id!==e.id&&!f.archived&&!busy[f.id]&&f.part===pt;};
   var list=other?[]:db.fit.ex.filter(function(f){return same(f)&&e.sub&&f.sub===e.sub;});if(!list.length)list=db.fit.ex.filter(same);
@@ -1741,9 +1745,9 @@ function ftodoCard(x,k,no,ord){ord=!!ord;var nb='<span class="tdno">'+no+'</span
   if(x.ex){var e=exById(x.ex);if(!e)return '';var lb=lastBefore(e.id,addDays(k,1));
     var sw=x.sw&&exById(x.sw);
     var qk=!ord&&lb;
-    return '<div class="ftodo-w"><button class="fcard ftodo'+(qk?' hasck':'')+'" data-act="ftodo" data-id="'+x.id+'"'+(ord?' disabled':'')+'>'+nb+'<span class="fbody"><span class="fhead"><b>'+esc(e.name)+'</b><span class="tdkind">'+(exIso(e)?'孤立':'多關節')+'</span></span>'+
-      '<span class="fsets">'+(lb?'上次 '+esc(setsCompact(e,lb.sets)):'還沒做過，第一次試試')+'</span><span class="small muted">'+(sw?'換自'+esc(sw.name)+' · ':'')+(qk?'按 ✓ 照上次完成，點卡片可以調整':'點一下開始')+'</span></span></button>'+
-      (ord?mv:'<button class="fswap" data-act="fswap" data-id="'+x.id+'">換一個</button>'+(qk?'<button class="tdck" data-act="ftquick" data-id="'+x.id+'" aria-label="照上次完成'+esc(e.name)+'"><span aria-hidden="true">✓</span></button>':''))+'</div>';}
+    return '<div class="ftodo-w'+(ord?'':' swp')+'" data-id="'+x.id+'"><button class="fcard ftodo'+(qk?' hasck':'')+'" data-act="ftodo" data-id="'+x.id+'"'+(ord?' disabled':'')+'>'+nb+'<span class="fbody"><span class="fhead"><b>'+esc(e.name)+'</b><span class="tdkind">'+(exIso(e)?'孤立':'多關節')+'</span></span>'+
+      '<span class="fsets">'+(lb?'上次 '+esc(setsCompact(e,lb.sets)):'還沒做過，第一次試試')+'</span><span class="small muted">'+(sw?'換自'+esc(sw.name)+' · ':'')+(qk?'✓ 照上次完成 · 左滑移除':'點一下開始 · 左滑移除')+'</span></span></button>'+
+      (ord?mv:'<span class="tdbg" aria-hidden="true">移除</span>'+(qk?'<button class="tdck" data-act="ftquick" data-id="'+x.id+'" aria-label="照上次完成'+esc(e.name)+'"><span aria-hidden="true">✓</span></button>':''))+'</div>';}
   var kd=cKind(x.ct);return '<div class="ftodo-w"><button class="fcard center ftodo" data-act="ftodoc" data-id="'+x.id+'"'+(ord?' disabled':'')+'>'+nb+'<span class="fbody"><b style="font-size:16px">'+esc(x.ct)+'<span class="tdkind">有氧</span></b><span class="small muted">上次 '+durTxt(cSecs(x))+(x.dist>0?' · '+distTxt(x.dist,kd):'')+'</span></span>'+(ord?'':'<span class="todopill">待做</span>')+'</button>'+(ord?mv:'')+'</div>';}
 function newEntry(exId,k){
   var e=exById(exId),lb=lastBefore(exId,k),d0=[isBW(e)?0:(exU(e)==='lbs'?45:20),fMode(e)==='s'?30:8],sets=lb?lb.sets.map(function(x){return x.slice();}):[d0,d0.slice(),d0.slice()];
@@ -1777,6 +1781,7 @@ function vFLog(){
   s+='<p class="small muted" style="text-align:center">'+(sec?'每次 ＋／− 是 5 秒，點數字也可以直接輸入':bw?'只記次數，趨勢看單組最多次數':'點數字可以直接輸入 · 超過 12 下的組不算進 1RM')+'</p></div>'+
     '<div id="flsum">'+flSumHTML()+'</div>';
   if(f.todo)s+='<div class="danger-zone"><button class="row-btn" data-act="ftododel">今天不做這項（從待做移除）</button></div>';
+  if(!f.id&&f.todo)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="flrmplan">從今天的計劃移除</button></div>';
   if(f.id)s+='<div class="danger-zone"><button class="row-btn bad-t" data-act="fldel">'+(ui.confirmDel==='fl'?'再按一次，刪除這筆紀錄':'刪除這筆紀錄')+'</button></div>';
   return s+'</div>';
 }
@@ -2097,7 +2102,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.08-6';
+var APP_VER='2026.11.08-7';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4507,8 +4512,13 @@ function renderSheet(){
       return '<button class="row-btn fcopy-it'+(on[e.id]?'':' off')+'" data-act="fparttog" data-v="'+e.id+'" aria-pressed="'+!!on[e.id]+'"><span class="bf-ck" aria-hidden="true">'+(on[e.id]?'✓':'')+'</span><span class="row-l"><span>'+esc(e.name)+'</span><span class="row-sub">'+sb+'</span></span></button>';};
     h='<h2>今天練'+esc(sh.p)+'</h2>'+(PL.usual.length?'<div class="fgrp">你常用的</div><div class="list fcopy-items">'+PL.usual.map(function(e){return row(e,false);}).join('')+'</div>':'<p class="small muted">近 60 天還沒練過'+esc(sh.p)+'，先從下面挑幾個試試。</p>')+
       (PL.tries.length?'<div class="fgrp">換換看</div><div class="list fcopy-items">'+PL.tries.map(function(e){return row(e,true);}).join('')+'</div>':'')+
-      (!PL.usual.length&&!PL.tries.length?'<p class="small muted">'+esc(sh.p)+'的動作今天都已經在清單上了。</p>':'')+
-      '<div class="stack"><button class="primary" data-act="fpartgo"'+(non?'':' disabled')+'>加入今天（'+non+' 項）</button></div>';
+      (function(){var seen={};PL.usual.concat(PL.tries).forEach(function(e){seen[e.id]=1;});var rest=PL.ex.filter(function(e){return !seen[e.id];});if(!rest.length)return '';
+        var eqs=[];rest.forEach(function(e){if(e.eq&&eqs.indexOf(e.eq)<0)eqs.push(e.eq);});var fe=sh.eq&&eqs.indexOf(sh.eq)>=0?sh.eq:'';
+        return '<button class="fpall" data-act="fpallx" aria-expanded="'+!!sh.all+'">'+(sh.all?'收起全部':'看全部'+esc(sh.p)+'的動作（'+rest.length+'）')+' '+(sh.all?'▴':'▾')+'</button>'+
+          (sh.all?(eqs.length>1?'<div class="fchips fpeq">'+[''].concat(eqs).map(function(q){var on=q===fe;return '<button class="fchip'+(on?' on':'')+'" data-act="fpaeq" data-v="'+esc(q)+'" aria-pressed="'+on+'">'+(q?esc(q):'全部')+'</button>';}).join('')+'</div>':'')+
+            '<div class="list fcopy-items">'+rest.filter(function(e){return !fe||e.eq===fe;}).map(function(e){return row(e,!PL.u[e.id]||!PL.u[e.id].n);}).join('')+'</div>':'');})()+
+      (!PL.usual.length&&!PL.tries.length&&!PL.ex.length?'<p class="small muted">'+esc(sh.p)+'的動作今天都已經在清單上了。</p>':'')+
+      '<div class="stack"><button class="primary" data-act="fpartgo"'+(non?'':' disabled')+'>加入計劃（'+non+' 項）</button></div>';
   }else if(sh.type==='fswap'){var lt=fLog(todayKey())||{},xx=(lt.todo||[]).filter(function(y){return y.id===sh.id;})[0],ee=xx&&exById(xx.ex);
     if(ee){var SL=fSwapList(xx,sh.part),it=function(f,d){var o=SL.u[f.id],lb=d&&lastBefore(f.id,addDays(todayKey(),1)),wk=o?Math.floor(diffDays(todayKey(),o.last)/7):0;
         return '<button class="row-btn" data-act="fswapgo" data-v="'+f.id+'"><span class="row-l"><span>'+esc(f.name)+'</span><span class="row-sub">'+(d?(o.n?o.n+' 次 · ':'')+(wk>=2?wk+' 週前 · ':'')+(lb?'上次 '+esc(setsCompact(f,lb.sets)):''):esc(f.eq))+'</span></span>'+I.right+'</button>';};
@@ -4797,6 +4807,13 @@ function act(a,b){
     case 'fpartgo': if(!ui.sheet||!ui.sheet.on)return;var pids=Object.keys(ui.sheet.on).filter(function(i){return exById(i);});if(!pids.length)return;var lp=fLogMk(t);lp.todo=lp.todo||[];
       planAdd(lp,pids.map(function(i){return {id:uid(),ex:i};}),true);lp.pt=(lp.pt||0)+pids.length;save();ui.sheet=null;ui.date=t;go('fit');ui.fitTab='log';toast('已加入 '+pids.length+' 項待做');break;
     case 'fswap': ui.sheet={type:'fswap',id:id};break;
+    case 'fpallx': if(ui.sheet&&ui.sheet.type==='fpartadd')ui.sheet.all=!ui.sheet.all;break;
+    case 'fpaeq': if(ui.sheet&&ui.sheet.type==='fpartadd')ui.sheet.eq=b.dataset.v||'';break;
+    case 'ftrm': {var rk=ui.date,rl=fLog(rk),rt=rl&&(rl.todo||[]).filter(function(x){return x.id===id;})[0];if(!rt)return;var re=exById(rt.ex);
+      ui.lastRm={k:rk,todo:rl.todo.slice(),pt:rl.pt};rl.todo=rl.todo.filter(function(x){return x.id!==id;});if(rl.pt>0)rl.pt--;fTidy(rk);save();render();
+      toast('已從計劃移除 '+(re?re.name:''),5000,'<button class="toast-act" data-act="ftrmundo">復原</button>');return;}
+    case 'flrmplan': {var pid=ui.fl&&ui.fl.todo;ui.fl=null;go('fit');if(pid)return act('ftrm',{dataset:{id:pid}});}break;
+    case 'ftrmundo': {var ru=ui.lastRm;if(!ru)break;var lr=fLogMk(ru.k);lr.todo=ru.todo;if(ru.pt)lr.pt=ru.pt;save();ui.lastRm=null;toast('已復原');}break;
     case 'fpartpick': ui.sheet={type:'fpartpick'};break;
     case 'fswappart': if(!ui.sheet||ui.sheet.type!=='fswap'||PARTS.indexOf(b.dataset.v)<0)return;ui.sheet.part=b.dataset.v;break;
     case 'fcg': ui.fcg=b.dataset.v==='w'?'w':'d';break;
@@ -5111,7 +5128,16 @@ function act(a,b){
   }
   render();
 }
+/* 計劃卡片左滑移除 (touch-action:pan-y keeps vertical scrolling native) */
+(function(){var w=null,x0=0,y0=0,dx=0,on=false;
+  document.addEventListener('pointerdown',function(e){var c=e.target.closest&&e.target.closest('.ftodo-w.swp');if(!c||e.button>0)return;w=c;x0=e.clientX;y0=e.clientY;dx=0;on=false;});
+  document.addEventListener('pointermove',function(e){if(!w)return;var mx=e.clientX-x0,my=e.clientY-y0;if(!on){if(Math.abs(my)>10&&Math.abs(my)>Math.abs(mx)){w=null;return;}if(mx<-8&&Math.abs(mx)>Math.abs(my)){on=true;w.classList.add('drag');}else return;}
+    dx=Math.min(0,mx);w.querySelectorAll(':scope>:not(.tdbg)').forEach(function(el){el.style.transform='translateX('+dx+'px)';});w.classList.toggle('arm',dx<-90);});
+  var end=function(){if(!w)return;var c=w;w=null;if(!on)return;c.classList.remove('drag');ui.swipedAt=Date.now();
+    var kids=c.querySelectorAll(':scope>:not(.tdbg)');if(dx<-90){kids.forEach(function(el){el.style.transition='transform .16s ease';el.style.transform='translateX(-110%)';});setTimeout(function(){act('ftrm',{dataset:{id:c.dataset.id}});},170);}else{kids.forEach(function(el){el.style.transition='transform .16s ease';el.style.transform='';});c.classList.remove('arm');}};
+  document.addEventListener('pointerup',end);document.addEventListener('pointercancel',end);})();
 document.addEventListener('click',function(e){
+  if(ui.swipedAt&&Date.now()-ui.swipedAt<350&&e.target.closest&&e.target.closest('.ftodo-w')){ui.swipedAt=0;return;}
   if(e.target.id==='sheet'){if(ui.sheet&&ui.sheet.type==='busy')return;ui.sheet=null;render();return;}
   var b=e.target.closest('[data-act]');if(!b||b.disabled)return;
   act(b.dataset.act,b);
