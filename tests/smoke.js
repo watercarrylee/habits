@@ -487,6 +487,22 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.reload(); ok(await p.$eval('#invTab', e => e.hidden), '投資 tab hidden when 損益 is off');
   await done(p, 'navigation');
 
+  console.log('• 教練語氣 (coach voice)');
+  p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, rewards: [], redeemed: [], logs: {},
+    habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) }],
+    fit: { ex: [{ id: 'eC', name: '臥推', eq: '槓鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'eL', name: '深蹲', eq: '槓鈴', part: '腿', mode: 'wr', unit: 'kg' }],
+      logs: { [daysAgo(6)]: { s: [{ id: 's1', ex: 'eC', sets: [[40, 5]] }] }, [daysAgo(4)]: { s: [{ id: 's2', ex: 'eL', sets: [[60, 5]] }] } } } } });
+  await p.click('#tabs [data-tab=fit]');
+  ok(!!(await p.$('.cyft .cyhint')) && !(await p.$('.cymiss')), 'coach: default is 溫和, with a 「想被罵一下？」 link');
+  await p.click('.cyhint'); await p.click('#sheet [data-act=coachset][data-v=missing]');
+  const miss = await p.innerText('.cymiss');
+  ok(/部位失蹤協尋/.test(miss) && /胸\s*失蹤 6 天/.test(miss) && /腿\s*失蹤 4 天/.test(miss), 'coach: 失蹤協尋 lists parts by days missing');
+  await p.click('.cysw'); await p.click('#sheet [data-act=coachset][data-v=devil]');
+  ok(!!(await p.$('.cydev .cybar')) && /😤/.test(await p.innerText('.cydev')), 'coach: 魔鬼教練 with a line and anger bars');
+  ok((await db(p)).settings.coach === 'devil', 'coach: choice saved in settings');
+  await p.click('.avbtn'); ok(await p.$eval('[data-act=coachset][data-v=devil]', e => e.classList.contains('on')), 'coach: 教練語氣 in settings');
+  await done(p, 'coach voice');
+
   console.log('• 好習慣排行：本月／累計');
   { const logs = {}; for (let i = 0; i < 40; i++) logs[daysAgo(i)] = { h: { w1: 2000, r1: 30 } };
     p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true }, rewards: [], redeemed: [], logs,
