@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-P9D35L9sa2Bs8co1e33z61KJ5GvUMIr55ircTwSvXIA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-kv5F6H4ppu+XjsOTy/0+fj4MSq5smbfpqMEyVTZNJ0o='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -703,11 +703,13 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .hist-a{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .tb-r{display:flex;align-items:center;gap:6px}
 .rpgcard{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px 12px;margin:0 0 12px;color:var(--fg);cursor:pointer}
-.rpgmini{flex:0 0 64px;height:66px;border-radius:14px;background:var(--chip);display:flex;align-items:center;justify-content:center}.rpgc-r{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.rspr{display:inline-block;flex:0 0 auto;background-repeat:no-repeat;background-color:#FEF5EB;border-radius:10px}
+@keyframes rbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}.rpgfig .rspr,.rpglvs .rspr{animation:rbob 1.8s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.rpgfig .rspr,.rpglvs .rspr{animation:none}}
+.rpgmini{flex:0 0 60px;height:78px;border-radius:14px;overflow:hidden;background:#FEF5EB;display:flex;align-items:center;justify-content:center}.rpgc-r{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .rpgc-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.rpgc-t b{font-size:17px}.rpgc-t .small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rxp{display:block;height:8px;border-radius:4px;background:var(--chip);overflow:hidden;margin-top:6px}.rpgcard .rxp{margin-top:0}.rxp i{display:block;height:100%;background:linear-gradient(90deg,#C4562A,#E39A4A);border-radius:4px}
 .rcard{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px}.rh3{font-size:17px;font-weight:800}.row-sb{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.rpghero{display:flex;gap:12px;align-items:center}.rpgfig{flex:0 0 128px;height:142px;border-radius:16px;background:var(--chip);display:flex;align-items:center;justify-content:center}.rpgfig.big{width:150px;height:160px;margin:8px auto}
+.rpghero{display:flex;gap:12px;align-items:center}.rpgfig{flex:0 0 124px;height:161px;border-radius:16px;overflow:hidden;background:#FEF5EB;display:flex;align-items:center;justify-content:center}.rpgfig.big{width:150px;height:160px;margin:8px auto}
 .rpgh-r{flex:1;min-width:0}.rpgcls{font-size:26px;font-weight:900;line-height:1.2}.rpgttl{display:inline-block;font-size:12px;font-weight:800;background:#F3E3BE;color:#7A5410;border-radius:9px;padding:2px 8px;margin-top:4px}
 .rpgrad{display:flex;justify-content:center}.rpgli{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}.rpgli:first-of-type{border-top:0;margin-top:4px}.rpgli b{margin-left:6px;white-space:nowrap}
 .rpgseason{background:linear-gradient(135deg,#21334A,#3B4F73);color:#fff;border:0}.rpgseason .small{color:#C9D3E6}.rsbar{display:flex;gap:4px;margin:10px 0 4px}.rsbar i{flex:1;height:7px;border-radius:4px;background:rgba(255,255,255,.22)}.rsbar i.on{background:#F2C14E}.rsbar i.now{background:linear-gradient(90deg,#F2C14E 50%,rgba(255,255,255,.22) 50%)}
@@ -1997,7 +1999,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.07-5';
+var APP_VER='2026.11.08-1';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -2400,95 +2402,10 @@ function questWeeks(s,q){var h=byId(q.h),t=todayKey(),met=0,now=null;if(!h)retur
   return {met:met,now:now,h:h};}
 function seasonWeek(s){return Math.min(SEASON_W,Math.floor(diffDays(todayKey(),s.start)/7)+1);}
 function rpgTitles(){return (rpgData().seasons||[]).filter(function(s){return seasonEnd(s)<todayKey()&&s.q.length&&questWeeks(s,s.q[0]).met>=6;}).map(function(s){return s.name+'完成者';});}
-function rpgFig(c,sz,opt){sz=sz||120;opt=opt||{};const W=32,H=34;const mk=()=>[...Array(H)].map(()=>Array(W).fill(0));const L=mk(),E=mk(),B=mk(),Gd=mk();
- const R=(G)=>(x,y,w,h,col)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)if(i>=0&&i<W&&j>=0&&j<H)G[j][i]=col;};
- const r=R(L),e=R(E),b=R(B),g=R(Gd),p=(x,y,col)=>r(x,y,1,1,col),ep=(x,y,col)=>e(x,y,1,1,col),bp=(x,y,col)=>b(x,y,1,1,col);
- const SK='#F6CDA6',SKD='#E2AE85',BR='#7A4E2A',BRD='#5A3820',ST='#D3DAE1',STD='#9AA3AD',GO='#F2C14E',GOD='#C9932E',DK='#2A1E16',WH='#FFFFFF';
- const sh=(hex,k)=>{const n=parseInt(hex.slice(1),16);const f=v=>Math.max(0,Math.min(255,Math.round(k<0?v*(1+k):v+(255-v)*k)));return '#'+[n>>16,n>>8&255,n&255].map(f).map(v=>v.toString(16).padStart(2,'0')).join('');};
- const D={base:{o:'#A0855B',pa:'#6B5235',hair:'#6B4423'},war:{o:'#B23A2C',pa:'#6B3A2A',hair:'#C0662A'},kni:{o:'#AEB7C0',pa:'#7E8892',hair:0},ran:{o:'#3F7A3F',pa:'#5A4632',hair:'#8A5A2B'},
-  rog:{o:'#4A3D3D',pa:'#2E2626',hair:0},mag:{o:'#6A43A6',pa:'#4A2F7A',hair:'#5A3A22'},mon:{o:'#E58B1C',pa:'#B8650E',hair:0},adv:{o:'#7A5E3A',pa:'#5A4228',hair:'#6B4423'},
-  ber:{o:'#E0AE86',pa:'#6B4A2E',hair:'#6B3A1E'},pal:{o:'#E8C76A',pa:'#C9A24A',hair:0},wind:{o:'#3F8A4A',pa:'#5A4632',hair:'#8A5A2B'},nin:{o:'#2B2B33',pa:'#1E1E24',hair:0},
-  sag:{o:'#A99C80',pa:'#8A7E64',hair:'#E8E4DA'},fist:{o:'#E0AE86',pa:'#3A3A44',hair:'#2B2420'},hero:{o:'#2F5DB0',pa:'#24427A',hair:'#2B3550'}}[c];
- const o=D.o,od=sh(o,-.2),ol=sh(o,.2);
- // ground
- if(!opt.noGround){g(5,31,22,2,'#6FA04A');g(6,33,20,1,'#4E7A33');[7,10,14,19,23].forEach(x=>{g(x,30,1,1,'#8BC34A')});g(24,29,3,2,'#A8A39A');g(24,29,3,1,'#C9C4BA');g(4,30,2,1,'#A8A39A');}
- // ---- behind layer (outlined with char)
- if(c==='base'){r(20,16,5,8,BR);r(20,16,5,1,'#9A6E40')}
- if(c==='adv'){r(20,12,8,14,'#8B6A3E');r(20,11,8,2,'#5E7A3E');r(22,16,4,4,'#6B4E2A');p(23,17,GO)}
- if(c==='ran'||c==='wind'){r(22,12,3,10,BR);r(22,10,1,2,WH);r(24,10,1,2,WH);r(23,11,1,1,'#C9A06A')}
- if(c==='ran'||c==='wind'){const cc=sh(o,-.3);r(8,18,16,10,cc);if(c==='wind'){r(24,18,3,6,cc);r(27,20,2,3,cc)}}
- if(c==='hero'){[[18,8,4],[19,7,5],[20,7,5],[21,6,6],[22,6,6],[23,5,7],[24,5,7],[25,4,8],[26,4,8],[27,3,9],[28,4,7]].forEach(([y,x,w])=>r(x,y,w,1,'#C0392B'));[[21,6],[23,5],[25,4],[27,3]].forEach(([y,x])=>p(x,y,'#E0584A'));r(4,28,3,1,'#A02A1E');p(9,18,'#E0584A')}
- 
- // ---- legs
- const robe=['mag','mon','sag'].includes(c);
- if(robe){r(10,18,12,12,o);r(9,25,14,5,o);r(21,18,1,12,od);r(22,25,1,5,od);r(10,30,4,1,'#3A2A1E');r(18,30,4,1,'#3A2A1E')}
- else if(c==='fist'){r(10,25,3,4,D.pa);r(19,25,3,4,D.pa);r(9,29,4,2,'#3A2A1E');r(19,29,4,2,'#3A2A1E')}
- else{r(12,25,3,4,D.pa);r(17,25,3,4,D.pa);r(11,29,4,2,'#3A2A1E');r(17,29,4,2,'#3A2A1E');r(11,29,4,1,'#5A4430');r(17,29,4,1,'#5A4430')}
- // ---- torso & arms
- if(!robe){r(11,18,10,7,o);r(20,18,1,7,od);r(11,18,10,1,ol)}
- const arm=c==='ber'||c==='fist'?SK:o;r(9,18,2,5,arm);r(21,18,2,5,arm);r(9,23,2,2,SK);r(21,23,2,2,SK);
- if(!robe&&c!=='fist')r(11,23,10,1,c==='nin'?'#4A4A55':BR),r(15,23,2,1,c==='nin'?'#8A8A95':GO);
- if(c==='war'){r(13,19,6,3,ST);r(13,19,6,1,WH);r(9,18,2,2,STD);r(21,18,2,2,STD)}
- if(c==='kni'){r(13,19,6,4,'#C9D1D8');r(11,18,10,1,WH);r(15,19,2,4,STD)}
- if(c==='pal'){r(13,19,6,4,'#FFE38A');r(15,19,2,4,'#C99A2E');r(11,18,10,1,'#FFF4C8')}
- if(c==='hero'){r(13,19,6,3,GO);r(15,19,2,3,'#E74C3C');r(11,18,10,1,'#5A86D6')}
- if(c==='ber'){r(11,18,10,5,'#E0AE86');r(20,18,1,5,SKD);for(let k=0;k<6;k++)p(12+k,18+k,BR);r(11,23,10,2,D.pa)}
- if(c==='fist'){r(11,18,10,5,SK);r(20,18,1,5,SKD);r(13,20,2,1,SKD);r(17,20,2,1,SKD);r(11,23,10,2,'#C0392B');r(10,25,12,1,D.pa)}
- if(c==='mon'){for(let x=11;x<=20;x++)p(x,x<16?18+(x-11)%2:18+(20-x)%2,x%2?'#6B3B12':'#8B5A2B');r(13,24,6,1,'#B8650E')}
- if(c==='mag')r(10,23,12,1,GO);
- if(c==='sag'){r(10,23,12,1,'#E2CF8E')}
- if(c==='rog'||c==='nin'){r(11,20,10,1,sh(o,.15))}
- if(c==='wind'){r(11,18,10,1,'#E8B53C');r(21,19,6,1,'#E8B53C');r(26,20,2,1,'#E8B53C')}
- // ---- head
- r(14,17,4,1,{kni:'#8A939C',pal:'#C9A24A',nin:'#2B2B33'}[c]||SKD);r(9,7,14,9,SK);r(10,6,12,1,SK);r(10,16,12,1,SKD);r(22,7,1,9,SKD);
- const hood=['ran','wind','rog'].includes(c);
- if(D.hair&&!hood&&!['war','kni','pal','mag','sag','nin','adv','hero'].includes(c)){r(10,4,12,2,D.hair);r(9,5,14,3,D.hair);p(9,8,D.hair);p(9,9,D.hair);p(22,8,D.hair);p(22,9,D.hair);r(13,8,2,1,D.hair);if(c==='ber'){p(8,5,D.hair);p(23,5,D.hair);p(12,3,D.hair);p(18,3,D.hair)}}
- if(c==='mon'){r(10,6,12,1,SKD);r(12,7,3,1,'#FFE6CC')}
- // face
- const eye=(x)=>{r(x,11,2,2,DK);p(x,11,WH)};
- if(c==='kni'||c==='pal'){}else{eye(12);eye(18);
-  if(c==='ber'){p(11,9,DK);p(12,9,DK);p(13,10,DK);p(18,10,DK);p(19,9,DK);p(20,9,DK);r(14,14,4,2,'#7A2A1E');r(14,14,4,1,WH)}
-  else if(c==='sag'||c==='nin'){}else r(15,14,2,1,'#A0523D');
-  if(c!=='nin'){p(11,14,'#F2A08A');p(20,14,'#F2A08A')}}
- // headgear
- if(c==='war'){r(9,4,14,5,'#B0B8C0');r(9,4,14,1,'#DDE3E8');r(9,8,14,1,'#7E8892');p(8,9,'#C0662A');p(23,9,'#C0662A');[[8,4],[8,3],[7,3],[7,2],[6,1],[6,0],[23,4],[23,3],[24,3],[24,2],[25,1],[25,0]].forEach(a=>p(a[0],a[1],'#F1E7CF'))}
- if(c==='kni'||c==='pal'){const hc=c==='pal'?'#F0CF6A':'#B8C0C8',hd=c==='pal'?'#C9A24A':'#8A939C';r(9,4,14,13,hc);r(10,3,12,1,hc);r(9,4,14,1,c==='pal'?'#FFF0B0':'#E2E7EC');r(22,4,1,13,hd);r(11,11,10,1,DK);r(11,12,10,1,hd);for(let y=13;y<16;y++){p(13,y,hd);p(18,y,hd)}
-  if(c==='kni'){r(15,0,3,3,'#2F5DB0');r(18,0,3,2,'#2F5DB0');r(20,1,2,3,'#2F5DB0');p(16,0,'#5A86D6')}else{r(15,1,2,2,'#C0392B')}}
- if(hood){const hc=c==='rog'?'#4A3A35':c==='wind'?'#3F8A4A':'#3F7A3F',hd=sh(hc,-.2);r(9,3,14,6,hc);r(10,2,12,1,hc);r(8,8,3,c==='rog'?7:11,hc);r(21,8,3,c==='rog'?7:11,hc);r(23,4,2,6,hc);r(25,6,1,3,hc);if(c==='wind'){r(25,5,3,3,hc);r(28,6,2,2,hc)}r(9,3,14,1,sh(hc,.2));r(21,8,1,10,hd);p(10,9,hc);p(21,9,hc);r(11,8,10,1,c==='rog'?'#3A2A26':'#C9A06A')}
- if(c==='mag'||c==='sag'){const hc=c==='mag'?'#5B3A92':'#EDE8DC',hd=c==='mag'?'#3E2566':'#C9C2B2';r(5,7,c==='sag'?21:22,2,hd);r(5,7,c==='sag'?21:22,1,hc);r(9,5,14,2,hc);r(10,4,12,1,hc);r(11,3,10,1,hc);r(13,2,8,1,hc);r(15,1,7,1,hc);r(18,0,6,1,hc);p(24,1,hc);r(9,6,14,1,c==='mag'?GO:'#C9B98A');r(21,2,2,4,hd)}
- if(c==='sag'){r(10,13,12,6,'#FAF8F2');r(11,19,10,2,'#FAF8F2');r(13,21,6,2,'#FAF8F2');r(15,23,2,1,'#FAF8F2');r(13,13,6,1,'#E8E4DA');r(9,9,2,4,'#F3F0E8');r(21,9,2,4,'#F3F0E8')}
- if(c==='nin'){r(9,4,14,13,'#2B2B33');r(10,3,12,1,'#2B2B33');r(11,10,10,3,SK);eye(12);eye(18);r(9,8,14,1,'#4A4A55');r(23,8,3,1,'#4A4A55');r(25,9,3,1,'#4A4A55');r(22,4,1,13,'#1E1E24')}
- if(c==='adv'){r(9,5,14,2,D.hair);p(9,7,D.hair);p(22,7,D.hair);r(6,6,20,2,'#6B4A2A');r(6,6,20,1,'#8A6238');r(10,2,12,4,'#7E5A35');r(11,1,10,1,'#7E5A35');r(10,5,12,1,'#4A3020')}
- if(c==='hero'){r(9,5,14,3,D.hair);p(9,8,D.hair);p(9,9,D.hair);p(22,8,D.hair);p(22,9,D.hair);r(10,3,12,2,GO);r(10,4,12,1,GOD);[10,13,18,21].forEach(x=>{p(x,2,GO);p(x,1,GO)});r(15,0,2,3,GO);p(15,3,'#E74C3C');p(12,3,'#5AB0F0');p(19,3,'#5AB0F0')}
- if(c==='fist'){r(9,8,14,1,'#C0392B');r(23,8,3,1,'#C0392B');r(25,9,3,1,'#C0392B');r(26,10,1,1,'#C0392B')}
- if(c==='ber'){}
- // ---- front items
- const sword=(x,top,blade,guard,grip)=>{r(x,top,2,22-top,blade);r(x,top,1,22-top,WH);p(x,top-1,blade);r(x-2,22,6,1,guard);r(x,23,2,2,grip)};
- if(c==='war'){sword(24,9,ST,BR,BRD);r(2,17,8,10,'#C0392B');r(3,16,6,1,'#C0392B');r(3,27,6,1,'#C0392B');r(2,17,8,1,GO);r(2,26,8,1,GO);r(2,17,1,10,GO);r(9,17,1,10,GO);r(5,20,2,4,GO);r(4,21,4,2,GO);p(5,19,GO);p(6,24,GO)}
- if(c==='kni'){r(25,0,1,24,BR);r(24,0,3,5,ST);p(25,0,WH);r(23,20,5,2,STD);r(2,17,8,10,'#2F5DB0');r(3,27,6,1,'#2F5DB0');r(4,28,4,1,'#2F5DB0');r(2,17,8,1,GO);r(5,18,2,8,GO);r(3,20,6,2,GO)}
- if(c==='pal'){sword(24,9,'#E8EEF2',GOD,BRD);r(2,17,8,10,'#F7F4EC');r(3,27,6,1,'#F7F4EC');r(4,28,4,1,'#F7F4EC');r(5,18,2,8,'#C0392B');r(3,20,6,2,'#C0392B');[[15,0,'#FFF4B0']].forEach(()=>{});
-   [[13,0],[18,0],[11,1],[20,1],[7,3],[24,3]].forEach(a=>ep(a[0],a[1],GO));e(26,4,1,3,'#FFF0A0');e(25,5,3,1,'#FFF0A0');e(5,4,1,3,'#FFF0A0');e(4,5,3,1,'#FFF0A0')}
- if(c==='ran'||c==='wind'){[[7,10],[6,11],[5,12],[5,13]].forEach(a=>p(a[0],a[1],BR));r(4,14,1,10,BR);[[5,24],[5,25],[6,26],[7,27]].forEach(a=>p(a[0],a[1],BR));r(8,11,1,16,'#E8E0CC');r(5,19,4,1,'#C9A06A');p(4,18,ST)}
- if(c==='wind'){[[2,8],[3,7],[4,7],[5,7],[6,8]].forEach(a=>ep(a[0],a[1],'#BFE6F0'));[[1,22],[2,21],[3,21],[4,22]].forEach(a=>ep(a[0],a[1],'#BFE6F0'));[[26,1],[27,2],[28,2]].forEach(a=>ep(a[0],a[1],'#BFE6F0'));ep(28,13,'#7CC24A');ep(29,12,'#7CC24A');ep(29,13,'#5A9A30');ep(3,3,'#7CC24A');ep(4,2,'#7CC24A')}
- if(c==='rog'){r(24,17,1,6,ST);p(24,16,ST);r(23,23,3,1,BRD);r(24,24,1,1,BRD)}
- if(c==='nin'){r(5,22,1,4,'#9AA3AD');r(3,24,5,1,'#9AA3AD');p(5,24,DK);for(let y=0;y<9;y++)for(let x=23;x<32;x++){const a=(x-27)**2+(y-4)**2,b2=(x-29)**2+(y-3)**2;if(a<=12&&b2>7)ep(x,y,'#F4E9B8')}
-   for(let k=0;k<12;k++)bp(9+k,22-k,'#55555F');e(1,15,1,1,'#B8C0C8')}
- if(c==='mag'){r(5,11,1,20,BR);r(4,8,3,3,'#B05AE0');p(4,8,'#E4B8FF');[[2,6],[7,5],[1,10],[8,9],[3,4]].forEach(a=>ep(a[0],a[1],'#C98BF0'));ep(27,9,GO);e(26,10,3,1,GO);ep(27,11,GO);ep(28,6,'#FFE08A')}
- if(c==='sag'){r(27,7,1,24,GOD);r(26,3,3,3,'#5AB0F0');p(26,3,'#CDEBFF');p(25,4,GOD);p(29,4,GOD);r(26,6,3,1,GOD);r(23,18,4,2,SK);r(3,19,7,6,'#8B5A2B');r(4,19,5,1,'#C49A5A');r(6,19,1,6,'#5A3820');p(5,21,GO)}
- if(c==='mon'){r(25,5,1,26,'#8B5A2B');r(24,3,3,3,'#A8743E');p(24,3,'#C9955A');r(23,6,5,1,GOD);p(23,7,GOD);p(27,7,GOD);r(3,22,8,1,'#7A4A22');r(4,23,6,2,'#5E3818');r(5,25,4,1,'#5E3818');r(4,22,6,1,'#9A6232')}
- if(c==='adv'){r(7,25,1,1,DK);r(6,26,3,4,'#F2C14E');r(6,26,3,1,DK);r(6,29,3,1,DK);p(7,27,'#FFF4B0')}
- if(c==='ber'){r(23,3,2,24,'#8B5A2B');r(23,3,1,24,'#A8743E');r(22,26,4,1,'#5A3820');r(22,3,4,1,'#5A3820');[[4,25,3],[5,25,4],[6,25,5],[7,25,6],[8,25,6],[9,25,6],[10,25,6],[11,25,5],[12,25,4],[13,25,3]].forEach(([y,x,w])=>{r(x,y,w,1,'#9AA5B0');r(x,y,1,1,'#6E7882');p(x+w-1,y,'#F2F5F8');if(w>4)p(x+w-2,y,'#C9D2DA')});r(21,18,2,7,SK)}
- if(c==='fist'){r(6,18,4,4,'#F4F1EA');r(22,18,4,4,'#F4F1EA');r(9,22,2,3,0);r(21,22,2,3,0);r(9,18,2,4,SK);r(21,18,2,4,SK)}
- if(c==='hero'){sword(25,4,'#FFE38A',GOD,BRD);[[28,2],[29,4],[27,0],[23,6]].forEach(a=>ep(a[0],a[1],'#FFF0A0'))}
- if(c==='base'){r(10,20,12,6,'#D8B57A');r(10,20,12,1,'#C29A5E');r(15,20,1,6,'#B48A50');p(12,22,'#8B6A3E');p(18,23,'#8B6A3E');p(13,24,'#8B6A3E');
-   e(0,26,5,1,'#4E8A3E');e(1,24,3,2,'#5FA04A');e(2,22,1,2,'#6FB05A');e(2,27,1,3,BRD);e(27,25,5,1,'#4E8A3E');e(28,23,3,2,'#5FA04A');e(29,21,1,2,'#6FB05A');e(29,26,1,3,BRD);e(1,2,4,1,'#DDEEFF');e(2,1,2,1,'#DDEEFF');e(26,3,4,1,'#DDEEFF')}
- // compose: ground, behind-shadow, outline(char)
- const O=[...Array(H)].map(()=>Array(W).fill(0));
- const filled=(x,y)=>y>=0&&y<H&&x>=0&&x<W&&L[y][x];
- for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(L[y][x])O[y][x]=L[y][x];else if([[1,0],[-1,0],[0,1],[0,-1]].some(([a,b2])=>filled(x+a,y+b2)))O[y][x]=DK;}
- let s='';const put=(G)=>{for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(G[y][x])s+=`<rect x="${x}" y="${y}" width="1.03" height="1.03" fill="${G[y][x]}"/>`;};
- put(Gd);put(B);put(E);put(O);
- return `<svg width="${sz}" height="${sz*H/W}" viewBox="-0.5 -0.5 ${W+1} ${H+1}" shape-rendering="crispEdges">${s}</svg>`;}
+/* character art: one sprite sheet (rpg.webp, 5 × 3 cells, 160 × 208 each), order = RPG_ORDER */
+var RPG_IMG='rpg.webp?v=4',RPG_ORDER=['base','war','kni','ran','rog','mag','mon','adv','ber','pal','wind','nin','sag','fist','hero'];
+function rpgFig(c,sz){sz=sz||120;var i=Math.max(0,RPG_ORDER.indexOf(c)),h=Math.round(sz*208/160);
+  return '<span class="rspr" role="img" aria-label="'+(CLS[c]||'')+'" style="width:'+sz+'px;height:'+h+'px;background-image:url('+RPG_IMG+');background-size:'+(sz*5)+'px '+(h*3)+'px;background-position:-'+((i%5)*sz)+'px -'+(Math.floor(i/5)*h)+'px"></span>';}
 function rpgRadar(P,W){W=W||260;var M=1,cx=W/2,cy=W/2-2,R=W*0.33,s='';ATTR.forEach(function(a){M=Math.max(M,P[a[0]]);});
   var pt=function(i,r){var a=-Math.PI/2+i*Math.PI/3;return [(cx+r*Math.cos(a)).toFixed(1),(cy+r*Math.sin(a)).toFixed(1)];};
   [1,.66,.33].forEach(function(k){s+='<polygon points="'+ATTR.map(function(_,i){return pt(i,R*k).join(',');}).join(' ')+'" fill="'+(k===1?'var(--chip)':'none')+'" stroke="var(--line)"/>';});
@@ -2497,11 +2414,11 @@ function rpgRadar(P,W){W=W||260;var M=1,cx=W/2,cy=W/2-2,R=W*0.33,s='';ATTR.forEa
   ATTR.forEach(function(a,i){var p=pt(i,R+22);s+='<text x="'+p[0]+'" y="'+(+p[1]+4)+'" text-anchor="middle" font-size="13" font-weight="800" fill="'+a[2]+'">'+a[1]+' '+fmtN(P[a[0]])+'</text>';});
   return '<svg class="rpgradar" width="'+W+'" height="'+W+'" viewBox="0 0 '+W+' '+W+'" role="img" aria-label="六項能力">'+s+'</svg>';}
 function rpgCardHTML(){var r=rpgState(),s=curSeason(),pc=Math.round((r.tot-r.lo)/Math.max(1,r.hi-r.lo)*100);
-  return '<button class="rpgcard" data-act="rpgopen"><span class="rpgmini">'+rpgFig(r.cls,52,{noGround:1})+'</span><span class="rpgc-r"><span class="rpgc-t"><b>'+CLS[r.cls]+' Lv '+r.lv+'</b><span class="small muted">'+(s?esc(s.name)+' · 第 '+seasonWeek(s)+' 週':'成長系統（測試中）')+'</span></span>'+
+  return '<button class="rpgcard" data-act="rpgopen"><span class="rpgmini">'+rpgFig(r.cls,60)+'</span><span class="rpgc-r"><span class="rpgc-t"><b>'+CLS[r.cls]+' Lv '+r.lv+'</b><span class="small muted">'+(s?esc(s.name)+' · 第 '+seasonWeek(s)+' 週':'成長系統（測試中）')+'</span></span>'+
     '<span class="rxp"><i style="width:'+pc+'%"></i></span><span class="small '+(r.canPick?'rpgpk':'muted')+'">'+(r.canPick?'可以轉職了！點這裡選職業':'再 '+fmtN(r.hi-r.tot)+' 經驗升到 Lv '+(r.lv+1))+'</span></span></button>';}
 function nextClassTxt(r){if(r.canPick)return '已經 Lv 10，可以選職業了';if(r.lv<10)return '一轉：Lv 10　還差 '+(10-r.lv)+' 級';if(r.lv<30)return '二轉：Lv 30　還差 '+(30-r.lv)+' 級';return '已完成二轉';}
 function vRpg(){var r=rpgState(),t=todayKey(),ws=weekStartKey(t),s='<div class="page">'+backBar('rpgback','我的角色'),pc=Math.round((r.tot-r.lo)/Math.max(1,r.hi-r.lo)*100),ti=rpgTitles();
-  s+='<div class="rcard rpghero"><div class="rpgfig">'+rpgFig(r.cls,112)+'</div><div class="rpgh-r"><div class="small muted">'+esc(db.settings.uname||'我')+' · Lv '+r.lv+'</div><div class="rpgcls">'+CLS[r.cls]+'</div>'+
+  s+='<div class="rcard rpghero"><div class="rpgfig">'+rpgFig(r.cls,124)+'</div><div class="rpgh-r"><div class="small muted">'+esc(db.settings.uname||'我')+' · Lv '+r.lv+'</div><div class="rpgcls">'+CLS[r.cls]+'</div>'+
     (ti.length?'<span class="rpgttl">稱號：'+esc(ti[ti.length-1])+'</span>':'')+'<div class="small muted" style="margin-top:8px">'+nextClassTxt(r)+'</div><div class="rxp"><i style="width:'+pc+'%"></i></div>'+
     '<div class="small muted" style="margin-top:6px">金幣 🪙 '+fmtN(r.gold)+'<span class="faqq" data-act="rpghelp" role="button" aria-label="說明">?</span></div></div></div>';
   s+='<section class="rcard"><div class="row-sb"><b class="rh3">生活分布</b><span class="small muted">經驗都從哪裡來</span></div><div class="rpgrad">'+rpgRadar(r.p,270)+'</div></section>';
@@ -4339,6 +4256,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.11.07-5','11/7',['新功能（測試中）：成長系統，在 設定 › 額外功能 打開。累積經驗升級，Lv 10 自己選職業、Lv 30 自動二轉，還有 8 週一季的挑戰','好習慣排行分成「本月」「累計」兩行，計次習慣顯示日均','修正：每週幾次的計次習慣，週中改了目標，補記的天數也會照新目標算']],
  ['2026.11.06-3','11/6',['新版面：底部改成 習慣｜運動｜投資｜獎勵，設定在右上角的頭像，新增和排序習慣在「管理習慣」','投資：累計損益分成已實現、其中股利、未實現；市值、未實現、今日漲跌移到持股最上面','今天買的股票，今日漲跌改用買價計算','運動：每個部位下面可以「＋ 再加一個動作」，課表進度會算進自己加的']],
  ['2026.11.03-4','11/3',['開始訓練時先選重訓／有氧／伸展；計時可以暫停，組間休息會倒數提醒','今天頁的區塊可以調整順序、收起來','獎勵可以「全部兌換」','運動頁新增「進步一覽」：每個部位用色塊看進步，可選近 1 個月、3 個月或全部','修正一些小問題']],
  ['2026.11.02-6','11/2',['課表可以「＋ 加部位」，「換一個」也能換成別的部位；統計頁也能隱藏金額','一個「開始訓練」計時，練的時候切換重訓／有氧／伸展，結束時確認分鐘；運動頁新增「今天」小卡','伸展可以計時，習慣可以選連動「運動」或「伸展」','重訓卡片只在新紀錄時顯示 1RM']],

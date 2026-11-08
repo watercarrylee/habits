@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-mfg5J4bjLR3NLp8CuCPZjEuKHicD4o/oKte+EO0ISZM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-JlpVAkpUp+S+f0N0YHd0UH2xAuZFoOiNkHT4YtYa26A='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1999,7 +1999,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.07-5';
+var APP_VER='2026.11.08-1';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4256,6 +4256,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.11.07-5','11/7',['新功能（測試中）：成長系統，在 設定 › 額外功能 打開。累積經驗升級，Lv 10 自己選職業、Lv 30 自動二轉，還有 8 週一季的挑戰','好習慣排行分成「本月」「累計」兩行，計次習慣顯示日均','修正：每週幾次的計次習慣，週中改了目標，補記的天數也會照新目標算']],
  ['2026.11.06-3','11/6',['新版面：底部改成 習慣｜運動｜投資｜獎勵，設定在右上角的頭像，新增和排序習慣在「管理習慣」','投資：累計損益分成已實現、其中股利、未實現；市值、未實現、今日漲跌移到持股最上面','今天買的股票，今日漲跌改用買價計算','運動：每個部位下面可以「＋ 再加一個動作」，課表進度會算進自己加的']],
  ['2026.11.03-4','11/3',['開始訓練時先選重訓／有氧／伸展；計時可以暫停，組間休息會倒數提醒','今天頁的區塊可以調整順序、收起來','獎勵可以「全部兌換」','運動頁新增「進步一覽」：每個部位用色塊看進步，可選近 1 個月、3 個月或全部','修正一些小問題']],
  ['2026.11.02-6','11/2',['課表可以「＋ 加部位」，「換一個」也能換成別的部位；統計頁也能隱藏金額','一個「開始訓練」計時，練的時候切換重訓／有氧／伸展，結束時確認分鐘；運動頁新增「今天」小卡','伸展可以計時，習慣可以選連動「運動」或「伸展」','重訓卡片只在新紀錄時顯示 1RM']],
