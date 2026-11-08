@@ -1,5 +1,5 @@
 // Keeps the app working offline. Network first, so a new version arrives whenever there is a connection.
-var CACHE='habits-v129';
+var CACHE='habits-v130';
 var FILES=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./rpg.webp','./fonts/inter-400.woff2','./fonts/inter-600.woff2','./fonts/inter-700.woff2','./fonts/inter-800.woff2'];
 self.addEventListener('install',function(e){e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(FILES.map(function(f){return new Request(f,{cache:'reload'});}));}).then(function(){return self.skipWaiting();}));});
 self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==CACHE;}).map(function(k){return caches.delete(k);}));}).then(function(){return self.clients.claim();}));});
