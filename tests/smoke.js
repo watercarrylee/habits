@@ -496,7 +496,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(!!(await p.$('.cyft .cyhint')) && !(await p.$('.cymiss')), 'coach: default is 溫和, with a 「想被罵一下？」 link');
   await p.click('.cyhint'); await p.click('#sheet [data-act=coachset][data-v=missing]');
   const miss = await p.innerText('.cymiss');
-  ok(/部位失蹤協尋/.test(miss) && /胸\s*失蹤 6 天/.test(miss) && /腿\s*失蹤 4 天/.test(miss), 'coach: 失蹤協尋 lists parts by days missing');
+  ok(/部位失蹤協尋/.test(miss) && /胸\s*失蹤\s*6 天/.test(miss) && !/腿/.test(miss.split('今天')[0]), 'coach: 失蹤協尋 = yellow when the worst is 5–8 days; 4 days (green) is not listed');
   await p.click('.cysw'); await p.click('#sheet [data-act=coachset][data-v=devil]');
   ok(!!(await p.$('.cydev .cybar')) && /😤/.test(await p.innerText('.cydev')), 'coach: 魔鬼教練 with a line and anger bars');
   ok((await db(p)).settings.coach === 'devil', 'coach: choice saved in settings');
@@ -509,6 +509,21 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(/軟軟/.test(cu) && /胸胸|腿腿/.test(cu) && /♥/.test(cu) && !!(await p.$('.cute .cuav img, .cute .cuav svg')), 'coach: 可愛 shows the chosen character, doubled part names and hearts');
   ok((await db(p)).settings.coachChar === 'egg', 'coach: character saved');
   await done(p, 'coach voice');
+
+  console.log('• 失蹤協尋燈號 (green / red)');
+  { const mk = (d1, d2) => ({ 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true, coach: 'missing' }, rewards: [], redeemed: [], logs: {},
+      habits: [{ id: 'g1', name: '喝水', kind: 'good', method: 'check', days: [1, 1, 1, 1, 1, 1, 1], created: daysAgo(30) }],
+      fit: { ex: [{ id: 'eC', name: '臥推', eq: '槓鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'eL', name: '深蹲', eq: '槓鈴', part: '腿', mode: 'wr', unit: 'kg' }, { id: 'eB', name: '划船', eq: '槓鈴', part: '背', mode: 'wr', unit: 'kg' }, { id: 'eS', name: '肩推', eq: '槓鈴', part: '肩', mode: 'wr', unit: 'kg' }, { id: 'eG', name: '臀推', eq: '槓鈴', part: '臀', mode: 'wr', unit: 'kg' }],
+        logs: { [daysAgo(d1)]: { s: [{ id: 's1', ex: 'eC', sets: [[40, 5]] }] }, [daysAgo(d2)]: { s: [{ id: 's2', ex: 'eL', sets: [[60, 5]] }] }, [daysAgo(2)]: { s: [{ id: 's3', ex: 'eB', sets: [[40, 5]] }, { id: 's4', ex: 'eS', sets: [[20, 5]] }, { id: 's5', ex: 'eG', sets: [[60, 5]] }] } } } } });
+    p = await page(b, mk(15, 9)); await p.click('#tabs [data-tab=fit]');
+    ok(!!(await p.$('.cyal')) && /部位訊號消失/.test(await p.innerText('.cyal')), 'lights: any big group 9+ days turns the box into the red alert');
+    ok(!!(await p.$('.cyal .cyc.l3[data-v=胸]')) && !!(await p.$('.cyal .cyc.l2[data-v=腿]')), 'lights: 14+ days = red fill, 9–13 = red frame');
+    ok(/最優先回收\s*胸/.test(await p.innerText('.cyord')), 'lights: order starts with the longest-missing part');
+    await done(p, 'lights red');
+    p = await page(b, mk(4, 3)); await p.click('#tabs [data-tab=fit]');
+    ok(!!(await p.$('.cyok2')) && /全部位連線正常/.test(await p.innerText('.cyok2')), 'lights: all within 4 days = green 全部位連線正常');
+    await p.click('[data-act=cyhelp]'); ok(/失蹤協尋的燈號/.test(await p.innerText('#sheet')) && /5–8 天/.test(await p.innerText('#sheet')), 'lights: rules explained in the ? help');
+    await done(p, 'lights green'); }
 
   console.log('• 好習慣排行：本月／累計');
   { const logs = {}; for (let i = 0; i < 40; i++) logs[daysAgo(i)] = { h: { w1: 2000, r1: 30 } };
