@@ -500,7 +500,14 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('.cysw'); await p.click('#sheet [data-act=coachset][data-v=devil]');
   ok(!!(await p.$('.cydev .cybar')) && /😤/.test(await p.innerText('.cydev')), 'coach: 魔鬼教練 with a line and anger bars');
   ok((await db(p)).settings.coach === 'devil', 'coach: choice saved in settings');
-  await p.click('.avbtn'); ok(await p.$eval('[data-act=coachset][data-v=devil]', e => e.classList.contains('on')), 'coach: 教練語氣 in settings');
+  await p.click('.avbtn'); ok(/教練語氣[\s\S]*魔鬼教練/.test(await p.innerText('button.row-btn[data-act=coachpick]')), 'coach: 教練語氣 row in settings shows the current choice');
+  await p.click('[data-act=setback]'); await p.click('#tabs [data-tab=fit]');
+  await p.click('.cysw'); await p.click('#sheet [data-act=coachset][data-v=cute]');
+  ok(!!(await p.$('#sheet .cuchar')), 'coach: 可愛 asks who keeps you company');
+  await p.click('#sheet [data-act=coachchar][data-v=egg]'); await p.click('#sheet [data-act=closesheet]');
+  const cu = await p.innerText('.cute');
+  ok(/軟軟/.test(cu) && /胸胸|腿腿/.test(cu) && /♥/.test(cu) && !!(await p.$('.cute .cuav img, .cute .cuav svg')), 'coach: 可愛 shows the chosen character, doubled part names and hearts');
+  ok((await db(p)).settings.coachChar === 'egg', 'coach: character saved');
   await done(p, 'coach voice');
 
   console.log('• 好習慣排行：本月／累計');
