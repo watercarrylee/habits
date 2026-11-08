@@ -1028,8 +1028,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     { ok((await p.$$eval('.tdno', x => x.map(e => e.textContent))).join() === '1,1,1', 'order: numbers restart in each part');
       await p.click('[data-act=ford][data-v=胸]'); ok(!!(await p.$('.sec.sorting [data-act=fmvs]')) && !!(await p.$('.sec.sorting [data-act=fmv]')) && (await p.$$('.sec.sorting')).length === 1, 'order: sorting one part shows arrows on its done and 待做 cards');
       await p.click('[data-act=ford][data-v=胸]'); ok(!(await p.$('[data-act=fmv]')) && !!(await p.$('.ftodo-w.swp')) && !(await p.$('[data-act=fswap]')), 'order: 完成 leaves sorting; 待做 cards swipe to remove, no 換一個'); }
-    { const x0 = d.fit.logs[T].todo.find(x => x.ex === 'e2'); const bx = await (await p.$('.ftodo-w[data-id="' + x0.id + '"]')).boundingBox();
-      await p.mouse.move(bx.x + bx.width - 30, bx.y + 30); await p.mouse.down(); for (let i = 1; i <= 8; i++) await p.mouse.move(bx.x + bx.width - 30 - i * 20, bx.y + 32); await p.mouse.up(); await p.waitForTimeout(350); d = await db(p);
+    { const x0 = d.fit.logs[T].todo.find(x => x.ex === 'e2'); const sw0 = await p.$('.ftodo-w[data-id="' + x0.id + '"]'); await sw0.scrollIntoViewIfNeeded(); const bx = await sw0.boundingBox();
+      await p.mouse.move(bx.x + bx.width - 80, bx.y + bx.height - 20); await p.mouse.down(); for (let i = 1; i <= 8; i++) await p.mouse.move(bx.x + bx.width - 80 - i * 20, bx.y + bx.height - 19); await p.mouse.up(); await p.waitForTimeout(350); d = await db(p);
       ok(!d.fit.logs[T].todo.some(x => x.id === x0.id) && /已從計劃移除 划船/.test(await p.innerText('#toast')), 'remove: swipe left takes it off the plan');
       await p.click('#toast [data-act=ftrmundo]'); d = await db(p); ok(d.fit.logs[T].todo.some(x => x.id === x0.id), 'remove: 復原 puts it back'); }
     { const part = (await p.$$eval('.secadd.plan', a => a.map(e => e.dataset.v)))[0]; await p.click('.secadd.plan[data-v="' + part + '"]');
