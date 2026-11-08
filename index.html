@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-QLDdbkLSws7BbFFkqDdyRhv/rqdSKXDIq0kXeJGWat4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-NEQkgPG5vzYoChj9M5Cn66EwSt4AyC+1V9CQT4gaxEw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2403,7 +2403,7 @@ function questWeeks(s,q){var h=byId(q.h),t=todayKey(),met=0,now=null;if(!h)retur
 function seasonWeek(s){return Math.min(SEASON_W,Math.floor(diffDays(todayKey(),s.start)/7)+1);}
 function rpgTitles(){return (rpgData().seasons||[]).filter(function(s){return seasonEnd(s)<todayKey()&&s.q.length&&questWeeks(s,s.q[0]).met>=6;}).map(function(s){return s.name+'完成者';});}
 /* character art: one sprite sheet (rpg.webp, 5 × 3 cells, 160 × 208 each), order = RPG_ORDER */
-var RPG_IMG='rpg.webp?v=3',RPG_ORDER=['base','war','kni','ran','rog','mag','mon','adv','ber','pal','wind','nin','sag','fist','hero'];
+var RPG_IMG='rpg.webp?v=4',RPG_ORDER=['base','war','kni','ran','rog','mag','mon','adv','ber','pal','wind','nin','sag','fist','hero'];
 function rpgFig(c,sz){sz=sz||120;var i=Math.max(0,RPG_ORDER.indexOf(c)),h=Math.round(sz*208/160);
   return '<span class="rspr" role="img" aria-label="'+(CLS[c]||'')+'" style="width:'+sz+'px;height:'+h+'px;background-image:url('+RPG_IMG+');background-size:'+(sz*5)+'px '+(h*3)+'px;background-position:-'+((i%5)*sz)+'px -'+(Math.floor(i/5)*h)+'px"></span>';}
 function rpgRadar(P,W){W=W||260;var M=1,cx=W/2,cy=W/2-2,R=W*0.33,s='';ATTR.forEach(function(a){M=Math.max(M,P[a[0]]);});
