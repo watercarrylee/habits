@@ -543,7 +543,11 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     { const d = mk(4, 3); d['habit-tracker-v1'].fit.logs[daysAgo(0)] = { s: [{ id: 's9', ex: 'eC', sets: [[40, 5]] }] };
       p = await page(b, d); await p.click('#tabs [data-tab=fit]');
       const g = await p.innerText('.cyok2'); ok(/最久的是腿，休息 3 天/.test(g) && !/最久的是胸/.test(g), 'lights: a part trained today is not named as the longest rested');
-      await done(p, 'lights today'); } }
+      await done(p, 'lights today'); }
+    { const d = mk(4, 3); d['habit-tracker-v1'].fit.logs[daysAgo(0)] = { s: ['eC','eL','eB','eS','eG'].map((x, i) => ({ id: 't' + i, ex: x, sets: [[40, 5]] })) };
+      p = await page(b, d); await p.click('#tabs [data-tab=fit]');
+      ok(/全數回收/.test(await p.innerText('.cyok2')) && !(await p.$('.cyft-ok')), 'coach: 失蹤協尋 keeps its voice after all suggestions are done');
+      await done(p, 'coach done'); } }
 
   console.log('• 好習慣排行：本月／累計');
   { const logs = {}; for (let i = 0; i < 40; i++) logs[daysAgo(i)] = { h: { w1: 2000, r1: 30 } };
