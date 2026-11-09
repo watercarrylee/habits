@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-1uFR6zuB+HZjyge5IPCA5He2tC72Lfies3Lw3GRTd68='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-i58GTDGuOaRFOELJ1/vv/eRS7fML2vctVUX36Ea9hRw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1386,6 +1386,11 @@ function coachHTML(SG,mk){var mode=coachMode(),ms=coachMissing(SG),tg=SG.big.fil
       '<div class="cymeter">'+ms.slice(0,3).map(function(p){var n=SG.rest(p);return '<div class="cymm"><b>'+p+'</b><span class="cybar"><i style="width:'+Math.min(100,Math.round(n/10*100))+'%"></i></span><span>'+(n===Infinity?'沒練過':n>=7?n+' 天!':n+' 天')+'</span></div>';}).join('')+'</div>'+
       (SG.fresh.length?'<small class="cyfr">'+SG.fresh.join('、')+'昨天剛練，今天放過它。</small>':'')+'</div>';}
   return '';}
+function coachDone(SG){var ps=SG.big.concat(SG.small),sw='<button class="cysw" data-act="coachpick">語氣</button>',mode=coachMode();
+  if(mode==='missing')return '<div class="cyok2"><div class="cyok2t"><span>✓ 今日部位全數回收</span>'+sw+'</div><p><b>'+ps.join('、')+'</b> 已歸隊。任務完成，收隊。</p></div>';
+  if(mode==='devil')return '<div class="cyft cydev"><p><b>😏 今天算你有做到。</b><small>'+ps.join('、')+'都練了。明天別給我偷懶。</small></p>'+sw+'</div>';
+  if(mode==='cute'){var ch=coachChar(),nm=avName(ch);return '<div class="cute"><div class="cuhd"><span>'+nm+'</span>'+sw+'</div><div class="cur"><span class="cuav" aria-hidden="true">'+avSvg(ch,52)+'</span><p class="cub">今天把'+ps.map(cuteName).join('、')+'都抱過了，好棒！🎉<br>'+nm+'幫你按摩肩膀～</p></div></div>';}
+  return '';}
 function cyHelp(){return '<h2>建議怎麼來的？</h2><ul class="cyhelp"><li>看每個部位距離上次練幾天，<b>休息越久越優先</b>。</li><li><b>昨天練過的先不建議</b>：肌肉練完通常需要約 48 小時恢復，太快再練效果打折，也比較容易受傷。</li>'+
   '<li>先挑<b>大肌群</b>（胸、背、腿、肩、臀），手臂、核心、小腿比較小，可以搭著一起練。</li><li>練「全身」那天，所有部位都算練過一次。</li><li>這只是參考：還很痠、沒睡好，就多休息一天。</li></ul>'+
   '<h2 style="margin-top:14px">失蹤協尋的燈號</h2><ul class="cyhelp"><li><b>胸、背、腿、肩、臀</b>：4 天以內🟢、5–8 天🟡、9 天以上🔴（14 天以上整格紅底）。</li>'+
@@ -1403,7 +1408,8 @@ function cyWeekHTML(){if(!Object.keys(db.fit.logs).length)return '';var t=todayK
   s+='</div>';
   var mk=function(a){return a.map(function(p){return SG.today[p]?'<span class="cyok">'+p+' ✓</span>':'<button class="cypt" data-act="fpartadd" data-v="'+p+'" aria-label="帶入'+p+'的常用動作">'+p+'</button>';}).join('、');};
   var addP=ui.date===t?'<button class="cyadd" data-act="fpartpick">＋ 加部位</button>':'';
-  if(SG&&SG.done)s+='<div class="cyft cyft-ok"><span class="cyft-ic" aria-hidden="true">✓</span><p>今天的建議都練完了 👍<small>'+SG.big.concat(SG.small).join('、')+'</small></p></div>';
+  if(SG&&SG.done&&coachMode()!=='soft'&&SG.big.concat(SG.small).length)s+=coachDone(SG);
+  else if(SG&&SG.done)s+='<div class="cyft cyft-ok"><span class="cyft-ic" aria-hidden="true">✓</span><p>今天的建議都練完了 👍<small>'+SG.big.concat(SG.small).join('、')+'</small></p></div>';
   else if(SG&&coachMode()!=='soft'&&SG.big.concat(SG.small).length)s+=coachHTML(SG,mk);
   else if(SG)s+='<div class="cyft"><p>'+(SG.big.length?'建議今天練：<b>'+mk(SG.big)+'</b>'+(SG.small.length?'，可以搭<b>'+mk(SG.small)+'</b>':''):'大肌群都才剛練過，今天適合休息'+(SG.small.length?'，或練<b>'+mk(SG.small)+'</b>':'')+'，或做有氧')+
     '<small>'+SG.why.join('、')+(SG.fresh.length?'；'+SG.fresh.join('、')+'昨天剛練':'')+'</small>'+(coachMissing(SG).length?'<button class="cyhint" data-act="coachpick">想被罵一下？</button>':'')+'</p></div>';
@@ -2103,7 +2109,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.09-3';
+var APP_VER='2026.11.09-4';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
