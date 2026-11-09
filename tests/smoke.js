@@ -1027,16 +1027,15 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok(d.fit.logs[T].todo.length === 3 && /今天/.test(await p.innerText('.dnav-c')), 'copy: 用這天的課表 from a past day brings it to today');
     { ok((await p.$$eval('.tdno', x => x.map(e => e.textContent))).join() === '1,1,1', 'order: numbers restart in each part');
       await p.click('[data-act=ford][data-v=胸]'); ok(!!(await p.$('.sec.sorting [data-act=fmvs]')) && !!(await p.$('.sec.sorting [data-act=fmv]')) && (await p.$$('.sec.sorting')).length === 1, 'order: sorting one part shows arrows on its done and 待做 cards');
-      await p.click('[data-act=ford][data-v=胸]'); ok(!(await p.$('[data-act=fmv]')) && !!(await p.$('[data-act=fswap]')), 'order: 完成 leaves sorting'); }
-    { const x0 = d.fit.logs[T].todo.find(x => x.ex === 'e2'); await p.click('[data-act=fswap][data-id="' + x0.id + '"]');
-      ok(/換掉划船/.test(await p.innerText('#sheet')), 'swap: sheet lists alternatives');
-      await p.click('[data-act=fswapgo] >> nth=0'); await p.waitForTimeout(200); d = await db(p); const x1 = d.fit.logs[T].todo.find(x => x.id === x0.id);
-      ok(x1.ex !== 'e2' && x1.sw === 'e2' && /換自划船/.test(await p.innerText('main')), 'swap: 待做 replaced, origin shown'); }
-    { const x2 = (await db(p)).fit.logs[T].todo.find(x => x.ex); await p.click('[data-act=fswap][data-id="' + x2.id + '"]');
-      await p.click('[data-act=fswappart][data-v=腿]'); ok(/換成練「腿」/.test(await p.innerText('#sheet')), 'swap: another part can be picked');
-      const sb = await p.$eval('.sheet', e => getComputedStyle(e.querySelector('.list')).flexShrink); ok(sb === '0', 'sheet: lists keep their height so the sheet scrolls');
-      await p.click('[data-act=fswapgo] >> nth=0'); await p.waitForTimeout(200); const x3 = (await db(p)).fit.logs[T].todo.find(x => x.id === x2.id);
-      ok(x3 && x3.ex !== x2.ex, 'swap: changed to an exercise of another part'); }
+      await p.click('[data-act=ford][data-v=胸]'); ok(!(await p.$('[data-act=fmv]')) && !!(await p.$('.ftodo-w.swp')) && !(await p.$('[data-act=fswap]')), 'order: 完成 leaves sorting; 待做 cards swipe to remove, no 換一個'); }
+    { const x0 = d.fit.logs[T].todo.find(x => x.ex === 'e2'); const sw0 = await p.$('.ftodo-w[data-id="' + x0.id + '"]'); await sw0.scrollIntoViewIfNeeded(); const bx = await sw0.boundingBox();
+      await p.mouse.move(bx.x + bx.width - 80, bx.y + bx.height - 20); await p.mouse.down(); for (let i = 1; i <= 8; i++) await p.mouse.move(bx.x + bx.width - 80 - i * 20, bx.y + bx.height - 19); await p.mouse.up(); await p.waitForTimeout(350); d = await db(p);
+      ok(!d.fit.logs[T].todo.some(x => x.id === x0.id) && /已從計劃移除 划船/.test(await p.innerText('#toast')), 'remove: swipe left takes it off the plan');
+      await p.click('#toast [data-act=ftrmundo]'); d = await db(p); ok(d.fit.logs[T].todo.some(x => x.id === x0.id), 'remove: 復原 puts it back'); }
+    { const part = (await p.$$eval('.secadd.plan', a => a.map(e => e.dataset.v)))[0]; await p.click('.secadd.plan[data-v="' + part + '"]');
+      ok(/加入計劃/.test(await p.innerText('#sheet')), 'plan: 加到計劃 opens the part list');
+      const all = await p.$('#sheet [data-act=fpallx]'); if (all) { await all.click(); ok((await p.$$('#sheet .fcopy-it')).length > 0, 'plan: 看全部 lists every exercise of that part'); const sb = await p.$eval('.sheet', e => getComputedStyle(e.querySelector('.list')).flexShrink); ok(sb === '0', 'sheet: lists keep their height so the sheet scrolls'); }
+      await p.click('#sheet [data-act=closesheet]').catch(() => {}); }
     { await p.click('[data-act=fpartpick]'); ok(/加一個部位/.test(await p.innerText('#sheet')) && (await p.$$('#sheet [data-act=fpartadd]')).length === 10, 'part: 加部位 lists every part');
       await p.click('#sheet [data-act=fpartadd][data-v=核心]'); ok(!!(await p.$('[data-act=fpartgo]')) || /核心/.test(await p.innerText('#sheet')), 'part: picking one opens its list');
       await p.click('#sheet [data-act=closesheet]').catch(() => {}); }
@@ -1367,8 +1366,8 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     await p.click('#fitTab');
     ok(!!(await p.$('.fab')) && !(await p.$('.fbtns')), 'fit: floating ＋ replaces the bottom buttons once there are records');
     ok(!!(await p.$('.ftbar .ftsegs')) && !(await p.$('.fmin')), 'fit: running timer bar at the top with 重訓／有氧／伸展');
-    ok(!(await p.$('.secplus')) && /再加一個肩的動作/.test(await p.innerText('.secadd[data-v=肩]')), 'fit: 「＋ 再加一個肩的動作」 at the bottom of the section');
-    await p.click('.secadd[data-v=肩]'); ok(await p.$eval('.fchip.on[data-act=fpart]', e => e.textContent) === '肩', 'fit: section ＋ opens the picker on that part');
+    ok(/加到計劃/.test(await p.innerText('.secadd.plan[data-v=肩]')) && /直接記錄/.test(await p.innerText('.secadd[data-act=fpickp][data-v=肩]')), 'fit: section footer = 「＋ 加到計劃」+「＋ 直接記錄」');
+    await p.click('.secadd[data-act=fpickp][data-v=肩]'); ok(await p.$eval('.fchip.on[data-act=fpart]', e => e.textContent) === '肩', 'fit: section ＋ opens the picker on that part');
     await p.click('[data-act=fpback]'); await p.click('.fab'); ok(!!(await p.$('.fadd')), 'fit: ＋ asks 重訓 or 有氧');
     await p.click('.fadd [data-act=fcnew]'); ok(!(await p.$('#sheet .sheet')), 'fit: menu closes after choosing');
     await done(p, 'fit add');
