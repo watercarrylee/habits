@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-35pOWMQbXPEXfvmF1zSVXqErFVB/ArUz/A5EQtu2dVA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-1uFR6zuB+HZjyge5IPCA5He2tC72Lfies3Lw3GRTd68='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1364,7 +1364,7 @@ function coachHTML(SG,mk){var mode=coachMode(),ms=coachMissing(SG),tg=SG.big.fil
   var sw='<button class="cysw" data-act="coachpick">語氣</button>';
   if(mode==='missing'){var lv=function(p){return cyLv(p,SG.rest(p));},worst=0;ms.forEach(function(p){worst=Math.max(worst,lv(p));});
     var card=function(p,red){var n=SG.rest(p),l=lv(p);return '<button class="cyc'+(n===Infinity?' unk':' l'+l)+'" data-act="fpartadd" data-v="'+p+'" aria-label="帶入'+p+'的常用動作"><b>'+p+'</b><span>'+(n===Infinity?'從未出現':(red?'':'<small>失蹤</small>')+'<em>'+n+'</em> 天')+'</span></button>';};
-    if(!worst){var mx=CY_BIG.concat(CY_SMALL).filter(function(p){return SG.rest(p)<Infinity;}).sort(function(a,b){return SG.rest(b)-SG.rest(a);})[0],all=tg.concat(sm);
+    if(!worst){var mx=CY_BIG.concat(CY_SMALL).filter(function(p){return !SG.today[p]&&SG.rest(p)<Infinity;}).sort(function(a,b){return SG.rest(b)-SG.rest(a);})[0],all=tg.concat(sm);
       return '<div class="cyok2"><div class="cyok2t"><span>✓ 全部位連線正常</span>'+sw+'</div><p>'+(mx?'最久的是'+mx+'，休息 '+SG.rest(mx)+' 天。':'')+(all.length?'今天可以練 <b>'+mk(all)+'</b>。':'想練什麼都行。')+'</p></div>';}
     if(worst===1)return '<div class="cymiss"><div class="cymt"><span>⚠ 部位失蹤協尋 ⚠</span>'+sw+'</div><div class="cyg2">'+ms.slice(0,6).map(function(p){return card(p,false);}).join('')+'</div>'+
       '<p class="cyme">'+(tg.length||sm.length?plan:'把它們找回來吧。')+(SG.fresh.length?'<small>'+SG.fresh.join('、')+'昨天剛練，先放它一馬。</small>':'')+'</p></div>';
@@ -2103,7 +2103,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.09-2';
+var APP_VER='2026.11.09-3';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';

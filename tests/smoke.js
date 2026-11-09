@@ -539,7 +539,11 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     p = await page(b, mk(4, 3)); await p.click('#tabs [data-tab=fit]');
     ok(!!(await p.$('.cyok2')) && /全部位連線正常/.test(await p.innerText('.cyok2')), 'lights: all within 4 days = green 全部位連線正常');
     await p.click('[data-act=cyhelp]'); ok(/失蹤協尋的燈號/.test(await p.innerText('#sheet')) && /5–8 天/.test(await p.innerText('#sheet')), 'lights: rules explained in the ? help');
-    await done(p, 'lights green'); }
+    await done(p, 'lights green');
+    { const d = mk(4, 3); d['habit-tracker-v1'].fit.logs[daysAgo(0)] = { s: [{ id: 's9', ex: 'eC', sets: [[40, 5]] }] };
+      p = await page(b, d); await p.click('#tabs [data-tab=fit]');
+      const g = await p.innerText('.cyok2'); ok(/最久的是腿，休息 3 天/.test(g) && !/最久的是胸/.test(g), 'lights: a part trained today is not named as the longest rested');
+      await done(p, 'lights today'); } }
 
   console.log('• 好習慣排行：本月／累計');
   { const logs = {}; for (let i = 0; i < 40; i++) logs[daysAgo(i)] = { h: { w1: 2000, r1: 30 } };
