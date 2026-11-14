@@ -1387,9 +1387,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const logs = { [daysAgo(0)]: { s: [{ id: 'a', ex: 'p1', sets: [[40, 10]] }] }, [daysAgo(7)]: { s: [{ id: 'b', ex: 'p18', sets: [[60, 5]] }], c: [{ id: 'c', type: '跑步', min: 30 }] } };
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex, logs, ctypes: [] } } });
     await p.click('#fitTab');
-    ok((await p.$$('.cyd')).length === 7 && await p.$eval('.cyd.today .cyp', e => e.textContent) === '胸', 'week table: today shows the part trained');
+    ok((await p.$$('.cyd')).length === 7 && await p.$eval('.cyd.today .cyp', e => e.dataset.p) === '胸' && !!(await p.$('.cyd.today .cyp.ico .pi')), 'week table: today shows the part icon');
     await p.click('[data-act=cyoff][data-n="1"]');
-    ok(/上週/.test(await p.innerText('.cyh')) && (await p.$$eval('.cyp', e => e.map(x => x.textContent))).join() === '腿,有氧', 'week table: ‹ shows last week with 有氧');
+    ok(/上週/.test(await p.innerText('.cyh')) && (await p.$$eval('.cyp', e => e.map(x => x.dataset.p))).join() === '腿,有氧' && (await p.$$eval('.cyp', e => e.map(x => x.getAttribute('aria-label')))).join() === '腿,有氧', 'week table: ‹ shows last week, icons carry their part name');
     await done(p, 'week table');
   }
 
@@ -1400,7 +1400,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const logs = { [daysAgo(3)]: S(['p18']), [daysAgo(2)]: S(['p18', 'p22', 'p23']), [daysAgo(1)]: S(['p1', 'p11', 'p14', 'p16', 'p22']), [daysAgo(0)]: { c: [{ id: 'r', type: '跑步', min: 30 }] } };
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex, logs, ctypes: [] } } });
     await p.click('#fitTab');
-    ok((await p.$$eval('.cyd.today .cyp.dash', e => e.map(x => x.textContent))).join() === '背,腿,核心', 'suggest: 背 (never), 腿 (2 days), plus 核心');
+    ok((await p.$$eval('.cyd.today .cyp.dash', e => e.map(x => x.dataset.p))).join() === '背,腿,核心', 'suggest: 背 (never), 腿 (2 days), plus 核心');
     ok(/建議今天練：背、腿，可以搭核心/.test(await p.innerText('.cyft')) && /胸、肩、臀、二頭、三頭昨天剛練/.test(await p.innerText('.cyft')), 'suggest: reason line');
     await p.click('[data-act=cyhelp]'); ok(/48 小時/.test(await p.innerText('#sheet')), 'suggest: ? explains the rule');
     await p.click('#sheet [data-act=closesheet]').catch(() => {});
@@ -1409,7 +1409,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       const logs2 = Object.assign({}, logs, { [daysAgo(0)]: S(['p23']) });
       const q = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: ex.concat([{ id: 'p6', name: '下拉', eq: '滑輪', part: '背' }]), logs: logs2, ctypes: [] } } });
       await q.click('#fitTab');
-      ok((await q.$$eval('.cyd.today .cyp.dash', e => e.map(x => x.textContent))).join() === '背,腿' && /核心 ✓/.test(await q.innerText('.cyft')), 'suggest: kept while training, done parts ticked');
+      ok((await q.$$eval('.cyd.today .cyp.dash', e => e.map(x => x.dataset.p))).join() === '背,腿' && /核心 ✓/.test(await q.innerText('.cyft')), 'suggest: kept while training, done parts ticked');
       await done(q, 'suggest partly done');
     }
   }
