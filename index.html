@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-xPABOfi8KHG4RtdeZsYiiZiK3G+dTYUYJxWaZVAw7/Q='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-FcALE4V/8bmHjHHEtBCvPtkVmqzGbsTS7f9GF1oOzno='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -337,6 +337,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .cyp.dash .pi::before{background:var(--fg);opacity:.85}
 .cyp.ico.stk{align-items:center;justify-content:center;width:100%;box-sizing:border-box;padding:6px 2px 5px;gap:3px}.cyp.ico.stk .pi{--s:46px;margin:0 auto}
 .pi::after{background:var(--good)}
+.cyp.ico.stk.nol{padding:4px 1px}.cyp.ico.stk.nol .pi{--s:50px}.cyp.ico.stk.nol.dash{padding:3px 0}
 .cyp.ico.stk.dash{background:none;border:1.5px dashed color-mix(in srgb,var(--good) 75%,transparent);color:var(--fg);padding:5px 1px 4px}
 .cyp.ico.stk.dash .pi::before{background:var(--fg);opacity:.5}.cyp.ico.stk small{font-size:13px;line-height:1;margin:0}
 .cyp.ico.ovl{width:100%;box-sizing:border-box;padding:4px 2px;position:relative}.cyp.ico.ovl .pi{--s:56px}.cyp.ico.ovl small{position:absolute;left:50%;bottom:3px;transform:translateX(-50%);font-size:13px;line-height:1;margin:0;padding:2px 6px;border-radius:7px;background:color-mix(in srgb,var(--surface) 82%,transparent);font-weight:900}
@@ -1432,12 +1433,12 @@ var CY_ICO={'胸':CY_T+'<path d="M8.6 10.6Q8.6 9 10.2 9H15.2V15.2Q11 16.2 8.8 14
 '有氧':'<circle cx="19" cy="5" r="3"/><path class="hs" d="M17 10L13.5 18L18.5 21.5L17 29M13.5 18L8.5 27M16.6 10.5L22.5 14.5L26 12.5M16.6 10.5L11 12.5L8.5 16" stroke-width="3.2"/>',
 '伸':'<circle cx="12" cy="6" r="3"/><path class="hs" d="M13 10.5L15 19L13 29M15 19L20 29M13.6 11.5L23.5 5.5M13.6 11.5L9 17" stroke-width="3"/>'};
 window.cyIco=function(p){return cyIco(p)};var CY_PI=['胸','背','肩','二頭','三頭','腿','臀','核心','小腿','有氧','伸'];
-function cyIco(p){var j=CY_PI.indexOf(p);if(j>=0&&(function(){try{return /^[cd]$/.test(localStorage.getItem('cyico'))}catch(e){}})())return '<span class="pi" style="--i:'+j+'" aria-hidden="true"></span>';var g=CY_ICO[p];return g?'<svg class="cyi" viewBox="0 0 32 32" aria-hidden="true">'+g+'</svg>':'';}
+function cyIco(p){var j=CY_PI.indexOf(p);if(j>=0&&(function(){try{return /^[cde]$/.test(localStorage.getItem('cyico'))}catch(e){}})())return '<span class="pi" style="--i:'+j+'" aria-hidden="true"></span>';var g=CY_ICO[p];return g?'<svg class="cyi" viewBox="0 0 32 32" aria-hidden="true">'+g+'</svg>':'';}
 function cyChip(p,cls){var m=(function(){try{return localStorage.getItem('cyico')}catch(e){return null}})(),c=cls?' '+cls:'';
-  if(m==='c'||m==='d')return '<span class="cyp ico '+(m==='c'?'stk':'ovl')+c+'">'+cyIco(p)+'<small>'+(p==='伸'?'伸展':p)+'</small></span>';if(!m||!CY_ICO[p])return '<span class="cyp'+c+'">'+p+'</span>';
+  if(m==='e')return '<span class="cyp ico stk nol'+c+'" aria-label="'+(p==='伸'?'伸展':p)+'">'+cyIco(p)+'</span>';if(m==='c'||m==='d')return '<span class="cyp ico '+(m==='c'?'stk':'ovl')+c+'">'+cyIco(p)+'<small>'+(p==='伸'?'伸展':p)+'</small></span>';if(!m||!CY_ICO[p])return '<span class="cyp'+c+'">'+p+'</span>';
   return '<span class="cyp ico'+c+(m==='b'?' lab':'')+'" aria-label="'+p+'">'+cyIco(p)+(m==='b'?'<small>'+p+'</small>':'')+'</span>';}
 function cyWeekHTML(){if(!Object.keys(db.fit.logs).length)return '';var t=todayKey(),off=Math.max(0,ui.cyOff||0),ws=addDays(weekStartKey(t),-7*off),first=Object.keys(db.fit.logs).sort()[0];
-  var SG=off===0?cySuggest():null,C4=(function(){try{return /^[cd]$/.test(localStorage.getItem('cyico'))}catch(e){}})(),ND=C4?4:7;if(C4)ws=addDays(t,-3-4*off);
+  var SG=off===0?cySuggest():null,C4=(function(){try{return /^[cde]$/.test(localStorage.getItem('cyico'))}catch(e){}})(),ND=C4?4:7;if(C4)ws=addDays(t,-3-4*off);
   var s='<section class="cyw"><div class="cyh"><b>'+(C4?(off===0?'最近 4 天':shortMD(ws)+' 起'):(off===0?'這週':off===1?'上週':shortMD(ws)+' 那週'))+'訓練</b><button class="cyq" data-act="cyhelp" aria-label="建議怎麼來的">?</button><span class="cynav"><button class="iconbtn sm" data-act="cyoff" data-n="1" aria-label="上一週"'+(ws<=first?' disabled':'')+'>'+I.left+'</button>'+
     '<button class="iconbtn sm" data-act="cyoff" data-n="-1" aria-label="下一週"'+(off?'':' disabled')+'>'+I.right+'</button></span></div><div class="cyg'+(C4?' c4':'')+'">';
   for(var i=0;i<ND;i++){var d=addDays(ws,i),l=db.fit.logs[d]||{},ps=[];(l.s||[]).forEach(function(en){var e=exById(en.ex);if(e&&ps.indexOf(e.part)<0)ps.push(e.part);});
