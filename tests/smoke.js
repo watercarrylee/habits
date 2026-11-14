@@ -1390,6 +1390,11 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     ok((await p.$$('.cyd')).length === 7 && await p.$eval('.cyd.today .cyp', e => e.dataset.p) === '胸' && !!(await p.$('.cyd.today .cyp.ico .pi')), 'week table: today shows the part icon');
     await p.click('[data-act=cyoff][data-n="1"]');
     ok(/上週/.test(await p.innerText('.cyh')) && (await p.$$eval('.cyp', e => e.map(x => x.dataset.p))).join() === '腿,有氧' && (await p.$$eval('.cyp', e => e.map(x => x.getAttribute('aria-label')))).join() === '腿,有氧', 'week table: ‹ shows last week, icons carry their part name');
+    { const q = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex, logs: { [daysAgo(0)]: { s: [{ id: 'a', ex: 'p1', sets: [[40, 10]] }], st: 10 }, [daysAgo(9)]: { s: [{ id: 'b', ex: 'p18', sets: [[60, 5]] }] } }, ctypes: [] } } });
+      await q.click('#fitTab');
+      const seq = await q.$$eval('.cyd.today > *', e => e.map(x => x.classList.contains('cysg') ? '|' : (x.dataset.p || '')).filter(Boolean)).catch(() => []);
+      ok(seq.join() === '胸,伸,|,背,腿,核心' || (seq[0] === '胸' && seq[1] === '伸' && seq[2] === '|'), 'week table: stretch sits with the done parts, before the suggestions (' + seq.join() + ')');
+      await done(q, 'week order'); }
     await done(p, 'week table');
   }
 
