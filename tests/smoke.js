@@ -1387,9 +1387,9 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const logs = { [daysAgo(0)]: { s: [{ id: 'a', ex: 'p1', sets: [[40, 10]] }] }, [daysAgo(7)]: { s: [{ id: 'b', ex: 'p18', sets: [[60, 5]] }], c: [{ id: 'c', type: '跑步', min: 30 }] } };
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex, logs, ctypes: [] } } });
     await p.click('#fitTab');
-    ok((await p.$$('.cyd')).length === 4 && /最近 4 天/.test(await p.innerText('.cyh')) && await p.$eval('.cyd.today .cyp', e => e.dataset.p) === '胸' && !!(await p.$('.cyd.today .cyp.ico .pi')), 'week table: last 4 days, today shows the part icon');
+    ok((await p.$$('.cyd')).length === 7 && await p.$eval('.cyd.today .cyp', e => e.dataset.p) === '胸' && !!(await p.$('.cyd.today .cyp.ico .pi')), 'week table: today shows the part icon');
     await p.click('[data-act=cyoff][data-n="1"]');
-    ok(/–/.test(await p.innerText('.cyh')) && (await p.$$eval('.cyp', e => e.map(x => x.dataset.p))).join() === '腿,有氧' && (await p.$$eval('.cyp', e => e.map(x => x.getAttribute('aria-label')))).join() === '腿,有氧', 'week table: ‹ goes back 4 days, icons carry their part name');
+    ok(/上週/.test(await p.innerText('.cyh')) && (await p.$$eval('.cyp', e => e.map(x => x.dataset.p))).join() === '腿,有氧' && (await p.$$eval('.cyp', e => e.map(x => x.getAttribute('aria-label')))).join() === '腿,有氧', 'week table: ‹ shows last week, icons carry their part name');
     await done(p, 'week table');
   }
 
