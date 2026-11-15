@@ -114,6 +114,11 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   ok(await p.$$eval('section', xs => xs.some(x => (x.querySelector('.fgrp') || {}).textContent && x.querySelector('.fgrp').textContent.includes('器械') && x.innerText.includes('滑輪下拉'))), '滑輪下拉 also listed under 器械');
   await p.click('[data-act=fpickex][data-id=p25]');
   ok(!!(await p.$('.sameset')), 'new entry opens in same-sets mode');
+  { ok(/重量是總重/.test(await p.innerText('#main')) && /總訓練量 480/.test(await p.innerText('#flsum')), 'side: machine defaults to 雙邊 (480)');
+    await p.click('[data-act=flside][data-v="1"]'); await p.waitForTimeout(150);
+    ok(/單邊/.test(await p.innerText('.fcard .ftag')) && /總訓練量 960/.test(await p.innerText('#flsum')) && /kg\/邊/.test(await p.innerText('#flsum')), 'side: 單邊 doubles volume and shows kg/邊');
+    ok((await db(p)).fit.ex.find(e => e.id === 'p25').side === 1, 'side: stored on the exercise');
+    await p.click('[data-act=flside][data-v="0"]'); await p.waitForTimeout(150); ok(/總訓練量 480/.test(await p.innerText('#flsum')), 'side: back to 雙邊'); }
   await p.click('[data-act=flcnt][data-d="1"]'); await p.click('[data-act=flsave]');
   ok(/× 4 組/.test(await p.$eval('.fcard .fsets', e => e.textContent)), 'compact sets text');
   ok((await p.$eval('h2.sec-t', e => e.textContent)) === '重訓 · 背', 'day grouped by body part');
