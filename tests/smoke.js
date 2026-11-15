@@ -1404,7 +1404,11 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       await q.click('#fitTab');
       const seq = await q.$$eval('.cyd.today > *', e => e.map(x => x.classList.contains('cysg') ? '|' : (x.dataset.p || '')).filter(Boolean)).catch(() => []);
       ok(seq.join() === '胸,伸,|,背,腿,核心' || (seq[0] === '胸' && seq[1] === '伸' && seq[2] === '|'), 'week table: stretch sits with the done parts, before the suggestions (' + seq.join() + ')');
-      await done(q, 'week order'); }
+      ok(!(await q.$('.cyd.today .cyct')), 'week table: a single exercise shows no count'); await done(q, 'week order'); }
+    { const lg = { [daysAgo(0)]: { s: [{ id: 'a', ex: 'p1', sets: [[40, 10]] }, { id: 'b', ex: 'p2', sets: [[40, 10]] }, { id: 'c', ex: 'p3', sets: [[40, 10]] }] } };
+      const q = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex: [['p1','槓鈴臥推'],['p2','啞鈴臥推'],['p3','上斜臥推']].map(([id, name]) => ({ id, name, eq: '槓鈴', part: '胸' })), logs: lg, ctypes: [] } } });
+      await q.click('#fitTab'); ok(await q.$eval('.cyd.today .cyp[data-p=胸] .cyct', e => e.textContent).catch(() => '') === '×3', 'week table: 3 chest exercises show ×3');
+      await done(q, 'week count'); }
     await done(p, 'week table');
   }
 
