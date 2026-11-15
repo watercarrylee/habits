@@ -1045,6 +1045,11 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
       const all = await p.$('#sheet [data-act=fpallx]'); if (all) { await all.click(); ok((await p.$$('#sheet .fcopy-it')).length > 0, 'plan: 看全部 lists every exercise of that part'); const sb = await p.$eval('.sheet', e => getComputedStyle(e.querySelector('.list')).flexShrink); ok(sb === '0', 'sheet: lists keep their height so the sheet scrolls'); }
       await p.click('#sheet [data-act=closesheet]').catch(() => {}); }
     { await p.click('[data-act=fpartpick]'); ok(/加一個部位/.test(await p.innerText('#sheet')) && (await p.$$('#sheet [data-act=fpartadd]')).length === 10, 'part: 加部位 lists every part');
+      await p.click('#sheet [data-act=fpartadd][data-v=胸]');
+      { const c = await p.$('#sheet [data-act=fpasub][data-v=上胸]'); ok(!!c, 'plan: 加到計劃 has 肌群 chips'); if (c) { await c.click(); const al = await p.$('#sheet [data-act=fpallx]'); if (al) await al.click();
+        const ids = await p.$$eval('#sheet [data-act=fparttog]', x => x.map(e => e.dataset.v)); const subs = await p.evaluate(ids => ids.map(id => (JSON.parse(localStorage.getItem('habit-tracker-v1')).fit.ex.find(e => e.id === id) || {}).sub), ids);
+        ok(ids.length > 0 && subs.every(x => x === '上胸'), 'plan: 肌群 chip filters the list to 上胸 (' + subs.join() + ')'); } }
+      await p.click('#sheet [data-act=closesheet]').catch(() => {}); await p.click('[data-act=fpartpick]');
       await p.click('#sheet [data-act=fpartadd][data-v=核心]'); ok(!!(await p.$('[data-act=fpartgo]')) || /核心/.test(await p.innerText('#sheet')), 'part: picking one opens its list');
       await p.click('#sheet [data-act=closesheet]').catch(() => {}); }
     { const cp = await p.$('.cypt'); if (cp) { const pt = await cp.getAttribute('data-v'); await cp.click();
