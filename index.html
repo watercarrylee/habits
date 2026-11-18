@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-LXjGYEQZMao+2RKasnCFxBNUW8kWWrvDsImruGYDL9g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-xiJef8YB989gQnqi1mKknL56A/6ihjcLD4Rw5L1yVYw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -788,6 +788,7 @@ mark{background:var(--good-soft);color:inherit;font-weight:700;border-radius:3px
 .rep-hide{flex:0 0 auto;font-size:13px;font-weight:700;border-radius:10px;padding:6px 11px;border:1.5px solid var(--line);color:var(--muted);background:var(--surface)}.rep-hide.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .page input.rep-note{width:100%;box-sizing:border-box;margin:8px 0 4px;height:48px;padding:0 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:16px;color:var(--fg)}
 .rep-prev{margin:16px 0 12px;min-height:200px;border-radius:18px;background:var(--chip)}
+.fsshare{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px auto 0;padding:8px 14px;border:0;background:none;color:var(--good);font:inherit;font-weight:700;font-size:15px;cursor:pointer}.fsshare svg{width:18px;height:18px}
 .rep-prev img{display:block;width:100%;border-radius:18px;border:1.5px solid var(--line)}
 .rep-prev img:not([src]){display:none}
 .rep-share{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -1299,7 +1300,8 @@ function fitStat(h,o){var tg=fitTarget(h),v=isStretchH(h)?o.s:o.w+o.c;if(!tg)ret
 function fitSumHTML(k){var o=ftLive(k),lk=fitLinked();
   return '<button class="fsum2" data-act="fmanual"><span class="fs-h"><b>'+(k===todayKey()?'今天':shortMD(k))+'</b><span>點一下可以手動調整</span></span><span class="fs-3">'+
     ['w','c','s'].map(function(g){return '<span>'+FT_K[g]+'<b id="fsum'+g+'">'+o[g]+' 分</b></span>';}).join('')+'</span>'+
-    (lk.length?'<span class="fs-l">'+lk.map(function(h){return '<span><span>'+esc(h.name)+'</span>'+fitStat(h,o)+'</span>';}).join('')+'</span>':'')+'</button>';}
+    (lk.length?'<span class="fs-l">'+lk.map(function(h){return '<span><span>'+esc(h.name)+'</span>'+fitStat(h,o)+'</span>';}).join('')+'</span>':'')+'</button>'+
+    (o.w+o.c+o.s>0||((fLog(k)||{}).s||[]).length?'<button class="fsshare" data-act="ftshare" data-k="'+k+'">'+I.share+' 傳給朋友</button>':'');}
 function ftCtypes(){var n={},last=null;Object.keys(db.fit.logs).sort().forEach(function(x){(db.fit.logs[x].c||[]).forEach(function(c){n[c.type]=(n[c.type]||0)+1;last=c.type;});});
   var all=CARDIO.concat(db.fit.ctypes).filter(function(x,i,a){return a.indexOf(x)===i;}).sort(function(a,b){return (b===last)-(a===last)||(n[b]||0)-(n[a]||0);});return all.slice(0,6);}
 function ftEndSheet(v){var st=db.settings,end=v==='last'&&st.ftLast>st.ftStart?st.ftLast:v==='60'?st.ftStart+3600e3:Date.now();
@@ -4265,6 +4267,41 @@ function repShare(){var bl=ui.repBlob;if(!bl)return;var fn=REP_NAME+'-'+ui.repWs
   if(f&&navigator.canShare&&navigator.share){var can=false;try{can=navigator.canShare({files:[f]});}catch(e){}
     if(can){navigator.share({files:[f]}).catch(function(){});return;}}
   var a=document.createElement('a');a.href=ui.repUrl;a.download=fn;document.body.appendChild(a);a.click();a.remove();toast('已存成圖片');}
+/* 分享今天的運動: a square card (parts as the week-strip icons, minutes, 本週第 N 天) + a one-line text, through the share sheet */
+function fsData(k){var l=fLog(k)||{},pn={},ps=[];(l.s||[]).forEach(function(en){var e=exById(en.ex);if(!e)return;if(ps.indexOf(e.part)<0)ps.push(e.part);pn[e.part]=(pn[e.part]||0)+1;});
+  ps.sort(function(a,b){return PARTS.indexOf(a)-PARTS.indexOf(b);});var c=Math.round(cMinTot(k));if(c)ps.push('有氧');pn['有氧']=(l.c||[]).length;if(l.st)ps.push('伸');
+  var ws=weekStartKey(k),nd=0;for(var i=0;i<7;i++){var d=addDays(ws,i);if(d>k)break;var x=fLog(d);if(x&&((x.s||[]).length||(x.c||[]).length||x.min||x.st))nd++;}
+  return {k:k,ps:ps,pn:pn,w:l.min||0,c:c,st:l.st||0,nd:nd};}
+function fsText(D){var m=[];if(D.w)m.push('重訓 '+D.w+' 分');if(D.c)m.push('有氧 '+D.c+' 分');if(D.st)m.push('伸展 '+D.st+' 分');
+  var pp=D.ps.filter(function(p){return p!=='有氧'&&p!=='伸';});var d=parseKey(D.k);
+  return (d.getMonth()+1)+'/'+d.getDate()+' 運動完成 💪'+(m.length?' '+m.join('・'):'')+(pp.length?'｜'+pp.join('、'):'')+'｜本週第 '+D.nd+' 天';}
+function fsSprite(cb){if(fsSprite.im)return cb(fsSprite.im);var v=getComputedStyle(document.documentElement).getPropertyValue('--pm'),m=/url\(["']?(data:[^"')]+)/.exec(v||'');if(!m)return cb(null);
+  var im=new Image();im.onload=function(){fsSprite.im=im;cb(im);};im.onerror=function(){cb(null);};im.src=m[1];}
+function fsIcon(x,im,j,X,Y,S,line,acc){var N=im.height/2,o=document.createElement('canvas');o.width=o.height=S;var q=o.getContext('2d');
+  [[0,line],[N,acc]].forEach(function(L){q.globalCompositeOperation='source-over';var t=document.createElement('canvas');t.width=t.height=S;var tx=t.getContext('2d');
+    tx.drawImage(im,j*N,L[0],N,N,0,0,S,S);tx.globalCompositeOperation='source-in';tx.fillStyle=L[1];tx.fillRect(0,0,S,S);q.drawImage(t,0,0);});x.drawImage(o,X,Y);}
+function fsCanvas(D,im){repTheme();var cv=document.createElement('canvas');cv.width=1080;cv.height=1080;var x=cv.getContext('2d');
+  x.fillStyle=RC.bg;x.fillRect(0,0,1080,1080);rRound(x,56,56,968,968,56,RC.card);
+  var d=parseKey(D.k);rText(x,(d.getMonth()+1)+'月'+d.getDate()+'日 · 週'+WD[d.getDay()],RX0,170,40,700,RC.muted);
+  rText(x,'今天練完了 💪',RX0,262,76,800,RC.fg);
+  var tot=D.w+D.c+D.st,cols=[['重訓',D.w],['有氧',D.c],['伸展',D.st]].filter(function(r){return r[1];});
+  rText(x,tot+'',RX0,410,120,800,RC.good);rFont(x,120,800);var tw=x.measureText(tot+'').width;rText(x,'分鐘',RX0+tw+16,410,44,700,RC.good);
+  rText(x,cols.map(function(r){return r[0]+' '+r[1]+' 分';}).join('　·　'),RX0,470,34,400,RC.muted);
+  var ic=D.ps.filter(function(p){return CY_PI.indexOf(p)>=0;}),S=ic.length>6?118:140,G=ic.length>6?14:24,per=Math.min(ic.length,6),y=540;
+  if(im)ic.forEach(function(p,i){var r=Math.floor(i/6),cI=i%6,X=RX0+cI*(S+G),Y=y+r*(S+46);fsIcon(x,im,CY_PI.indexOf(p),X,Y,S,RC.fg,RC.good);
+    rText(x,(p==='伸'?'伸展':p)+(D.pn[p]>1?' ×'+D.pn[p]:''),X+S/2,Y+S+34,26,700,RC.muted,'center');});
+  rRound(x,RX0,880,RW,92,46,RC.goodSoft);rText(x,'本週第 '+D.nd+' 天',RX0+40,940,36,800,RC.good);
+  var s5=4;rFont(x,30,700);var gw=x.measureText('習慣紀錄').width;rSprout(x,RX1-gw-18*s5-56,905,s5);rText(x,'習慣紀錄',RX1-gw-40,945,30,700,RC.muted);
+  return cv;}
+function fsDraw(){var D=fsData(ui.fsK||todayKey()),seq=ui.fsSeq=(ui.fsSeq||0)+1;
+  fsSprite(function(im){if(seq!==ui.fsSeq)return;var cv;try{cv=fsCanvas(D,im);}catch(e){return;}
+    cv.toBlob(function(bl){if(seq!==ui.fsSeq||!bl)return;ui.fsBlob=bl;if(ui.fsUrl)try{URL.revokeObjectURL(ui.fsUrl);}catch(e){}ui.fsUrl=URL.createObjectURL(bl);
+      var el=$('#fsimg');if(el){el.src=ui.fsUrl;el.parentNode.classList.remove('busy');}},'image/png');});}
+function fsShare(img){var D=fsData(ui.fsK||todayKey()),txt=fsText(D),f=null;
+  if(img&&ui.fsBlob)try{f=new File([ui.fsBlob],'運動-'+D.k+'.png',{type:'image/png'});}catch(e){}
+  if(navigator.share){var o=f?{files:[f],text:txt}:{text:txt};var can=true;if(f&&navigator.canShare){try{can=navigator.canShare(o);}catch(e){can=false;}if(!can){o={files:[f]};try{can=navigator.canShare(o);}catch(e){can=false;}}}
+    if(can){navigator.share(o).catch(function(){});return;}}
+  try{navigator.clipboard.writeText(txt);toast('已複製文字，可以貼給朋友');}catch(e){toast(txt,4000);}}
 /* 分享日記: an image (drawn like 我的這一週, colors follow the skin) or a self-contained HTML file; both go through the share sheet */
 function dsFile(blob,name,type,done){var f=null;try{f=new File([blob],name,{type:type});}catch(e){}
   if(f&&navigator.canShare&&navigator.share){var can=false;try{can=navigator.canShare({files:[f]});}catch(e){}
@@ -4606,6 +4643,9 @@ function renderSheet(){
     el.innerHTML='<div class="sheet" role="dialog" aria-modal="true"><h2>結束訓練 · 共 '+(sh.w+sh.c+sh.s+sh.man)+' 分</h2><p class="small muted">'+hm(sh.a)+' – '+hm(sh.b)+(sh.pz?' · 中間暫停 '+sh.pz+' 分':'')+' · 忘了切換的話在這裡改</p>'+row('w')+row('c')+row('s')+
       (lk.length?'<div class="fs-l ftprev">'+lk.map(function(h){return '<span><span>'+esc(h.name)+'</span>'+fitStat(h,o)+'</span>';}).join('')+'</div>':'')+
       '<div class="stack"><button class="primary" data-act="ftsave">儲存</button><button class="secondary" data-act="closesheet">繼續計時</button><button class="linkish ftcx" data-act="ftcancel">不記，取消這次計時</button></div></div>';el.hidden=false;return;
+  }else if(sh.type==='ftshare'){var D=fsData(ui.fsK||todayKey());
+    el.innerHTML='<div class="sheet" role="dialog" aria-modal="true"><h2>傳給朋友</h2><p class="small muted">'+esc(fsText(D))+'</p><div class="rep-prev busy fs-prev"><img id="fsimg" alt="今天的運動"></div>'+
+      '<div class="stack"><button class="primary" data-act="fsgo">分享圖片</button><button class="secondary" data-act="fstxt">只傳文字</button><button class="linkish" data-act="closesheet">不用了</button>'+'</div></div>';el.hidden=false;fsDraw();return;
   }else if(sh.type==='fmanual'){var mk0=ui.date,ml=fLog(mk0)||{},cm=Math.round(cMinTot(mk0));
     h='<h2>'+(mk0===todayKey()?'今天':mdw(mk0))+'的運動時間</h2>'+
       '<div class="ftrow"><div class="ftrow-h"><b>重訓</b><span class="stepper"><button data-act="fmin" data-n="-5" aria-label="重訓減 5 分鐘"'+(ml.min?'':' disabled')+'>−</button><span class="v">'+(ml.min||0)+' 分</span><button class="go" data-act="fmin" data-n="5" aria-label="重訓加 5 分鐘">＋</button></span></div></div>'+
@@ -4829,7 +4869,11 @@ function act(a,b){
     case 'ftct': if(ui.sheet&&ui.sheet.type==='ftend')ui.sheet.ct=b.dataset.v;break;
     case 'ftsave': var sh1=ui.sheet;if(!sh1||sh1.type!=='ftend'||!ftOn())return;k=db.settings.ftDay;l=fLogMk(k);if(sh1.w)l.min=Math.min(1440,(l.min||0)+sh1.w);if(sh1.s)l.st=Math.min(1440,(l.st||0)+sh1.s);
       if(sh1.c){l.c=l.c||[];l.c.push({id:uid(),type:sh1.ct||'跑步機',min:sh1.c});}ftClear();fTidy(k);fitSync(k);save();ui.sheet=null;
-      toast('記下 '+['w','c','s'].filter(function(g){return sh1[g];}).map(function(g){return FT_K[g]+' '+sh1[g]+' 分';}).join(' · ')||'已結束計時',2600);break;
+      toast('記下 '+['w','c','s'].filter(function(g){return sh1[g];}).map(function(g){return FT_K[g]+' '+sh1[g]+' 分';}).join(' · ')||'已結束計時',2600);
+      if(k===todayKey()){ui.fsK=k;ui.sheet={type:'ftshare'};}break;
+    case 'ftshare': ui.fsK=b.dataset.k||todayKey();ui.sheet={type:'ftshare'};break;
+    case 'fsgo': fsShare(true);return;
+    case 'fstxt': fsShare(false);return;
     case 'fmanual': ui.sheet={type:'fmanual'};break;
     case 'fst': l=fLogMk(ui.date);l.st=Math.max(0,(l.st||0)+(+b.dataset.n));fTidy(ui.date);fitSync(ui.date);save();break;
     case 'fmin': l=fLogMk(ui.date);l.min=Math.max(0,(l.min||0)+(+b.dataset.n));fTidy(ui.date);fitSync(ui.date);save();break;
