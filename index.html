@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-IsBpge3fiGYiVut6QUEL3N0sGftAudn/A1MUwSXtiIU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-J3wZ+jgxdAgfStu4+P9lxZTG2MS2AtzYdxFmffrO+VU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -620,7 +620,7 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .fhwk{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}.fhw{display:flex;flex-direction:column;align-items:center;gap:4px}.fhw i{width:100%;aspect-ratio:1;border-radius:7px;background:var(--chip)}.fhw small{font-size:10.5px;color:var(--muted)}.fhw.cur small{color:var(--fg);font-weight:800}.fhw.cur i{outline:1.5px dashed var(--good);outline-offset:2px}
 .fhw.m1 i,.fhleg .m1{background:color-mix(in srgb,var(--good) 28%,var(--surface))}.fhw.m2 i,.fhleg .m2{background:color-mix(in srgb,var(--good) 60%,var(--surface))}.fhw.m3 i,.fhleg .m3{background:var(--good)}
 .fhleg{display:flex;gap:10px;justify-content:flex-end;font-size:11px;color:var(--muted);margin-top:8px}.fhleg span{display:flex;align-items:center;gap:3px}.fhleg i{width:10px;height:10px;border-radius:3px;background:var(--chip)}
-.fhst{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}.fhs{display:flex;align-items:center;gap:8px;padding:4px 0}.fhs .pi{--s:34px}.fhs b{font-size:15px;flex:1}.fhs em{font-style:normal;font-weight:800;font-size:13px;color:var(--muted)}.fhs.up em{color:var(--good)}.fhs.down em{color:var(--bad)}
+.fhst{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}.fhs{display:flex;align-items:center;gap:7px;padding:4px 0;min-width:0}.fhs .pi{--s:34px}.fhs b{font-size:15px;flex:1;display:flex;flex-direction:column;line-height:1.2}.fhs b small{font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}.fhs em{font-style:normal;font-weight:800;font-size:15px;color:var(--muted);white-space:nowrap}.fhs.up em{color:var(--good)}.fhs.down em{color:var(--bad)}
 .fhmore{display:block;margin:4px auto 14px;font-size:15px}
 .fpcard{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:4px 10px 10px;margin-top:10px}.fpgh{font-size:13px;font-weight:800;color:var(--muted);margin:8px 2px 8px}.fpg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .fpt{border:0;border-radius:12px;padding:8px;min-height:62px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;font:inherit;color:var(--fg);background:color-mix(in srgb,var(--chip) 55%,var(--surface))}.fpt b{font-size:12.5px;line-height:1.25;font-weight:700}.fpt span{font-size:15px;font-weight:800;color:var(--muted)}
@@ -1516,8 +1516,8 @@ function fitHealthHTML(W){var t=todayKey(),ws=weekStartKey(t),w=fhWeek(ws),miss=
   var P=FP_PER.filter(function(x){return x[0]===91;})[0];if(!fpOk(P))P=FP_PER[4];var by={};
   (W||[]).forEach(function(x){if(x.last<addDays(t,-45))return;var c=fpChange(x.h,P);if(c.pct==null||c.kind==='new'||c.kind==='na')return;var G=FH_GROUPS.filter(function(G){return (G[2]||[G[0]]).indexOf(x.e.part)>=0;})[0];if(!G)return;(by[G[0]]=by[G[0]]||[]).push(c.pct);});
   var rows=FH_GROUPS.filter(function(G){return by[G[0]];}).map(function(G){var a=by[G[0]].slice().sort(function(p,q){return p-q;}),m=a[Math.floor(a.length/2)],k=m>P[2]?'up':m<-P[2]?'down':'flat';
-    return '<span class="fhs '+k+'">'+cyChip(G[1]).replace('class="cyp ico','class="cyp ico fhic')+'<b>'+G[0]+'</b><em>'+(k==='up'?'變強':k==='down'?'變弱':'持平')+' '+(k==='up'?'↑':k==='down'?'↓':'→')+'</em></span>';});
-  if(rows.length)s+='<div class="panel fh"><div class="fh-h"><b>變強了嗎</b><span>'+(P[0]?'近 '+P[1]:'開始至今')+'</span></div><div class="fhst">'+rows.join('')+'</div></div>';
+    return '<span class="fhs '+k+'">'+cyChip(G[1]).replace('class="cyp ico','class="cyp ico fhic')+'<b>'+G[0]+'<small>'+a.length+' 個動作</small></b><em>'+(Math.round(m)===0?'0%':(m>0?'+':'−')+Math.abs(Math.round(m))+'%')+'</em></span>';});
+  if(rows.length)s+='<div class="panel fh"><div class="fh-h"><b>變強了嗎</b><span>'+(P[0]?'近 '+P[1]:'開始至今')+'</span></div><div class="fhst">'+rows.join('')+'</div><p class="fhsrc">每個部位取它所有動作進步幅度的中間值，不會被單一器材的大起大落帶偏。</p></div>';
   s+='<button class="linkish fhmore" data-act="fpdetail">'+(ui.fpDetail?'收起每個動作的細節':'看每個動作的進步、有氧和配速 ›')+'</button>';
   return s;}
 /* tab: progress */
@@ -2167,7 +2167,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.15-3';
+var APP_VER='2026.11.28-1';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4426,6 +4426,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.11.15-3','11/15',['「加到計劃」可以選肌群（例如上胸、中胸）','重訓可以設定「單邊／雙邊」：重量記一邊，訓練量自動 ×2；啞鈴預設單邊','這週訓練的部位圖旁會標 ×N，代表做了幾個動作']],
  ['2026.11.14-3','11/14',['「這週訓練」的部位改成肌肉小圖，建議還沒練的部位用虛線框','伸展排在練過的部位後面，今天那格更乾淨','下方的建議和說明文字放大，比較好讀']],
  ['2026.11.13-1','11/13',['背部新增 3 個啞鈴動作：俯身啞鈴反向飛鳥、窄肘俯身啞鈴划船、啞鈴上拉，都有動作圖']],
  ['2026.11.09-4','11/9',['已完成的運動卡片改成實心框，計劃卡的 ✓ 移到中間','教練語氣在建議都練完後也會出現','修正：今天練過的部位不會再被說成「休息最久」']],

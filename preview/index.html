@@ -2,7 +2,7 @@
 <html lang="zh-Hant" class="own-host">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-nsFtkoe71n2vSHghIjwd3zI3JmudkDmBwqHOB8QEB/A='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-tnCFLHX5g7rJ0UxfV3UqCO5fW3vQE1OpodQAhfyJcYk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -610,6 +610,18 @@ div.row-btn{box-sizing:border-box;cursor:default}
 .fpall{display:inline-flex;align-items:center;gap:2px;margin:4px 0 6px}.fpall svg{width:18px;height:18px}.fxname{font-size:18px}
 .fpov .fchips{margin:4px 0 10px}.fpov .fchip:disabled{opacity:.35}.fpnote{margin:-4px 4px 8px}.fpsum{padding:12px 14px}.fpsum-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}.fpsum-n{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin-top:6px}.fpsum-n span{font-size:12px;color:var(--muted)}.fpsum-n b{display:block;font-size:24px;font-weight:800}
 .fpsum-n .up b{color:var(--good)}.fpsum-n .flat b{color:var(--muted)}.fpsum-n .down b{color:var(--bad)}
+.fh{padding:14px 16px;margin-bottom:10px}.fh-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}.fh-h b{font-size:17px}.fh-h span{font-size:13px;color:var(--muted)}
+.fhrow{margin:10px 0 12px}.fhl{font-size:14px;font-weight:700;margin-bottom:6px}.fhl small{color:var(--muted);font-weight:600;margin-left:4px}
+.fhbar{height:10px;border-radius:5px;background:var(--chip);overflow:hidden}.fhbar i{display:block;height:100%;border-radius:5px;background:color-mix(in srgb,var(--good) 55%,var(--surface))}.fhbar.ok i{background:var(--good)}
+.fhv{font-size:13px;color:var(--muted);margin-top:4px}.fhv b{font-size:16px;color:var(--fg)}.fhok{color:var(--good);font-weight:800;margin-left:4px}
+.fhg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}.fhgi{display:flex;flex-direction:column;align-items:center;gap:2px}.fhgi small{font-size:11.5px;color:var(--muted);font-weight:700}
+.fhic{padding:0!important;background:none!important;width:auto!important;flex:none}.fhic .pi{--s:40px}.fhgi.off .pi{opacity:.28;filter:grayscale(1)}.fhgi.off small{opacity:.6}
+.fhmiss{font-size:14px;margin:10px 0 0;color:var(--fg)}.fhmiss b{color:var(--good)}.fhsrc{font-size:11.5px;color:var(--muted);margin:10px 0 0;line-height:1.5}
+.fhwk{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}.fhw{display:flex;flex-direction:column;align-items:center;gap:4px}.fhw i{width:100%;aspect-ratio:1;border-radius:7px;background:var(--chip)}.fhw small{font-size:10.5px;color:var(--muted)}.fhw.cur small{color:var(--fg);font-weight:800}.fhw.cur i{outline:1.5px dashed var(--good);outline-offset:2px}
+.fhw.m1 i,.fhleg .m1{background:color-mix(in srgb,var(--good) 28%,var(--surface))}.fhw.m2 i,.fhleg .m2{background:color-mix(in srgb,var(--good) 60%,var(--surface))}.fhw.m3 i,.fhleg .m3{background:var(--good)}
+.fhleg{display:flex;gap:10px;justify-content:flex-end;font-size:11px;color:var(--muted);margin-top:8px}.fhleg span{display:flex;align-items:center;gap:3px}.fhleg i{width:10px;height:10px;border-radius:3px;background:var(--chip)}
+.fhst{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}.fhs{display:flex;align-items:center;gap:7px;padding:4px 0;min-width:0}.fhs .pi{--s:34px}.fhs b{font-size:15px;flex:1;display:flex;flex-direction:column;line-height:1.2}.fhs b small{font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}.fhs em{font-style:normal;font-weight:800;font-size:15px;color:var(--muted);white-space:nowrap}.fhs.up em{color:var(--good)}.fhs.down em{color:var(--bad)}
+.fhmore{display:block;margin:4px auto 14px;font-size:15px}
 .fpcard{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:4px 10px 10px;margin-top:10px}.fpgh{font-size:13px;font-weight:800;color:var(--muted);margin:8px 2px 8px}.fpg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .fpt{border:0;border-radius:12px;padding:8px;min-height:62px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;font:inherit;color:var(--fg);background:color-mix(in srgb,var(--chip) 55%,var(--surface))}.fpt b{font-size:12.5px;line-height:1.25;font-weight:700}.fpt span{font-size:15px;font-weight:800;color:var(--muted)}
 .fpt.up{background:color-mix(in srgb,var(--good) 16%,var(--surface))}.fpt.up span{color:var(--good)}.fpt.down{background:color-mix(in srgb,var(--bad) 14%,var(--surface))}.fpt.down span{color:var(--bad)}.fpt.new span{color:var(--good)}.fpt.old{opacity:.6}.fpt span small{display:inline-block;margin-left:5px;font-size:11px;font-weight:600;color:var(--muted)}
@@ -1479,6 +1491,35 @@ function fitLogHTML(){
   return s;
 }
 
+/* 健康達標: WHO — 150 min aerobic a week, muscle-strengthening on 2+ days covering the major muscle groups. Habit-first: is this week covered, have the weeks been steady, is each group getting stronger. */
+var FH_CARDIO=150,FH_STR=2,FH_GROUPS=[['胸','胸'],['背','背'],['肩','肩'],['手臂','二頭',['二頭','三頭']],['核心','核心'],['臀','臀'],['腿','腿',['腿','小腿']]];
+function fhWeek(ws){var t=todayKey(),c=0,sd=0,parts={};for(var i=0;i<7;i++){var d=addDays(ws,i);if(d>t)break;var l=fLog(d);if(!l)continue;c+=cMinTot(d);
+  var any=false;(l.s||[]).forEach(function(en){var e=exById(en.ex);if(!e||!fMode(e))return;any=true;parts[e.part]=1;});if(any)sd++;}
+  var g=FH_GROUPS.filter(function(G){return (G[2]||[G[0]]).some(function(p){return parts[p];});}).length;
+  return {c:Math.round(c),sd:sd,parts:parts,g:g,met:(c>=FH_CARDIO?1:0)+(sd>=FH_STR?1:0)+(g>=FH_GROUPS.length?1:0)};}
+function fhBar(v,goal,unit){var pc=Math.min(100,Math.round(v/goal*100));return '<div class="fhbar'+(v>=goal?' ok':'')+'"><i style="width:'+pc+'%"></i></div><div class="fhv"><b>'+v+'</b> / '+goal+' '+unit+(v>=goal?' <span class="fhok">達標 ✓</span>':'')+'</div>';}
+function fitHealthHTML(W){var t=todayKey(),ws=weekStartKey(t),w=fhWeek(ws),miss=FH_GROUPS.filter(function(G){return !(G[2]||[G[0]]).some(function(p){return w.parts[p];});}).map(function(G){return G[0];});
+  var s='<div class="panel fh"><div class="fh-h"><b>本週健康達標</b><span>'+shortMD(ws)+' – '+shortMD(addDays(ws,6))+'</span></div>'+
+    '<div class="fhrow"><div class="fhl">有氧</div>'+fhBar(w.c,FH_CARDIO,'分')+'</div>'+
+    '<div class="fhrow"><div class="fhl">肌力訓練</div>'+fhBar(w.sd,FH_STR,'天')+'</div>'+
+    '<div class="fhrow"><div class="fhl">主要肌群 <small>'+w.g+' / '+FH_GROUPS.length+'</small></div><div class="fhg">'+FH_GROUPS.map(function(G){var on=(G[2]||[G[0]]).some(function(p){return w.parts[p];});
+      return '<span class="fhgi'+(on?'':' off')+'">'+cyChip(G[1]).replace('class="cyp ico','class="cyp ico fhic')+'<small>'+G[0]+'</small></span>';}).join('')+'</div>'+
+      (miss.length?'<p class="fhmiss">這週還沒練：<b>'+miss.join('、')+'</b></p>':'<p class="fhmiss ok">主要肌群這週都照顧到了 👍</p>')+'</div>'+
+    '<p class="fhsrc">依世界衛生組織建議：每週有氧 150 分鐘以上，肌力訓練 2 天以上並涵蓋主要肌群。</p></div>';
+  /* 持續度: last 8 weeks */
+  var wk=[];for(var i=7;i>=0;i--){var a=addDays(ws,-7*i);wk.push({k:a,w:fhWeek(a)});}
+  var run=0;for(var j=wk.length-2;j>=0;j--){if(wk[j].w.met>=2)run++;else break;}
+  s+='<div class="panel fh"><div class="fh-h"><b>持續度</b><span>近 8 週</span></div><div class="fhwk">'+wk.map(function(x,i){var cur=i===wk.length-1;return '<span class="fhw m'+x.w.met+(cur?' cur':'')+'"><i></i><small>'+(cur?'本週':shortMD(x.k))+'</small></span>';}).join('')+'</div>'+
+    '<div class="fhleg"><span><i class="m0"></i>0</span><span><i class="m1"></i>1</span><span><i class="m2"></i>2</span><span><i class="m3"></i>3 項達標</span></div>'+
+    '<p class="fhmiss">'+(run?'已經連續 <b>'+run+' 週</b>達標 2 項以上，保持下去。':'先從每週兩次肌力訓練開始，有動就比沒動好。')+'</p></div>';
+  /* 變強了嗎: per muscle group, from each exercise's change over 3 months (or all) */
+  var P=FP_PER.filter(function(x){return x[0]===91;})[0];if(!fpOk(P))P=FP_PER[4];var by={};
+  (W||[]).forEach(function(x){if(x.last<addDays(t,-45))return;var c=fpChange(x.h,P);if(c.pct==null||c.kind==='new'||c.kind==='na')return;var G=FH_GROUPS.filter(function(G){return (G[2]||[G[0]]).indexOf(x.e.part)>=0;})[0];if(!G)return;(by[G[0]]=by[G[0]]||[]).push(c.pct);});
+  var rows=FH_GROUPS.filter(function(G){return by[G[0]];}).map(function(G){var a=by[G[0]].slice().sort(function(p,q){return p-q;}),m=a[Math.floor(a.length/2)],k=m>P[2]?'up':m<-P[2]?'down':'flat';
+    return '<span class="fhs '+k+'">'+cyChip(G[1]).replace('class="cyp ico','class="cyp ico fhic')+'<b>'+G[0]+'<small>'+a.length+' 個動作</small></b><em>'+(Math.round(m)===0?'0%':(m>0?'+':'−')+Math.abs(Math.round(m))+'%')+'</em></span>';});
+  if(rows.length)s+='<div class="panel fh"><div class="fh-h"><b>變強了嗎</b><span>'+(P[0]?'近 '+P[1]:'開始至今')+'</span></div><div class="fhst">'+rows.join('')+'</div><p class="fhsrc">每個部位取它所有動作進步幅度的中間值，不會被單一器材的大起大落帶偏。</p></div>';
+  s+='<button class="linkish fhmore" data-act="fpdetail">'+(ui.fpDetail?'收起每個動作的細節':'看每個動作的進步、有氧和配速 ›')+'</button>';
+  return s;}
 /* tab: progress */
 function fitProgHTML(){
   var t=todayKey(),s='',withData=db.fit.ex.map(function(e){var h=exHist(e.id);return {e:e,h:h,last:h.length?h[h.length-1].k:''};}).filter(function(x){return x.h.length;})
@@ -1487,7 +1528,7 @@ function fitProgHTML(){
     s+='<div class="empty"><div class="empty-t">還沒有重訓紀錄</div><p>到「紀錄」記幾次之後，這裡會畫出每個動作的進步趨勢。</p><button class="primary" data-act="ftab" data-v="log">去記錄</button></div>';
   }else{
     var cur=withData.filter(function(x){return x.e.id===ui.fpx;})[0];
-    if(!cur)return s+fpOverview(withData)+fitPartsHTML()+fitCardioHTML()+fitPaceHTML();
+    if(!cur)return s+fitHealthHTML(withData)+(ui.fpDetail?fpOverview(withData)+fitPartsHTML()+fitCardioHTML()+fitPaceHTML():'');
     var e=cur.e,H=cur.h,u=exU(e),bw=isBW(e),unitTxt=bw?mUnit(e):u,sec=fMode(e)==='s';
     s+='<button class="linkish fpall" data-act="fpall">'+I.left+'所有動作</button><div class="fxsel">'+fPose(e)+'<b class="fxname">'+esc(e.name)+'</b></div>';
     var rg=ui.frange==null?1:ui.frange,days=FRANGES[rg][1],last=H[H.length-1],cut=days?addDays(t,-days):'',data=H.filter(function(h){return !cut||h.k>=cut;}),lastV=last.m;
@@ -2126,7 +2167,7 @@ function obFinish(){
   save();ui.ob=null;ui.date=t;ui.follow=true;go('today');render();
   toast('開始囉！完成就點一下',2400);
 }
-var APP_VER='2026.11.15-3';
+var APP_VER='2026.11.28-1';
 /* 自動備份: copies of the stored data kept on this phone — the 3 latest taken just before an update, one a day for 7 days,
    and the 2 latest taken before a restore. Shown with date and time in 設定 → 資料 → 自動備份. */
 var AUTOK=KEY+'-auto';
@@ -4385,6 +4426,7 @@ function vFaq(){
 }
 /* ---------- 更新紀錄 (newest first; add one line per release) ---------- */
 var CHANGELOG=[
+ ['2026.11.15-3','11/15',['「加到計劃」可以選肌群（例如上胸、中胸）','重訓可以設定「單邊／雙邊」：重量記一邊，訓練量自動 ×2；啞鈴預設單邊','這週訓練的部位圖旁會標 ×N，代表做了幾個動作']],
  ['2026.11.14-3','11/14',['「這週訓練」的部位改成肌肉小圖，建議還沒練的部位用虛線框','伸展排在練過的部位後面，今天那格更乾淨','下方的建議和說明文字放大，比較好讀']],
  ['2026.11.13-1','11/13',['背部新增 3 個啞鈴動作：俯身啞鈴反向飛鳥、窄肘俯身啞鈴划船、啞鈴上拉，都有動作圖']],
  ['2026.11.09-4','11/9',['已完成的運動卡片改成實心框，計劃卡的 ✓ 移到中間','教練語氣在建議都練完後也會出現','修正：今天練過的部位不會再被說成「休息最久」']],
@@ -5097,6 +5139,7 @@ function act(a,b){
     case 'stab': ui.statTab=b.dataset.v;break;
     case 'fpsel': if(!exById(id))return;ui.fpx=id;ui.top=true;break;
     case 'fpall': ui.fpx=null;ui.top=true;break;
+    case 'fpdetail': ui.fpDetail=!ui.fpDetail;break;
     case 'fpper': if(!FP_PER.some(function(x){return x[0]===+b.dataset.v&&fpOk(x);}))return;db.settings.fpPer=+b.dataset.v;save();break;
     case 'fpqhelp': ui.fpQ=!ui.fpQ;break;
     case 'fpstale': ui.fpStale=!ui.fpStale;break;

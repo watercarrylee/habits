@@ -435,7 +435,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   await p.click('[data-act=fctype][data-v=拳擊有氧]'); ok(!(await p.$('#fcdist')) && !!(await p.$('[data-act=fcdisttog]')), 'non-distance custom type: no distance, has toggle');
   await p.click('[data-act=fctype][data-v=健走課]'); ok(!!(await p.$('#fcdist')), 'custom 健走 detected as distance type');
   await p.click('[data-act=fccancel]');
-  await p.click('[data-act=ftab][data-v=prog]');
+  await p.click('[data-act=ftab][data-v=prog]'); { const dtl = await p.$('[data-act=fpdetail]'); if (dtl) await dtl.click(); }
   const pt = await p.$eval('#main', e => e.innerText);
   ok(pt.includes('配速') && pt.includes(`6:00 /km`) && pt.includes('本週距離'), 'progress shows best pace and weekly distance (' + pt.match(/最快配速[^\n]*\n[^\n]*/) + ')');
   ok(!!(await p.$('.chart')), 'pace trend chart drawn');
@@ -1006,7 +1006,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
   {
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { fit: true, onboarded: true }, rewards: [], redeemed: [], logs: {}, habits: [],
       fit: { ex: [], ctypes: [], logs: { [daysAgo(1)]: { c: [{ id: 'c1', type: '跑步機', min: 20 }, { id: 'c2', type: '飛輪', min: 15 }] }, [T]: { c: [{ id: 'c3', type: '跑步機', min: 30 }] }, [daysAgo(20)]: { c: [{ id: 'c4', type: '游泳', min: 40 }] } } } } });
-    await p.click('[data-tab=fit]'); await p.click('[data-act=ftab][data-v=prog]');
+    await p.click('[data-tab=fit]'); await p.click('[data-act=ftab][data-v=prog]'); { const dtl = await p.$('[data-act=fpdetail]'); if (dtl) await dtl.click(); }
     ok((await p.$$('.cbars.n14 .cb')).length === 14 && (await p.$$('.cbars .cb:nth-child(13) .cstack i')).length === 2, 'cardio chart: 14 days, a day with two types stacks two colours');
     const lg = await p.innerText('.clegend'); ok(/跑步機 50 分/.test(lg) && /飛輪 15 分/.test(lg) && !/游泳/.test(lg), 'cardio chart: legend totals per type in range');
     await p.click('[data-act=fcg][data-v=w]'); ok((await p.$$('.cbars.n8 .cb')).length === 8 && /游泳 40 分/.test(await p.innerText('.clegend')), 'cardio chart: weekly view');
@@ -1351,7 +1351,7 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     const logs = {}; logs[daysAgo(0)] = { s: [{ id: 'a1', ex: 'e1', sets: [[40, 10]] }, { id: 'a2', ex: 'e3', sets: [[0, 10]] }] };
     logs[daysAgo(40)] = { s: [{ id: 'a3', ex: 'e2', sets: [[60, 5]] }] }; logs[daysAgo(400)] = { s: [{ id: 'a4', ex: 'e1', sets: [[30, 5]] }] };
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [], fit: { ex, logs, ctypes: [] } } });
-    await p.click('#fitTab'); await p.click('[data-act=ftab][data-v=prog]');
+    await p.click('#fitTab'); await p.click('[data-act=ftab][data-v=prog]'); { const dtl = await p.$('[data-act=fpdetail]'); if (dtl) await dtl.click(); }
     ok((await p.$$('svg.bear')).length === 1 && (await p.$$('.bear-lbl')).length === 9, 'body map: bear front and back with 9 part labels');
     ok(await p.$eval('.bear-lbl[data-v=胸] .bear-c', e => e.textContent) === '1 天', 'body map: chest label counts days this month');
     ok(await p.$eval('.bear-lbl[data-v=背]', e => e.classList.contains('zero')), 'body map: untrained part is greyed');
@@ -1563,7 +1563,10 @@ const done = async (p, name) => { ok(!p.errs.length, name + ': no page errors ' 
     L[daysAgo(60)] = { s: [{ id: 'f', ex: 'e4', sets: [[40, 10]] }] };
     const p = await page(b, { 'habit-tracker-v1': { v: 1, settings: { onboarded: true, fit: true }, habits: [], logs: {}, rewards: [], redeemed: [],
       fit: { ex: [{ id: 'e1', name: '臥推', eq: '槓鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'e2', name: '划船', eq: '槓鈴', part: '背', mode: 'wr', unit: 'kg' }, { id: 'e3', name: '飛鳥', eq: '啞鈴', part: '胸', mode: 'wr', unit: 'kg' }, { id: 'e4', name: '深蹲', eq: '槓鈴', part: '腿', mode: 'wr', unit: 'kg' }], logs: L, ctypes: [] } } });
-    await p.click('#fitTab'); await p.click('[data-act=ftab][data-v=prog]');
+    await p.click('#fitTab'); await p.click('[data-act=ftab][data-v=prog]'); { const dtl = await p.$('[data-act=fpdetail]'); if (dtl) await dtl.click(); }
+    { const ht = await p.innerText('.fh'); ok(/本週健康達標/.test(ht) && /150 分/.test(ht) && /肌力訓練/.test(ht) && /主要肌群/.test(ht) && /這週還沒練/.test(ht), 'health: weekly WHO targets panel');
+      ok(/持續度/.test(await p.innerText('#main')) && (await p.$$('.fhw')).length === 8, 'health: 8-week consistency strip');
+      ok(await p.$eval('.fhs', e => /胸/.test(e.innerText) && /\+\d+%/.test(e.innerText)).catch(() => false), 'health: per-group strength shows a median %'); }
     ok(await p.$eval('.fpt[data-id=e1]', e => e.classList.contains('up') && /↑ 20%/.test(e.innerText)), 'progress: tile shows a 3-month change (+20%)');
     ok(await p.$eval('.fpt[data-id=e2]', e => e.classList.contains('flat')) && await p.$eval('.fpt[data-id=e3]', e => /新/.test(e.innerText)), 'progress: flat and new tiles');
     ok(await p.$eval('[data-act=fpper][data-v="182"]', e => e.disabled) && /紀錄滿 6 個月後/.test(await p.innerText('.fpov')), 'progress: periods longer than your records are greyed out');
